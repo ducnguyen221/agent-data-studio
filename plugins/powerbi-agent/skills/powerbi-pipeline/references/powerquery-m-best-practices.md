@@ -1,6 +1,6 @@
 # Power Query (M) — Best Practices & Techniques (agent reference)
 
-> Nguồn: Microsoft Learn (Power Query best practices, query folding, Value.NativeQuery) + kinh nghiệm KPIM. Agent đọc ở Khâu 1–2 của `pbi-pipeline`.
+> Nguồn: Microsoft Learn (Power Query best practices, query folding, Value.NativeQuery) + kinh nghiệm KPIM. Agent đọc ở Khâu 1–2 của `powerbi-pipeline`.
 
 ## 1. Query Folding — nguyên tắc số 1 về hiệu năng
 **Query folding** = đẩy transform về data source thực thi (SQL native) thay vì kéo hết dữ liệu về engine Power Query. Với **DirectQuery/Dual** BẮT BUỘC fold; với **Import** nên fold tối đa để refresh nhanh.

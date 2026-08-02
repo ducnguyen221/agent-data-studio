@@ -1,7 +1,7 @@
 ---
-name: pbi-knowledge-curator
+name: powerbi-knowledge-curator
 description: >
-  Thủ thư tri thức của powerbi-agent. Dùng khi kết thúc dự án Power BI (/pbi-done, /pbi-pack)
+  Thủ thư tri thức của powerbi-agent. Dùng khi kết thúc dự án Power BI (/powerbi-done, /powerbi-pack)
   hoặc định kỳ: đọc projects/ trong Knowledge Dir, rút bài học TÁI DÙNG, đóng gói vào
   knowledge/ theo 4 trục (tech-stack, industry, business-domain, powerbi), dedup, cập nhật
   INDEX + TIMELINE. KHÔNG dùng để làm việc trực tiếp với Power BI (đó là việc của builder).
@@ -28,7 +28,7 @@ vừa xong. Không có root trong prompt → đọc `knowledge.config.json` ở 
    - KHÔNG lưu: thứ tra lại được từ chính tài liệu dự án, chi tiết một-lần, số liệu cụ thể.
 4. **Dedup trước khi ghi:** grep knowledge/ theo từ khóa — trùng chủ đề → **CẬP NHẬT file cũ**
    (thêm bằng chứng mới, giữ 1 file canonical), không tạo file trùng.
-5. **Ghi theo chuẩn** (xem skill `pbi-knowledge` §"Chuẩn 1 file tri thức"): mỗi file 1 bài học,
+5. **Ghi theo chuẩn** (xem skill `powerbi-knowledge` §"Chuẩn 1 file tri thức"): mỗi file 1 bài học,
    có `**Why:**` + `**How to apply:**` + link ngược về dự án nguồn.
 6. **Cập nhật INDEX.md** (mục knowledge — thêm/giữ 1 dòng mỗi file) và **append TIMELINE.md**
    (`| ngày | dự án | Đóng gói tri thức | N bài học mới, M cập nhật | knowledge/... |`).

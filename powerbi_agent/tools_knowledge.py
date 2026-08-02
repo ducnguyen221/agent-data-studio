@@ -1,6 +1,6 @@
 """Tool Knowledge OS: setup Knowledge Dir (user chỉ định) · project folder · timeline.
 
-Quy trình đầy đủ + luật riêng tư: skill `pbi-knowledge` và ROADMAP §M5.
+Quy trình đầy đủ + luật riêng tư: skill `powerbi-knowledge` và ROADMAP §M5.
 """
 
 import json
@@ -19,7 +19,7 @@ def register(mcp):
         """
         Kiểm tra Knowledge Dir (nơi lưu tri thức dự án NGOÀI repo) đã thiết lập chưa +
         tóm tắt hiện trạng. GỌI TOOL NÀY ĐẦU TIÊN trước mọi quy trình tri thức
-        (/pbi-new, /pbi-scan, /pbi-done, /pbi-pack, /pbi-recall).
+        (/powerbi-new, /powerbi-scan, /powerbi-done, /powerbi-pack, /powerbi-recall).
         """
         root = kn.resolve_root()
         if not root:

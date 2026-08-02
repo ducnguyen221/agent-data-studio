@@ -37,7 +37,7 @@ if isinstance(data, dict) and isinstance(data.get("mcpServers"), dict) and name 
     del data["mcpServers"][name]
     out = json.dumps(data, ensure_ascii=False, indent=2)
     json.loads(out)
-    tmp = path + ".pbi-tmp"
+    tmp = path + ".powerbi-tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         f.write(out + "\n")
     json.load(open(tmp, encoding="utf-8"))
@@ -47,7 +47,7 @@ if isinstance(data, dict) and isinstance(data.get("mcpServers"), dict) and name 
 else:
     print("ABSENT")
 '@
-    $tmpPy = Join-Path $env:TEMP "pbi-remove-mcp.py"
+    $tmpPy = Join-Path $env:TEMP "powerbi-remove-mcp.py"
     Write-Utf8NoBom $tmpPy $py
     $out = & $venvPy $tmpPy $Path $name 2>&1
     Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
@@ -105,8 +105,11 @@ foreach ($root in $hostSkillRoots) {
 if ($Hosts -contains "claude") {
     $cmdDst = Join-Path $env:USERPROFILE ".claude\commands"
     if (Test-Path $cmdDst) {
-        Get-ChildItem $cmdDst -Filter "pbi-*.md" -ErrorAction SilentlyContinue |
-            ForEach-Object { Remove-Item $_.FullName -Force; Info "Xoá lệnh: $($_.Name)" }
+        # Gỡ cả họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*" — gỡ đối xứng với installer.
+        foreach ($pat in @("pbi-*.md", "powerbi-*.md")) {
+            Get-ChildItem $cmdDst -Filter $pat -ErrorAction SilentlyContinue |
+                ForEach-Object { Remove-Item $_.FullName -Force; Info "Xoá lệnh: $($_.Name)" }
+        }
     }
 }
 if ($RemoveVenv) {

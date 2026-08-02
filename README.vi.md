@@ -20,7 +20,7 @@ Tìm hiểu thêm: **[kpim.vn](https://kpim.vn)**.
 Không chỉ là "cầu nối MCP + bảo mật dữ liệu" — repo còn đóng gói sẵn:
 - 🧠 **Quy trình phân tích KPIM** (skill `kpim-analysis`): Research → Key Information (5 mindmap + tài liệu chuẩn) → Planning → Implementation → Monitoring.
 - 📄 **Bộ mẫu tài liệu hóa dữ liệu & phân tích báo cáo**: `PROJECT.md`, `DATA_DICTIONARY.md`, `METRICS_CALCULATION.md`, `DOMAIN_DIMENSION.md`, `REPORTS.md`, `DESIGN.md` + `theme.json`, `Project_Management.xlsx` (6 sheet), 5 mindmap PNG — nhân bản cho dự án mới.
-- 📚 **Tài liệu kỹ thuật** DAX / Power Query (M) / SQL best-practices (nguồn Microsoft Learn) trong `plugins/powerbi-agent/skills/pbi-pipeline/references/`.
+- 📚 **Tài liệu kỹ thuật** DAX / Power Query (M) / SQL best-practices (nguồn Microsoft Learn) trong `plugins/powerbi-agent/skills/powerbi-pipeline/references/`.
 
 Hỗ trợ **Power BI Desktop (local)** · **Power BI Service (cloud)** · **PBIP/PBIR (project files)**.
 Host: **Claude Code · Codex CLI · Google Antigravity** và mọi MCP client stdio.
@@ -36,7 +36,7 @@ Clone https://github.com/ducnguyen221/powerbi-agent vào ~/.mcp/powerbi-mcp rồ
 ```
 
 Agent sẽ: clone → dựng `.venv` → dò ADOMD.NET/TOM (mọi bản SSMS/standalone/GAC) → đăng ký MCP
-vào cả 3 host → copy **4 skill** (`powerbi-mcp`, `pbi-pipeline`, `kpim-analysis`, `pbi-knowledge`) kèm references + templates + 6 lệnh /pbi-*. Cài tay: xem [docs/INSTALL.html](docs/INSTALL.html).
+vào cả 3 host → copy **4 skill** (`powerbi-mcp`, `powerbi-pipeline`, `kpim-analysis`, `powerbi-knowledge`) kèm references + templates + 6 lệnh /powerbi-*. Cài tay: xem [docs/INSTALL.html](docs/INSTALL.html).
 
 ```powershell
 git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
@@ -50,7 +50,7 @@ Yêu cầu: Windows (Power BI Desktop chỉ có trên Windows) · Python 3.11+ �
 ### Hoặc cài dạng plugin (hiện trong trình quản lý plugin của app)
 
 Cùng một `.claude-plugin/marketplace.json` chạy cho **cả Claude Code lẫn Codex** — cài 4 skill +
-6 lệnh `/pbi-*` + agent curator dạng plugin (chưa gồm MCP server; chạy install.ps1 để có 16 tool).
+6 lệnh `/powerbi-*` + agent curator dạng plugin (chưa gồm MCP server; chạy install.ps1 để có 16 tool).
 Antigravity không có plugin store — skill nạp từ thư mục skills.
 
 ```bash
@@ -65,32 +65,32 @@ Chi tiết từng host: [`hosts/`](hosts/) (claude · codex · antigravity).
 ## 🧭 Bắt đầu thế nào — 3 bước
 
 1. **Cài** (lệnh ở trên) → restart host → agent có 16 tool + 4 skill + 6 lệnh.
-2. **`/pbi-setup`** — agent hỏi bạn chỉ định **Knowledge Dir** (folder NGOÀI repo — ưu tiên
+2. **`/powerbi-setup`** — agent hỏi bạn chỉ định **Knowledge Dir** (folder NGOÀI repo — ưu tiên
    knowledge base/Brain có sẵn của bạn) để lưu tri thức dự án. Làm 1 lần.
-3. **`/pbi-new <tên dự án>`** — bắt đầu: agent tự đọc kinh nghiệm cũ → khảo sát → tài liệu hóa →
-   dựng model + báo cáo → `/pbi-done` đóng dự án là tri thức tự đóng gói cho lần sau.
+3. **`/powerbi-new <tên dự án>`** — bắt đầu: agent tự đọc kinh nghiệm cũ → khảo sát → tài liệu hóa →
+   dựng model + báo cáo → `/powerbi-done` đóng dự án là tri thức tự đóng gói cho lần sau.
 
-## ⚡ 6 lệnh (Claude Code; Codex/Antigravity dùng skill `pbi-knowledge` cùng luồng)
+## ⚡ 6 lệnh (Claude Code; Codex/Antigravity dùng skill `powerbi-knowledge` cùng luồng)
 
 | Lệnh | Làm gì |
 |---|---|
-| `/pbi-setup` | Khai báo Knowledge Dir (lần đầu) — nơi lưu TOÀN BỘ tri thức, ngoài repo |
-| `/pbi-new <tên>` | Mở dự án mới: folder riêng + đọc kinh nghiệm cũ + chạy quy trình phân tích |
-| `/pbi-scan <path.pbip>` | Quét TRỌN thiết kế 1 báo cáo: mọi trang + theme + DESIGN.md + catalog |
-| `/pbi-done` | Đóng dự án: checklist bàn giao + distill + timeline + đóng gói tri thức |
-| `/pbi-pack [dự án]` | Đóng gói bài học vào 4 trục: tech-stack · industry · business-domain · powerbi |
-| `/pbi-recall <từ khóa>` | "Đã từng làm gì tương tự?" — tra dự án cũ, bài học, kit tái dùng |
+| `/powerbi-setup` | Khai báo Knowledge Dir (lần đầu) — nơi lưu TOÀN BỘ tri thức, ngoài repo |
+| `/powerbi-new <tên>` | Mở dự án mới: folder riêng + đọc kinh nghiệm cũ + chạy quy trình phân tích |
+| `/powerbi-scan <path.pbip>` | Quét TRỌN thiết kế 1 báo cáo: mọi trang + theme + DESIGN.md + catalog |
+| `/powerbi-done` | Đóng dự án: checklist bàn giao + distill + timeline + đóng gói tri thức |
+| `/powerbi-pack [dự án]` | Đóng gói bài học vào 4 trục: tech-stack · industry · business-domain · powerbi |
+| `/powerbi-recall <từ khóa>` | "Đã từng làm gì tương tự?" — tra dự án cũ, bài học, kit tái dùng |
 
 ## 🔄 Luồng skill & agent (ai làm gì, khi nào)
 
 ```
- /pbi-new ──▶ skill kpim-analysis ──▶ skill pbi-pipeline ──▶ /pbi-done ──▶ agent pbi-knowledge-curator
+ /powerbi-new ──▶ skill kpim-analysis ──▶ skill powerbi-pipeline ──▶ /powerbi-done ──▶ agent powerbi-knowledge-curator
              (NGHIỆP VỤ: khảo sát,     (KỸ THUẬT: 9 khâu       (checklist     (đóng gói bài học 4 trục,
               hỏi ngược, tài liệu       Power Query→model→      + distill      dedup, INDEX, TIMELINE)
               KPIM, kế hoạch)           DAX→trang báo cáo)      + timeline)
                     ▲                          │
                     └── đọc knowledge/ cũ      └── tool MCP (16) + policy 🛡️ + template kit 🎨
- /pbi-recall ◀── INDEX + TIMELINE + knowledge/ ◀────────────────┘  (skill pbi-knowledge = cơ chế chung)
+ /powerbi-recall ◀── INDEX + TIMELINE + knowledge/ ◀────────────────┘  (skill powerbi-knowledge = cơ chế chung)
 ```
 
 - **Skill `powerbi-mcp`** = sổ tay tra cứu 16 tool + luật policy (agent tự tra khi cần).
@@ -171,7 +171,7 @@ claude mcp add powerbi-modeling -s user -- npx -y "@microsoft/powerbi-modeling-m
 | Query DAX + policy, schema discovery, template/PBIR report layer, distill | **powerbi-agent** |
 | Tạo/sửa table/column/measure/relationship, bulk + transaction, TMDL, DAX validate | **powerbi-modeling** (Microsoft) |
 
-## 📐 Quy trình 9 khâu (skill `pbi-pipeline`)
+## 📐 Quy trình 9 khâu (skill `powerbi-pipeline`)
 
 Agent làm dự án Power BI trọn gói theo thứ tự chuẩn, mỗi khâu có cổng kiểm:
 
@@ -180,14 +180,14 @@ Agent làm dự án Power BI trọn gói theo thứ tự chuẩn, mỗi khâu c�
 → 5. Truy vấn tổng hợp (policy gác) → 6+7. Visual & trang báo cáo từ template
 → 8. Nâng cao (tooltip, drill-through, parameters; bookmark để tay) → 9. Artifact + chưng cất tri thức.
 
-Chi tiết: `plugins/powerbi-agent/skills/pbi-pipeline/SKILL.md` (tự cài vào host khi chạy install.ps1).
-Kèm **tài liệu kỹ thuật** (nguồn Microsoft Learn): `plugins/powerbi-agent/skills/pbi-pipeline/references/` — `dax-best-practices.md`, `powerquery-m-best-practices.md`, `sql-best-practices.md`, `gotchas.md`.
+Chi tiết: `plugins/powerbi-agent/skills/powerbi-pipeline/SKILL.md` (tự cài vào host khi chạy install.ps1).
+Kèm **tài liệu kỹ thuật** (nguồn Microsoft Learn): `plugins/powerbi-agent/skills/powerbi-pipeline/references/` — `dax-best-practices.md`, `powerquery-m-best-practices.md`, `sql-best-practices.md`, `gotchas.md`.
 
 ## 📋 Quy trình phân tích KPIM (skill `kpim-analysis`) — tài liệu hóa & chuẩn hóa dữ liệu
 
 Ngoài lớp kỹ thuật, repo đóng gói sẵn **quy trình phân tích KPIM** để agent nhận **một bộ dữ liệu + tài liệu** → tự khảo sát, hỏi ngược người dùng, và sinh ra **bộ tài liệu nghiệp vụ chuẩn hóa** trước khi dựng báo cáo. 5 pha:
 
-**Research** (đọc data + hỏi ngược) → **Key Information** (5 thành phần: Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery) → **Planning** (Excel task 2 cấp) → **Implementation** (bàn giao `pbi-pipeline`) → **Monitoring**.
+**Research** (đọc data + hỏi ngược) → **Key Information** (5 thành phần: Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery) → **Planning** (Excel task 2 cấp) → **Implementation** (bàn giao `powerbi-pipeline`) → **Monitoring**.
 
 Đầu ra chuẩn (thư mục `plugins/powerbi-agent/skills/kpim-analysis/document-templates/`, kèm worked-example "KPIM Mart"):
 
@@ -244,11 +244,11 @@ Chi tiết: `plugins/powerbi-agent/skills/kpim-analysis/SKILL.md`.
 | Skill | Dùng khi | File quan trọng |
 |---|---|---|
 | [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | **Đầu dự án** — nhận dữ liệu → khảo sát, hỏi ngược, tài liệu hóa, kế hoạch | `document-templates/` (8 mẫu tài liệu + xlsx + theme.json + 5 mindmap) · `scripts/` (generator mindmap/xlsx) |
-| [`pbi-pipeline`](plugins/powerbi-agent/skills/pbi-pipeline/SKILL.md) | **Thực thi kỹ thuật** — 9 khâu Power Query → model → DAX → report | `references/` — dax / powerquery-m / sql best-practices · gotchas · powerbi-knowledge-map |
+| [`powerbi-pipeline`](plugins/powerbi-agent/skills/powerbi-pipeline/SKILL.md) | **Thực thi kỹ thuật** — 9 khâu Power Query → model → DAX → report | `references/` — dax / powerquery-m / sql best-practices · gotchas · powerbi-knowledge-map |
 | [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | **Tra cứu tool** — cách dùng 16 tool + luật policy + phân vai với modeling-mcp | (1 file) |
-| [`pbi-knowledge`](plugins/powerbi-agent/skills/pbi-knowledge/SKILL.md) | **Knowledge OS** — luồng /pbi-* : dự án, đóng gói tri thức 4 trục, timeline, luật riêng tư | (1 file) |
+| [`powerbi-knowledge`](plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md) | **Knowledge OS** — luồng /powerbi-* : dự án, đóng gói tri thức 4 trục, timeline, luật riêng tư | (1 file) |
 
-Plugin còn có [`commands/`](plugins/powerbi-agent/commands/) (6 lệnh /pbi-*) và [`agents/`](plugins/powerbi-agent/agents/) (pbi-knowledge-curator). Các skill link chéo nhau bằng đường dẫn tương đối anh–em (`../<skill>/SKILL.md`) — đúng cả trong repo lẫn sau khi cài vào host.
+Plugin còn có [`commands/`](plugins/powerbi-agent/commands/) (6 lệnh /powerbi-*) và [`agents/`](plugins/powerbi-agent/agents/) (powerbi-knowledge-curator). Các skill link chéo nhau bằng đường dẫn tương đối anh–em (`../<skill>/SKILL.md`) — đúng cả trong repo lẫn sau khi cài vào host.
 
 ### Các folder còn lại
 

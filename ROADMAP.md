@@ -24,7 +24,7 @@ DAX validate. powerbi-agent **delegate** phần đó và tập trung vào 4 vùn
 **Kiến trúc 4 tầng:**
 
 ```
-T4  WORKFLOW & KNOWLEDGE   skill pbi-pipeline · template kits · distill · artifacts
+T4  WORKFLOW & KNOWLEDGE   skill powerbi-pipeline · template kits · distill · artifacts
 T3  POLICY                 aggregate-only · PII blocklist · audit log · row caps
 T2  MCP TOOLS (repo này)   query · schema discovery · PBIR read/write · template · TOM fallback
 T1  DELEGATE               microsoft/powerbi-modeling-mcp (modeling, bulk, TMDL, DAX validate)
@@ -86,7 +86,7 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 ### M3 — Distill + Pipeline skill — ✅ XONG 2026-07-12
 
 - [x] `distill_model_schema` (đích ghi `POWERBI_DISTILL_DIR`/`~/.powerbi-agent/distilled/`) — live PASS trên model 10 bảng/174 measure + Mermaid ERD.
-- [x] Skill **`pbi-pipeline`** 9 khâu (điều phối 2 MCP, cổng kiểm mỗi khâu, 4 artifact, bookmark-để-tay, hỏi PII đầu dự án) — cài cả 3 host, install.ps1 copy mọi skill.
+- [x] Skill **`powerbi-pipeline`** 9 khâu (điều phối 2 MCP, cổng kiểm mỗi khâu, 4 artifact, bookmark-để-tay, hỏi PII đầu dự án) — cài cả 3 host, install.ps1 copy mọi skill.
 - [x] Vòng tri thức: distill_model_schema (model→blueprint) + distill_template (trang đẹp→kit) + bài học→memory.
 
 **UAT (docs/UAT-REPORT.md):** 17 ca PASS trên dashboard thật (.pbip 7 trang + model 174 measure + Desktop live) — 4 defect tìm thấy & sửa trong UAT (deep-sanitize leak, sortDefinition leak, DMV ExplicitDataType, TOM enum map).
@@ -126,7 +126,7 @@ Cấu trúc Knowledge Dir chuẩn (tool tự dựng):
   templates/                  # kit riêng CHƯA sanitize (POWERBI_TEMPLATES_DIR trỏ vào đây)
 ```
 
-- **Setup bắt buộc lần đầu**: command `/pbi-setup` hỏi user chỉ định folder (ưu tiên Brain/knowledge
+- **Setup bắt buộc lần đầu**: command `/powerbi-setup` hỏi user chỉ định folder (ưu tiên Brain/knowledge
   base có sẵn; không có thì đề xuất tạo `~/powerbi-knowledge/`) → ghi `knowledge.config.json`
   (gitignored) → dựng skeleton + INDEX. Chưa setup mà chạy quy trình tri thức → agent DỪNG và hỏi.
 - Mọi file agent tạo trong dự án mặc định lưu vào `projects/<slug>/` — user muốn chuyển đi đâu
@@ -141,39 +141,39 @@ Hiện có: `distill_model_schema` (model) + `distill_template` (1 trang → kit
   + RegisteredResources → trích `theme.json` dùng lại được), `report.json` settings,
   tổng hợp `DESIGN.md` (palette/font/canvas/pattern nhận diện được) + `REPORT_CATALOG.md`
   (Report → Page → Visual). Kết hợp distill_model_schema = trọn bộ hồ sơ thiết kế 1 project.
-- [x] Command `/pbi-scan <path .pbip>` — chạy trọn: scan design + model → ghi `projects/<slug>/design/`.
+- [x] Command `/powerbi-scan <path .pbip>` — chạy trọn: scan design + model → ghi `projects/<slug>/design/`.
 - [x] Tư vấn lưu template ĐỒNG BỘ: KHÔNG commit cả .pbip vào repo (nặng + lộ nghiệp vụ);
   chuẩn = kit per-page sanitize → `report-templates/` repo, còn **full project + kit thô → Knowledge Dir**.
 
 #### 5.2 Quy trình #2 — Project Management (`projects/`)
 
-- [x] Command `/pbi-new` (đổi tên gọn từ /pbi-project init <tên>` → dựng `projects/<slug>/` theo skeleton + đăng ký INDEX/TIMELINE.
-- [x] Skill `pbi-knowledge` (mới): luật "làm việc qua MCP này = có project folder"; mọi tài liệu
+- [x] Command `/powerbi-new` (đổi tên gọn từ /powerbi-project init <tên>` → dựng `projects/<slug>/` theo skeleton + đăng ký INDEX/TIMELINE.
+- [x] Skill `powerbi-knowledge` (mới): luật "làm việc qua MCP này = có project folder"; mọi tài liệu
   KPIM (kpim-analysis) ghi thẳng vào đây; cuối dự án bắt buộc HANDOFF + distill.
-- [x] `/pbi-done` (đổi tên gọn từ /pbi-project close) → checklist đóng dự án: đủ 4 artifact? design/ đã distill? bài học đã
+- [x] `/powerbi-done` (đổi tên gọn từ /powerbi-project close) → checklist đóng dự án: đủ 4 artifact? design/ đã distill? bài học đã
   rút? → đề xuất trang đẹp nào đáng `distill_template` thành kit (sanitize → repo, thô → riêng).
 - [x] Reference chéo: PROJECT.md ↔ kit đã sinh ↔ knowledge/ entry ↔ TIMELINE — bằng relative link.
 
 #### 5.3 Quy trình #3 — Đóng gói tri thức theo 4 trục
 
-- [x] Agent **`pbi-knowledge-curator`** (định nghĩa trong `plugins/powerbi-agent/agents/`):
+- [x] Agent **`powerbi-knowledge-curator`** (định nghĩa trong `plugins/powerbi-agent/agents/`):
   đọc projects/ mới hoàn thành hoặc theo chu kỳ → rút bài học TÁI DÙNG → phân loại vào
   `knowledge/{tech-stack, industry, business-domain, powerbi}/` — dedup (cập nhật file cũ
   thay vì tạo trùng), mỗi bài học có **Why + How to apply**, cập nhật INDEX.
-- [x] Command `/pbi-pack` (gọn từ /pbi-knowledge pack [project]` — kích hoạt curator cho 1 dự án vừa xong hoặc quét tổng.
+- [x] Command `/powerbi-pack` (gọn từ /powerbi-knowledge pack [project]` — kích hoạt curator cho 1 dự án vừa xong hoặc quét tổng.
 - [x] Khi làm dự án MỚI: kpim-analysis pha Research đọc `knowledge/` khớp domain trước khi hỏi user
   (agent "có kinh nghiệm" thật).
 
 #### 5.4 Quy trình #4 — Timeline tự học
 
 - [x] `TIMELINE.md` chuẩn append-only: `| ngày | dự án | việc | bài học/kit sinh ra | link |`.
-- [ ] Curator tự append khi `pack`; `/pbi-timeline [từ khóa]` để agent tra "đã từng làm gì tương tự".
+- [ ] Curator tự append khi `pack`; `/powerbi-timeline [từ khóa]` để agent tra "đã từng làm gì tương tự".
 
 #### 5.5 Phân vai agent trong Knowledge OS
 
 | Agent | Vai | Nguồn |
 |---|---|---|
-| `pbi-knowledge-curator` | Đóng gói tri thức, dedup, timeline, INDEX | agents/ mới |
+| `powerbi-knowledge-curator` | Đóng gói tri thức, dedup, timeline, INDEX | agents/ mới |
 | Builder (agent chính) | Làm dự án, ghi vào projects/, gọi distill | skills hiện có |
 | Reviewer (Codex) | Đọc knowledge/ + audit khi review | AGENTS.md §4 |
 
@@ -188,7 +188,7 @@ Hiện có: `distill_model_schema` (model) + `distill_template` (1 trang → kit
 ## 4. Definition of Done (v1.0)
 
 1 dự án mẫu chạy trọn 9 khâu: từ CSV nguồn → `.pbip` có model + measures + 2 trang báo cáo
-theo kit + tooltip/drill-through — agent tự chạy qua skill `pbi-pipeline`, **không một dòng dữ liệu
+theo kit + tooltip/drill-through — agent tự chạy qua skill `powerbi-pipeline`, **không một dòng dữ liệu
 thô nào vào context** (audit log chứng minh), đủ 4 artifact bàn giao.
 
 ## 5. Rủi ro đã nhận diện

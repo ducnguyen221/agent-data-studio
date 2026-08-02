@@ -67,7 +67,7 @@ def ensure_skeleton(root: str) -> None:
                 "# INDEX — powerbi-agent Knowledge\n\n"
                 "> Mục lục tri thức. Agent đọc file này ĐẦU TIÊN mỗi khi làm việc "
                 "với Power BI để nạp bối cảnh + kinh nghiệm cũ.\n\n"
-                "## Dự án (projects/)\n\n_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n\n"
+                "## Dự án (projects/)\n\n_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n\n"
                 "## Tri thức đã đóng gói (knowledge/)\n\n"
                 "- `tech-stack/` — bài học theo công nghệ (SQL, M, DAX, nguồn dữ liệu…)\n"
                 "- `industry/` — theo ngành (viễn thông, bán lẻ, ngân hàng…)\n"
@@ -103,7 +103,7 @@ def register_project_in_index(root: str, slug: str, name: str) -> None:
     entry = f"- [{name}](projects/{slug}/PROJECT.md) — khởi tạo {date.today().isoformat()}\n"
     if entry in txt:
         return
-    placeholder = "_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n"
+    placeholder = "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n"
     if placeholder in txt:
         txt = txt.replace(placeholder, entry)
     else:

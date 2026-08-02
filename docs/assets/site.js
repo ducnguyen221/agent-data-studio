@@ -86,7 +86,7 @@
 
 // ===== i18n language toggle =====
 (function(){
-  var KEY='pbi-lang';
+  var KEY='powerbi-lang';
   function cur(){ return localStorage.getItem(KEY) || document.documentElement.getAttribute('data-lang') || 'vi'; }
   function apply(l){
     document.documentElement.setAttribute('data-lang', l);

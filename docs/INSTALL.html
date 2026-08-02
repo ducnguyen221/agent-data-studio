@@ -63,7 +63,7 @@
   <div class="wrap">
     <span class="badge">v0.2 · MIT · Windows</span>
     <h1><span class="pbi">powerbi-agent</span> — AI Agent làm việc trực tiếp với Power BI</h1>
-    <p class="sub">MCP server 16 tool + 4 skill + 6 lệnh /pbi-* (gồm <b>quy trình phân tích KPIM</b> &amp; mẫu tài liệu hóa): truy vấn DAX có <b>chính sách an toàn dữ liệu</b>,
+    <p class="sub">MCP server 16 tool + 4 skill + 6 lệnh /powerbi-* (gồm <b>quy trình phân tích KPIM</b> &amp; mẫu tài liệu hóa): truy vấn DAX có <b>chính sách an toàn dữ liệu</b>,
     dựng <b>trang báo cáo đẹp theo template</b>, và <b>quy trình phân tích end-to-end 9 khâu</b>.
     Hỗ trợ Claude Code · Codex CLI · Google Antigravity.</p>
   </div>
@@ -96,7 +96,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
   <div class="step"><div class="num">1</div><div class="body">Dựng <code>.venv</code> + cài dependencies (rebuild nếu venv copy từ máy khác bị hỏng)</div></div>
   <div class="step"><div class="num">2</div><div class="body">Dò <b>ADOMD.NET + TOM</b> đa phiên bản (SSMS 18–22 / standalone / GAC)</div></div>
   <div class="step"><div class="num">3</div><div class="body">Đăng ký MCP vào <b>cả 3 host</b> (Claude <code>~/.claude.json</code> · Codex <code>config.toml</code> · Antigravity <code>mcp_config.json</code>) — đường dẫn suy từ vị trí thư mục, giữ nguyên server khác, backup <code>.bak</code></div></div>
-  <div class="step"><div class="num">4</div><div class="body">Copy <b>3 skill</b> <code>powerbi-mcp</code> + <code>pbi-pipeline</code> + <code>kpim-analysis</code> (kèm <code>references/</code> + <code>document-templates/</code>) vào từng host</div></div>
+  <div class="step"><div class="num">4</div><div class="body">Copy <b>3 skill</b> <code>powerbi-mcp</code> + <code>powerbi-pipeline</code> + <code>kpim-analysis</code> (kèm <code>references/</code> + <code>document-templates/</code>) vào từng host</div></div>
 </div>
 <table>
   <tr><th>Tham số</th><th>Ý nghĩa</th></tr>
@@ -109,7 +109,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
 <pre><code>claude mcp list        # phải thấy: powerbi-mcp-bridge ... ✔ Connected</code></pre>
 <p>Rồi mở 1 file <code>.pbix</code> bất kỳ trong Power BI Desktop và hỏi agent:</p>
 <pre><code>Liệt kê các báo cáo Power BI đang mở, cho tôi xem danh sách bảng và measure của model.</code></pre>
-<div class="note"><b>Bước tiếp theo (1 lần):</b> gõ <code>/pbi-setup</code> — agent hỏi bạn chỉ định <b>Knowledge Dir</b> (folder NGOÀI repo, ưu tiên Brain/knowledge base có sẵn) để lưu tri thức dự án. Sau đó: <code>/pbi-new</code> mở dự án · <code>/pbi-scan</code> quét thiết kế · <code>/pbi-done</code> đóng · <code>/pbi-pack</code> đóng gói · <code>/pbi-recall</code> gợi nhớ. Danh sách đầy đủ + luồng: README.</div>
+<div class="note"><b>Bước tiếp theo (1 lần):</b> gõ <code>/powerbi-setup</code> — agent hỏi bạn chỉ định <b>Knowledge Dir</b> (folder NGOÀI repo, ưu tiên Brain/knowledge base có sẵn) để lưu tri thức dự án. Sau đó: <code>/powerbi-new</code> mở dự án · <code>/powerbi-scan</code> quét thiết kế · <code>/powerbi-done</code> đóng · <code>/powerbi-pack</code> đóng gói · <code>/powerbi-recall</code> gợi nhớ. Danh sách đầy đủ + luồng: README.</div>
 <p>Agent gọi <span class="tool">list_local_reports</span> → <span class="tool">list_tables</span> →
 <span class="tool">describe_table</span> là cài đặt <span class="ok">thành công</span>.</p>
 
@@ -168,8 +168,8 @@ lần sau tái tạo đúng style đó trên dữ liệu khác.</p>
 <p><b>3 skill</b> tự cài vào host:</p>
 <ul>
   <li><code>powerbi-mcp</code> — hướng dẫn 11 tool.</li>
-  <li><code>pbi-pipeline</code> — quy trình kỹ thuật 9 khâu (kết nối → transform M → model → DAX → truy vấn → visual → trang → nâng cao → artifact, mỗi khâu có cổng kiểm) + <code>references/</code> best-practices DAX/Power Query/SQL (nguồn Microsoft Learn).</li>
-  <li><b><code>kpim-analysis</code></b> — <b>quy trình phân tích KPIM</b>: nhận 1 bộ dữ liệu → tự khảo sát, hỏi ngược người dùng, sinh <b>bộ tài liệu chuẩn hóa</b> (PROJECT.md, DATA_DICTIONARY, METRICS_CALCULATION, DOMAIN_DIMENSION, REPORTS, DESIGN + theme.json, Project_Management.xlsx 6 sheet, 5 mindmap) rồi bàn giao cho <code>pbi-pipeline</code>. Mẫu điền-ngay ở <code>plugins/powerbi-agent/skills/kpim-analysis/document-templates/</code>.</li>
+  <li><code>powerbi-pipeline</code> — quy trình kỹ thuật 9 khâu (kết nối → transform M → model → DAX → truy vấn → visual → trang → nâng cao → artifact, mỗi khâu có cổng kiểm) + <code>references/</code> best-practices DAX/Power Query/SQL (nguồn Microsoft Learn).</li>
+  <li><b><code>kpim-analysis</code></b> — <b>quy trình phân tích KPIM</b>: nhận 1 bộ dữ liệu → tự khảo sát, hỏi ngược người dùng, sinh <b>bộ tài liệu chuẩn hóa</b> (PROJECT.md, DATA_DICTIONARY, METRICS_CALCULATION, DOMAIN_DIMENSION, REPORTS, DESIGN + theme.json, Project_Management.xlsx 6 sheet, 5 mindmap) rồi bàn giao cho <code>powerbi-pipeline</code>. Mẫu điền-ngay ở <code>plugins/powerbi-agent/skills/kpim-analysis/document-templates/</code>.</li>
 </ul>
 
 <h2><span class="n">9</span>Xử lý sự cố</h2>

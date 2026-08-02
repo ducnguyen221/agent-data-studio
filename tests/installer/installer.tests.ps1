@@ -134,7 +134,7 @@ $stale = Join-Path $sk 'powerbi-mcp\STALE-OLD-FILE.md'
 'old' | Set-Content $stale
 $null = Run-Install 'claude'
 $staleSurvives = Test-Path $stale
-$cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
+$cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
 Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq 6) "skills=$n1/4 cmds=$cmds/6 staleSauLan2=$staleSurvives (true=DRIFT)"
 # Nội dung skill, không chỉ số lượng: mẫu tài liệu (trụ 4) phải đi theo skill sang host.
 # Thiếu assertion này thì đổi tên document-templates/ có thể hỏng mà test vẫn xanh.
@@ -143,9 +143,20 @@ $docTpl  = Join-Path $kpim 'document-templates\PROJECT.md'
 $oldTpl  = Join-Path $kpim 'templates'
 Add-Result 'C-skill-content' ((Test-Path $docTpl) -and -not (Test-Path $oldTpl)) `
     "document-templates/PROJECT.md=$(Test-Path $docTpl) folderCu_templates=$(Test-Path $oldTpl) (true=CHUA_DOI_TEN)"
+# Nâng cấp từ bản < 0.5.0: lệnh cũ họ "pbi-*" phải bị dọn, không được để lại 12 lệnh mồ côi.
+$cmdDir = Join-Path $FakeHome '.claude\commands'
+'legacy' | Set-Content (Join-Path $cmdDir 'pbi-new.md')
+'legacy' | Set-Content (Join-Path $cmdDir 'pbi-setup.md')
+$null = Run-Install 'claude'
+$legacyLeft = @(Get-ChildItem $cmdDir -Filter 'pbi-*.md' -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -notlike 'powerbi-*' }).Count
+$newCount = @(Get-ChildItem $cmdDir -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'C-legacy-cmd-cleanup' ($legacyLeft -eq 0 -and $newCount -eq 6) `
+    "lenhCu_pbi_conLai=$legacyLeft (phai=0) lenhMoi=$newCount/6"
+
 $null = Run-Uninstall 'claude'
 $left = @(Get-ChildItem $sk -Directory -ErrorAction SilentlyContinue).Name -join ','
-$cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
+$cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
 Add-Result 'C-uninstall-symmetric' ($left -eq '' -and $cmdsLeft -eq 0) "skillsConLai='$left' cmdsConLai=$cmdsLeft"
 
 if (Test-Path $FakeHome) { Remove-Item $FakeHome -Recurse -Force }  # tự dọn residue

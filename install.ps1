@@ -201,7 +201,7 @@ data.setdefault("mcpServers", {})["powerbi-mcp-bridge"] = {
 out = json.dumps(data, ensure_ascii=False, indent=2)
 json.loads(out)  # validate truoc khi ghi
 import os
-tmp = path + ".pbi-tmp"
+tmp = path + ".powerbi-tmp"
 with open(tmp, "w", encoding="utf-8", newline="\n") as f:
     f.write(out + "\n")
 json.load(open(tmp, encoding="utf-8"))  # validate ban tam
@@ -209,7 +209,7 @@ os.replace(tmp, path)                    # thay the ATOMIC — khong co trang th
 json.load(open(path, encoding="utf-8"))  # validate sau khi ghi
 print("MERGE_OK")
 '@
-    $tmpPy = Join-Path $env:TEMP "pbi-merge-mcp.py"
+    $tmpPy = Join-Path $env:TEMP "powerbi-merge-mcp.py"
     Write-Utf8NoBom $tmpPy $mergePy
     $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1
     Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
@@ -283,7 +283,7 @@ PYTHONUNBUFFERED = "1"
     }
 }
 function Install-Skill([string]$SkillRoot) {
-    # Copy MỌI skill (powerbi-mcp, pbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
+    # Copy MỌI skill (powerbi-mcp, powerbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
     # plugins\powerbi-agent\skills\ (fallback layout cũ skill\ cho bản clone cũ).
     # Copy CẢ thư mục: SKILL.md + references\ + document-templates\ + scripts\ + assets\
     $skillBase = Join-Path $Root "plugins\powerbi-agent\skills"
@@ -304,16 +304,21 @@ function Install-Skill([string]$SkillRoot) {
         }
     }
 
-    # Claude: copy thêm 6 lệnh /pbi-* vào ~/.claude/commands (host khác dùng skill pbi-knowledge)
+    # Claude: copy thêm 6 lệnh /powerbi-* vào ~/.claude/commands (host khác dùng skill powerbi-knowledge)
     if ($SkillRoot -like "*\.claude\skills") {
         $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
         $cmdDst = Join-Path (Split-Path -Parent $SkillRoot) "commands"
         if (Test-Path $cmdSrc) {
             if (-not (Test-Path $cmdDst)) { New-Item -ItemType Directory -Path $cmdDst -Force | Out-Null }
-            # mirror phần lệnh pbi-* (lệnh khác của user giữ nguyên)
-            Get-ChildItem $cmdDst -Filter "pbi-*.md" -ErrorAction SilentlyContinue | Remove-Item -Force
+            # mirror phần lệnh powerbi-* (lệnh khác của user giữ nguyên).
+            # Dọn CẢ họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*": nếu chỉ dọn họ mới
+            # thì người nâng cấp giữ lại 6 lệnh cũ mồ côi -> thấy 12 lệnh, gọi nhầm bản cũ.
+            # -Filter "pbi-*.md" KHÔNG khớp "powerbi-*.md" (phải khớp từ đầu tên) nên cần cả hai.
+            foreach ($pat in @("pbi-*.md", "powerbi-*.md")) {
+                Get-ChildItem $cmdDst -Filter $pat -ErrorAction SilentlyContinue | Remove-Item -Force
+            }
             Copy-Item (Join-Path $cmdSrc "*.md") $cmdDst -Force
-            Info "Commands /pbi-* -> $cmdDst"
+            Info "Commands /powerbi-* -> $cmdDst"
         }
     }
 }

@@ -5,7 +5,7 @@
 
 ## 1. Repo này là gì
 
-**powerbi-agent** = MCP server (16 tool) + 4 skill + 6 lệnh /pbi-* giúp AI Agent làm phân tích dữ liệu
+**powerbi-agent** = MCP server (16 tool) + 4 skill + 6 lệnh /powerbi-* giúp AI Agent làm phân tích dữ liệu
 **end-to-end trên Power BI**: truy vấn DAX qua chính sách an toàn dữ liệu, khám phá/ghi model,
 dựng trang báo cáo theo template kit, quy trình dự án chuẩn hóa, và Knowledge OS (§4b).
 
@@ -14,11 +14,11 @@ powerbi_agent/                  # package MCP server (Python) — query · polic
 mcp_server_powerbi.py           # entrypoint host đăng ký (shim — ĐỪNG đổi tên/di chuyển)
 plugins/powerbi-agent/skills/   # 4 skill dùng chung mọi host (nguồn DUY NHẤT — sửa ở đây)
   kpim-analysis/                #   pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch (+document-templates/ +scripts/)
-  pbi-pipeline/                 #   pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
+  powerbi-pipeline/                 #   pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
   powerbi-mcp/                  #   hướng dẫn dùng 16 tool + luật an toàn dữ liệu
-  pbi-knowledge/                #   Knowledge OS: dự án · tri thức 4 trục · timeline (luồng /pbi-*)
-plugins/powerbi-agent/commands/ # 6 lệnh /pbi-* (installer copy vào ~/.claude/commands)
-plugins/powerbi-agent/agents/   # pbi-knowledge-curator (đóng gói tri thức)
+  powerbi-knowledge/                #   Knowledge OS: dự án · tri thức 4 trục · timeline (luồng /powerbi-*)
+plugins/powerbi-agent/commands/ # 6 lệnh /powerbi-* (installer copy vào ~/.claude/commands)
+plugins/powerbi-agent/agents/   # powerbi-knowledge-curator (đóng gói tri thức)
 .claude-plugin/marketplace.json # DANH MỤC chợ plugin (≠ plugin.json trong plugins/powerbi-agent/
                                 #   = manifest của plugin — 2 tầng chuẩn Claude, không trùng lặp)
 hosts/{claude,codex,antigravity}/  # hướng dẫn đăng ký RIÊNG từng host
@@ -49,7 +49,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1   # venv + ADOMD + đăng
 
 ## 3. Cách agent làm việc với Power BI (luật CỨNG)
 
-1. **Thứ tự skill:** dự án mới → `kpim-analysis` (nghiệp vụ) → `pbi-pipeline` (9 khâu kỹ thuật);
+1. **Thứ tự skill:** dự án mới → `kpim-analysis` (nghiệp vụ) → `powerbi-pipeline` (9 khâu kỹ thuật);
    câu hỏi lẻ → tool trực tiếp theo `powerbi-mcp`.
 2. **Dữ liệu thô ở lại engine** — policy aggregate-only đang enforce ở server: viết DAX tổng hợp
    (SUMMARIZECOLUMNS/TOPN/measure), KHÔNG `EVALUATE 'Bảng'`. Đầu dự án hỏi user cột PII → ghi
@@ -75,13 +75,13 @@ Power BI**. Luật phối hợp:
 - **REPORT** (`*.Report/` PBIR): 1 agent **sở hữu trọn** thư mục này trong 1 lượt làm việc,
   và chỉ khi file .pbip đóng.
 - **Lock convention** (tool-agnostic): trước khi GHI model/report, tạo file
-  `<thư mục dự án>/.pbi-write-lock` nội dung `<tên agent> | <việc> | <timestamp>`; xóa khi xong.
+  `<thư mục dự án>/.powerbi-write-lock` nội dung `<tên agent> | <việc> | <timestamp>`; xóa khi xong.
   Agent khác thấy lock → CHỈ ĐỌC (query/analyze), không ghi, không xóa lock của agent khác.
 
 ### 4.2 Phân vai gợi ý (điều chỉnh theo dự án)
 | Vai | Agent gợi ý | Làm gì |
 |---|---|---|
-| **Orchestrator / Builder** | Claude Code | Chạy kpim-analysis + pbi-pipeline, GHI model & report, giữ lock |
+| **Orchestrator / Builder** | Claude Code | Chạy kpim-analysis + powerbi-pipeline, GHI model & report, giữ lock |
 | **Reviewer / Second-opinion** | Codex | CHỈ ĐỌC: verify measure (`execute_dax_local` đối chiếu số), soi ERD từ `distill_model_schema`, review DAX/page_spec trước khi Builder ghi |
 | **Analyst / Documenter** | Antigravity | Pha kpim-analysis (tài liệu nghiệp vụ, mindmap, kế hoạch), soạn `page_spec` JSON, viết artifact bàn giao |
 
@@ -98,22 +98,22 @@ Mọi vai đều đọc được an toàn đồng thời — tool ĐỌC (list/d
 
 ### 4.4 Checklist khi nhận bàn giao (agent nào cũng vậy)
 1. Đọc `AGENTS.md` này + artifact mới nhất trong thư mục dự án.
-2. `list_local_reports` xác nhận trạng thái Desktop; kiểm tra `.pbi-write-lock`.
+2. `list_local_reports` xác nhận trạng thái Desktop; kiểm tra `.powerbi-write-lock`.
 3. Làm phần việc của vai mình; cập nhật artifact; xóa lock nếu mình tạo.
 
-## 4b. Knowledge OS — dự án, tri thức, timeline (luồng /pbi-*)
+## 4b. Knowledge OS — dự án, tri thức, timeline (luồng /powerbi-*)
 
 Tri thức làm việc sống ở **Knowledge Dir do USER chỉ định NGOÀI repo** (`knowledge.config.json`
-gitignored — mỗi máy tự khai báo). Cơ chế đầy đủ: skill `pbi-knowledge`.
+gitignored — mỗi máy tự khai báo). Cơ chế đầy đủ: skill `powerbi-knowledge`.
 
 | Lệnh (Claude) / luồng (host khác) | Làm gì |
 |---|---|
-| `/pbi-setup` | Hỏi user chỉ định Knowledge Dir (ưu tiên Brain có sẵn) → `setup_knowledge` |
-| `/pbi-new <tên>` | `init_project` + đọc kinh nghiệm cũ + chạy kpim-analysis → pbi-pipeline |
-| `/pbi-scan <path>` | `distill_report_design` — hồ sơ thiết kế trọn báo cáo vào projects/<slug>/design/ |
-| `/pbi-done` | Checklist đóng dự án + distill + `log_timeline` + pack |
-| `/pbi-pack` | Agent `pbi-knowledge-curator` đóng gói bài học 4 trục (dedup, Why/How-to-apply) |
-| `/pbi-recall <từ khóa>` | Tra INDEX/TIMELINE/knowledge — "đã từng làm gì tương tự" |
+| `/powerbi-setup` | Hỏi user chỉ định Knowledge Dir (ưu tiên Brain có sẵn) → `setup_knowledge` |
+| `/powerbi-new <tên>` | `init_project` + đọc kinh nghiệm cũ + chạy kpim-analysis → powerbi-pipeline |
+| `/powerbi-scan <path>` | `distill_report_design` — hồ sơ thiết kế trọn báo cáo vào projects/<slug>/design/ |
+| `/powerbi-done` | Checklist đóng dự án + distill + `log_timeline` + pack |
+| `/powerbi-pack` | Agent `powerbi-knowledge-curator` đóng gói bài học 4 trục (dedup, Why/How-to-apply) |
+| `/powerbi-recall <từ khóa>` | Tra INDEX/TIMELINE/knowledge — "đã từng làm gì tương tự" |
 
 Luật: (1) gọi `knowledge_status` TRƯỚC mọi quy trình tri thức — chưa setup thì DỪNG hỏi user;
 (2) mọi file dự án ghi vào `projects/<slug>/`; (3) Knowledge Dir KHÔNG BAO GIỜ commit;

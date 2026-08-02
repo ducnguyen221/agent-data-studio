@@ -11,5 +11,5 @@ description: Đóng dự án Power BI — checklist bàn giao, distill thiết k
    - [ ] Model blueprint đã distill (`distill_model_schema`)
    - [ ] Trang đẹp được user duyệt → đề xuất `distill_template` thành kit (thô → Knowledge Dir templates/; public → sanitize + duyệt)
 3. `log_timeline(project, "Đóng dự án", <1 câu kết quả>, projects/<slug>/)`.
-4. Chạy luồng /pbi-pack cho dự án này (giao agent `pbi-knowledge-curator` nếu host hỗ trợ subagent, không thì tự làm theo skill `pbi-knowledge` §curator).
+4. Chạy luồng /powerbi-pack cho dự án này (giao agent `powerbi-knowledge-curator` nếu host hỗ trợ subagent, không thì tự làm theo skill `powerbi-knowledge` §curator).
 5. Báo cáo bàn giao ngắn cho user: làm được gì, tri thức mới đóng gói, việc tay còn lại.

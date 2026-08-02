@@ -1,6 +1,6 @@
 # DAX — Best Practices & Techniques (agent reference)
 
-> Nguồn: Microsoft Learn (DAX best practices, Analysis Services, Power BI transform-model) + kinh nghiệm KPIM. Agent đọc file này ở Khâu 4–5 của `pbi-pipeline`.
+> Nguồn: Microsoft Learn (DAX best practices, Analysis Services, Power BI transform-model) + kinh nghiệm KPIM. Agent đọc file này ở Khâu 4–5 của `powerbi-pipeline`.
 
 ## 1. VAR — luôn dùng biến để tránh tính lặp
 Lặp cùng một biểu thức khiến engine tính nhiều lần. Gán vào `VAR` → tính 1 lần, nhanh ~2×, dễ đọc, dễ debug.

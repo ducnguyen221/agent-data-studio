@@ -41,9 +41,9 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 9. **Distill & Knowledge OS:**
    - `distill_report_design(report_path, project?, out_dir?)` — quét TRỌN báo cáo: mọi trang + theme + DESIGN.md + REPORT_CATALOG.md (hồ sơ thiết kế toàn dự án, mặc định vào Knowledge Dir).
    - `knowledge_status()` — GỌI ĐẦU TIÊN trước mọi quy trình tri thức; chưa setup thì hỏi user chỉ định folder.
-   - `setup_knowledge(path)` / `init_project(name)` / `log_timeline(project, event, lesson?, link?)` — thiết lập Knowledge Dir, mở dự án, ghi timeline. Luồng đầy đủ: [`../pbi-knowledge/SKILL.md`](../pbi-knowledge/SKILL.md).
+   - `setup_knowledge(path)` / `init_project(name)` / `log_timeline(project, event, lesson?, link?)` — thiết lập Knowledge Dir, mở dự án, ghi timeline. Luồng đầy đủ: [`../powerbi-knowledge/SKILL.md`](../powerbi-knowledge/SKILL.md).
 
-   - Quy trình dự án trọn gói: pha nghiệp vụ [`../kpim-analysis/SKILL.md`](../kpim-analysis/SKILL.md) → pha kỹ thuật 9 khâu [`../pbi-pipeline/SKILL.md`](../pbi-pipeline/SKILL.md).
+   - Quy trình dự án trọn gói: pha nghiệp vụ [`../kpim-analysis/SKILL.md`](../kpim-analysis/SKILL.md) → pha kỹ thuật 9 khâu [`../powerbi-pipeline/SKILL.md`](../powerbi-pipeline/SKILL.md).
 
 ## Chính sách an toàn dữ liệu (server enforce — không phải chỉ lời nhắc)
 

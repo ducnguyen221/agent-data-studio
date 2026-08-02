@@ -1,5 +1,5 @@
 ---
-name: pbi-pipeline
+name: powerbi-pipeline
 description: >
   Quy trình chuẩn 9 khâu để AI Agent làm phân tích dữ liệu end-to-end trên Power BI —
   từ kết nối Power Query, transform M, mô hình hóa, DAX, đến trang báo cáo hoàn thiện
@@ -8,7 +8,7 @@ description: >
   "xây model + báo cáo", hoặc bất kỳ dự án Power BI trọn gói nào (không chỉ 1 truy vấn lẻ).
 ---
 
-# pbi-pipeline — Agent làm Power BI end-to-end đúng chuẩn
+# powerbi-pipeline — Agent làm Power BI end-to-end đúng chuẩn
 
 Điều phối 2 MCP server theo phân vai (đừng lẫn):
 - **powerbi-agent** (bridge): query DAX có policy, schema discovery, template/PBIR, distill.
@@ -75,7 +75,7 @@ Mỗi dự án sinh đủ 4 artifact (chuẩn OpcOS): **PLAN** (khâu 0 — trư
 (model/report đổi gì) · **VERIFICATION** (cổng kiểm từng khâu + audit log) · **HANDOFF**
 (cách refresh/publish + việc tay còn lại).
 Chưng cất tri thức:
-- `distill_model_schema` + `distill_report_design` → blueprint model + hồ sơ thiết kế vào `projects/<slug>/design/` (Knowledge Dir — cơ chế: [`../pbi-knowledge/SKILL.md`](../pbi-knowledge/SKILL.md)); `log_timeline` ghi mốc; cuối dự án chạy luồng /pbi-done + /pbi-pack.
+- `distill_model_schema` + `distill_report_design` → blueprint model + hồ sơ thiết kế vào `projects/<slug>/design/` (Knowledge Dir — cơ chế: [`../powerbi-knowledge/SKILL.md`](../powerbi-knowledge/SKILL.md)); `log_timeline` ghi mốc; cuối dự án chạy luồng /powerbi-done + /powerbi-pack.
 - Trang báo cáo đẹp được user duyệt → `distill_template` thành kit tái dùng cho dự án sau.
 - Bài học quy trình (bẫy mới, root-cause) → memory của agent.
 
