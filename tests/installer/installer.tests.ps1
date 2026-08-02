@@ -188,7 +188,9 @@ $null = Run-Install 'claude'
 $cfgBefore = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
 $bakBefore = @(Get-ChildItem $FakeHome -Filter '.claude.json.bak.*' -Force -ErrorAction SilentlyContinue).Count
 Remove-Item (Join-Path $FakeHome '.claude\commands\powerbi-help.md') -Force -ErrorAction SilentlyContinue
-$null = & powershell -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'install.ps1') -Hosts claude -Only plugin 2>&1
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    `$env:USERPROFILE='$FakeHome'; `$env:POWERBI_INSTALL_PYTHON='$venvPy';
+    & '$RepoRoot\install.ps1' -Hosts claude -Only plugin" *>&1
 $restored = Test-Path (Join-Path $FakeHome '.claude\commands\powerbi-help.md')
 $cfgAfter = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
 # So sánh nội dung config là VÔ NGHĨA ở đây: đăng ký MCP vốn idempotent (ca A-merge-python đã
@@ -198,9 +200,27 @@ $bakAfter = @(Get-ChildItem $FakeHome -Filter '.claude.json.bak.*' -Force -Error
 Add-Result 'D-only-plugin' ($restored -and $bakAfter -eq $bakBefore -and $cfgBefore -eq $cfgAfter) `
     "lenhDuocPhucHoi=$restored soBanBak=$bakBefore->$bakAfter (phai bang nhau: tang = da dang ky lai MCP)"
 
-# -SkipHosts phải giữ đúng hợp đồng: KHÔNG đụng thư mục host nào (kể cả bước 4).
+# Nâng cấp từ <0.5.0: skill mang tên cũ phải BIẾN MẤT, không được nằm lại thành xác sống —
+# bản cũ chứa bảng định tuyến trỏ tới các lệnh mà chính installer vừa xoá.
 Reset-Home
-$null = & powershell -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'install.ps1') -Hosts claude -SkipVenv -SkipHosts 2>&1
+$skDir = Join-Path $FakeHome '.claude\skills'
+foreach ($old in @('pbi-pipeline','pbi-knowledge')) {
+    New-Item -ItemType Directory -Path (Join-Path $skDir $old) -Force | Out-Null
+    'legacy' | Set-Content (Join-Path $skDir "$old\SKILL.md")
+}
+$null = Run-Install 'claude'
+$zombies = @(Get-ChildItem $skDir -Directory -EA SilentlyContinue | Where-Object { $_.Name -like 'pbi-*' -and $_.Name -notlike 'powerbi-*' }).Count
+$total   = @(Get-ChildItem $skDir -Directory -EA SilentlyContinue).Count
+Add-Result 'D-upgrade-no-zombie-skill' ($zombies -eq 0 -and $total -eq 4) `
+    "skillCu_conLai=$zombies (phai=0) tongSkill=$total/4"
+
+# -SkipHosts phải giữ đúng hợp đồng: KHÔNG đụng thư mục host nào (kể cả bước 4).
+# Gọi trực tiếp nên PHẢI tự set env — Run-Install mới là chỗ set USERPROFILE giả.
+Reset-Home
+$env:USERPROFILE = $FakeHome
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    `$env:USERPROFILE='$FakeHome'; `$env:POWERBI_INSTALL_PYTHON='$venvPy';
+    & '$RepoRoot\install.ps1' -Hosts claude -SkipVenv -SkipHosts" *>&1
 $touched = (Test-Path (Join-Path $FakeHome '.claude\skills')) -or (Test-Path (Join-Path $FakeHome '.claude\commands'))
 Add-Result 'D-skiphosts-contract' (-not $touched) "daDungThuMucHost=$touched (phai=False)"
 

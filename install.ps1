@@ -301,6 +301,13 @@ function Install-Skill([string]$SkillRoot) {
     $skillBase = Join-Path $Root "plugins\powerbi-agent\skills"
     if (-not (Test-Path $skillBase)) { $skillBase = Join-Path $Root "skill" }
     if (-not (Test-Path $skillBase)) { return }
+    # Skill ĐỔI TÊN ở v0.5.0: mirror chỉ xử lý skill CÓ trong nguồn, nên bản cũ nằm lại thành
+    # xác sống. Tệ hơn nhiều so với rác thường: pbi-knowledge/SKILL.md chứa nguyên bảng định tuyến
+    # bảo agent chạy /pbi-setup, /pbi-new... — đúng những lệnh mà chính installer vừa xoá.
+    foreach ($old in @("pbi-pipeline", "pbi-knowledge")) {
+        $p = Join-Path $SkillRoot $old
+        if (Test-Path $p) { Remove-Item $p -Recurse -Force; Info "Xoá skill cũ (<0.5.0): $old" }
+    }
     Get-ChildItem -Path $skillBase -Directory | ForEach-Object {
         $src = Join-Path $_.FullName "SKILL.md"
         if (Test-Path $src) {

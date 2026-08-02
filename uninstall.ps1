@@ -98,6 +98,7 @@ if ($Hosts -contains "codex")       { $hostSkillRoots += (Join-Path $env:USERPRO
 if ($Hosts -contains "antigravity") { $hostSkillRoots += (Join-Path $env:USERPROFILE ".gemini\antigravity\skills") }
 # KHÔNG đặt tên biến lặp là $root: PowerShell không phân biệt hoa/thường nên nó GHI ĐÈ $Root
 # (thư mục repo) và mọi Join-Path $Root phía dưới sẽ trỏ vào ...\.gemini\antigravity\skills\...
+$skillNames += @("pbi-pipeline", "pbi-knowledge")   # tên trước v0.5.0 — gỡ cả bản cũ
 foreach ($skRoot in $hostSkillRoots) {
     foreach ($n in $skillNames) {
         $p = Join-Path $skRoot $n
