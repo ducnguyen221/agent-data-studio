@@ -36,6 +36,30 @@ The bridge. Everything else is worthless without it.
 
 **Flow:** `install.ps1` → restart host → `/powerbi-help` → the agent sees the tools.
 
+#### The 16 tools
+
+| Group | Tool | What it does |
+|---|---|---|
+| **Discover** | `list_local_reports` | Reports open in Desktop (port + model ID) |
+| | `list_tables` | Tables in the model (system tables filtered out) |
+| | `describe_table` | One table's columns + data types + measures |
+| **Query** 🛡️ | `execute_dax_local` | DAX against Desktop — through the data-safety policy |
+| | `execute_dax_service` | DAX against Service (MSAL, token cache) — through the policy |
+| **Write model** | `add_measure_local` | Create/update a measure via TOM |
+| | `add_relationship_local` | Create a Many-to-One relationship via TOM |
+| **Templates** 🎨 | `list_templates` | Available report kits |
+| | `apply_template` | Build a NEW page from a kit — clone-and-rebind, style preserved |
+| | `distill_template` | Distill a polished page into a reusable kit (sanitizable) |
+| **Distill** | `distill_model_schema` | Model → Markdown blueprint + Mermaid ERD |
+| | `distill_report_design` | Scan a whole report: every page + theme + DESIGN + CATALOG |
+| **Knowledge OS** 🧠 | `knowledge_status` | Is the Knowledge Dir set up + current state |
+| | `setup_knowledge` | Set up the user-designated Knowledge Dir (outside the repo) |
+| | `init_project` | Create `projects/<slug>/` + register in INDEX + TIMELINE |
+| | `log_timeline` | Log an event/lesson to TIMELINE.md (append-only) |
+
+> ⚠️ Report writes (`apply_template`, `distill_template`) act on PBIR files on disk — **close the
+> `.pbip` in Power BI Desktop first**, or Desktop will overwrite what the tool just wrote.
+
 ### 1.2 Pillar 2 — Digitized expertise
 
 The biggest and most valuable part of the repo — 30+ files that turn a generic agent into
@@ -45,6 +69,20 @@ someone who works the way an experienced Power BI consultant works.
 |---|---|---|
 | [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | Project start — data in, before touching the model | `document-templates/` (pillar 4) · `scripts/` (generators) |
 | [`powerbi-pipeline`](plugins/powerbi-agent/skills/powerbi-pipeline/SKILL.md) | Building — the 9 technical steps | `references/` — DAX · Power Query M · SQL best practices · gotchas · knowledge map |
+| | | |
+
+**The KPIM analysis process (skill `kpim-analysis`), 5 phases:** Research (read the data, ask back) →
+Key Information (Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery)
+→ Planning (2-level Excel tasks) → Implementation (hand off to `powerbi-pipeline`) → Monitoring.
+
+**The 9-step pipeline (skill `powerbi-pipeline`):** 1 Connect data (Power Query, M parameters) →
+2 Transform M (explicit data types) → 3 Star-schema modelling + relationships → 4 DAX measures
+(verify each) → 5 Aggregated queries (policy-guarded) → 6+7 Visuals & report pages from kits →
+8 Advanced (tooltips, drill-through, parameters) → 9 Artifacts + knowledge distillation.
+
+**Knowledge Dir layout** (auto-created by `setup_knowledge`): `projects/<slug>/` ·
+`knowledge/{tech-stack, industry, business-domain, powerbi}/` · `templates/` (your private kits) ·
+`INDEX.md` · `TIMELINE.md`.
 | [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | Unsure which tool to call | Tool reference + policy rules + split with `powerbi-modeling` |
 | [`powerbi-knowledge`](plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md) | Handling project knowledge | Knowledge OS mechanics, 4-axis packaging, privacy rules |
 

@@ -40,7 +40,11 @@ param(
 )
 
 # -Only plugin: bỏ qua venv + đăng ký MCP, chỉ chạy bước 4 (skill/lệnh/agent).
-if ($Only -eq "plugin") { $SkipVenv = $true; $SkipHosts = $true }
+# KHÔNG overload $SkipHosts: -SkipHosts có hợp đồng riêng ("không đụng thư mục host nào"),
+# nếu dùng chung cờ thì -SkipHosts sẽ vẫn ghi skill/lệnh vào host — sai tài liệu.
+$SkipMcp    = $SkipHosts
+$RunPlugin  = -not $SkipHosts
+if ($Only -eq "plugin") { $SkipVenv = $true; $SkipMcp = $true; $RunPlugin = $true }
 
 $ErrorActionPreference = "Stop"
 $Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -318,6 +322,23 @@ function Install-Skill([string]$SkillRoot) {
 # Nếu chỉ dọn họ mới thì người nâng cấp giữ 6 lệnh cũ mồ côi -> thấy 12 lệnh, gọi nhầm bản cũ.
 # -Filter "pbi-*.md" KHÔNG khớp "powerbi-*.md" (wildcard khớp từ ĐẦU tên) nên phải duyệt cả hai.
 # Lệnh khác của user trong cùng thư mục KHÔNG bị đụng.
+# Xoá MỘT mục theo sổ ghi, an toàn trước sổ ghi rác.
+# Sổ ghi là file text nằm trong thư mục user ghi được, nên phải coi nội dung là KHÔNG tin cậy:
+#  - "powerbi-*.md" đi qua Join-Path vẫn là wildcard hợp lệ -> Remove-Item xoá luôn lệnh riêng
+#    của user, tái tạo đúng cái bug mà sổ ghi sinh ra để chống;
+#  - "..\..\x.md" resolve ra NGOÀI thư mục đích;
+#  - ký tự lạ (tab, "<") làm Test-Path NÉM lỗi, mà $ErrorActionPreference='Stop' -> chết installer.
+function Remove-LedgerEntry([string]$Dir, [string]$Name) {
+    if ([string]::IsNullOrWhiteSpace($Name)) { return }
+    if ($Name -ne [System.IO.Path]::GetFileName($Name) -or $Name -match '[\*\?\[\]]') {
+        Warn "Bỏ qua mục sổ ghi không hợp lệ: $Name"; return
+    }
+    try {
+        $p = Join-Path $Dir $Name
+        if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force }
+    } catch { Warn "Bỏ qua mục sổ ghi không xử lý được: $Name" }
+}
+
 function Install-Commands([string]$CmdDst, [string]$Label) {
     $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
     if (-not (Test-Path $cmdSrc)) { return }
@@ -332,8 +353,7 @@ function Install-Commands([string]$CmdDst, [string]$Label) {
     $prev        = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
     $legacyNames = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
     foreach ($nm in ($prev + $ownNames + $legacyNames | Sort-Object -Unique)) {
-        $p = Join-Path $CmdDst $nm
-        if (Test-Path $p) { Remove-Item $p -Force }
+        Remove-LedgerEntry $CmdDst $nm
     }
     Copy-Item (Join-Path $cmdSrc "*.md") $CmdDst -Force
     Set-Content -Path $ledger -Value $ownNames -Encoding UTF8
@@ -347,17 +367,17 @@ function Install-Agents([string]$AgentDst) {
     if (-not (Test-Path $src)) { return }
     if (-not (Test-Path $AgentDst)) { New-Item -ItemType Directory -Path $AgentDst -Force | Out-Null }
     foreach ($nm in (@(Get-ChildItem $src -Filter "*.md" | ForEach-Object { $_.Name }) + @("pbi-knowledge-curator.md"))) {
-        $p = Join-Path $AgentDst $nm
-        if (Test-Path $p) { Remove-Item $p -Force }
+        Remove-LedgerEntry $AgentDst $nm
     }
     Copy-Item (Join-Path $src "*.md") $AgentDst -Force
     Info "Agent powerbi-knowledge-curator -> $AgentDst"
 }
 
-if ($SkipHosts) {
-    Step "3/4 Đăng ký MCP vào host"; Warn "Bỏ qua đăng ký host (-SkipHosts)."
+Step "3/4 Đăng ký MCP vào host"
+if ($SkipMcp) {
+    if ($Only -eq "plugin") { Info "Bỏ qua đăng ký MCP (-Only plugin)." }
+    else                    { Warn "Bỏ qua đăng ký host (-SkipHosts)." }
 } else {
-    Step "3/4 Đăng ký MCP vào host"
     if ($Hosts -contains "claude")      { Register-Claude }
     if ($Hosts -contains "codex")       { Register-Codex }
     if ($Hosts -contains "antigravity") { Register-Antigravity }
@@ -365,6 +385,9 @@ if ($SkipHosts) {
 
 # ---- Bước 4: skill + lệnh + agent (chạy độc lập được: install.ps1 -Only plugin) ----
 Step "4/4 Cài quy trình (skill + lệnh + agent)"
+if (-not $RunPlugin) {
+    Warn "Bỏ qua cài quy trình (-SkipHosts): không đụng thư mục host nào."
+} else {
 if ($Hosts -contains "claude") {
     $h = Join-Path $env:USERPROFILE ".claude"
     Install-Skill    (Join-Path $h "skills")
@@ -384,6 +407,13 @@ if ($Hosts -contains "antigravity") {
     # ngay trong skill powerbi-knowledge để agent vẫn đọc được quy trình và gọi theo tên.
     $kn = Join-Path $h "skills\powerbi-knowledge"
     if (Test-Path $kn) { Install-Commands (Join-Path $kn "commands") "tham chiếu trong skill" }
+    else {
+        # Im lặng ở đây là tệ nhất: Antigravity không có slash-command nên user không có cách
+        # nào tự phát hiện mình đang thiếu TOÀN BỘ bộ lệnh.
+        Warn "Không thấy skill powerbi-knowledge -> Antigravity KHÔNG nhận được bộ lệnh."
+        Warn "  Chạy lại install.ps1 đầy đủ (không -Only) từ thư mục repo còn nguyên vẹn."
+    }
+}
 }
 
 # ---- Smoke test ----
@@ -396,17 +426,25 @@ if ((-not $SkipVenv) -and (Test-Path $venvPy)) {
     $out = & $venvPy -c $probe 2>&1
     if ($out -match "IMPORTS_OK") { Ok "Thư viện import OK. Server sẵn sàng." } else { Warn "Import có vấn đề:"; Write-Host $out }
 
-    $probe2 = @"
-import sys; sys.path.insert(0, r'$Root')
+    # KHÔNG nội suy $Root vào literal Python: đường dẫn có dấu nháy đơn (C:\Users\Duc's PC\…)
+    # hoặc kết thúc bằng "\" sẽ tạo SyntaxError, probe im lặng thất bại và installer khuyên SAI.
+    # Truyền đường dẫn qua argv thay vì ghép chuỗi.
+    $probe2 = @'
+import sys
+sys.path.insert(0, sys.argv[1])
 from powerbi_agent.tools_template import _load_kits
 from powerbi_agent.knowledge import resolve_root
 print('KITS=%d' % len(_load_kits()))
 print('KNOWLEDGE=%s' % ('yes' if resolve_root() else 'no'))
-"@
-    $out2 = & $venvPy -c $probe2 2>&1
-    if ("$out2" -match "KITS=(\d+)") { Ok "Kit báo cáo dùng được: $($Matches[1])" } else { Warn "Không đọc được kho kit: $out2" }
-    if ("$out2" -match "KNOWLEDGE=yes") { $knowledgeReady = $true; Ok "Knowledge Dir đã thiết lập." }
-    else { Info "Knowledge Dir CHƯA thiết lập (bình thường ở máy mới)." }
+'@
+    $out2 = & $venvPy -c $probe2 $Root 2>&1
+    $probeOk = "$out2" -match "KITS=(\d+)"
+    if ($probeOk) { Ok "Kit báo cáo dùng được: $($Matches[1])" }
+    else { Warn "Không kiểm được kho kit / Knowledge Dir (probe lỗi): $out2" }
+    if ($probeOk) {
+        if ("$out2" -match "KNOWLEDGE=yes") { $knowledgeReady = $true; Ok "Knowledge Dir đã thiết lập." }
+        else { Info "Knowledge Dir CHƯA thiết lập (bình thường ở máy mới)." }
+    }
 }
 
 Write-Host "`n=============================================" -ForegroundColor Green

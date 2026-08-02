@@ -19,9 +19,11 @@ chính user; không tri thức nào của ai bị đẩy lên git.
 
 | Lệnh | Khi nào | Agent làm gì |
 |---|---|---|
+| `/powerbi-help` | Chưa rõ nên dùng gì, hoặc vừa cài xong trên máy mới | Gọi `knowledge_status` + `list_templates` báo trạng thái THẬT → liệt kê 8 lệnh · 4 skill · 16 tool → định tuyến yêu cầu của user vào đúng quy trình |
 | `/powerbi-setup` | Lần đầu, hoặc `knowledge_status` báo chưa setup | HỎI user chỉ định folder NGOÀI repo (**ưu tiên Brain/knowledge base có sẵn**; chưa có → đề xuất `~/powerbi-knowledge`) → `setup_knowledge(path)` |
 | `/powerbi-new <tên>` | Bắt đầu dự án Power BI mới | `init_project(tên)` → nhận đường dẫn `projects/<slug>/` → chạy skill `kpim-analysis` (pha Research **ĐỌC `knowledge/` khớp domain trước khi hỏi user**) — mọi file sinh ra ghi vào folder dự án |
 | `/powerbi-scan <path>` | Có file .pbip/.Report cần lưu hồ sơ thiết kế | `distill_report_design(path, project)` → REPORT_CATALOG + DESIGN + theme/ vào `projects/<slug>/design/`; kèm `distill_model_schema` nếu model đang mở |
+| `/powerbi-kit <path>` | Có báo cáo đẹp muốn TÁI DÙNG thiết kế (khác /powerbi-scan chỉ ghi hồ sơ) | `distill_report_design` để chọn trang → `distill_template(..., sanitize=True)` cho TỪNG trang đáng giữ → gom thành bộ có `theme.json` + README mô tả hệ thiết kế; mặc định ghi vào `templates/` của Knowledge Dir |
 | `/powerbi-done` | Kết thúc dự án | Checklist đóng: đủ 4 artifact? design/ đã quét? → đề xuất trang đẹp đáng `distill_template` thành kit (bản thô → `templates/` của Knowledge Dir; muốn public → sanitize=True + user duyệt) → `log_timeline` → gọi curator đóng gói |
 | `/powerbi-pack [dự án]` | Sau /powerbi-done hoặc định kỳ | Giao agent **`powerbi-knowledge-curator`**: rút bài học TÁI DÙNG từ projects/ → phân loại 4 trục `knowledge/{tech-stack,industry,business-domain,powerbi}/` — **dedup: cập nhật file cũ thay vì tạo trùng**, mỗi bài học có `**Why:**` + `**How to apply:**` → cập nhật INDEX + TIMELINE |
 | `/powerbi-recall [từ khóa]` | "Đã từng làm gì tương tự?" | Đọc `INDEX.md` → `TIMELINE.md` → grep `knowledge/` + `projects/*/PROJECT.md` theo từ khóa → tóm tắt kinh nghiệm liên quan |

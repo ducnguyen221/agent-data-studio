@@ -186,13 +186,53 @@ Add-Result 'D-antigravity-commands' ($agCmds -eq $expectCmds) "lenhTrongSkill=$a
 Reset-Home
 $null = Run-Install 'claude'
 $cfgBefore = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
+$bakBefore = @(Get-ChildItem $FakeHome -Filter '.claude.json.bak.*' -Force -ErrorAction SilentlyContinue).Count
 Remove-Item (Join-Path $FakeHome '.claude\commands\powerbi-help.md') -Force -ErrorAction SilentlyContinue
 $null = & powershell -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'install.ps1') -Hosts claude -Only plugin 2>&1
 $restored = Test-Path (Join-Path $FakeHome '.claude\commands\powerbi-help.md')
 $cfgAfter = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
-Add-Result 'D-only-plugin' ($restored -and $cfgBefore -eq $cfgAfter) `
-    "lenhDuocPhucHoi=$restored configKhongDoi=$($cfgBefore -eq $cfgAfter)"
+# So sánh nội dung config là VÔ NGHĨA ở đây: đăng ký MCP vốn idempotent (ca A-merge-python đã
+# chứng minh), nên dù -Only plugin có chạy nhầm Register-Claude thì file vẫn y hệt. Bằng chứng
+# thật là KHÔNG có file .bak mới — Backup-File đóng dấu mỗi lần đăng ký.
+$bakAfter = @(Get-ChildItem $FakeHome -Filter '.claude.json.bak.*' -Force -ErrorAction SilentlyContinue).Count
+Add-Result 'D-only-plugin' ($restored -and $bakAfter -eq $bakBefore -and $cfgBefore -eq $cfgAfter) `
+    "lenhDuocPhucHoi=$restored soBanBak=$bakBefore->$bakAfter (phai bang nhau: tang = da dang ky lai MCP)"
 
+# -SkipHosts phải giữ đúng hợp đồng: KHÔNG đụng thư mục host nào (kể cả bước 4).
+Reset-Home
+$null = & powershell -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'install.ps1') -Hosts claude -SkipVenv -SkipHosts 2>&1
+$touched = (Test-Path (Join-Path $FakeHome '.claude\skills')) -or (Test-Path (Join-Path $FakeHome '.claude\commands'))
+Add-Result 'D-skiphosts-contract' (-not $touched) "daDungThuMucHost=$touched (phai=False)"
+
+# Gỡ phải ĐỐI XỨNG: Codex prompts + Claude agents cũng phải sạch, không chỉ Claude commands.
+Reset-Home
+$null = Run-Install 'claude'
+$null = Run-Install 'codex'
+$null = Run-Uninstall 'claude'
+$null = Run-Uninstall 'codex'
+$leftPrompts = @(Get-ChildItem (Join-Path $FakeHome '.codex\prompts') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+$leftAgents  = @(Get-ChildItem (Join-Path $FakeHome '.claude\agents') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'D-uninstall-all-hosts' ($leftPrompts -eq 0 -and $leftAgents -eq 0) `
+    "codexPromptsConLai=$leftPrompts claudeAgentsConLai=$leftAgents (deu phai=0)"
+
+# Sổ ghi rác không được xoá lệnh riêng của user, cũng không được giết installer.
+Reset-Home
+$null = Run-Install 'claude'
+$cd = Join-Path $FakeHome '.claude\commands'
+'cua toi' | Set-Content (Join-Path $cd 'powerbi-rieng.md')
+Set-Content (Join-Path $cd '.powerbi-agent-installed.txt') -Value @('powerbi-*.md', '..\..\ngoai-thu-muc.md', 'powerbi-help.md')
+'ngoai' | Set-Content (Join-Path $FakeHome 'ngoai-thu-muc.md')
+$null = Run-Install 'claude'
+$userSafe = Test-Path (Join-Path $cd 'powerbi-rieng.md')
+$outsideSafe = Test-Path (Join-Path $FakeHome 'ngoai-thu-muc.md')
+$stillInstalled = @(Get-ChildItem $cd -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'D-ledger-hostile' ($userSafe -and $outsideSafe -and $stillInstalled -ge $expectCmds) `
+    "lenhRieng=$userSafe fileNgoaiThuMuc=$outsideSafe daCaiLai=$stillInstalled"
+
+# Các ca ở trên cố tình để lại state bẩn (sổ ghi rác, lệnh riêng của user). Dựng lại sạch
+# trước ca gỡ cuối, nếu không nó đo nhầm state của ca trước và đỏ giả.
+Reset-Home
+$null = Run-Install 'claude'
 $null = Run-Uninstall 'claude'
 $left = @(Get-ChildItem $sk -Directory -ErrorAction SilentlyContinue).Name -join ','
 $cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count

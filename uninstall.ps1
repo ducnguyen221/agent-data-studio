@@ -96,27 +96,64 @@ $hostSkillRoots = @()
 if ($Hosts -contains "claude")      { $hostSkillRoots += (Join-Path $env:USERPROFILE ".claude\skills") }
 if ($Hosts -contains "codex")       { $hostSkillRoots += (Join-Path $env:USERPROFILE ".codex\skills") }
 if ($Hosts -contains "antigravity") { $hostSkillRoots += (Join-Path $env:USERPROFILE ".gemini\antigravity\skills") }
-foreach ($root in $hostSkillRoots) {
+# KHÔNG đặt tên biến lặp là $root: PowerShell không phân biệt hoa/thường nên nó GHI ĐÈ $Root
+# (thư mục repo) và mọi Join-Path $Root phía dưới sẽ trỏ vào ...\.gemini\antigravity\skills\...
+foreach ($skRoot in $hostSkillRoots) {
     foreach ($n in $skillNames) {
-        $p = Join-Path $root $n
+        $p = Join-Path $skRoot $n
         if (Test-Path $p) { Remove-Item $p -Recurse -Force; Info "Xoá skill: $p" }
     }
 }
+# Gỡ ĐỐI XỨNG với bước 4 của installer. Installer ghi vào 3 nơi (Claude commands+agents,
+# Codex prompts, và trong skill Antigravity); gỡ mà chỉ dọn Claude thì Codex giữ nguyên 8 lệnh
+# sống nhăn sau khi user tưởng đã gỡ sạch. (Antigravity tự sạch vì lệnh nằm trong skill folder
+# đã bị xoá đệ quy ở trên.)
+function Remove-InstalledFrom([string]$Dir, [string]$SrcDir, [string[]]$Legacy, [string]$What) {
+    if (-not (Test-Path $Dir)) { return }
+    $own = if (Test-Path $SrcDir) { @(Get-ChildItem $SrcDir -Filter "*.md" | ForEach-Object { $_.Name }) } else { @() }
+    $ledger = Join-Path $Dir ".powerbi-agent-installed.txt"
+    $prev = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
+    foreach ($nm in ($prev + $own + $Legacy | Sort-Object -Unique)) {
+        # Cùng lý do như installer: sổ ghi là file user ghi được, coi nội dung là KHÔNG tin cậy.
+        if ([string]::IsNullOrWhiteSpace($nm)) { continue }
+        if ($nm -ne [System.IO.Path]::GetFileName($nm) -or $nm -match '[\*\?\[\]]') {
+            Warn "Bỏ qua mục sổ ghi không hợp lệ: $nm"; continue
+        }
+        try {
+            $p = Join-Path $Dir $nm
+            if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force; Info "Xoá ${What}: $nm" }
+        } catch { Warn "Bỏ qua mục sổ ghi không xử lý được: $nm" }
+    }
+    if (Test-Path $ledger) { Remove-Item $ledger -Force }
+}
+
+# Lấy lại gốc repo từ $PSScriptRoot chứ KHÔNG dùng $Root: các vòng lặp phía trên có thể đã ghi đè
+# $Root (PowerShell không phân biệt hoa/thường với tên biến), và lỗi đó im lặng — $own rỗng thì
+# hàm gỡ vẫn chạy, chỉ là không xoá gì.
+$RepoDir     = $PSScriptRoot
+$cmdSrcDir   = Join-Path $RepoDir "plugins\powerbi-agent\commands"
+$agentSrcDir = Join-Path $RepoDir "plugins\powerbi-agent\agents"
+if (-not (Test-Path $agentSrcDir)) { Warn "Không thấy $agentSrcDir — bỏ qua gỡ agent." }
+$legacyCmds = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
+
+if ($Hosts -contains "codex") {
+    Remove-InstalledFrom (Join-Path $env:USERPROFILE ".codex\prompts") $cmdSrcDir $legacyCmds "lệnh"
+}
 if ($Hosts -contains "claude") {
+    # Gỡ agent bằng danh sách tên tường minh — chỉ có đúng 1 agent, và cách này không phụ thuộc
+    # vào việc suy tên từ thư mục repo (đã có lần hỏng im lặng vì biến gốc repo bị ghi đè).
+    $agentDst = Join-Path $env:USERPROFILE ".claude\agents"
+    if (Test-Path $agentDst) {
+        foreach ($nm in @("powerbi-knowledge-curator.md", "pbi-knowledge-curator.md")) {
+            $p = Join-Path $agentDst $nm
+            if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force; Info "Xoá agent: $nm" }
+        }
+        $agLedger = Join-Path $agentDst ".powerbi-agent-installed.txt"
+        if (Test-Path $agLedger) { Remove-Item $agLedger -Force }
+    }
     $cmdDst = Join-Path $env:USERPROFILE ".claude\commands"
     if (Test-Path $cmdDst) {
-        # Gỡ đối xứng với installer: chỉ những file THUỘC repo (suy từ manifest) + họ tên cũ
-        # trước v0.5.0. KHÔNG wildcard "powerbi-*.md" — sẽ xoá luôn lệnh riêng của user.
-        $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
-        $own = if (Test-Path $cmdSrc) { @(Get-ChildItem $cmdSrc -Filter "*.md" | ForEach-Object { $_.Name }) } else { @() }
-        $legacy = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
-        $ledger = Join-Path $cmdDst ".powerbi-agent-installed.txt"
-        $prev = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
-        foreach ($nm in ($prev + $own + $legacy | Sort-Object -Unique)) {
-            $p = Join-Path $cmdDst $nm
-            if (Test-Path $p) { Remove-Item $p -Force; Info "Xoá lệnh: $nm" }
-        }
-        if (Test-Path $ledger) { Remove-Item $ledger -Force }
+        Remove-InstalledFrom $cmdDst $cmdSrcDir $legacyCmds "lệnh"
     }
 }
 if ($RemoveVenv) {

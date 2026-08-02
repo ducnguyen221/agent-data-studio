@@ -120,9 +120,11 @@ gitignored — mỗi máy tự khai báo). Cơ chế đầy đủ: skill `powerb
 
 | Lệnh (Claude) / luồng (host khác) | Làm gì |
 |---|---|
+| `/powerbi-help` | Liệt kê lệnh/skill/16 tool + **bảng định tuyến** "user nói gì thì chạy gì" |
 | `/powerbi-setup` | Hỏi user chỉ định Knowledge Dir (ưu tiên Brain có sẵn) → `setup_knowledge` |
 | `/powerbi-new <tên>` | `init_project` + đọc kinh nghiệm cũ + chạy kpim-analysis → powerbi-pipeline |
 | `/powerbi-scan <path>` | `distill_report_design` — hồ sơ thiết kế trọn báo cáo vào projects/<slug>/design/ |
+| `/powerbi-kit <path>` | Chưng cất 1 file .pbip thành **BỘ** kit tái dùng (nhiều trang + theme chung) |
 | `/powerbi-done` | Checklist đóng dự án + distill + `log_timeline` + pack |
 | `/powerbi-pack` | Agent `powerbi-knowledge-curator` đóng gói bài học 4 trục (dedup, Why/How-to-apply) |
 | `/powerbi-recall <từ khóa>` | Tra INDEX/TIMELINE/knowledge — "đã từng làm gì tương tự" |

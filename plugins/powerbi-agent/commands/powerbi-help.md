@@ -16,7 +16,7 @@ Chạy `knowledge_status` và `list_templates`, rồi báo trạng thái thật:
 - Knowledge Dir đã setup chưa → **chưa** thì việc đầu tiên là `/powerbi-setup`.
 - Có bao nhiêu kit dùng được.
 
-## 7 lệnh
+## 8 lệnh
 
 | Lệnh | Dùng khi | Kết quả |
 |---|---|---|
@@ -73,4 +73,7 @@ Chạy `knowledge_status` và `list_templates`, rồi báo trạng thái thật:
 2. **Dữ liệu thô không rời engine** — policy chặn dump cả bảng ở phía server, không phải gợi ý
    trong prompt. Muốn tắt: `POWERBI_AGGREGATE_ONLY=0` (và tự chịu trách nhiệm).
 
-Chi tiết đầy đủ: [`INDEX.md`](../../../INDEX.md) · luật làm việc: [`AGENTS.md`](../../../AGENTS.md).
+Chi tiết đầy đủ: [INDEX.md](https://github.com/ducnguyen221/powerbi-agent/blob/main/INDEX.md) ·
+luật làm việc: [AGENTS.md](https://github.com/ducnguyen221/powerbi-agent/blob/main/AGENTS.md).
+*(URL tuyệt đối có chủ đích — file này được copy sang `~/.claude/commands/`, `~/.codex/prompts/`…
+nên link tương đối sẽ trỏ vào thư mục lung tung của người dùng.)*
