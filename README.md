@@ -150,7 +150,7 @@ fields and it looks great.** `apply_template` turns that rule into code: it keep
 A kit is a git-friendly text folder:
 
 ```
-templates/kpim-business-light/     # bundled sample kit (sanitized)
+report-templates/kpim-business-light/   # bundled sample kit (sanitized)
   kit.json          # meta: canvas, blocks, roles
   blueprint.md      # source page map: 30 visuals, positions, bindings
   blocks/*.json     # verbatim visual.json per type (KPI card, combo chart, pivot, slicer, map…)
@@ -195,7 +195,7 @@ before building any report. 5 phases:
 Metrics & Dimensions · Result & Delivery) → **Planning** (2-level Excel tasks) → **Implementation** (hand off to
 `pbi-pipeline`) → **Monitoring**.
 
-Standard output (folder `plugins/powerbi-agent/skills/kpim-analysis/templates/`, with a worked "KPIM Mart" example):
+Standard output (folder `plugins/powerbi-agent/skills/kpim-analysis/document-templates/`, with a worked "KPIM Mart" example):
 
 ```
 PROJECT.md              # Key Information summary (5 tables + mindmap)
@@ -250,7 +250,7 @@ Details: `plugins/powerbi-agent/skills/kpim-analysis/SKILL.md`.
 
 | Skill | Use when | Key files |
 |---|---|---|
-| [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | **Project start** — data in → survey, ask, document, plan | `templates/` (8 doc templates + xlsx + theme.json + 5 mindmaps) · `scripts/` (mindmap/xlsx generators) |
+| [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | **Project start** — data in → survey, ask, document, plan | `document-templates/` (8 doc templates + xlsx + theme.json + 5 mindmaps) · `scripts/` (mindmap/xlsx generators) |
 | [`pbi-pipeline`](plugins/powerbi-agent/skills/pbi-pipeline/SKILL.md) | **Technical execution** — 9 steps Power Query → model → DAX → report | `references/` — dax / powerquery-m / sql best-practices · gotchas · powerbi-knowledge-map |
 | [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | **Tool reference** — how to use the 16 tools + policy rules + role split with modeling-mcp | (1 file) |
 | [`pbi-knowledge`](plugins/powerbi-agent/skills/pbi-knowledge/SKILL.md) | **Knowledge OS** — the /pbi-* flow: projects, 4-axis packaging, timeline, privacy rules | (1 file) |
@@ -263,7 +263,7 @@ The plugin also has [`commands/`](plugins/powerbi-agent/commands/) (6 `/pbi-*` c
 |---|---|
 | [`.claude-plugin/`](.claude-plugin/marketplace.json) | Marketplace manifest — install skills as a plugin: `claude plugin marketplace add ducnguyen221/powerbi-agent` → `claude plugin install powerbi-agent@powerbi-agent` (skills only, no venv/MCP). |
 | [`hosts/`](hosts/) | Per-host registration guides: [`claude/`](hosts/claude/README.md) · [`codex/`](hosts/codex/README.md) · [`antigravity/`](hosts/antigravity/README.md) (with manual config snippets). |
-| [`templates/`](templates/kpim-business-light/README.md) | **Visual report kits** for `apply_template` — `kpim-business-light` (12 sanitized blocks). ≠ `skills/kpim-analysis/templates/` (DOCUMENT templates). |
+| [`report-templates/`](report-templates/kpim-business-light/README.md) | **Visual report-page kits** for `apply_template` — `kpim-business-light` (12 sanitized blocks). |
 | [`scripts/`](scripts/) | Dev utilities: `cli.py` (debug DAX without the MCP: `list`/`tables`/`query`) · `test_mcp_local.py` (connection smoke test) · `build_template_gallery.py`. |
 | [`docs/`](docs/) | GitHub Pages site: `index.html` (landing) + `feature/` `instruction/` `template/` `install/` · [`INSTALL.html`](docs/INSTALL.html) · [`UAT-REPORT.md`](docs/UAT-REPORT.md). |
 | `tests/` + `.github/workflows/` | Unit + installer tests + CI (ruff + pytest, windows-latest). |

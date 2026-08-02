@@ -15,7 +15,6 @@ __pycache__/
 
 # Output tạm khi chạy scripts sinh mindmap/excel trong skill
 out/
-skill/*/scripts/out/
 
 # Tài liệu nội bộ (máy-cá-nhân, client context) — không public
 docs/internal/

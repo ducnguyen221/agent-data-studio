@@ -13,7 +13,7 @@ dựng trang báo cáo theo template kit, quy trình dự án chuẩn hóa, và 
 powerbi_agent/                  # package MCP server (Python) — query · policy · TOM · PBIR · distill
 mcp_server_powerbi.py           # entrypoint host đăng ký (shim — ĐỪNG đổi tên/di chuyển)
 plugins/powerbi-agent/skills/   # 4 skill dùng chung mọi host (nguồn DUY NHẤT — sửa ở đây)
-  kpim-analysis/                #   pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch (+templates/ +scripts/)
+  kpim-analysis/                #   pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch (+document-templates/ +scripts/)
   pbi-pipeline/                 #   pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
   powerbi-mcp/                  #   hướng dẫn dùng 16 tool + luật an toàn dữ liệu
   pbi-knowledge/                #   Knowledge OS: dự án · tri thức 4 trục · timeline (luồng /pbi-*)
@@ -22,7 +22,7 @@ plugins/powerbi-agent/agents/   # pbi-knowledge-curator (đóng gói tri thức)
 .claude-plugin/marketplace.json # DANH MỤC chợ plugin (≠ plugin.json trong plugins/powerbi-agent/
                                 #   = manifest của plugin — 2 tầng chuẩn Claude, không trùng lặp)
 hosts/{claude,codex,antigravity}/  # hướng dẫn đăng ký RIÊNG từng host
-templates/                      # template kit VISUAL báo cáo cho apply_template (≠ templates tài liệu trong kpim-analysis)
+report-templates/               # kit VISUAL trang báo cáo (PBIR) cho apply_template
 scripts/                        # tiện ích dev: cli.py (debug DAX không cần MCP) · test_mcp_local.py (smoke test)
 docs/                           # website Pages: landing + feature/ instruction/ template/ install/ · INSTALL.html · UAT-REPORT.md
 install.ps1                     # cài in-place: venv + dò ADOMD/TOM + đăng ký CẢ 3 host + copy skill

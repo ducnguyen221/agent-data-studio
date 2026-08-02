@@ -136,6 +136,13 @@ $null = Run-Install 'claude'
 $staleSurvives = Test-Path $stale
 $cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
 Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq 6) "skills=$n1/4 cmds=$cmds/6 staleSauLan2=$staleSurvives (true=DRIFT)"
+# Nội dung skill, không chỉ số lượng: mẫu tài liệu (trụ 4) phải đi theo skill sang host.
+# Thiếu assertion này thì đổi tên document-templates/ có thể hỏng mà test vẫn xanh.
+$kpim    = Join-Path $sk 'kpim-analysis'
+$docTpl  = Join-Path $kpim 'document-templates\PROJECT.md'
+$oldTpl  = Join-Path $kpim 'templates'
+Add-Result 'C-skill-content' ((Test-Path $docTpl) -and -not (Test-Path $oldTpl)) `
+    "document-templates/PROJECT.md=$(Test-Path $docTpl) folderCu_templates=$(Test-Path $oldTpl) (true=CHUA_DOI_TEN)"
 $null = Run-Uninstall 'claude'
 $left = @(Get-ChildItem $sk -Directory -ErrorAction SilentlyContinue).Name -join ','
 $cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count

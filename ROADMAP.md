@@ -79,8 +79,8 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 - [x] `apply_template(report_path, kit_dir, page_spec)` — clone-and-rebind thành code; đăng ký pages.json; bỏ parentGroupName/expansionStates; cảnh báo file-đóng trong output.
 - [x] `distill_template(report_path, page, out_dir, sanitize)` — trang → kit (1 block giàu style nhất/loại + blueprint 100% visual + _page.json + kit.json).
 - [x] Kit format v1 = `kit.json` + `blueprint.md` + `blocks/*.json` + `_page.json` (JSON thay YAML — zero dep; preview.png để sau).
-- [x] Kit đầu tiên `templates/kpim-business-light` — distill từ trang chuẩn thật 30 visual, 12 loại block (card refLabel + conditional color, combo chart, pivot, slicer, map…), ĐÃ sanitize.
-- [x] `list_templates()` (repo templates/ + env `POWERBI_TEMPLATES_DIR`).
+- [x] Kit đầu tiên `report-templates/kpim-business-light` — distill từ trang chuẩn thật 30 visual, 12 loại block (card refLabel + conditional color, combo chart, pivot, slicer, map…), ĐÃ sanitize.
+- [x] `list_templates()` (repo report-templates/ + env `POWERBI_TEMPLATES_DIR`).
 - Dời sau: `read_report_structure` (blueprint của distill đã cover nhu cầu đọc), validate field-tồn-tại-trong-model trước khi bind (làm được qua describe_table thủ công trong pipeline).
 
 ### M3 — Distill + Pipeline skill — ✅ XONG 2026-07-12
@@ -143,7 +143,7 @@ Hiện có: `distill_model_schema` (model) + `distill_template` (1 trang → kit
   (Report → Page → Visual). Kết hợp distill_model_schema = trọn bộ hồ sơ thiết kế 1 project.
 - [x] Command `/pbi-scan <path .pbip>` — chạy trọn: scan design + model → ghi `projects/<slug>/design/`.
 - [x] Tư vấn lưu template ĐỒNG BỘ: KHÔNG commit cả .pbip vào repo (nặng + lộ nghiệp vụ);
-  chuẩn = kit per-page sanitize → `templates/` repo, còn **full project + kit thô → Knowledge Dir**.
+  chuẩn = kit per-page sanitize → `report-templates/` repo, còn **full project + kit thô → Knowledge Dir**.
 
 #### 5.2 Quy trình #2 — Project Management (`projects/`)
 

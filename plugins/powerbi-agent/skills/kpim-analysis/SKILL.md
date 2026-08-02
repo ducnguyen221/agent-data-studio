@@ -31,7 +31,7 @@ Bộ quy trình + template biến AI Agent thành **chuyên gia phân tích dữ
 Requirements · Analytics Questions · Data Required · Metrics & Dimensions · Result & Delivery.
 **Đầu ra:**
 - `PROJECT.md` — mỗi thành phần 1 bảng chuẩn hóa + mindmap mermaid.
-- **5 mindmap ảnh** (`templates/mindmaps/`): key_objectives, key_questions, key_data_dictionary, key_analysis, key_report → sinh bằng `scripts/generate_mindmaps.py` (graphviz, font "DejaVu Sans" render tiếng Việt; render vào ./out rồi copy).
+- **5 mindmap ảnh** (`document-templates/mindmaps/`): key_objectives, key_questions, key_data_dictionary, key_analysis, key_report → sinh bằng `scripts/generate_mindmaps.py` (graphviz, font "DejaVu Sans" render tiếng Việt; render vào ./out rồi copy).
 - File chi tiết: `DATA_DICTIONARY.md`, `METRICS_CALCULATION.md`, `DOMAIN_DIMENSION.md`, `REPORTS.md`.
 - `PROJECT.docx` — Word proposal (từ `PROJECT.md` + gộp 5 mindmap; dùng python-docx).
 - ✅ Cổng kiểm: PROJECT.md đủ 5 bảng + 5 mindmap + Word; user duyệt.
@@ -48,7 +48,7 @@ Bàn giao cho **`pbi-pipeline` 9 khâu** (Power Query → M → star schema + Da
 ### Pha 4 — MONITORING
 Tiến độ, bàn giao, cảnh báo, đào tạo, mở rộng.
 
-## Bộ template (thư mục `templates/`)
+## Bộ mẫu tài liệu (thư mục `document-templates/`)
 `PROJECT.md` · `RESEARCH_NOTES.md` · `DATA_DICTIONARY.md` · `METRICS_CALCULATION.md` · `DOMAIN_DIMENSION.md` · `REPORTS.md` · `DESIGN.md` + `theme.json` (theme Power BI import chạy ngay) · `Project_Management.xlsx` (6 sheet) · `mindmaps/*.png`. **Đây là worked-example trên dataset bán lẻ "KPIM Mart"** — agent nhân bản & thay nội dung cho dự án mới.
 
 ## Scripts (`scripts/`)

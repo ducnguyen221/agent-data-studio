@@ -96,7 +96,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
   <div class="step"><div class="num">1</div><div class="body">Dựng <code>.venv</code> + cài dependencies (rebuild nếu venv copy từ máy khác bị hỏng)</div></div>
   <div class="step"><div class="num">2</div><div class="body">Dò <b>ADOMD.NET + TOM</b> đa phiên bản (SSMS 18–22 / standalone / GAC)</div></div>
   <div class="step"><div class="num">3</div><div class="body">Đăng ký MCP vào <b>cả 3 host</b> (Claude <code>~/.claude.json</code> · Codex <code>config.toml</code> · Antigravity <code>mcp_config.json</code>) — đường dẫn suy từ vị trí thư mục, giữ nguyên server khác, backup <code>.bak</code></div></div>
-  <div class="step"><div class="num">4</div><div class="body">Copy <b>3 skill</b> <code>powerbi-mcp</code> + <code>pbi-pipeline</code> + <code>kpim-analysis</code> (kèm <code>references/</code> + <code>templates/</code>) vào từng host</div></div>
+  <div class="step"><div class="num">4</div><div class="body">Copy <b>3 skill</b> <code>powerbi-mcp</code> + <code>pbi-pipeline</code> + <code>kpim-analysis</code> (kèm <code>references/</code> + <code>document-templates/</code>) vào từng host</div></div>
 </div>
 <table>
   <tr><th>Tham số</th><th>Ý nghĩa</th></tr>
@@ -161,7 +161,7 @@ RLS trên model + service principal quyền tối thiểu. Chi tiết kiểm th�
 
 <h2><span class="n">8</span>Quy trình KPIM, Template kit &amp; pipeline 9 khâu</h2>
 <p><b>Luật sắt:</b> không bao giờ để agent tự dựng layout báo cáo từ đầu — luôn
-<span class="tool">apply_template</span> từ kit đã chứng minh (kit mẫu <code>templates/kpim-business-light</code>
+<span class="tool">apply_template</span> từ kit đã chứng minh (kit mẫu <code>report-templates/kpim-business-light</code>
 đi kèm: card KPI + combo chart + pivot + slicer + map, style đầy đủ).</p>
 <p>Trang nào bạn ưng → bảo agent <span class="tool">distill_template</span> đóng thành kit riêng —
 lần sau tái tạo đúng style đó trên dữ liệu khác.</p>
@@ -169,7 +169,7 @@ lần sau tái tạo đúng style đó trên dữ liệu khác.</p>
 <ul>
   <li><code>powerbi-mcp</code> — hướng dẫn 11 tool.</li>
   <li><code>pbi-pipeline</code> — quy trình kỹ thuật 9 khâu (kết nối → transform M → model → DAX → truy vấn → visual → trang → nâng cao → artifact, mỗi khâu có cổng kiểm) + <code>references/</code> best-practices DAX/Power Query/SQL (nguồn Microsoft Learn).</li>
-  <li><b><code>kpim-analysis</code></b> — <b>quy trình phân tích KPIM</b>: nhận 1 bộ dữ liệu → tự khảo sát, hỏi ngược người dùng, sinh <b>bộ tài liệu chuẩn hóa</b> (PROJECT.md, DATA_DICTIONARY, METRICS_CALCULATION, DOMAIN_DIMENSION, REPORTS, DESIGN + theme.json, Project_Management.xlsx 6 sheet, 5 mindmap) rồi bàn giao cho <code>pbi-pipeline</code>. Mẫu điền-ngay ở <code>plugins/powerbi-agent/skills/kpim-analysis/templates/</code>.</li>
+  <li><b><code>kpim-analysis</code></b> — <b>quy trình phân tích KPIM</b>: nhận 1 bộ dữ liệu → tự khảo sát, hỏi ngược người dùng, sinh <b>bộ tài liệu chuẩn hóa</b> (PROJECT.md, DATA_DICTIONARY, METRICS_CALCULATION, DOMAIN_DIMENSION, REPORTS, DESIGN + theme.json, Project_Management.xlsx 6 sheet, 5 mindmap) rồi bàn giao cho <code>pbi-pipeline</code>. Mẫu điền-ngay ở <code>plugins/powerbi-agent/skills/kpim-analysis/document-templates/</code>.</li>
 </ul>
 
 <h2><span class="n">9</span>Xử lý sự cố</h2>

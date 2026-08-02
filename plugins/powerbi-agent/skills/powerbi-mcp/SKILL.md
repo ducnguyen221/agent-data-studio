@@ -35,7 +35,7 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 7. `list_tables(port, model_id)` / `describe_table(port, model_id, table_name)` — khám phá schema (bảng, cột + kiểu, measure + expression) không cần thuộc DMV.
 
 8. **Template kit (report layer — PBIR, file .pbip ĐÓNG):**
-   - `list_templates()` — kit có sẵn (repo `templates/` + env `POWERBI_TEMPLATES_DIR`).
+   - `list_templates()` — kit có sẵn (repo `report-templates/` + env `POWERBI_TEMPLATES_DIR`).
    - `apply_template(report_path, kit_dir, page_spec)` — dựng TRANG MỚI từ kit theo luật clone-and-rebind (giữ style `visualContainerObjects`, chỉ đổi name/position/fields/visualType/title). KHÔNG BAO GIỜ tự dựng layout PBIR từ đầu.
    - `distill_template(report_path, page, out_dir, sanitize?)` — chưng cất trang đẹp thành kit tái dùng; `sanitize=True` TRƯỚC khi chia sẻ/public (xóa tên bảng/cột nghiệp vụ).
 9. **Distill & Knowledge OS:**

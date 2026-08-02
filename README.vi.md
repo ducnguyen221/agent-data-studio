@@ -148,7 +148,7 @@ name/position/fields/visualType/title.
 Kit = thư mục text git-được:
 
 ```
-templates/kpim-business-light/     # kit mẫu đi kèm (đã sanitize)
+report-templates/kpim-business-light/   # kit mẫu đi kèm (đã sanitize)
   kit.json          # meta: canvas, blocks, roles
   blueprint.md      # bản đồ trang mẫu: 30 visual, vị trí, binding
   blocks/*.json     # visual.json VERBATIM mỗi loại (card KPI, combo chart, pivot, slicer, map…)
@@ -189,7 +189,7 @@ Ngoài lớp kỹ thuật, repo đóng gói sẵn **quy trình phân tích KPIM*
 
 **Research** (đọc data + hỏi ngược) → **Key Information** (5 thành phần: Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery) → **Planning** (Excel task 2 cấp) → **Implementation** (bàn giao `pbi-pipeline`) → **Monitoring**.
 
-Đầu ra chuẩn (thư mục `plugins/powerbi-agent/skills/kpim-analysis/templates/`, kèm worked-example "KPIM Mart"):
+Đầu ra chuẩn (thư mục `plugins/powerbi-agent/skills/kpim-analysis/document-templates/`, kèm worked-example "KPIM Mart"):
 
 ```
 PROJECT.md              # tổng hợp Key Information (5 bảng + mindmap)
@@ -243,7 +243,7 @@ Chi tiết: `plugins/powerbi-agent/skills/kpim-analysis/SKILL.md`.
 
 | Skill | Dùng khi | File quan trọng |
 |---|---|---|
-| [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | **Đầu dự án** — nhận dữ liệu → khảo sát, hỏi ngược, tài liệu hóa, kế hoạch | `templates/` (8 mẫu tài liệu + xlsx + theme.json + 5 mindmap) · `scripts/` (generator mindmap/xlsx) |
+| [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | **Đầu dự án** — nhận dữ liệu → khảo sát, hỏi ngược, tài liệu hóa, kế hoạch | `document-templates/` (8 mẫu tài liệu + xlsx + theme.json + 5 mindmap) · `scripts/` (generator mindmap/xlsx) |
 | [`pbi-pipeline`](plugins/powerbi-agent/skills/pbi-pipeline/SKILL.md) | **Thực thi kỹ thuật** — 9 khâu Power Query → model → DAX → report | `references/` — dax / powerquery-m / sql best-practices · gotchas · powerbi-knowledge-map |
 | [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | **Tra cứu tool** — cách dùng 16 tool + luật policy + phân vai với modeling-mcp | (1 file) |
 | [`pbi-knowledge`](plugins/powerbi-agent/skills/pbi-knowledge/SKILL.md) | **Knowledge OS** — luồng /pbi-* : dự án, đóng gói tri thức 4 trục, timeline, luật riêng tư | (1 file) |
@@ -256,7 +256,7 @@ Plugin còn có [`commands/`](plugins/powerbi-agent/commands/) (6 lệnh /pbi-*)
 |---|---|
 | [`.claude-plugin/`](.claude-plugin/marketplace.json) | Marketplace manifest — cài skills dạng plugin: `claude plugin marketplace add ducnguyen221/powerbi-agent` → `claude plugin install powerbi-agent@powerbi-agent` (chỉ skills, không venv/MCP). |
 | [`hosts/`](hosts/) | Hướng dẫn đăng ký RIÊNG từng host: [`claude/`](hosts/claude/README.md) · [`codex/`](hosts/codex/README.md) · [`antigravity/`](hosts/antigravity/README.md) (kèm snippet config tay). |
-| [`templates/`](templates/kpim-business-light/README.md) | **Kit visual báo cáo** cho `apply_template` — `kpim-business-light` (12 block sanitized). ≠ `skills/kpim-analysis/templates/` (mẫu TÀI LIỆU). |
+| [`report-templates/`](report-templates/kpim-business-light/README.md) | **Kit visual trang báo cáo** cho `apply_template` — `kpim-business-light` (12 block sanitized). |
 | [`scripts/`](scripts/) | Tiện ích dev: `cli.py` (debug DAX không cần MCP: `list`/`tables`/`query`) · `test_mcp_local.py` (smoke test kết nối). |
 | [`docs/`](docs/) | Website GitHub Pages: `index.html` (landing) · [`INSTALL.html`](docs/INSTALL.html) (hướng dẫn cài chi tiết — [bản web](https://ducnguyen.vn/powerbi-agent/INSTALL.html)) · [`UAT-REPORT.md`](docs/UAT-REPORT.md) (17 ca UAT trên dashboard thật). |
 | `tests/` + `.github/workflows/` | Unit tests + CI (ruff + pytest, windows-latest). |

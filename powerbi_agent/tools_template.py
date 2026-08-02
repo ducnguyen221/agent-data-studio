@@ -17,7 +17,7 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _template_dirs() -> list[str]:
-    dirs = [os.path.join(_REPO_ROOT, "templates")]
+    dirs = [os.path.join(_REPO_ROOT, "report-templates")]
     env = os.getenv("POWERBI_TEMPLATES_DIR")
     if env:
         dirs.append(env)
@@ -42,7 +42,7 @@ def register(mcp):
 
     @mcp.tool()
     def list_templates() -> str:
-        """Liệt kê các template kit báo cáo có sẵn (repo templates/ + env POWERBI_TEMPLATES_DIR).
+        """Liệt kê các template kit báo cáo có sẵn (repo report-templates/ + env POWERBI_TEMPLATES_DIR).
         Mỗi kit gồm: blocks (visual.json verbatim theo loại), blueprint, page settings, design tokens."""
         kits = _load_kits()
         if not kits:
@@ -196,7 +196,7 @@ def register(mcp):
         Dựng TRANG MỚI vào báo cáo PBIR từ template kit (clone-and-rebind — không dựng layout từ đầu).
         ⚠️ File .pbip phải ĐANG ĐÓNG trong Power BI Desktop (mở + Ctrl+S sẽ đè mất trang mới).
         - report_path: file .pbip, folder *.Report, hoặc folder definition (SẼ GHI vào đây).
-        - kit_dir: thư mục kit (tạo bởi distill_template, hoặc templates/ có sẵn — xem list_templates).
+        - kit_dir: thư mục kit (tạo bởi distill_template, hoặc report-templates/ có sẵn — xem list_templates).
         - page_spec: JSON string:
           {"displayName": "Tên trang", "visuals": [
               {"block": "cardVisual", "x": 30, "y": 100, "z": 1000, "width": 280, "height": 110,

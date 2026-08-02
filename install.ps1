@@ -285,7 +285,7 @@ PYTHONUNBUFFERED = "1"
 function Install-Skill([string]$SkillRoot) {
     # Copy MỌI skill (powerbi-mcp, pbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
     # plugins\powerbi-agent\skills\ (fallback layout cũ skill\ cho bản clone cũ).
-    # Copy CẢ thư mục: SKILL.md + references\ + templates\ + scripts\ + assets\
+    # Copy CẢ thư mục: SKILL.md + references\ + document-templates\ + scripts\ + assets\
     $skillBase = Join-Path $Root "plugins\powerbi-agent\skills"
     if (-not (Test-Path $skillBase)) { $skillBase = Join-Path $Root "skill" }
     if (-not (Test-Path $skillBase)) { return }

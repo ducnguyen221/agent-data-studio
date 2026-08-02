@@ -29,7 +29,7 @@ Installer làm 2 việc:
 }
 ```
 
-2. Copy 4 skill (kèm `references/` + `templates/` + `scripts/`) vào `~/.gemini/antigravity/skills/`.
+2. Copy 4 skill (kèm `references/` + `document-templates/` + `scripts/`) vào `~/.gemini/antigravity/skills/`.
 
 **Restart Antigravity** sau cài để nhận tool + skill.
 

@@ -198,6 +198,39 @@ class TestBackCompat:
         } <= names
 
 
+class TestReportTemplates:
+    """Hồi quy cho lần đổi tên templates/ -> report-templates/.
+
+    Không có mấy test này thì CI vẫn xanh trong khi list_templates/apply_template
+    đã trỏ vào thư mục không tồn tại.
+    """
+
+    def test_repo_kit_dir_is_report_templates(self):
+        from powerbi_agent.tools_template import _template_dirs
+        dirs = _template_dirs()
+        assert any(os.path.basename(d) == "report-templates" for d in dirs)
+        assert not any(os.path.basename(d) == "templates" for d in dirs)
+
+    def test_bundled_kit_is_discoverable(self):
+        from powerbi_agent.tools_template import _load_kits
+        names = {os.path.basename(p) for p, _ in _load_kits()}
+        assert "kpim-business-light" in names
+
+    def test_bundled_kit_manifest_readable(self):
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        kit = os.path.join(repo, "report-templates", "kpim-business-light", "kit.json")
+        assert os.path.isfile(kit)
+        assert json.load(open(kit, encoding="utf-8"))
+
+    def test_document_templates_folder_shipped_with_skill(self):
+        """Mẫu tài liệu (trụ 4) phải nằm TRONG folder skill — installer copy cả thư mục."""
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        skill = os.path.join(repo, "plugins", "powerbi-agent", "skills", "kpim-analysis")
+        assert os.path.isdir(os.path.join(skill, "document-templates"))
+        assert not os.path.isdir(os.path.join(skill, "templates"))
+        assert os.path.isfile(os.path.join(skill, "document-templates", "PROJECT.md"))
+
+
 class TestKnowledge:
     def test_slugify_vietnamese(self):
         from powerbi_agent import knowledge as kn
