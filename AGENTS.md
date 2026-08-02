@@ -5,31 +5,43 @@
 
 ## 1. Repo này là gì
 
-**powerbi-agent** = MCP server (16 tool) + 4 skill + 6 lệnh /powerbi-* giúp AI Agent làm phân tích dữ liệu
+**powerbi-agent** = MCP server (16 tool) + 4 skill + 8 lệnh /powerbi-* giúp AI Agent làm phân tích dữ liệu
 **end-to-end trên Power BI**: truy vấn DAX qua chính sách an toàn dữ liệu, khám phá/ghi model,
 dựng trang báo cáo theo template kit, quy trình dự án chuẩn hóa, và Knowledge OS (§4b).
 
+Repo sắp theo **4 trụ cột giá trị** — nhãn ▸ dưới đây cho biết mỗi nhánh phục vụ trụ nào:
+
 ```
-powerbi_agent/                  # package MCP server (Python) — query · policy · TOM · PBIR · distill
-mcp_server_powerbi.py           # entrypoint host đăng ký (shim — ĐỪNG đổi tên/di chuyển)
-plugins/powerbi-agent/skills/   # 4 skill dùng chung mọi host (nguồn DUY NHẤT — sửa ở đây)
-  kpim-analysis/                #   pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch (+document-templates/ +scripts/)
-  powerbi-pipeline/                 #   pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
-  powerbi-mcp/                  #   hướng dẫn dùng 16 tool + luật an toàn dữ liệu
-  powerbi-knowledge/                #   Knowledge OS: dự án · tri thức 4 trục · timeline (luồng /powerbi-*)
-plugins/powerbi-agent/commands/ # 6 lệnh /powerbi-* (installer copy vào ~/.claude/commands)
-plugins/powerbi-agent/agents/   # powerbi-knowledge-curator (đóng gói tri thức)
-.claude-plugin/marketplace.json # DANH MỤC chợ plugin (≠ plugin.json trong plugins/powerbi-agent/
-                                #   = manifest của plugin — 2 tầng chuẩn Claude, không trùng lặp)
-hosts/{claude,codex,antigravity}/  # hướng dẫn đăng ký RIÊNG từng host
-report-templates/               # kit VISUAL trang báo cáo (PBIR) cho apply_template
-scripts/                        # tiện ích dev: cli.py (debug DAX không cần MCP) · test_mcp_local.py (smoke test)
-docs/                           # website Pages: landing + feature/ instruction/ template/ install/ · INSTALL.html · UAT-REPORT.md
-install.ps1                     # cài in-place: venv + dò ADOMD/TOM + đăng ký CẢ 3 host + copy skill
-tests/ · .github/workflows/     # pytest + ruff, CI windows-latest
+powerbi-agent/
+├─ powerbi_agent/                ▸1  package MCP server (Python) — query · policy · TOM · PBIR · distill
+├─ mcp_server_powerbi.py         ▸1  entrypoint host đăng ký (shim — ĐỪNG đổi tên/di chuyển)
+├─ hosts/{claude,codex,antigravity}/ ▸1  hướng dẫn đăng ký RIÊNG từng host
+├─ policy.example.json           ▸1  mẫu blocklist PII → copy thành policy.json
+│
+├─ plugins/                      ▸2  chuyên môn đã số hóa (cửa vào: plugins/README.md)
+│  └─ powerbi-agent/
+│     ├─ .claude-plugin/plugin.json   manifest plugin (≠ marketplace.json ở gốc — 2 tầng chuẩn)
+│     ├─ skills/                      4 skill dùng chung mọi host (nguồn DUY NHẤT — sửa ở đây)
+│     │  ├─ kpim-analysis/            pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch
+│     │  │  ├─ document-templates/ ▸4    mẫu tài liệu: md + xlsx + theme.json + mindmaps
+│     │  │  └─ scripts/                  generator mindmap / xlsx
+│     │  ├─ powerbi-pipeline/         pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
+│     │  ├─ powerbi-mcp/              hướng dẫn dùng 16 tool + luật an toàn dữ liệu
+│     │  └─ powerbi-knowledge/        Knowledge OS: dự án · tri thức 4 trục · timeline
+│     ├─ commands/                    8 lệnh /powerbi-* (installer copy sang CẢ 3 host)
+│     └─ agents/                      powerbi-knowledge-curator (đóng gói tri thức)
+│
+├─ report-templates/             ▸3  kit VISUAL trang báo cáo (PBIR) cho apply_template
+│  └─ kpim-business-light/           kit mẫu, 12 block đã sanitize
+│
+├─ .claude-plugin/marketplace.json    DANH MỤC chợ plugin (khai báo repo phân phối plugin nào)
+├─ install.ps1 · uninstall.ps1       cài/gỡ in-place: venv + ADOMD/TOM + 3 host + skill/lệnh/agent
+├─ scripts/                          tiện ích dev: cli.py (debug DAX không cần MCP) · test_mcp_local.py
+├─ tests/ · .github/workflows/       pytest + ruff, CI windows-latest
+└─ docs/                             website Pages + docs/plans/ (artifact kế hoạch)
 ```
 
-**INDEX chi tiết từng file:** xem bảng trong [`README.md`](README.md) §"INDEX repo".
+**Bản đồ chi tiết từng file + từ điển thuật ngữ:** [`INDEX.md`](INDEX.md).
 
 ## 2. Cài đặt (agent thực hiện được toàn bộ)
 

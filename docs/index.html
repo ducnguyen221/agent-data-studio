@@ -445,7 +445,7 @@
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div>
         <h3>Knowledge OS — AI giỏi dần <span style="font-size:11px;font-weight:700;color:var(--gold);vertical-align:top">MỚI</span></h3>
-        <p>Mỗi dự án khép lại, AI tự rút bài học vào "bộ nhớ" riêng của bạn (ngoài repo) — dự án sau nó đọc kinh nghiệm cũ trước khi bắt tay. 6 lệnh: /powerbi-setup · new · scan · done · pack · recall.</p>
+        <p>Mỗi dự án khép lại, AI tự rút bài học vào "bộ nhớ" riêng của bạn (ngoài repo) — dự án sau nó đọc kinh nghiệm cũ trước khi bắt tay. 8 lệnh: /powerbi-help · setup · new · scan · kit · done · pack · recall.</p>
         <span class="kbd">knowledge_status · distill_report_design</span>
       </div>
       <div class="feat reveal">
@@ -546,13 +546,46 @@
   </div>
 </section>
 
+<!-- ======= CẤU TRÚC REPO (4 trụ cột) ======= -->
+<section id="cau-truc" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-i18n="vi">Cấu trúc repo</span><span data-i18n="en">Repo structure</span></span>
+      <h2><span data-i18n="vi">Bốn trụ cột, nhìn là thấy nằm ở đâu</span><span data-i18n="en">Four pillars — you can see where each one lives</span></h2>
+      <p class="lead"><span data-i18n="vi">Mỗi nhánh gắn nhãn trụ cột mà nó phục vụ. Bản đồ đầy đủ kèm từ điển thuật ngữ nằm ở <code class="inline">INDEX.md</code> trong repo.</span><span data-i18n="en">Every branch is tagged with the pillar it serves. The full map plus a glossary lives in <code class="inline">INDEX.md</code> in the repo.</span></p>
+    </div>
+    <div class="note reveal" style="overflow-x:auto">
+      <div class="mono" style="line-height:1.85;white-space:pre">powerbi-agent/
+├─ <b>powerbi_agent/</b>            <span style="color:var(--accent)">▸1 MCP Server</span>  14 module Python — 16 tool + policy an toàn dữ liệu
+├─ <b>hosts/</b>                    <span style="color:var(--accent)">▸1</span>  hướng dẫn đăng ký: claude · codex · antigravity
+│
+├─ <b>plugins/powerbi-agent/</b>    <span style="color:var(--gold)">▸2 Chuyên môn số hóa</span>
+│  ├─ skills/                 kpim-analysis · powerbi-pipeline · powerbi-mcp · powerbi-knowledge
+│  │  └─ kpim-analysis/
+│  │     └─ <b>document-templates/</b>  <span style="color:var(--ok)">▸4 Mẫu tài liệu</span>  md + xlsx 6 sheet + theme + 5 mindmap
+│  ├─ commands/               8 lệnh /powerbi-*
+│  └─ agents/                 powerbi-knowledge-curator
+│
+├─ <b>report-templates/</b>         <span style="color:var(--gold)">▸3 Mẫu thiết kế báo cáo</span>  kit PBIR cho apply_template
+│  └─ kpim-business-light/    12 block đã sanitize
+│
+├─ install.ps1 · uninstall.ps1     cài/gỡ in-place, idempotent
+├─ scripts/ · tests/ · .github/    tiện ích dev · test · CI
+└─ docs/                           chính trang web này</div>
+    </div>
+    <p style="color:var(--muted);font-size:14px;margin-top:14px">
+      <span data-i18n="vi">Ngoài repo (không bao giờ commit): <b>Knowledge Dir</b> do bạn chỉ định · <code class="inline">.env</code> · <code class="inline">policy.json</code>.</span><span data-i18n="en">Outside the repo (never committed): your <b>Knowledge Dir</b> · <code class="inline">.env</code> · <code class="inline">policy.json</code>.</span>
+    </p>
+  </div>
+</section>
+
 <!-- ======= CÀI ĐẶT ======= -->
 <section id="cai-dat" class="install">
   <div class="wrap install-grid">
     <div class="install-copy reveal">
       <span class="eyebrow"><span class="dot"></span>Cài đặt</span>
       <h2 style="margin-top:14px">Nhanh nhất: đưa cho chính agent cài</h2>
-      <p>Dán 1 câu vào Claude Code / Codex / Antigravity — agent clone, dựng môi trường, đăng ký MCP vào cả 3 host và tự học <b>4 skill + 6 lệnh /powerbi-*</b> đi kèm, cùng bộ references DAX/M/SQL &amp; mẫu tài liệu hóa. Hoặc chạy tay 3 dòng bên cạnh.</p>
+      <p>Dán 1 câu vào Claude Code / Codex / Antigravity — agent clone, dựng môi trường, đăng ký MCP vào cả 3 host và tự học <b>4 skill + 8 lệnh /powerbi-*</b> đi kèm, cùng bộ references DAX/M/SQL &amp; mẫu tài liệu hóa. Hoặc chạy tay 3 dòng bên cạnh.</p>
       <div class="req">
         <ul>
           <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Windows 10/11</b> + Power BI Desktop (bản cài hoặc Store)</span></li>

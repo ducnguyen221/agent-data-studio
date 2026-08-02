@@ -9,7 +9,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts claude
 ```
 
 Installer merge server `powerbi-mcp-bridge` vào `~/.claude.json` (user scope, backup `.bak`,
-không đụng server khác), copy 4 skill vào `~/.claude/skills/` và 6 lệnh `/powerbi-*` vào
+không đụng server khác), copy 4 skill vào `~/.claude/skills/` và 8 lệnh `/powerbi-*` vào
 `~/.claude/commands/`. **Restart Claude Code** sau cài.
 
 Verify: `claude mcp list` → `powerbi-mcp-bridge … ✔ Connected`.
@@ -21,7 +21,7 @@ claude plugin marketplace add ducnguyen221/powerbi-agent
 claude plugin install powerbi-agent@powerbi-agent
 ```
 
-Plugin `powerbi-agent` xuất hiện trong danh sách plugin của app; nạp **4 skill + 6 lệnh /powerbi-* +
+Plugin `powerbi-agent` xuất hiện trong danh sách plugin của app; nạp **4 skill + 8 lệnh /powerbi-* +
 agent `powerbi-knowledge-curator`** (Claude tự auto-discover `commands/` + `agents/`). Dùng khi chỉ cần
 quy trình/kiến thức mà chưa cần 16 tool DAX.
 

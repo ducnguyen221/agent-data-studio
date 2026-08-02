@@ -37,7 +37,7 @@ env     = { PYTHONUNBUFFERED = "1" }
 ## Cách 2 — Cài dạng PLUGIN (hiện trong `codex plugin list` / app)
 
 Codex đọc **cùng một `.claude-plugin/marketplace.json`** với Claude — không cần manifest riêng.
-Cài để plugin xuất hiện trong trình quản lý plugin của Codex (4 skill + 6 lệnh `/powerbi-*` + agent
+Cài để plugin xuất hiện trong trình quản lý plugin của Codex (4 skill + 8 lệnh `/powerbi-*` + agent
 `powerbi-knowledge-curator` được nạp tự động):
 
 ```bash
