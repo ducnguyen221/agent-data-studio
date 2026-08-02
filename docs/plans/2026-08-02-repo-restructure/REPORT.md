@@ -63,6 +63,8 @@ Harness chạy trên `USERPROFILE` giả (`tests/installer/fakehome`) — **khô
 
 | # | Lỗi | Hậu quả nếu không bắt |
 |---|---|---|
+| 0 | **CRITICAL — skill zombie khi nâng cấp.** `Install-Skill` mirror theo skill *có trong nguồn*, nên `pbi-pipeline`/`pbi-knowledge` nằm lại ở host | Người nâng cấp có **6 skill**; bản cũ `pbi-knowledge/SKILL.md` chứa nguyên bảng định tuyến bảo agent chạy `/pbi-setup`, `/pbi-new`… — đúng những lệnh installer vừa xoá. Lỗi chạm **mọi người dùng hiện có** |
+| 0b | Harness gọi `install.ps1` trực tiếp mà **không set `USERPROFILE` giả** — chỉ chạy đúng nhờ `Run-Install` đã mutate env tiến trình | Đổi thứ tự ca là test ghi thẳng vào `~/.claude` **thật** của dev |
 | 1 | `foreach ($root in ...)` **ghi đè `$Root`** trong `uninstall.ps1` (PowerShell không phân biệt hoa/thường) | Gỡ xong Codex vẫn còn 8 lệnh sống nhăn. Bug tiềm ẩn **có sẵn từ trước**, code mới mới làm lộ |
 | 2 | Gỡ không đối xứng với bước 4 | Bỏ quên `~/.codex/prompts` và `~/.claude/agents` |
 | 3 | Sổ ghi được tin tuyệt đối | Một dòng `powerbi-*.md` trong sổ ghi → xoá luôn lệnh **riêng của user**; `..\..\x.md` xoá file **ngoài** thư mục; ký tự lạ → giết installer giữa chừng |
