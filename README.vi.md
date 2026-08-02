@@ -36,7 +36,7 @@ Clone https://github.com/ducnguyen221/powerbi-agent vào ~/.mcp/powerbi-mcp rồ
 ```
 
 Agent sẽ: clone → dựng `.venv` → dò ADOMD.NET/TOM (mọi bản SSMS/standalone/GAC) → đăng ký MCP
-vào cả 3 host → copy **4 skill** (`powerbi-mcp`, `powerbi-pipeline`, `kpim-analysis`, `powerbi-knowledge`) kèm references + templates + 6 lệnh /powerbi-*. Cài tay: xem [docs/INSTALL.html](docs/INSTALL.html).
+vào cả 3 host → copy **4 skill** (`powerbi-mcp`, `powerbi-pipeline`, `kpim-analysis`, `powerbi-knowledge`) kèm references + document-templates + 8 lệnh /powerbi-*. Cài tay: xem [docs/INSTALL.html](docs/INSTALL.html).
 
 ```powershell
 git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"

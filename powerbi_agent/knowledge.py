@@ -103,9 +103,18 @@ def register_project_in_index(root: str, slug: str, name: str) -> None:
     entry = f"- [{name}](projects/{slug}/PROJECT.md) — khởi tạo {date.today().isoformat()}\n"
     if entry in txt:
         return
-    placeholder = "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n"
-    if placeholder in txt:
-        txt = txt.replace(placeholder, entry)
+    # Phải nhận CẢ placeholder cũ `/pbi-new` (Knowledge Dir dựng bởi bản < 0.5.0).
+    # ensure_skeleton chỉ ghi INDEX.md khi file CHƯA tồn tại, nên người nâng cấp vẫn giữ
+    # dòng cũ trên đĩa. Nếu chỉ so khớp tên mới thì placeholder cũ không bao giờ bị thay,
+    # và INDEX của họ mãi mãi bảo chạy `/pbi-new` — lệnh mà installer vừa xoá.
+    placeholders = (
+        "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n",
+        "_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n",
+    )
+    for ph in placeholders:
+        if ph in txt:
+            txt = txt.replace(ph, entry)
+            break
     else:
         txt = txt.replace("## Dự án (projects/)\n\n", "## Dự án (projects/)\n\n" + entry, 1)
     with open(index, "w", encoding="utf-8", newline="\n") as f:

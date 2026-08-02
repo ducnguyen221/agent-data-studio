@@ -134,8 +134,11 @@ $stale = Join-Path $sk 'powerbi-mcp\STALE-OLD-FILE.md'
 'old' | Set-Content $stale
 $null = Run-Install 'claude'
 $staleSurvives = Test-Path $stale
+# Suy số lệnh kỳ vọng TỪ NGUỒN, không hardcode: thêm/bớt lệnh không được làm test đỏ giả.
+$cmdSrcDir  = Join-Path $RepoRoot 'plugins\powerbi-agent\commands'
+$expectCmds = @(Get-ChildItem $cmdSrcDir -Filter '*.md').Count
 $cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
-Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq 6) "skills=$n1/4 cmds=$cmds/6 staleSauLan2=$staleSurvives (true=DRIFT)"
+Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq $expectCmds) "skills=$n1/4 cmds=$cmds/$expectCmds staleSauLan2=$staleSurvives (true=DRIFT)"
 # Nội dung skill, không chỉ số lượng: mẫu tài liệu (trụ 4) phải đi theo skill sang host.
 # Thiếu assertion này thì đổi tên document-templates/ có thể hỏng mà test vẫn xanh.
 $kpim    = Join-Path $sk 'kpim-analysis'
@@ -148,11 +151,47 @@ $cmdDir = Join-Path $FakeHome '.claude\commands'
 'legacy' | Set-Content (Join-Path $cmdDir 'pbi-new.md')
 'legacy' | Set-Content (Join-Path $cmdDir 'pbi-setup.md')
 $null = Run-Install 'claude'
-$legacyLeft = @(Get-ChildItem $cmdDir -Filter 'pbi-*.md' -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -notlike 'powerbi-*' }).Count
+# Xác sống chiều ngược lại: lệnh ta TỪNG cài rồi bị bỏ khỏi repo phải biến mất khỏi host.
+# Giả lập bằng cách thêm 1 tên lạ vào sổ ghi + tạo file tương ứng.
+'powerbi-da-bo.md' | Add-Content (Join-Path $cmdDir '.powerbi-agent-installed.txt')
+'stale' | Set-Content (Join-Path $cmdDir 'powerbi-da-bo.md')
+# Lệnh RIÊNG của user cùng tiền tố powerbi- KHÔNG được đụng tới.
+'cua toi' | Set-Content (Join-Path $cmdDir 'powerbi-cua-toi.md')
+$null = Run-Install 'claude'
+$driftGone = -not (Test-Path (Join-Path $cmdDir 'powerbi-da-bo.md'))
+$userKept  = Test-Path (Join-Path $cmdDir 'powerbi-cua-toi.md')
+# -Filter 'pbi-*.md' KHÔNG khớp 'powerbi-*.md' (wildcard khớp từ đầu tên) — đã kiểm nghiệm.
+$legacyLeft = @(Get-ChildItem $cmdDir -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'C-cmd-drift-and-user-files' ($driftGone -and $userKept) `
+    "lenhDaBo_bienMat=$driftGone lenhRiengCuaUser_conNguyen=$userKept"
+Remove-Item (Join-Path $cmdDir 'powerbi-cua-toi.md') -Force -ErrorAction SilentlyContinue
 $newCount = @(Get-ChildItem $cmdDir -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
-Add-Result 'C-legacy-cmd-cleanup' ($legacyLeft -eq 0 -and $newCount -eq 6) `
-    "lenhCu_pbi_conLai=$legacyLeft (phai=0) lenhMoi=$newCount/6"
+Add-Result 'C-legacy-cmd-cleanup' ($legacyLeft -eq 0 -and $newCount -eq $expectCmds) `
+    "lenhCu_pbi_conLai=$legacyLeft (phai=0) lenhMoi=$newCount/$expectCmds"
+
+# Bước 4 mới: lệnh phải tới CẢ 3 host, không chỉ Claude (yêu cầu #5/#6).
+Reset-Home
+$null = Run-Install 'codex'
+$codexPrompts = @(Get-ChildItem (Join-Path $FakeHome '.codex\prompts') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+$codexSkills  = @(Get-ChildItem (Join-Path $FakeHome '.codex\skills') -Directory -ErrorAction SilentlyContinue).Count
+Add-Result 'D-codex-commands' ($codexPrompts -eq $expectCmds -and $codexSkills -eq 4) `
+    "prompts=$codexPrompts/$expectCmds skills=$codexSkills/4"
+
+Reset-Home
+$null = Run-Install 'antigravity'
+$agCmds = @(Get-ChildItem (Join-Path $FakeHome '.gemini\antigravity\skills\powerbi-knowledge\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'D-antigravity-commands' ($agCmds -eq $expectCmds) "lenhTrongSkill=$agCmds/$expectCmds"
+
+# -Only plugin: cài lại phần quy trình mà KHÔNG đụng venv/MCP config.
+Reset-Home
+$null = Run-Install 'claude'
+$cfgBefore = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
+Remove-Item (Join-Path $FakeHome '.claude\commands\powerbi-help.md') -Force -ErrorAction SilentlyContinue
+$null = & powershell -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'install.ps1') -Hosts claude -Only plugin 2>&1
+$restored = Test-Path (Join-Path $FakeHome '.claude\commands\powerbi-help.md')
+$cfgAfter = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
+Add-Result 'D-only-plugin' ($restored -and $cfgBefore -eq $cfgAfter) `
+    "lenhDuocPhucHoi=$restored configKhongDoi=$($cfgBefore -eq $cfgAfter)"
 
 $null = Run-Uninstall 'claude'
 $left = @(Get-ChildItem $sk -Directory -ErrorAction SilentlyContinue).Name -join ','

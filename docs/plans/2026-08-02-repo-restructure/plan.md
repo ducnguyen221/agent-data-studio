@@ -357,7 +357,7 @@ không đụng trạng thái máy.
 | V4 | Test mới: `_template_dirs()` trỏ `report-templates/`; `list_templates()` trả về `kpim-business-light`; tồn tại `report-templates/kpim-business-light/kit.json` | xanh |
 | V5 | Test installer trên **fake profile**: skill cài ra có `kpim-analysis/document-templates/` đủ file; **không** còn `kpim-analysis/templates/` | xanh |
 | V6 | Assertion có mục tiêu: repo không còn chuỗi `templates/kpim-business-light` và `kpim-analysis/templates`; đã xóa 4 chú thích "≠" về folder (`templates/README.md:13`, `README.md:266`, `README.vi.md:259`, `AGENTS.md:25`) — **giữ** "≠" ở `AGENTS.md:22`, `plugins/README.md:6`, `dax-best-practices.md:17` | đạt |
-| V7 | `plugin.json` và `marketplace.json` cùng `0.4.0`; plugin validate không lỗi | đạt |
+| V7 | `plugin.json` · `marketplace.json` · `pyproject.toml` · `powerbi_agent/__init__.py` cùng `0.5.0`; plugin validate không lỗi | đạt |
 | UAT | *(tùy chọn, duyệt riêng)* chạy `install.ps1` lên máy thật rồi kiểm `~/.claude/skills/kpim-analysis/document-templates/` | đạt |
 
 **Vì sao cần V4/V5 mới:** `tests/test_unit.py:189` hiện chỉ kiểm một tập con tool đã đăng ký,

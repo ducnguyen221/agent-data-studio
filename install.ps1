@@ -26,13 +26,21 @@
   Bỏ qua tạo venv / cài pip (chỉ cập nhật cấu hình host).
 .PARAMETER SkipHosts
   Chỉ dựng venv, không đụng cấu hình host nào.
+.PARAMETER Only
+  Chỉ chạy MỘT bước: "plugin" = chỉ cài skill + lệnh + agent (bước 4), không đụng venv/MCP.
+  Dùng khi đã cài rồi và chỉ muốn cập nhật phần quy trình.
 #>
 [CmdletBinding()]
 param(
     [string[]] $Hosts = @("claude", "codex", "antigravity"),
     [switch]   $SkipVenv,
-    [switch]   $SkipHosts
+    [switch]   $SkipHosts,
+    [ValidateSet("plugin")]
+    [string]   $Only
 )
+
+# -Only plugin: bỏ qua venv + đăng ký MCP, chỉ chạy bước 4 (skill/lệnh/agent).
+if ($Only -eq "plugin") { $SkipVenv = $true; $SkipHosts = $true }
 
 $ErrorActionPreference = "Stop"
 $Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -304,47 +312,114 @@ function Install-Skill([string]$SkillRoot) {
         }
     }
 
-    # Claude: copy thêm 6 lệnh /powerbi-* vào ~/.claude/commands (host khác dùng skill powerbi-knowledge)
-    if ($SkillRoot -like "*\.claude\skills") {
-        $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
-        $cmdDst = Join-Path (Split-Path -Parent $SkillRoot) "commands"
-        if (Test-Path $cmdSrc) {
-            if (-not (Test-Path $cmdDst)) { New-Item -ItemType Directory -Path $cmdDst -Force | Out-Null }
-            # mirror phần lệnh powerbi-* (lệnh khác của user giữ nguyên).
-            # Dọn CẢ họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*": nếu chỉ dọn họ mới
-            # thì người nâng cấp giữ lại 6 lệnh cũ mồ côi -> thấy 12 lệnh, gọi nhầm bản cũ.
-            # -Filter "pbi-*.md" KHÔNG khớp "powerbi-*.md" (phải khớp từ đầu tên) nên cần cả hai.
-            foreach ($pat in @("pbi-*.md", "powerbi-*.md")) {
-                Get-ChildItem $cmdDst -Filter $pat -ErrorAction SilentlyContinue | Remove-Item -Force
-            }
-            Copy-Item (Join-Path $cmdSrc "*.md") $cmdDst -Force
-            Info "Commands /powerbi-* -> $cmdDst"
-        }
+}
+
+# Mirror thư mục lệnh: dọn CẢ họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*" rồi copy lại.
+# Nếu chỉ dọn họ mới thì người nâng cấp giữ 6 lệnh cũ mồ côi -> thấy 12 lệnh, gọi nhầm bản cũ.
+# -Filter "pbi-*.md" KHÔNG khớp "powerbi-*.md" (wildcard khớp từ ĐẦU tên) nên phải duyệt cả hai.
+# Lệnh khác của user trong cùng thư mục KHÔNG bị đụng.
+function Install-Commands([string]$CmdDst, [string]$Label) {
+    $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+    if (-not (Test-Path $cmdSrc)) { return }
+    if (-not (Test-Path $CmdDst)) { New-Item -ItemType Directory -Path $CmdDst -Force | Out-Null }
+    # Xoá theo SỔ GHI những gì LẦN TRƯỚC ta đã cài, không dùng wildcard.
+    #  - wildcard "powerbi-*.md" sẽ nuốt cả lệnh riêng của user (vd powerbi-cua-toi.md)
+    #    và chiếm namespace mà repo không sở hữu;
+    #  - chỉ suy từ manifest hiện tại thì lệnh ĐÃ BỊ BỎ khỏi repo sẽ thành xác sống ở host.
+    # Sổ ghi giải quyết cả hai: xoá đúng thứ ta từng đặt vào, không hơn không kém.
+    $ownNames    = @(Get-ChildItem $cmdSrc -Filter "*.md" | ForEach-Object { $_.Name })
+    $ledger      = Join-Path $CmdDst ".powerbi-agent-installed.txt"
+    $prev        = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
+    $legacyNames = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
+    foreach ($nm in ($prev + $ownNames + $legacyNames | Sort-Object -Unique)) {
+        $p = Join-Path $CmdDst $nm
+        if (Test-Path $p) { Remove-Item $p -Force }
     }
+    Copy-Item (Join-Path $cmdSrc "*.md") $CmdDst -Force
+    Set-Content -Path $ledger -Value $ownNames -Encoding UTF8
+    Info "$($ownNames.Count) lệnh /powerbi-* -> $CmdDst ($Label)"
+}
+
+# Agent phụ (powerbi-knowledge-curator). Chỉ Claude Code có thư mục agents/ chuẩn;
+# host khác vẫn có nội dung đó qua skill powerbi-knowledge nên không mất năng lực.
+function Install-Agents([string]$AgentDst) {
+    $src = Join-Path $Root "plugins\powerbi-agent\agents"
+    if (-not (Test-Path $src)) { return }
+    if (-not (Test-Path $AgentDst)) { New-Item -ItemType Directory -Path $AgentDst -Force | Out-Null }
+    foreach ($nm in (@(Get-ChildItem $src -Filter "*.md" | ForEach-Object { $_.Name }) + @("pbi-knowledge-curator.md"))) {
+        $p = Join-Path $AgentDst $nm
+        if (Test-Path $p) { Remove-Item $p -Force }
+    }
+    Copy-Item (Join-Path $src "*.md") $AgentDst -Force
+    Info "Agent powerbi-knowledge-curator -> $AgentDst"
 }
 
 if ($SkipHosts) {
-    Step "3/3 Đăng ký host"; Warn "Bỏ qua đăng ký host (-SkipHosts)."
+    Step "3/4 Đăng ký MCP vào host"; Warn "Bỏ qua đăng ký host (-SkipHosts)."
 } else {
-    Step "3/3 Đăng ký MCP vào host"
-    if ($Hosts -contains "claude")      { Register-Claude;      Install-Skill (Join-Path $env:USERPROFILE ".claude\skills") }
-    if ($Hosts -contains "codex")       { Register-Codex;       Install-Skill (Join-Path $env:USERPROFILE ".codex\skills") }
-    if ($Hosts -contains "antigravity") { Register-Antigravity; Install-Skill (Join-Path $env:USERPROFILE ".gemini\antigravity\skills") }
+    Step "3/4 Đăng ký MCP vào host"
+    if ($Hosts -contains "claude")      { Register-Claude }
+    if ($Hosts -contains "codex")       { Register-Codex }
+    if ($Hosts -contains "antigravity") { Register-Antigravity }
+}
+
+# ---- Bước 4: skill + lệnh + agent (chạy độc lập được: install.ps1 -Only plugin) ----
+Step "4/4 Cài quy trình (skill + lệnh + agent)"
+if ($Hosts -contains "claude") {
+    $h = Join-Path $env:USERPROFILE ".claude"
+    Install-Skill    (Join-Path $h "skills")
+    Install-Commands (Join-Path $h "commands") "slash-command"
+    Install-Agents   (Join-Path $h "agents")
+}
+if ($Hosts -contains "codex") {
+    $h = Join-Path $env:USERPROFILE ".codex"
+    Install-Skill    (Join-Path $h "skills")
+    # Codex đọc custom prompt từ ~/.codex/prompts/ -> file .md thành lệnh /<tên>.
+    Install-Commands (Join-Path $h "prompts") "custom prompt"
+}
+if ($Hosts -contains "antigravity") {
+    $h = Join-Path $env:USERPROFILE ".gemini\antigravity"
+    Install-Skill (Join-Path $h "skills")
+    # Antigravity KHÔNG có cơ chế slash-command (xem hosts/antigravity/README.md). Đặt bộ lệnh
+    # ngay trong skill powerbi-knowledge để agent vẫn đọc được quy trình và gọi theo tên.
+    $kn = Join-Path $h "skills\powerbi-knowledge"
+    if (Test-Path $kn) { Install-Commands (Join-Path $kn "commands") "tham chiếu trong skill" }
 }
 
 # ---- Smoke test ----
+# Không chỉ kiểm import: kiểm luôn 2 năng lực người dùng đụng vào đầu tiên (kit + Knowledge Dir),
+# để câu "việc cần làm tiếp" bên dưới nói đúng trạng thái THẬT của máy này thay vì đoán.
+$knowledgeReady = $false
 if ((-not $SkipVenv) -and (Test-Path $venvPy)) {
-    Step "Kiểm thử nhanh (import)"
+    Step "Kiểm thử nhanh"
     $probe = "import importlib;[importlib.import_module(m) for m in ('mcp.server.fastmcp','pyadomd','pandas','msal','dotenv','tabulate')];print('IMPORTS_OK')"
     $out = & $venvPy -c $probe 2>&1
     if ($out -match "IMPORTS_OK") { Ok "Thư viện import OK. Server sẵn sàng." } else { Warn "Import có vấn đề:"; Write-Host $out }
+
+    $probe2 = @"
+import sys; sys.path.insert(0, r'$Root')
+from powerbi_agent.tools_template import _load_kits
+from powerbi_agent.knowledge import resolve_root
+print('KITS=%d' % len(_load_kits()))
+print('KNOWLEDGE=%s' % ('yes' if resolve_root() else 'no'))
+"@
+    $out2 = & $venvPy -c $probe2 2>&1
+    if ("$out2" -match "KITS=(\d+)") { Ok "Kit báo cáo dùng được: $($Matches[1])" } else { Warn "Không đọc được kho kit: $out2" }
+    if ("$out2" -match "KNOWLEDGE=yes") { $knowledgeReady = $true; Ok "Knowledge Dir đã thiết lập." }
+    else { Info "Knowledge Dir CHƯA thiết lập (bình thường ở máy mới)." }
 }
 
 Write-Host "`n=============================================" -ForegroundColor Green
 Ok "HOÀN TẤT."
+$nextSetup = if ($knowledgeReady) { "(đã xong — bỏ qua)" } else { "/powerbi-setup   -> chỉ định Knowledge Dir (làm 1 lần)" }
 Write-Host @"
 
-Bước cuối: KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm).
+VIỆC CẦN LÀM TIẾP — 3 bước:
+  1. KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm).
+  2. $nextSetup
+  3. /powerbi-help    -> agent tự liệt kê năng lực và định tuyến việc của bạn.
+
 Server tại : $Root
+Cập nhật riêng phần quy trình (không đụng venv/MCP): .\install.ps1 -Only plugin
 Gỡ cài     : .\uninstall.ps1
 "@ -ForegroundColor Gray

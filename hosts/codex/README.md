@@ -10,8 +10,19 @@ cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex
 ```
 
-Installer thêm block `[mcp_servers.powerbi-mcp-bridge]` vào `~/.codex/config.toml`
-(backup `.bak`) và copy 4 skill vào `~/.codex/skills/`. **Restart phiên Codex** sau cài.
+Installer làm 3 việc:
+1. Thêm block `[mcp_servers.powerbi-mcp-bridge]` vào `~/.codex/config.toml` (backup `.bak`).
+2. Copy 4 skill vào `~/.codex/skills/`.
+3. **Copy 8 lệnh vào `~/.codex/prompts/`** → gõ `/powerbi-help`, `/powerbi-setup`… ngay trong Codex.
+   *(Từ v0.5.0 — trước đó chỉ Claude Code mới có lệnh.)*
+
+**Restart phiên Codex** sau cài.
+
+Chỉ muốn cập nhật phần quy trình (skill + lệnh), không đụng venv/MCP:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex -Only plugin
+```
 
 Đăng ký tay (nếu muốn tự làm):
 
@@ -32,7 +43,7 @@ Cài để plugin xuất hiện trong trình quản lý plugin của Codex (4 sk
 ```bash
 codex plugin marketplace add https://github.com/ducnguyen221/powerbi-agent
 codex plugin add powerbi-agent@powerbi-agent
-codex plugin list   # thấy: powerbi-agent@powerbi-agent  installed, enabled  0.3.0
+codex plugin list   # thấy: powerbi-agent@powerbi-agent  installed, enabled  0.5.0
 ```
 
 > Chỉ cài plugin = có skill/lệnh, CHƯA có 16 tool MCP. Muốn đủ tool → chạy install.ps1 (Cách 1).

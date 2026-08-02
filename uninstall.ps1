@@ -105,11 +105,18 @@ foreach ($root in $hostSkillRoots) {
 if ($Hosts -contains "claude") {
     $cmdDst = Join-Path $env:USERPROFILE ".claude\commands"
     if (Test-Path $cmdDst) {
-        # Gỡ cả họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*" — gỡ đối xứng với installer.
-        foreach ($pat in @("pbi-*.md", "powerbi-*.md")) {
-            Get-ChildItem $cmdDst -Filter $pat -ErrorAction SilentlyContinue |
-                ForEach-Object { Remove-Item $_.FullName -Force; Info "Xoá lệnh: $($_.Name)" }
+        # Gỡ đối xứng với installer: chỉ những file THUỘC repo (suy từ manifest) + họ tên cũ
+        # trước v0.5.0. KHÔNG wildcard "powerbi-*.md" — sẽ xoá luôn lệnh riêng của user.
+        $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+        $own = if (Test-Path $cmdSrc) { @(Get-ChildItem $cmdSrc -Filter "*.md" | ForEach-Object { $_.Name }) } else { @() }
+        $legacy = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
+        $ledger = Join-Path $cmdDst ".powerbi-agent-installed.txt"
+        $prev = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
+        foreach ($nm in ($prev + $own + $legacy | Sort-Object -Unique)) {
+            $p = Join-Path $cmdDst $nm
+            if (Test-Path $p) { Remove-Item $p -Force; Info "Xoá lệnh: $nm" }
         }
+        if (Test-Path $ledger) { Remove-Item $ledger -Force }
     }
 }
 if ($RemoveVenv) {

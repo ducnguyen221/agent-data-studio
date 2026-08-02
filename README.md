@@ -37,7 +37,7 @@ Clone https://github.com/ducnguyen221/powerbi-agent into ~/.mcp/powerbi-mcp, the
 
 The agent will: clone → build `.venv` → probe ADOMD.NET/TOM (any SSMS/standalone/GAC) → register the MCP
 across all 3 hosts → copy **4 skills** (`powerbi-mcp`, `powerbi-pipeline`, `kpim-analysis`, `powerbi-knowledge`)
-plus references, templates and the 6 `/powerbi-*` commands. Manual install: see [docs/INSTALL.html](docs/INSTALL.html).
+plus references, document-templates and the 8 `/powerbi-*` commands. Manual install: see [docs/INSTALL.html](docs/INSTALL.html).
 
 ```powershell
 git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"

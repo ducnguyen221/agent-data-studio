@@ -147,10 +147,10 @@ Hiện có: `distill_model_schema` (model) + `distill_template` (1 trang → kit
 
 #### 5.2 Quy trình #2 — Project Management (`projects/`)
 
-- [x] Command `/powerbi-new` (đổi tên gọn từ /powerbi-project init <tên>` → dựng `projects/<slug>/` theo skeleton + đăng ký INDEX/TIMELINE.
+- [x] Command `/powerbi-new <tên>` → dựng `projects/<slug>/` theo skeleton + đăng ký INDEX/TIMELINE.
 - [x] Skill `powerbi-knowledge` (mới): luật "làm việc qua MCP này = có project folder"; mọi tài liệu
   KPIM (kpim-analysis) ghi thẳng vào đây; cuối dự án bắt buộc HANDOFF + distill.
-- [x] `/powerbi-done` (đổi tên gọn từ /powerbi-project close) → checklist đóng dự án: đủ 4 artifact? design/ đã distill? bài học đã
+- [x] `/powerbi-done` → checklist đóng dự án: đủ 4 artifact? design/ đã distill? bài học đã
   rút? → đề xuất trang đẹp nào đáng `distill_template` thành kit (sanitize → repo, thô → riêng).
 - [x] Reference chéo: PROJECT.md ↔ kit đã sinh ↔ knowledge/ entry ↔ TIMELINE — bằng relative link.
 

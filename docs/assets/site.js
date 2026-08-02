@@ -87,6 +87,10 @@
 // ===== i18n language toggle =====
 (function(){
   var KEY='powerbi-lang';
+  // Migration: nguoi dung cu luu duoi key 'pbi-lang' (truoc v0.5.0) — doc lai 1 lan
+  // roi ghi sang key moi, de ho khong bi reset ve mac dinh.
+  try{ if(!localStorage.getItem(KEY)){ var _o=localStorage.getItem('pbi-lang');
+    if(_o){ localStorage.setItem(KEY,_o); localStorage.removeItem('pbi-lang'); } } }catch(e){}
   function cur(){ return localStorage.getItem(KEY) || document.documentElement.getAttribute('data-lang') || 'vi'; }
   function apply(l){
     document.documentElement.setAttribute('data-lang', l);

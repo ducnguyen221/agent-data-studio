@@ -205,13 +205,16 @@ class TestReportTemplates:
     đã trỏ vào thư mục không tồn tại.
     """
 
-    def test_repo_kit_dir_is_report_templates(self):
+    def test_repo_kit_dir_is_report_templates(self, monkeypatch):
+        # PHẢI gỡ env: POWERBI_TEMPLATES_DIR trỏ vào Knowledge Dir của user, mà thư mục
+        # đó TÊN LÀ "templates" theo đúng thiết kế. Không isolate thì test đỏ trên chính
+        # cấu hình mà repo khuyến nghị, và chỉ xanh trên CI vì CI không có env.
+        monkeypatch.delenv("POWERBI_TEMPLATES_DIR", raising=False)
         from powerbi_agent.tools_template import _template_dirs
-        dirs = _template_dirs()
-        assert any(os.path.basename(d) == "report-templates" for d in dirs)
-        assert not any(os.path.basename(d) == "templates" for d in dirs)
+        assert os.path.basename(_template_dirs()[0]) == "report-templates"
 
-    def test_bundled_kit_is_discoverable(self):
+    def test_bundled_kit_is_discoverable(self, monkeypatch):
+        monkeypatch.delenv("POWERBI_TEMPLATES_DIR", raising=False)
         from powerbi_agent.tools_template import _load_kits
         names = {os.path.basename(p) for p, _ in _load_kits()}
         assert "kpim-business-light" in names
@@ -220,7 +223,8 @@ class TestReportTemplates:
         repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         kit = os.path.join(repo, "report-templates", "kpim-business-light", "kit.json")
         assert os.path.isfile(kit)
-        assert json.load(open(kit, encoding="utf-8"))
+        with open(kit, encoding="utf-8") as fh:
+            assert json.load(fh)
 
     def test_document_templates_folder_shipped_with_skill(self):
         """Mẫu tài liệu (trụ 4) phải nằm TRONG folder skill — installer copy cả thư mục."""
@@ -229,6 +233,39 @@ class TestReportTemplates:
         assert os.path.isdir(os.path.join(skill, "document-templates"))
         assert not os.path.isdir(os.path.join(skill, "templates"))
         assert os.path.isfile(os.path.join(skill, "document-templates", "PROJECT.md"))
+
+
+class TestKnowledgeIndexMigration:
+    """Knowledge Dir dựng bởi bản < 0.5.0 mang placeholder `/pbi-new` cũ.
+
+    ensure_skeleton chỉ ghi INDEX.md khi file CHƯA tồn tại, nên người nâng cấp giữ
+    nguyên dòng cũ trên đĩa. Nếu register_project_in_index chỉ khớp tên mới thì
+    placeholder cũ không bao giờ được thay -> INDEX của họ mãi bảo chạy `/pbi-new`,
+    lệnh mà installer vừa xoá.
+    """
+
+    def _index_with(self, tmp_path, placeholder: str) -> str:
+        (tmp_path / "INDEX.md").write_text(
+            "# INDEX\n\n## Dự án (projects/)\n\n" + placeholder + "\n## Khác\n",
+            encoding="utf-8",
+        )
+        return str(tmp_path)
+
+    def test_replaces_legacy_pbi_placeholder(self, tmp_path):
+        from powerbi_agent import knowledge as kn
+        root = self._index_with(tmp_path, "_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n")
+        kn.register_project_in_index(root, "ban-le", "Bán lẻ")
+        txt = (tmp_path / "INDEX.md").read_text(encoding="utf-8")
+        assert "pbi-new" not in txt, "placeholder cũ còn sót — người nâng cấp thấy lệnh đã bị xoá"
+        assert "projects/ban-le/PROJECT.md" in txt
+
+    def test_replaces_current_placeholder(self, tmp_path):
+        from powerbi_agent import knowledge as kn
+        root = self._index_with(tmp_path, "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n")
+        kn.register_project_in_index(root, "ban-le", "Bán lẻ")
+        txt = (tmp_path / "INDEX.md").read_text(encoding="utf-8")
+        assert "chưa có" not in txt
+        assert "projects/ban-le/PROJECT.md" in txt
 
 
 class TestKnowledge:
