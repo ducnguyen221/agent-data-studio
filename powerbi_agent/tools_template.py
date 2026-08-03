@@ -206,7 +206,9 @@ def register(mcp):
             pbir.write_json_no_bom(os.path.join(out_dir, "kit.json"), kit)
 
             return (
-                f"Đã distill trang '{src_name}' thành kit tại `{out_dir}`:\n"
+                # Mọi FILE ghi ra đều đã sạch, nhưng chuỗi trả về đi thẳng vào context LLM —
+                # nêu tên trang thật ở đây là rò rỉ qua một đường khác.
+                f"Đã distill trang '{'(sanitized)' if sanitize else src_name}' thành kit tại `{out_dir}`:\n"
                 f"- {len(block_meta)} block: " + ", ".join(b["visualType"] for b in block_meta) + "\n"
                 f"- blueprint.md ({len(visuals)} visual) + _page.json + kit.json\n"
                 + ("- ĐÃ sanitize (an toàn để chia sẻ/public)\n" if sanitize else

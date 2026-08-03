@@ -217,7 +217,10 @@ def build_sanitize_map(entities: set, properties: set, labels: set | None = None
 # Trước đây cho `TEMPLATE_[A-Z0-9_]+` là quá rộng — một measure tên "TEMPLATE_DOANHTHU" hay
 # chuỗi "TEMPLATE_FIELD_1_TY_LE" tự nhận là "đã sạch" rồi đi thẳng vào bản public.
 _PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_[0-9]+)"
-_SEP = r"[\s'\"\.\-_/#()0-9]*"
+# KHONG cho 0-9 vao day phan cach: mot placeholder se hop thuc hoa moi day so ben canh,
+# vd 'TEMPLATE_FIELD_1 0905.123.456' tu nhan la sach -> so dien thoai vao kit public.
+# Chu so chi duoc phep BEN TRONG chinh placeholder (TEMPLATE_FIELD_12).
+_SEP = r"[\s'\"\.\-_/#()]*"
 # PHAI co it nhat MOT placeholder. Cho phep 0 placeholder nghia la chuoi toan so/dau
 # ("0912345678", "01/02/2024", ma khach hang) tu nhan la da sach va di thang ra ban public.
 _SAFE_ONLY = re.compile(rf"^{_SEP}{_PLACEHOLDER}(?:{_SEP}{_PLACEHOLDER})*{_SEP}$")

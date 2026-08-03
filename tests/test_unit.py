@@ -475,14 +475,32 @@ class TestOutputsStayOutsideRepo:
         got = kn.ensure_outside_repo(target, allow_public_kits=True)
         assert got.endswith(os.path.join("report-templates", "kit-moi"))
 
-    def test_blocks_case_variants_and_short_names(self):
-        """Windows: cùng một thư mục viết nhiều kiểu — mọi kiểu đều phải bị chặn."""
+    def test_blocks_every_windows_path_spelling(self):
+        r"""Cùng một thư mục viết được nhiều kiểu — MỌI kiểu phải bị chặn.
+
+        Đây là ca hồi quy cho lỗ hổng thật: `realpath`+`normcase` giữ nguyên tiền tố
+        `\?\` và UNC, nên `commonpath` ném ValueError và guard hiểu nhầm là "khác ổ đĩa
+        ⇒ an toàn" — trong khi cả hai dạng đều trỏ đúng vào repo.
+        """
         from powerbi_agent import knowledge as kn
         import pytest as _pt
         repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
-        for variant in (repo.lower(), repo.upper(), os.path.join(repo, "docs", "..", "leak")):
-            with _pt.raises(ValueError):
-                kn.ensure_outside_repo(os.path.join(variant, "leak"))
+        b = "\\"
+        variants = {
+            "chữ thường": repo.lower() + b + "leak",
+            "CHỮ HOA": repo.upper() + b + "leak",
+            "traversal": os.path.join(repo, "docs", "..", "leak"),
+            "dấu gạch xuôi": repo.replace(b, "/") + "/leak",
+            "tiền tố extended-length": b * 2 + "?" + b + repo + b + "leak",
+            "UNC localhost": b * 2 + "localhost" + b + repo[0] + "$" + repo[2:] + b + "leak",
+            "UNC qua extended-length": (b * 2 + "?" + b + "UNC" + b + "localhost" + b
+                                       + repo[0] + "$" + repo[2:] + b + "leak"),
+            "chính gốc repo": repo,
+        }
+        for label, p in variants.items():
+            with _pt.raises(ValueError, match="TỪ CHỐI"):
+                kn.ensure_outside_repo(p)
+                _pt.fail(f"lọt: {label}")
 
     def test_allows_outside(self, tmp_path):
         from powerbi_agent import knowledge as kn

@@ -197,15 +197,34 @@ def register_project(slug: str, name: str, path: str, note: str = "") -> None:
     _write_json(reg, {"projects": items})
 
 
+def _to_drive_form(p: str) -> str:
+    r"""Quy mọi cách viết "đường vòng" của Windows về dạng ổ đĩa thường.
+
+    Đây là chỗ bản trước vẫn thủng: `realpath` + `normcase` GIỮ NGUYÊN tiền tố `\\?\`
+    và UNC, nên `commonpath` ném ValueError ("khác ổ đĩa") và guard hiểu nhầm là an toàn —
+    trong khi `\\?\C:\<repo>\x` và `\\localhost\C$\<repo>\x` trỏ đúng vào repo.
+    """
+    s = str(p).strip().strip('"').strip("'").replace("/", "\\")
+    if s.startswith("\\\\?\\UNC\\"):
+        s = "\\\\" + s[8:]
+    elif s.startswith("\\\\?\\"):
+        s = s[4:]
+    # \\<host>\X$\...  ->  X:\...   (chỉ với host trỏ về máy này)
+    m = re.match(r"^\\\\(localhost|127\.0\.0\.1|\?)\\([A-Za-z])\$\\(.*)$", s)
+    if m:
+        s = f"{m.group(2)}:\\{m.group(3)}"
+    return s
+
+
 def _canon(p: str) -> str:
-    """Dạng chuẩn để SO SÁNH đường dẫn trên Windows.
+    r"""Dạng chuẩn để SO SÁNH đường dẫn trên Windows.
 
     So chuỗi thô là không đủ — cùng một thư mục viết được nhiều kiểu và mọi kiểu đều
     lách qua guard: chữ thường, tên 8.3 (`DUCNGU~1` — đúng dạng %TEMP% trên máy này),
-    UNC `\\\\localhost\\C$\\...`, tiền tố `\\\\?\\`. `realpath` gỡ cả junction/symlink
-    (abspath KHÔNG gỡ), `normcase` gỡ khác biệt hoa thường.
+    UNC, tiền tố `\\?\`. `realpath` gỡ junction/symlink (abspath KHÔNG gỡ),
+    `normcase` gỡ khác biệt hoa thường, `_to_drive_form` gỡ các tiền tố đường vòng.
     """
-    return os.path.normcase(os.path.realpath(os.path.expanduser(str(p).strip().strip('"').strip("'"))))
+    return os.path.normcase(os.path.realpath(_to_drive_form(os.path.expanduser(str(p)))))
 
 
 def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits: bool = False) -> str:
@@ -221,12 +240,14 @@ def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits:
     hay `POWERBI_DISTILL_DIR=<repo>/report-templates/...` đều tuồn được dữ liệu thô vào
     đúng thư mục công khai.
     """
-    full = os.path.realpath(os.path.expanduser(str(path).strip().strip('"').strip("'")))
+    full = os.path.realpath(_to_drive_form(os.path.expanduser(str(path))))
     c_full, c_repo = _canon(full), _canon(_REPO_ROOT)
     try:
         inside_repo = os.path.commonpath([c_full, c_repo]) == c_repo
     except ValueError:
-        return full          # khác ổ đĩa ⇒ hiển nhiên ngoài repo
+        # KHÔNG mặc định "khác ổ đĩa ⇒ an toàn": commonpath cũng ném lỗi cho dạng đường
+        # vòng, và đó chính là kẽ hở. Lùi về so chuỗi theo ranh giới thư mục.
+        inside_repo = c_full == c_repo or c_full.startswith(c_repo.rstrip("\\/") + os.sep)
     if not inside_repo:
         return full
     if allow_public_kits:

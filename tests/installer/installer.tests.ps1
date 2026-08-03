@@ -225,7 +225,12 @@ Add-Result 'D-upgrade-no-zombie-skill' ($zombies -eq 0 -and $total -eq 4) `
 Reset-Home
 $cx = Join-Path $FakeHome '.codex\skills\powerbi-help'
 New-Item -ItemType Directory -Path $cx -Force | Out-Null
-Set-Content (Join-Path $cx 'SKILL.md') "---`nname: powerbi-help`ndescription: ban cu`n---`nNOI DUNG CU"
+# Fixture phai giong HET thu ban v0.5.x SINH RA — ke ca dong mo ta dac trung,
+# vi do la dau van thu hai dung de nhan dien quyen so huu.
+# Ghi UTF-8 TUONG MINH: Set-Content mac dinh ANSI tren PS 5.1, tieng Viet se lech.
+[System.IO.File]::WriteAllText((Join-Path $cx 'SKILL.md'),
+  "---`nname: powerbi-help`ndescription: >`n  ban cu`n  Gọi khi user nói `"chạy powerbi-help`" abc.`n---`nNOI DUNG CU",
+  (New-Object System.Text.UTF8Encoding($false)))
 $null = Run-Install 'codex'
 $updated = -not ((Get-Content (Join-Path $cx 'SKILL.md') -Raw) -match 'NOI DUNG CU')
 $hasMarker = Test-Path (Join-Path $cx '.powerbi-agent-generated')
@@ -233,6 +238,19 @@ $null = Run-Uninstall 'codex'
 $removed = -not (Test-Path $cx)
 Add-Result 'D-upgrade-marker-migration' ($updated -and $hasMarker -and $removed) `
     "capNhat=$updated coMarker=$hasMarker goDuoc=$removed"
+
+# Skill user trung CA TEN (name: powerbi-help) nhung khong phai ban ta sinh ra.
+# Chi doi moi dong `name:` la khong du — day la ca lam mat du lieu user.
+Reset-Home
+$same = Join-Path $FakeHome '.codex\skills\powerbi-help'
+New-Item -ItemType Directory -Path $same -Force | Out-Null
+Set-Content (Join-Path $same 'SKILL.md') "---`nname: powerbi-help`ndescription: ban TU VIET cua toi`n---`nGHI CHU RIENG"
+Set-Content (Join-Path $same 'ghi-chu.md') "tai lieu rieng cua user"
+$null = Run-Install 'codex'
+$bodyKept = (Get-Content (Join-Path $same 'SKILL.md') -Raw) -match 'GHI CHU RIENG'
+$sideKept = Test-Path (Join-Path $same 'ghi-chu.md')
+Add-Result 'D-same-name-user-skill-safe' ($bodyKept -and $sideKept) `
+    "noiDungConNguyen=$bodyKept fileKemConNguyen=$sideKept"
 
 # Skill RIENG cua user trung ten: khong duoc dung toi, ca luc cai lan luc go.
 Reset-Home

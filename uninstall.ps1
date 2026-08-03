@@ -47,9 +47,19 @@ if isinstance(data, dict) and isinstance(data.get("mcpServers"), dict) and name 
 else:
     print("ABSENT")
 '@
-    $tmpPy = Join-Path $env:TEMP "powerbi-remove-mcp.py"
+    # Ten DUY NHAT theo tien trinh: ten co dinh thi hai lan chay song song (pytest goi
+    # harness, harness goi installer) xoa file cua nhau giua chung -> "can't open file".
+    $tmpPy = Join-Path $env:TEMP ("powerbi-remove-mcp-$PID-" + [guid]::NewGuid().ToString("N") + ".py")
     Write-Utf8NoBom $tmpPy $py
-    $out = & $venvPy $tmpPy $Path $name 2>&1
+    # KHONG dung `2>&1` phia PowerShell voi native command khi $ErrorActionPreference=Stop:
+    # stderr bi boc thanh NativeCommandError TERMINATING -> script chet TRUOC khi toi nhanh
+    # xu ly loi ben duoi, va installer dung o giua (buoc 4 khong chay).
+    # Cung KHONG boc qua cmd /c: tham so o day la JSON co dau nhay, cmd se lam hong.
+    # Cach an toan: ha ErrorActionPreference dung quanh loi goi roi tra lai.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try   { $out = & $venvPy $tmpPy $Path $name 2>&1 }
+    finally { $ErrorActionPreference = $prevEap }
     Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
     if ("$out" -match "REMOVED") { Ok "Đã gỡ '$name' khỏi $Path (validate OK)" }
     elseif ("$out" -match "ABSENT") { Info "$Path không chứa '$name'." }
@@ -129,8 +139,12 @@ foreach ($skRoot in $hostSkillRoots) {
             # Khong co buoc nay thi nguoi nang cap khong bao gio go duoc skill cu.
             $skf = Join-Path $p "SKILL.md"
             if (Test-Path $skf) {
-                $h = (Get-Content $skf -TotalCount 5 -ErrorAction SilentlyContinue) -join "`n"
-                if ($h -match "(?m)^name:\s*$([regex]::Escape($n))\s*$") { $mine = $true }
+                $h = (Get-Content $skf -TotalCount 8 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                $nameOk = $h -match "(?m)^name:\s*$([regex]::Escape($n))\s*$"
+                $prov   = ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$") -or
+                          ($h -match ([regex]::Escape("Gọi khi user nói")))
+                if ($nameOk -and $prov) { $mine = $true }
+                elseif ($ownSkillNames -contains $n -and $nameOk) { $mine = $true }
             } elseif ($ownSkillNames -contains $n) { $mine = $true }
         }
         if (-not $mine) {

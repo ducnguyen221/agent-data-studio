@@ -221,9 +221,19 @@ os.replace(tmp, path)                    # thay the ATOMIC — khong co trang th
 json.load(open(path, encoding="utf-8"))  # validate sau khi ghi
 print("MERGE_OK")
 '@
-    $tmpPy = Join-Path $env:TEMP "powerbi-merge-mcp.py"
+    # Ten DUY NHAT theo tien trinh: ten co dinh thi hai lan chay song song (pytest goi
+    # harness, harness goi installer) xoa file cua nhau giua chung -> "can't open file".
+    $tmpPy = Join-Path $env:TEMP ("powerbi-merge-mcp-$PID-" + [guid]::NewGuid().ToString("N") + ".py")
     Write-Utf8NoBom $tmpPy $mergePy
-    $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1
+    # KHONG dung `2>&1` phia PowerShell voi native command khi $ErrorActionPreference=Stop:
+    # stderr bi boc thanh NativeCommandError TERMINATING -> script chet TRUOC khi toi nhanh
+    # xu ly loi ben duoi, va installer dung o giua (buoc 4 khong chay).
+    # Cung KHONG boc qua cmd /c: tham so o day la JSON co dau nhay, cmd se lam hong.
+    # Cach an toan: ha ErrorActionPreference dung quanh loi goi roi tra lai.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try   { $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1 }
+    finally { $ErrorActionPreference = $prevEap }
     Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
     if ("$out" -match "MERGE_OK") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
     else { Err "Merge JSON thất bại ($out). File gốc còn nguyên trong .bak.$Stamp — KHÔNG ghi đè."; }
@@ -334,9 +344,11 @@ function Install-Skill([string]$SkillRoot) {
                 if (-not $mine) {
                     $skf = Join-Path $dst "SKILL.md"
                     if (Test-Path $skf) {
-                        $h = (Get-Content $skf -TotalCount 5 -ErrorAction SilentlyContinue) -join "`n"
+                        $h = (Get-Content $skf -TotalCount 8 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
                         if ($h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$") { $mine = $true }
-                    } else { $mine = $true }   # thu muc rong/rac -> coi la cua ta
+                    }
+                    # KHONG coi thu muc thieu SKILL.md la cua ta: do co the la thu muc user
+                    # tu tao (ghi chu, asset...). Xoa la mat du lieu ho, khong the hoan tac.
                 }
                 if (-not $mine) {
                     Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
@@ -430,10 +442,18 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
                 # Ban truoc v0.6 sinh skill nay MA CHUA co marker. Neu doi hoi marker tuyet doi
                 # thi nguoi nang cap vua khong cap nhat duoc, vua khong go duoc — ket vinh vien.
                 # Nhan dien theo DAU VET SINH RA: frontmatter `name: <ten lenh>` do chinh ta ghi.
+                # HAI dau hieu, phai co ca hai. Chi doi 'name:' la chua du: user dat skill
+                # rieng dung ten powerbi-help thi cung khop -> ta xoa mat do cua ho.
+                # Dau hieu 2: truong provenance ASCII (v0.6+), hoac cau mo ta dac trung do
+                # chinh template cu sinh ra (v0.5.x). Doc UTF8 tuong minh — Get-Content mac
+                # dinh ANSI tren PS 5.1 nen tieng Viet se lech va so khop luon truot.
                 $sk = Join-Path $dst "SKILL.md"
                 if (Test-Path $sk) {
-                    $head = Get-Content $sk -TotalCount 5 -ErrorAction SilentlyContinue
-                    if (($head -join "`n") -match "(?m)^name:\s*$([regex]::Escape($name))\s*$") { $owned = $true }
+                    $head = (Get-Content $sk -TotalCount 8 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                    $nameOk = $head -match "(?m)^name:\s*$([regex]::Escape($name))\s*$"
+                    $prov   = ($head -match "(?m)^x-generated-by:\s*powerbi-agent\s*$") -or
+                              ($head -match ([regex]::Escape("Gọi khi user nói")))
+                    if ($nameOk -and $prov) { $owned = $true }
                 }
             }
             if (-not $owned) {
@@ -443,7 +463,7 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
             Remove-Item $dst -Recurse -Force
         }
         New-Item -ItemType Directory -Path $dst -Force | Out-Null
-        $head = "---`nname: $name`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
+        $head = "---`nname: $name`nx-generated-by: powerbi-agent`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
         Write-Utf8NoBom (Join-Path $dst "SKILL.md") ($head + $body)
         # Marker ghi SAU CUNG: SKILL.md loi thi khong de lai thu muc co marker ma rong.
         Write-Utf8NoBom $marker "powerbi-agent sinh tu plugins/powerbi-agent/commands/$name.md`n"

@@ -33,4 +33,4 @@ def test_installer_config_suite():
     assert lines, f"suite không chạy ra ca nào:\n{out[-2000:]}"
     fails = [line for line in lines if line.startswith("FAIL")]
     assert not fails, "Có ca FAIL:\n" + "\n".join(fails) + f"\n--- full ---\n{out[-3000:]}"
-    assert len(lines) >= 25, f"thiếu ca (được {len(lines)}/25):\n" + "\n".join(lines)
+    assert len(lines) >= 26, f"thiếu ca (được {len(lines)}/26):\n" + "\n".join(lines)
