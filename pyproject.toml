@@ -11,7 +11,9 @@ license = { file = "LICENSE" }
 authors = [{ name = "Duc Nguyen (ducnguyen221)" }]
 requires-python = ">=3.11"
 dependencies = [
-    "mcp>=1.27",
+    # <2: mcp 2.0 BO module `mcp.server.fastmcp` ma powerbi_agent/app.py import.
+    # Khong phai pin cho gon — la gioi han tuong thich API. CI cai 2.0.0 va server chet.
+    "mcp>=1.27,<2",
     "pyadomd>=0.1.1",
     "pythonnet>=3.0",
     "pandas>=2.2",

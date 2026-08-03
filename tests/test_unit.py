@@ -268,6 +268,19 @@ class TestKnowledgeIndexMigration:
         assert "projects/ban-le/PROJECT.md" in txt
 
 
+
+def _outside(path: str, repo: str) -> bool:
+    """`path` nằm NGOÀI `repo`?
+
+    KHÔNG dùng trực tiếp `os.path.commonpath`: nó NÉM `ValueError: Paths don't have
+    the same drive` khi hai đường khác ổ đĩa — trên CI repo ở `D:\` còn tmp ở `C:\`
+    nên hai test này đỏ dù code đúng. Khác ổ đĩa thì hiển nhiên là ở ngoài.
+    """
+    try:
+        return os.path.commonpath([os.path.abspath(path), repo]) != repo
+    except ValueError:
+        return True
+
 class TestKnowledge:
     def test_slugify_vietnamese(self):
         from powerbi_agent import knowledge as kn
@@ -352,7 +365,7 @@ class TestKnowledge:
         monkeypatch.delenv("POWERBI_POLICY_FILE", raising=False)
         monkeypatch.delenv("POWERBI_DISTILL_DIR", raising=False)
         for got in (policy._audit_dir(), policy._policy_file(), _resolve_output_dir(None)):
-            assert os.path.commonpath([os.path.abspath(got), repo]) != repo, got
+            assert _outside(got, repo), got
 
     def test_audit_falls_back_outside_repo_when_not_setup(self, monkeypatch):
         """Chạy DAX trước khi setup vẫn phải ghi audit — nhưng KHÔNG vào repo."""
@@ -363,7 +376,7 @@ class TestKnowledge:
         monkeypatch.delenv(kn.ENV_KEY, raising=False)
         monkeypatch.setattr(kn, "LEGACY_CONFIG_FILE", "Z:/khong/ton/tai.json")
         d = policy._audit_dir()
-        assert os.path.commonpath([os.path.abspath(d), repo]) != repo
+        assert _outside(d, repo)
 
     def test_skeleton_and_timeline_and_index(self, tmp_path):
         from powerbi_agent import knowledge as kn

@@ -41,6 +41,13 @@ function Json-Valid([string]$p) {
     & $venvPy -c "import json,sys; json.load(open(sys.argv[1],encoding='utf-8-sig'))" $p 2>$null | Out-Null
     return ($LASTEXITCODE -eq 0)
 }
+function FileHash([string]$p) {
+    # KHONG dung Get-FileHash: tren runner CI cmdlet nay khong resolve duoc
+    # ("CommandNotFoundException") -> harness chet giua chung. .NET thuan luon co.
+    if (-not (Test-Path $p)) { return '' }
+    $md5 = [System.Security.Cryptography.MD5]::Create()
+    return [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($p)))
+}
 function Add-Result([string]$case,[bool]$pass,[string]$note){
     $script:results += [pscustomobject]@{case=$case; pass=$pass; note=$note}
     Write-Host ("{0} {1} - {2}" -f ($(if($pass){'PASS'}else{'FAIL'}), $case, $note))
@@ -105,9 +112,9 @@ $agFx = '{"mcpServers":{"other":{"command":"keep","args":["one"]}}}'
 $out1 = Run-Install 'claude,antigravity'
 $cj = Join-Path $FakeHome '.claude.json'; $ag = Join-Path $FakeHome '.gemini\antigravity\mcp_config.json'
 $cjV = Json-Valid $cj; $agV = Json-Valid $ag
-$h1 = (Get-FileHash $cj).Hash + (Get-FileHash $ag).Hash
+$h1 = (FileHash $cj) + (FileHash $ag)
 $null = Run-Install 'claude,antigravity'
-$h2 = (Get-FileHash $cj).Hash + (Get-FileHash $ag).Hash
+$h2 = (FileHash $cj) + (FileHash $ag)
 # python structural check: entry đúng + dữ liệu cũ còn (empty key survive!)
 $chk = & $venvPy -c @"
 import json,sys
@@ -281,9 +288,9 @@ Add-Result 'D-skiphosts-contract' (-not $touched) "daDungThuMucHost=$touched (ph
 Reset-Home
 $onlyV2 = "[mcp_servers.powerbi-mcp-bridge-v2]`ncommand = `"KEEPME`"`nargs = [`"-u`", `"keep.py`"]`n"
 [System.IO.File]::WriteAllText($cfgPath, $onlyV2, (New-Object System.Text.UTF8Encoding($false)))
-$hashTruoc = (Get-FileHash $cfgPath).Hash
+$hashTruoc = (FileHash $cfgPath)
 $null = Run-Uninstall 'codex'
-$khongDungFile = ((Get-FileHash $cfgPath).Hash -eq $hashTruoc)
+$khongDungFile = ((FileHash $cfgPath) -eq $hashTruoc)
 $khongTaoBak   = @(Get-ChildItem (Split-Path $cfgPath -Parent) -Filter 'config.toml.bak.*').Count -eq 0
 Add-Result 'D-uninstall-leaves-lookalike-alone' ($khongDungFile -and $khongTaoBak) `
     "fileNguyenVen=$khongDungFile khongTaoBakThua=$khongTaoBak"
