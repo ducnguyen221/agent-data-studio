@@ -25,6 +25,8 @@ function Err($m){$script:HadError = $true; Write-Host "[X] $m" -ForegroundColor 
 function Backup-File($p){ if(Test-Path $p){ Copy-Item $p "$p.bak.$Stamp" -Force; Info "Backup: $p.bak.$Stamp" } }
 function Write-Utf8NoBom($Path,$Text){ [System.IO.File]::WriteAllText($Path,$Text,(New-Object System.Text.UTF8Encoding($false)))}
 $name = "powerbi-mcp-bridge"
+# Co user tu dat de noi "thu muc nay la CUA TOI, dung dung" (xem install.ps1).
+$KeepFile = ".powerbi-agent-keep"
 
 function Remove-FromJson($Path){
     # BẪY ĐÃ TÁI HIỆN: KHÔNG round-trip JSON host bằng PS 5.1 (key rỗng trong ~/.claude.json
@@ -106,21 +108,29 @@ if ($Hosts -contains "antigravity") { Remove-FromJson (Join-Path $env:USERPROFIL
 if ($Hosts -contains "codex") {
     $cfg = Join-Path $env:USERPROFILE ".codex\config.toml"
     if (Test-Path $cfg) {
-        Backup-File $cfg
         $text = Get-Content $cfg -Raw -Encoding UTF8
         if ($null -eq $text) { $text = '' }
-        # Phải khớp CẢ sub-table ([mcp_servers.powerbi-mcp-bridge.env]): nếu chỉ xóa block cha,
-        # sub-table còn lại vẫn ngầm tạo server không có `command` -> Codex lỗi config.
-        # Lookahead `^\[` (ngoặc ĐẦU DÒNG), KHÔNG dùng [^\[]*: dòng `args = ["-u", ...]`
-        # có `[` giữa dòng, sẽ cắt cụt block và làm hỏng file.
-        $new = [regex]::Replace($text, '(?ms)^\[mcp_servers\.powerbi-mcp-bridge(?:\.[^\]\r\n]+)?\].*?(?=^\[|\z)', '')
-        Write-Utf8NoBom $cfg ($new.TrimEnd() + "`n")
-        # validate parse sau khi ghi (tiêu chí audit: MỌI nhánh ghi config đều validate)
-        if (Test-Path $venvPy) {
-            & $venvPy -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" $cfg 2>$null
-            if ($LASTEXITCODE -ne 0) { Err "config.toml KHÔNG parse được sau khi gỡ — khôi phục từ .bak.$Stamp!" }
-            else { Ok "Đã gỡ block khỏi $cfg (validate OK)" }
-        } else { Ok "Đã gỡ block khỏi $cfg" }
+        # File KHÔNG chứa block của ta -> không có gì để gỡ, và KHÔNG đụng vào file (kể cả
+        # backup). Trước đây vẫn TrimEnd+ghi đè rồi validate: một config.toml vốn đã hỏng sẵn
+        # (không phải lỗi ta) làm uninstall exit 1 kèm thông điệp đổ lỗi cho bước gỡ và khuyên
+        # khôi phục từ .bak — trong khi bản .bak vừa tạo hỏng y hệt.
+        if ($text -notmatch '(?m)^\[mcp_servers\.powerbi-mcp-bridge') {
+            Info "$cfg không chứa '$name' -> không đụng vào file."
+        } else {
+            Backup-File $cfg
+            # Phải khớp CẢ sub-table ([mcp_servers.powerbi-mcp-bridge.env]): nếu chỉ xóa block cha,
+            # sub-table còn lại vẫn ngầm tạo server không có `command` -> Codex lỗi config.
+            # Lookahead `^\[` (ngoặc ĐẦU DÒNG), KHÔNG dùng [^\[]*: dòng `args = ["-u", ...]`
+            # có `[` giữa dòng, sẽ cắt cụt block và làm hỏng file.
+            $new = [regex]::Replace($text, '(?ms)^\[mcp_servers\.powerbi-mcp-bridge(?:\.[^\]\r\n]+)?\].*?(?=^\[|\z)', '')
+            Write-Utf8NoBom $cfg ($new.TrimEnd() + "`n")
+            # validate parse sau khi ghi (tiêu chí audit: MỌI nhánh ghi config đều validate)
+            if (Test-Path $venvPy) {
+                & $venvPy -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" $cfg 2>$null
+                if ($LASTEXITCODE -ne 0) { Err "config.toml KHÔNG parse được sau khi gỡ — khôi phục từ .bak.$Stamp!" }
+                else { Ok "Đã gỡ block khỏi $cfg (validate OK)" }
+            } else { Ok "Đã gỡ block khỏi $cfg" }
+        }
     }
 }
 
@@ -152,8 +162,8 @@ foreach ($skRoot in $hostSkillRoots) {
         # nen chi ap luat "phai co marker" cho nhom sinh ra - tranh xoa skill rieng cua user
         # chi vi no trung ten voi mot lenh.
         # Cờ user đặt thắng mọi suy đoán (đối xứng với install.ps1).
-        if (Test-Path (Join-Path $p ".powerbi-agent-keep")) {
-            Info "Giữ nguyên '$p' (có .powerbi-agent-keep)."
+        if (Test-Path (Join-Path $p $KeepFile)) {
+            Info "Giữ nguyên '$p' (có $KeepFile)."
             continue
         }
         $mine = (Test-Path (Join-Path $p ".powerbi-agent-generated"))

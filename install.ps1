@@ -96,8 +96,13 @@ if ((-not (Test-Path $envFile)) -and (Test-Path $envEx)) {
 # 1) PYTHON VENV + DEPENDENCIES
 # ============================================================
 $venvPy = Join-Path $Root ".venv\Scripts\python.exe"
-# Override cho CI/test (không có venv): dùng python chỉ định để merge/validate config
-if (-not (Test-Path $venvPy) -and $env:POWERBI_INSTALL_PYTHON) { $venvPy = $env:POWERBI_INSTALL_PYTHON }
+# Override cho CI/test: dùng python chỉ định để merge/validate config.
+# PHẢI thắng cả khi repo CÓ venv, miễn là -SkipVenv: nếu không thì harness chạy trên máy dev
+# (có .venv) sẽ âm thầm dùng venv thật thay vì python mà test chỉ định — ca test wrapper
+# trở thành XANH GIẢ, chỉ đỏ trong CI. (uninstall.ps1 vẫn theo luật cũ vì không có -SkipVenv.)
+if ($env:POWERBI_INSTALL_PYTHON -and ($SkipVenv -or -not (Test-Path $venvPy))) {
+    $venvPy = $env:POWERBI_INSTALL_PYTHON
+}
 
 if ($SkipVenv) {
     Warn "Bỏ qua venv/pip (-SkipVenv)."
@@ -505,6 +510,12 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
         # thi BAO va bo qua, khong pha do cua ho.
         $marker = Join-Path $dst ".powerbi-agent-generated"
         if (Test-Path $dst) {
+            # Cờ user thắng MỌI suy đoán — giống Install-Skill. Thiếu dòng này thì skill-lệnh
+            # đã gắn cờ vẫn bị Remove-Item -Recurse phía dưới, xoá luôn chính file cờ.
+            if (Test-Path (Join-Path $dst $KeepFile)) {
+                Info "Giữ nguyên skill-lệnh '$name' của bạn (có $KeepFile)."
+                continue
+            }
             $owned = Test-Path $marker
             if (-not $owned) {
                 # Ban truoc v0.6 sinh skill nay MA CHUA co marker. Neu doi hoi marker tuyet doi
@@ -546,6 +557,13 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
             if ($generated -contains $old) { continue }
             if ($old -ne [System.IO.Path]::GetFileName($old) -or $old -match '[\*\?\[\]]') { continue }
             $p = Join-Path $SkillRoot $old
+            # Cờ keep phải chặn CẢ đường này. Skill-lệnh đã gắn cờ bị `continue` ở vòng trên nên
+            # KHÔNG vào $generated -> ở đây trông y hệt "lệnh đã bị xoá khỏi repo", và vì nó vẫn
+            # mang marker cũ nên bị xoá sạch. Đã tái hiện: chắn ở vòng trên thôi là chưa đủ.
+            if (Test-Path (Join-Path $p $KeepFile)) {
+                Info "Giữ nguyên skill-lệnh '$old' của bạn (có $KeepFile)."
+                continue
+            }
             if ((Test-Path (Join-Path $p ".powerbi-agent-generated"))) {
                 Remove-Item $p -Recurse -Force; Info "Xoa skill-lenh da bo: $old"
             }
@@ -600,7 +618,12 @@ if ($Hosts -contains "antigravity") {
     # Antigravity KHÔNG có cơ chế slash-command (xem hosts/antigravity/README.md). Đặt bộ lệnh
     # ngay trong skill powerbi-knowledge để agent vẫn đọc được quy trình và gọi theo tên.
     $kn = Join-Path $h "skills\powerbi-knowledge"
-    if (Test-Path $kn) { Install-Commands (Join-Path $kn "commands") "tham chiếu trong skill" }
+    if (Test-Path (Join-Path $kn $KeepFile)) {
+        # "Để yên hoàn toàn" phải là hoàn toàn: giữ thân skill mà vẫn nhét 8 file lệnh + sổ ghi
+        # vào trong nó thì vẫn có thể đè file cùng tên của user.
+        Warn "Giữ nguyên '$kn' (có $KeepFile) -> Antigravity KHÔNG nhận được bộ lệnh."
+    }
+    elseif (Test-Path $kn) { Install-Commands (Join-Path $kn "commands") "tham chiếu trong skill" }
     else {
         # Im lặng ở đây là tệ nhất: Antigravity không có slash-command nên user không có cách
         # nào tự phát hiện mình đang thiếu TOÀN BỘ bộ lệnh.
