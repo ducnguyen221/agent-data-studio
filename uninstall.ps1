@@ -114,7 +114,10 @@ if ($Hosts -contains "codex") {
         # backup). Trước đây vẫn TrimEnd+ghi đè rồi validate: một config.toml vốn đã hỏng sẵn
         # (không phải lỗi ta) làm uninstall exit 1 kèm thông điệp đổ lỗi cho bước gỡ và khuyên
         # khôi phục từ .bak — trong khi bản .bak vừa tạo hỏng y hệt.
-        if ($text -notmatch '(?m)^\[mcp_servers\.powerbi-mcp-bridge') {
+        # Phải ĐÓNG NGOẶC: prefix trần còn khớp `[mcp_servers.powerbi-mcp-bridge-v2]` — server RIÊNG
+        # của user — nên ta tưởng có block của mình rồi ghi đè + báo "đã gỡ" trong khi không gỡ gì.
+        # (install.ps1 kiểm `$had` đã đóng ngoặc đúng từ đầu — copy sang cho khớp.)
+        if ($text -notmatch '(?m)^\[mcp_servers\.powerbi-mcp-bridge(?:\]|\.)') {
             Info "$cfg không chứa '$name' -> không đụng vào file."
         } else {
             Backup-File $cfg
@@ -200,9 +203,10 @@ foreach ($skRoot in $hostSkillRoots) {
         Remove-Item $p -Recurse -Force; Info "Xoá skill: $p"
     }
 }
-# Gỡ ĐỐI XỨNG với bước 4 của installer. Installer ghi vào 3 nơi (Claude commands+agents,
-# Codex prompts, và trong skill Antigravity); gỡ mà chỉ dọn Claude thì Codex giữ nguyên 8 lệnh
-# sống nhăn sau khi user tưởng đã gỡ sạch. (Antigravity tự sạch vì lệnh nằm trong skill folder
+# Gỡ ĐỐI XỨNG với bước 4 của installer: Claude commands + agents, và `.codex\prompts` của
+# bản CŨ (từ restructure, lệnh Codex được sinh thành SKILL chứ không còn là prompt — nhánh
+# prompts giữ lại chỉ để dọn bản cũ). Gỡ mà chỉ dọn Claude thì người nâng cấp giữ nguyên 8
+# lệnh sống nhăn sau khi tưởng đã gỡ sạch. (Antigravity tự sạch vì lệnh nằm trong skill folder
 # đã bị xoá đệ quy ở trên.)
 function Remove-InstalledFrom([string]$Dir, [string]$SrcDir, [string[]]$Legacy, [string]$What) {
     if (-not (Test-Path $Dir)) { return }
@@ -233,6 +237,10 @@ if (-not (Test-Path $agentSrcDir)) { Warn "Không thấy $agentSrcDir — bỏ q
 $legacyCmds = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
 
 if ($Hosts -contains "codex") {
+    # Sổ ghi skill-lệnh do Install-CommandsAsSkills tạo. Không xoá thì gỡ xong vẫn còn file
+    # mồ côi, và lần cài sau nó là "sổ ghi của bản cài đã biến mất" — sai nguồn sự thật.
+    $cxLedger = Join-Path $env:USERPROFILE ".codex\skills\.powerbi-agent-skills.txt"
+    if (Test-Path $cxLedger) { Remove-Item $cxLedger -Force; Info "Xoá sổ ghi skill-lệnh: $cxLedger" }
     Remove-InstalledFrom (Join-Path $env:USERPROFILE ".codex\prompts") $cmdSrcDir $legacyCmds "lệnh"
 }
 if ($Hosts -contains "claude") {

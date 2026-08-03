@@ -183,7 +183,7 @@ $codexCmdSk  = @($codexAll | Where-Object { Test-Path (Join-Path $_.FullName 'SK
                  Where-Object { (Get-Content (Join-Path $_.FullName 'SKILL.md') -Raw) -match '(?m)^name:\s*powerbi-' })
 $codexNoPrompts = -not (Test-Path (Join-Path $FakeHome '.codex\prompts'))
 Add-Result 'D-codex-commands' ($codexAll.Count -eq ($expectSkills + $expectCmds) -and $codexNoPrompts) `
-    "skillTong=$($codexAll.Count)/$(4 + $expectCmds) khongDungPrompts=$codexNoPrompts"
+    "skillTong=$($codexAll.Count)/$($expectSkills + $expectCmds) khongDungPrompts=$codexNoPrompts"
 
 Reset-Home
 $null = Run-Install 'antigravity'
@@ -275,6 +275,25 @@ $null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
     & '$RepoRoot\install.ps1' -Hosts claude -SkipVenv -SkipHosts" *>&1
 $touched = (Test-Path (Join-Path $FakeHome '.claude\skills')) -or (Test-Path (Join-Path $FakeHome '.claude\commands'))
 Add-Result 'D-skiphosts-contract' (-not $touched) "daDungThuMucHost=$touched (phai=False)"
+
+# Config chi chua server KHAC co ten BAT DAU BANG ten cua ta (powerbi-mcp-bridge-v2):
+# prefix-match khong dong ngoac lam uninstall tuong co block cua minh -> ghi de + bao gia "da go".
+Reset-Home
+$onlyV2 = "[mcp_servers.powerbi-mcp-bridge-v2]`ncommand = `"KEEPME`"`nargs = [`"-u`", `"keep.py`"]`n"
+[System.IO.File]::WriteAllText($cfgPath, $onlyV2, (New-Object System.Text.UTF8Encoding($false)))
+$hashTruoc = (Get-FileHash $cfgPath).Hash
+$null = Run-Uninstall 'codex'
+$khongDungFile = ((Get-FileHash $cfgPath).Hash -eq $hashTruoc)
+$khongTaoBak   = @(Get-ChildItem (Split-Path $cfgPath -Parent) -Filter 'config.toml.bak.*').Count -eq 0
+Add-Result 'D-uninstall-leaves-lookalike-alone' ($khongDungFile -and $khongTaoBak) `
+    "fileNguyenVen=$khongDungFile khongTaoBakThua=$khongTaoBak"
+
+# So ghi skill-lenh Codex phai bien mat cung voi skill (truoc day mo coi lai sau khi go).
+Reset-Home
+$null = Run-Install 'codex'
+$null = Run-Uninstall 'codex'
+$soGhiConLai = Test-Path (Join-Path $FakeHome '.codex\skills\.powerbi-agent-skills.txt')
+Add-Result 'D-uninstall-removes-skill-ledger' (-not $soGhiConLai) "soGhiConLai=$soGhiConLai (phai=False)"
 
 # Gỡ phải ĐỐI XỨNG: Codex prompts + Claude agents cũng phải sạch, không chỉ Claude commands.
 Reset-Home
