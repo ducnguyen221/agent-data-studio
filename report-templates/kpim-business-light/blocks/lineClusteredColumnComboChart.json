@@ -172,7 +172,7 @@
             "axisType": {
               "expr": {
                 "Literal": {
-                  "Value": "'Scalar'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -218,7 +218,7 @@
             "gridlineStyle": {
               "expr": {
                 "Literal": {
-                  "Value": "'dotted'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -307,7 +307,7 @@
             "displayName": {
               "expr": {
                 "Literal": {
-                  "Value": "'Trend line 1'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -326,7 +326,7 @@
             "style": {
               "expr": {
                 "Literal": {
-                  "Value": "'dotted'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -390,7 +390,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'Top'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -411,7 +411,7 @@
             "legendMarkerRendering": {
               "expr": {
                 "Literal": {
-                  "Value": "'lineAndMarker'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -449,7 +449,7 @@
             "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "'InsideBase'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -512,7 +512,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Phân Tích Theo:'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -567,7 +567,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -578,7 +578,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -589,7 +589,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FFFFFF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -604,7 +604,7 @@
             "section": {
               "expr": {
                 "Literal": {
-                  "Value": "'fa77887c9a293023e5d2'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -613,7 +613,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -624,7 +624,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -635,7 +635,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F6F8FB'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -646,7 +646,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -683,7 +683,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FFFFFF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -780,7 +780,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -791,7 +791,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F6F8FB'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }

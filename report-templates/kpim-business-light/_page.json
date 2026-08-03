@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
-  "displayName": "02 · Phân Tích Khách Hàng",
+  "displayName": "TEMPLATE_LABEL_6",
   "displayOption": "FitToPage",
   "height": 720,
   "width": 1280,
@@ -13,7 +13,7 @@
               "color": {
                 "expr": {
                   "Literal": {
-                    "Value": "'#DFE7F6'"
+                    "Value": "'TEMPLATE_TEXT'"
                   }
                 }
               }

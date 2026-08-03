@@ -433,7 +433,7 @@ if ((-not $SkipVenv) -and (Test-Path $venvPy)) {
     $out = & $venvPy -c $probe 2>&1
     if ($out -match "IMPORTS_OK") { Ok "Thư viện import OK. Server sẵn sàng." } else { Warn "Import có vấn đề:"; Write-Host $out }
 
-    # KHÔNG nội suy $Root vào literal Python: đường dẫn có dấu nháy đơn (C:\Users\Duc's PC\…)
+    # KHÔNG nội suy $Root vào literal Python: đường dẫn có dấu nháy đơn (vd thư mục tên "Anh's PC")
     # hoặc kết thúc bằng "\" sẽ tạo SyntaxError, probe im lặng thất bại và installer khuyên SAI.
     # Truyền đường dẫn qua argv thay vì ghép chuỗi.
     $probe2 = @'

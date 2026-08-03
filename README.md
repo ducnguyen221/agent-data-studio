@@ -31,7 +31,7 @@ workflows and templates here are **distilled by many KPIM experts** from real en
 | **1** | **MCP Server** | 16 tools so the agent queries DAX, edits the model and writes report pages itself — every query passing a **server-side data-safety policy**, not a prompt hint. |
 | **2** | **Digitized expertise** | 4 skills · 8 commands · 1 curator agent · a Knowledge OS. The agent follows a real consultant's process instead of improvising. |
 | **3** | **Report design kits** | Clone a proven page and rebind the fields — style preserved 100%. Layouts an AI draws from scratch always look off; this fixes that. |
-| **4** | **Document templates** | 7 markdown deliverables + a 6-sheet Excel + a Power BI theme + 5 mindmaps, ready to fill in for a new project. |
+| **4** | **Document templates** | 7 markdown deliverables + a 6-sheet Excel + a Power BI theme + 6 mindmaps, ready to fill in for a new project. |
 
 **→ Where everything lives, folder by folder: [INDEX.md](INDEX.md).**
 

@@ -88,12 +88,16 @@ def register(mcp):
             # nhất quán cho cả blocks lẫn blueprint
             san_map = {}
             if sanitize:
-                all_e, all_p = set(), set()
+                all_e, all_p, all_lb = set(), set(), set()
                 for _, vobj in visuals:
                     e, p = pbir.collect_field_names(vobj)
                     all_e |= e
                     all_p |= p
-                san_map = pbir.build_sanitize_map(all_e, all_p)
+                    # Nhãn hiển thị (nativeQueryRef/displayName/metadata) là tên nghiệp vụ
+                    # user tự đặt — KHÔNG suy ra được từ Entity/Property. Thiếu bước này
+                    # từng làm lọt tên measure thật của khách hàng vào kit công khai.
+                    all_lb |= pbir.collect_display_labels(vobj)
+                san_map = pbir.build_sanitize_map(all_e, all_p, all_lb)
 
             # 1 exemplar / visualType — chọn file GIÀU style nhất (JSON dài nhất)
             exemplars: dict[str, tuple[str, dict, int]] = {}

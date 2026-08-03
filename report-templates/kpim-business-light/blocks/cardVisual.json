@@ -42,8 +42,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
-              "nativeQueryRef": "ARPU bình quân (đ)",
-              "displayName": "ARPU bình quân (đ)"
+              "nativeQueryRef": "TEMPLATE_LABEL_7",
+              "displayName": "TEMPLATE_LABEL_7"
             },
             {
               "field": {
@@ -57,8 +57,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
-              "nativeQueryRef": "TEMPLATE_FIELD_34 bq",
-              "displayName": "TEMPLATE_FIELD_34 bq"
+              "nativeQueryRef": "TEMPLATE_LABEL_15",
+              "displayName": "TEMPLATE_LABEL_15"
             }
           ]
         }
@@ -112,7 +112,7 @@
             "contentOrder": {
               "expr": {
                 "Literal": {
-                  "Value": "'callout_image_referenceLabel'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -133,7 +133,7 @@
             "alignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'middle'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -162,7 +162,7 @@
             "fontFamily": {
               "expr": {
                 "Literal": {
-                  "Value": "'Calibri'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -219,7 +219,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.KHDT · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_10"
           }
         },
         {
@@ -233,7 +233,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.PTM · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_13"
           }
         },
         {
@@ -247,7 +247,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.Duy trì · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_8"
           }
         },
         {
@@ -504,14 +504,14 @@
             "titleContentType": {
               "expr": {
                 "Literal": {
-                  "Value": "'custom'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleText": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_FIELD_29 Hủy/Rời'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -526,14 +526,14 @@
             "titleContentType": {
               "expr": {
                 "Literal": {
-                  "Value": "'custom'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleText": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_FIELD_29 Rủi Ro'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -548,14 +548,14 @@
             "titleContentType": {
               "expr": {
                 "Literal": {
-                  "Value": "'custom'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleText": {
               "expr": {
                 "Literal": {
-                  "Value": "'ARPU Hủy/Rời'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -570,14 +570,14 @@
             "titleContentType": {
               "expr": {
                 "Literal": {
-                  "Value": "'custom'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleText": {
               "expr": {
                 "Literal": {
-                  "Value": "'ARPU KH rủi ro'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -592,14 +592,14 @@
             "titleContentType": {
               "expr": {
                 "Literal": {
-                  "Value": "'custom'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Điểm Cơ Hội TB:'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -614,14 +614,14 @@
             "titleContentType": {
               "expr": {
                 "Literal": {
-                  "Value": "'custom'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Điểm Rủi Ro TB:'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -827,21 +827,21 @@
             "arrangement": {
               "expr": {
                 "Literal": {
-                  "Value": "'rows'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "style": {
               "expr": {
                 "Literal": {
-                  "Value": "'sentence'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "horizontalAlignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'left'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -855,7 +855,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'below'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -896,7 +896,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Icon 1.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -905,14 +905,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "Icon_121425886312539322.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -944,7 +944,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'sales.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -953,14 +953,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "sales32492743387953393.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -968,7 +968,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.PTM · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_13"
           }
         },
         {
@@ -978,7 +978,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'revenue.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -987,14 +987,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "revenue16730429997574825.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1002,7 +1002,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.KHDT · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_10"
           }
         },
         {
@@ -1012,7 +1012,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'revenue (1).png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -1021,14 +1021,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "revenue_(1)23578523972326026.png"
+                      "ItemName": "revenue_(1)TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1036,7 +1036,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.Duy trì · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_8"
           }
         },
         {
@@ -1046,7 +1046,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'profile.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -1055,14 +1055,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "profile7881261873057331.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1080,7 +1080,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'cash.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -1089,14 +1089,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "cash9445972651389629.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1114,7 +1114,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'cloud-computing.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -1123,14 +1123,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "cloud-computing028588640621623918.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1261,7 +1261,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1327,7 +1327,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#efb5bb'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1354,7 +1354,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#b3d9d9'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -1442,7 +1442,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1508,7 +1508,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#efb5bb'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1535,7 +1535,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#b3d9d9'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -1623,7 +1623,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1689,7 +1689,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#efb5bb'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1716,7 +1716,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#b3d9d9'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -1804,7 +1804,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1870,7 +1870,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#efb5bb'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -1897,7 +1897,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#b3d9d9'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }

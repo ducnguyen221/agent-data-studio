@@ -19,7 +19,7 @@ Two views of the same repo. **§1 answers "I want to do X — where do I go?"**
 | **1** | **MCP Server** — the agent works directly on Power BI | 16 tools behind a server-side data-safety policy | [`powerbi_agent/`](powerbi_agent/) · [`hosts/`](hosts/) · `install.ps1` · `policy.example.json` | all 16 tools |
 | **2** | **Digitized expertise** — your workflow, skills, knowledge | 4 skills · 8 commands · 1 agent · Knowledge OS | [`plugins/powerbi-agent/`](plugins/README.md) | `/powerbi-*` |
 | **3** | **Report design kits** — build reports like a designer | Clone-and-rebind kits; style preserved 100% | [`report-templates/`](report-templates/README.md) | `list_templates` · `apply_template` · `distill_template` · `/powerbi-kit` |
-| **4** | **Document templates** — create & manage analysis docs | 7 markdown docs + Excel (6 sheets) + theme + 5 mindmaps | [`plugins/powerbi-agent/skills/kpim-analysis/document-templates/`](plugins/powerbi-agent/skills/kpim-analysis/document-templates/) | skill `kpim-analysis` |
+| **4** | **Document templates** — create & manage analysis docs | 7 markdown docs + Excel (6 sheets) + theme + 6 mindmaps | [`plugins/powerbi-agent/skills/kpim-analysis/document-templates/`](plugins/powerbi-agent/skills/kpim-analysis/document-templates/) | skill `kpim-analysis` |
 
 ### 1.1 Pillar 1 — MCP Server
 
@@ -69,7 +69,8 @@ someone who works the way an experienced Power BI consultant works.
 |---|---|---|
 | [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | Project start — data in, before touching the model | `document-templates/` (pillar 4) · `scripts/` (generators) |
 | [`powerbi-pipeline`](plugins/powerbi-agent/skills/powerbi-pipeline/SKILL.md) | Building — the 9 technical steps | `references/` — DAX · Power Query M · SQL best practices · gotchas · knowledge map |
-| | | |
+| [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | Unsure which tool to call | Tool reference + policy rules + split with `powerbi-modeling` |
+| [`powerbi-knowledge`](plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md) | Handling project knowledge | Knowledge OS mechanics, 4-axis packaging, privacy rules |
 
 **The KPIM analysis process (skill `kpim-analysis`), 5 phases:** Research (read the data, ask back) →
 Key Information (Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery)
@@ -79,12 +80,6 @@ Key Information (Requirements · Analytics Questions · Data · Metrics & Dimens
 2 Transform M (explicit data types) → 3 Star-schema modelling + relationships → 4 DAX measures
 (verify each) → 5 Aggregated queries (policy-guarded) → 6+7 Visuals & report pages from kits →
 8 Advanced (tooltips, drill-through, parameters) → 9 Artifacts + knowledge distillation.
-
-**Knowledge Dir layout** (auto-created by `setup_knowledge`): `projects/<slug>/` ·
-`knowledge/{tech-stack, industry, business-domain, powerbi}/` · `templates/` (your private kits) ·
-`INDEX.md` · `TIMELINE.md`.
-| [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | Unsure which tool to call | Tool reference + policy rules + split with `powerbi-modeling` |
-| [`powerbi-knowledge`](plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md) | Handling project knowledge | Knowledge OS mechanics, 4-axis packaging, privacy rules |
 
 **8 commands** in [`plugins/powerbi-agent/commands/`](plugins/powerbi-agent/commands/):
 `/powerbi-help` · `/powerbi-setup` · `/powerbi-new` · `/powerbi-scan` · `/powerbi-kit` ·
@@ -129,7 +124,7 @@ carries it to every host.
 | `REPORTS.md` | Report Group → Report → Page → visuals |
 | `DESIGN.md` + `theme.json` | Design rationale + an importable Power BI theme |
 | `Project_Management.xlsx` | 6 sheets incl. 2-level task planning |
-| `mindmaps/*.png` | Objectives · Questions · Data · Analysis · Report |
+| `mindmaps/*.html` | Objectives · Questions · Data dictionary · Measures · Dimensions · Reports |
 | `../scripts/` | Generators for the mindmaps and the xlsx |
 
 ---

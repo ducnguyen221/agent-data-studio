@@ -23,7 +23,7 @@ tags: [key-information, power-bi, kpim-mart, project-brief]
 ---
 
 ## 1. REQUIREMENTS & OBJECTIVES (Yêu cầu & Mục tiêu)
-🖼️ Mindmap: `mindmaps/key_objectives.png`
+🗺️ Mindmap: `mindmaps/key_objectives.html`
 
 | Nhóm mục tiêu | Yêu cầu cụ thể |
 |---|---|
@@ -55,7 +55,27 @@ mindmap
 ```
 
 ## 2. ANALYTICS QUESTIONS (Câu hỏi phân tích)
-🖼️ Mindmap: `mindmaps/key_questions.png`
+🗺️ Mindmap: `mindmaps/key_questions.html`
+
+```mermaid
+mindmap
+  root((KEY QUESTIONS))
+    Hiện trạng chỉ số
+      Doanh thu, sản phẩm bán hiện tại
+      Theo năm, theo tháng
+      Theo cửa hàng, quản lý, sản phẩm
+    Đạt chỉ tiêu chưa
+      Cửa hàng đạt hay không
+      Quản lý nào, tháng nào
+    Tăng hay giảm
+      So cùng kỳ năm trước
+      Cửa hàng, sản phẩm tăng giảm
+      Tháng vs tháng, quý vs quý
+    Nguyên nhân suy giảm
+      Cửa hàng không đạt chỉ tiêu
+      Vượt ngưỡng lũy kế năm
+      Truy vết xuống sản phẩm
+```
 
 | Nhóm câu hỏi | Câu hỏi phân tích |
 |---|---|
@@ -65,7 +85,7 @@ mindmap
 | **Yếu tố nào gây suy giảm DT?** | Cửa hàng tháng nào không đạt chỉ tiêu? Vượt ngưỡng lũy kế năm? Tháng giảm, cửa hàng nào giảm nhất? Truy vết cửa hàng suy giảm → sản phẩm nào bán giảm? |
 
 ## 3. DATA REQUIRED (Dữ liệu cần dùng)
-🖼️ Bảng: `mindmaps/key_data_dictionary.png` · Chi tiết: `DATA_DICTIONARY.md`
+🗺️ Sơ đồ: `mindmaps/key_data_dictionary.html` · Chi tiết: `DATA_DICTIONARY.md`
 
 | Nguồn | Nội dung | Vai trò |
 |---|---|---|
@@ -76,14 +96,14 @@ mindmap
 Bảng Fact chính (Đơn hàng bán) có **15 trường** — xem `DATA_DICTIONARY.md`.
 
 ## 4. METRICS & DIMENSIONS (Chỉ số & Chiều phân tích)
-🖼️ Mindmap: `mindmaps/key_analysis.png` · Chi tiết: `METRICS_CALCULATION.md` + `DOMAIN_DIMENSION.md`
+🗺️ Mindmap: `mindmaps/key_measures.html` · Chi tiết: `METRICS_CALCULATION.md` + `DOMAIN_DIMENSION.md`
 
 **Chỉ số chính (6 nhóm):** Doanh Thu · Lợi Nhuận Gộp · Tổng Khuyến Mãi · Số Sản Phẩm Bán · Số Khách Mua Hàng · Số Đơn Hàng (mỗi nhóm có measure phái sinh — xem `METRICS_CALCULATION.md`).
 
 **Chiều phân tích (4 nhóm):** Thời gian (Ngày/Tháng/Quý/Năm) · Khách hàng (Phân khúc/Hạng thẻ/Nhóm tuổi/Giới tính) · Sản phẩm (Ngành hàng/Nhóm SP/Phân loại/Nguồn gốc/Hãng) · Khu vực bán hàng (Quận/Cửa hàng/Quản lý).
 
 ## 5. RESULT & DELIVERY (Danh sách báo cáo & Bàn giao)
-🖼️ Mindmap: `mindmaps/key_report.png` · Chi tiết: `REPORTS.md`
+🗺️ Mindmap: `mindmaps/key_reports.html` · Chi tiết: `REPORTS.md`
 
 **6 báo cáo (Report):** Tổng quan · Phân tích doanh thu · Phân tích tái mua hàng · Kết quả theo khu vực · Phân khúc khách hàng · Giám sát biên lợi nhuận gộp.
 

@@ -149,7 +149,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'Left'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -176,7 +176,7 @@
             "labelStyle": {
               "expr": {
                 "Literal": {
-                  "Value": "'Category, data value, percent of total'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -296,7 +296,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Cơ cấu KH theo Phân khúc'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -351,7 +351,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FFFFFF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -375,7 +375,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -386,7 +386,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -397,7 +397,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F6F8FB'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -408,7 +408,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -417,7 +417,7 @@
             "section": {
               "expr": {
                 "Literal": {
-                  "Value": "'___AUTO___'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -432,7 +432,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -443,7 +443,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -454,7 +454,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FFFFFF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -471,7 +471,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -482,7 +482,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F6F8FB'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }

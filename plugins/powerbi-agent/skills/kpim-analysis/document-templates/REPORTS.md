@@ -10,7 +10,29 @@ tags: [reports, power-bi, kpim-mart, report-spec]
 
 # 📑 REPORTS — KPIM Mart
 
-> Danh sách & đặc tả báo cáo theo **Key Report Mindmap**, phân **3 cấp: Report Group → Report → Report Page**. Mỗi trang liệt kê **visual** map đúng loại block trong kit `kpim-business-light` (xem `27.06_PowerBI_Report_Design_Standard`). Ảnh: `mindmaps/key_report.png`.
+> Danh sách & đặc tả báo cáo theo **Key Report Mindmap**, phân **3 cấp: Report Group → Report → Report Page**. Mỗi trang liệt kê **visual** map đúng loại block trong kit `kpim-business-light` (xem `27.06_PowerBI_Report_Design_Standard`). Sơ đồ: `mindmaps/key_reports.html`.
+
+
+```mermaid
+mindmap
+  root((KEY REPORTS))
+    Tổng quan
+      Chỉ số chính
+      Xu hướng theo thời gian
+    Phân tích doanh thu
+      Theo sản phẩm
+      Theo khu vực
+    Phân tích khách hàng
+      Phân khúc
+      Tái mua hàng
+    Giám sát biên lợi nhuận
+      Theo ngành hàng
+      Cảnh báo ngưỡng
+    Chuẩn bố cục mọi trang
+      Bám template kit
+      Slicer thống nhất
+      Điều hướng bookmark
+```
 
 ## Cấu trúc phân cấp
 - **Report Group:** `KPIM Mart — Bán Hàng` (1 nhóm).

@@ -10,7 +10,30 @@ tags: [data-dictionary, kpim-mart, power-bi]
 
 # 🗃️ DATA DICTIONARY — KPIM Mart
 
-> Mô tả chi tiết các bảng, nguồn và trường dữ liệu. Bảng Fact chính = **Đơn hàng bán** (15 trường). Ảnh: `mindmaps/key_data_dictionary.png`.
+> Mô tả chi tiết các bảng, nguồn và trường dữ liệu. Bảng Fact chính = **Đơn hàng bán** (15 trường). Sơ đồ: `mindmaps/key_data_dictionary.html`.
+
+
+```mermaid
+mindmap
+  root((KEY DATA DICTIONARY))
+    Nguồn dữ liệu
+      Cơ sở dữ liệu giao dịch
+      File Excel nghiệp vụ
+      Kho tài liệu dùng chung
+    Bảng Fact
+      Khóa liên kết các chiều
+      Trường số để tính toán
+      Trường thời gian
+    Bảng Dim
+      Thời gian
+      Khách hàng
+      Sản phẩm
+      Khu vực
+    Quan hệ
+      Một chiều từ Dim sang Fact
+      Tránh quan hệ hai chiều
+      Tránh quan hệ nhiều nhiều
+```
 
 ## 1. Danh sách nguồn & bảng
 | STT | Nguồn | Bảng | Loại | Granularity | Ghi chú |

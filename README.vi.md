@@ -31,7 +31,7 @@ trình cùng mẫu báo cáo ở đây được **nhiều chuyên gia KPIM phố
 | **1** | **MCP Server** | 16 tool để agent tự truy vấn DAX, sửa model, ghi trang báo cáo — mọi câu truy vấn đều đi qua **policy an toàn dữ liệu ở phía server**, không phải lời nhắc trong prompt. |
 | **2** | **Chuyên môn đã số hóa** | 4 skill · 8 lệnh · 1 agent curator · Knowledge OS. Agent làm theo quy trình thật của chuyên gia thay vì tự ứng biến. |
 | **3** | **Kho mẫu thiết kế báo cáo** | Nhân bản trang đã đẹp rồi bind field mới — style giữ nguyên 100%. Layout AI tự vẽ luôn nhìn sai lệch; đây là cách chữa. |
-| **4** | **Bộ mẫu tài liệu** | 7 file markdown bàn giao + Excel 6 sheet + theme Power BI + 5 mindmap, điền là dùng được cho dự án mới. |
+| **4** | **Bộ mẫu tài liệu** | 7 file markdown bàn giao + Excel 6 sheet + theme Power BI + 6 mindmap, điền là dùng được cho dự án mới. |
 
 **→ Từng thư mục nằm đâu, chứa gì: [INDEX.md](INDEX.md).**
 

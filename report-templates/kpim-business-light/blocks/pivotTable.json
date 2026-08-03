@@ -57,9 +57,9 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_23",
-              "nativeQueryRef": "Mã KH",
+              "nativeQueryRef": "TEMPLATE_LABEL_11",
               "active": false,
-              "displayName": "Mã KH"
+              "displayName": "TEMPLATE_LABEL_11"
             }
           ]
         },
@@ -91,8 +91,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
-              "nativeQueryRef": "Dịch vụ BQ",
-              "displayName": "Dịch vụ BQ"
+              "nativeQueryRef": "TEMPLATE_LABEL_9",
+              "displayName": "TEMPLATE_LABEL_9"
             },
             {
               "field": {
@@ -111,8 +111,8 @@
                 }
               },
               "queryRef": "Sum(TEMPLATE_TABLE.TEMPLATE_FIELD_37)",
-              "nativeQueryRef": "Nhu cầu BQ",
-              "displayName": "Nhu cầu BQ"
+              "nativeQueryRef": "TEMPLATE_LABEL_12",
+              "displayName": "TEMPLATE_LABEL_12"
             },
             {
               "field": {
@@ -126,8 +126,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_1",
-              "nativeQueryRef": "% BRCĐ",
-              "displayName": "% BRCĐ"
+              "nativeQueryRef": "TEMPLATE_LABEL_1",
+              "displayName": "TEMPLATE_LABEL_1"
             },
             {
               "field": {
@@ -141,8 +141,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_5",
-              "nativeQueryRef": "% MyTV",
-              "displayName": "% MyTV"
+              "nativeQueryRef": "TEMPLATE_LABEL_5",
+              "displayName": "TEMPLATE_LABEL_5"
             },
             {
               "field": {
@@ -156,8 +156,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_4",
-              "nativeQueryRef": "% Mesh",
-              "displayName": "% Mesh"
+              "nativeQueryRef": "TEMPLATE_LABEL_4",
+              "displayName": "TEMPLATE_LABEL_4"
             },
             {
               "field": {
@@ -171,8 +171,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
-              "nativeQueryRef": "% Camera",
-              "displayName": "% Camera"
+              "nativeQueryRef": "TEMPLATE_LABEL_2",
+              "displayName": "TEMPLATE_LABEL_2"
             },
             {
               "field": {
@@ -186,8 +186,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_3",
-              "nativeQueryRef": "% Di động",
-              "displayName": "% Di động"
+              "nativeQueryRef": "TEMPLATE_LABEL_3",
+              "displayName": "TEMPLATE_LABEL_3"
             }
           ]
         }
@@ -305,14 +305,14 @@
             "alignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'Right'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "titleAlignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'Left'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -344,7 +344,7 @@
             "rowSubtotalsLabel": {
               "expr": {
                 "Literal": {
-                  "Value": "'Tổng tập đoàn'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -364,7 +364,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#EFF8FF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -414,7 +414,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.Duy trì · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_8"
           }
         },
         {
@@ -428,7 +428,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.PTM · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_13"
           }
         },
         {
@@ -442,7 +442,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.KHDT · DT thực hiện"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_LABEL_10"
           }
         },
         {
@@ -468,7 +468,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#EFF8FF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -542,7 +542,7 @@
                   "color": {
                     "expr": {
                       "Literal": {
-                        "Value": "'#D8EEFF'"
+                        "Value": "'TEMPLATE_TEXT'"
                       }
                     }
                   }
@@ -553,7 +553,7 @@
                   "color": {
                     "expr": {
                       "Literal": {
-                        "Value": "'minColor'"
+                        "Value": "'TEMPLATE_TEXT'"
                       }
                     }
                   }
@@ -564,7 +564,7 @@
                   "color": {
                     "expr": {
                       "Literal": {
-                        "Value": "'#FFFFFF'"
+                        "Value": "'TEMPLATE_TEXT'"
                       }
                     }
                   }
@@ -657,7 +657,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -750,7 +750,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -830,7 +830,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -910,7 +910,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#D64554'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -1007,7 +1007,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Bảng Chi Tiết'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
@@ -1069,7 +1069,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FFFFFF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1093,7 +1093,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1104,7 +1104,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1115,7 +1115,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F6F8FB'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1126,7 +1126,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1143,7 +1143,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1154,7 +1154,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1165,7 +1165,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#FFFFFF'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1203,7 +1203,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#2B395B'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1214,7 +1214,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F6F8FB'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }
@@ -1229,7 +1229,7 @@
             "name": {
               "expr": {
                 "Literal": {
-                  "Value": "'Minimal'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }

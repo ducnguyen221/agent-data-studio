@@ -1,13 +1,13 @@
 # Blueprint — (trang mẫu đã sanitize)
 
-> Distill 2026-07-12 từ (sanitized). 30 visual, 12 loại block. **Đã sanitize** — binding = placeholder TEMPLATE_*.
+> Distill 2026-07-12 từ một trang báo cáo nội bộ, ĐÃ gỡ toàn bộ tên bảng/cột/measure/nhãn. 30 visual, 12 loại block. **Đã sanitize** — binding = placeholder TEMPLATE_*.
 
 | Visual ID | Loại | Vị trí (x,y z) | Kích thước | Binding (Role: fields) |
 |---|---|---|---|---|
 | `003e94000534d497017e` | azureMap | 5,5 z2000 | 290×300 | Category: TEMPLATE_TABLE.TEMPLATE_FIELD_41; Tooltips: TEMPLATE_TABLE.TEMPLATE_FIELD_29, TEMPLATE_TABLE.TEMPLATE_FIELD_30, TEMPLATE_TABLE.TEMPLATE_FIELD_43 |
 | `00798d2bd1603186e38a` | *(group/container)* | 0,0 z7000 | 1281×80 | — |
 | `0a949e7b9032963612ee` | *(group/container)* | 30,420 z3000 | 581×280 | — |
-| `22e0b30405bd860b776a` | pivotTable | 0,0 z1750 | 620×281 | Rows: TEMPLATE_TABLE.TEMPLATE_FIELD_22, TEMPLATE_TABLE.TEMPLATE_FIELD_27, TEMPLATE_TABLE.TEMPLATE_FIELD_23; Values: TEMPLATE_TABLE.Số khiếu nại, TEMPLATE_TABLE.Số sự cố, TEMPLATE_TABLE.TEMPLATE_FIELD_31, TEMPLATE_TABLE.TEMPLATE_FIELD_33, TEMPLATE_TABLE.TEMPLATE_FIELD_45, TEMPLATE_TABLE.TEMPLATE_FIELD_30, TEMPLATE_TABLE.TEMPLATE_FIELD_43 |
+| `22e0b30405bd860b776a` | pivotTable | 0,0 z1750 | 620×281 | Rows: TEMPLATE_TABLE.TEMPLATE_FIELD_22, TEMPLATE_TABLE.TEMPLATE_FIELD_27, TEMPLATE_TABLE.TEMPLATE_FIELD_23; Values: TEMPLATE_TABLE.TEMPLATE_FIELD_51, TEMPLATE_TABLE.TEMPLATE_FIELD_52, TEMPLATE_TABLE.TEMPLATE_FIELD_31, TEMPLATE_TABLE.TEMPLATE_FIELD_33, TEMPLATE_TABLE.TEMPLATE_FIELD_45, TEMPLATE_TABLE.TEMPLATE_FIELD_30, TEMPLATE_TABLE.TEMPLATE_FIELD_43 |
 | `26ba20e1644de230c101` | shape | 0,0 z0 | 620×310 | — |
 | `27a95acb04623254e1be` | *(group/container)* | 630,420 z2437 | 620×281 | — |
 | `303f76d670573abd4b76` | *(group/container)* | 0,0 z3000 | 620×310 | — |

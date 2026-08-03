@@ -70,7 +70,7 @@
             "mode": {
               "expr": {
                 "Literal": {
-                  "Value": "'Dropdown'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }

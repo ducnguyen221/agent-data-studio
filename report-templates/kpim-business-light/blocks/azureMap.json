@@ -60,8 +60,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_33",
-              "nativeQueryRef": "TEMPLATE_FIELD_29 hủy",
-              "displayName": "TEMPLATE_FIELD_29 hủy"
+              "nativeQueryRef": "TEMPLATE_LABEL_14",
+              "displayName": "TEMPLATE_LABEL_14"
             },
             {
               "field": {
@@ -75,8 +75,8 @@
                 }
               },
               "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_45",
-              "nativeQueryRef": "Tỷ lệ rời mạng %",
-              "displayName": "Tỷ lệ rời mạng %"
+              "nativeQueryRef": "TEMPLATE_LABEL_16",
+              "displayName": "TEMPLATE_LABEL_16"
             }
           ]
         }
@@ -257,7 +257,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#E67D29'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         },
@@ -284,7 +284,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'#008DFF'"
+                              "Value": "'TEMPLATE_TEXT'"
                             }
                           }
                         }
@@ -348,7 +348,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Phân Tích:'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },

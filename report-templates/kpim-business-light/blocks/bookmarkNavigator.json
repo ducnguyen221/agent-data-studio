@@ -109,14 +109,14 @@
             "selectedBookmark": {
               "expr": {
                 "Literal": {
-                  "Value": "'25122362d65b9740c61b'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             },
             "bookmarkGroup": {
               "expr": {
                 "Literal": {
-                  "Value": "'d64e4f1204c03853422d'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }
@@ -159,7 +159,7 @@
             "tileShape": {
               "expr": {
                 "Literal": {
-                  "Value": "'rectangleRounded'"
+                  "Value": "'TEMPLATE_TEXT'"
                 }
               }
             }

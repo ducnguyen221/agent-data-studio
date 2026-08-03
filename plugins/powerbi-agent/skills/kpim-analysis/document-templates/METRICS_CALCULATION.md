@@ -10,7 +10,33 @@ tags: [dax, measures, kpim-mart, power-bi]
 
 # 🧮 METRICS_CALCULATION — KPIM Mart
 
-> Danh sách hàm tính (DAX Measure) theo **Key Analysis Mindmap**. Lưu trong bảng `Measure`, chia **DisplayFolder** theo 6 nhóm. Ảnh: `mindmaps/key_analysis.png`.
+> Danh sách hàm tính (DAX Measure) theo **Key Analysis Mindmap**. Lưu trong bảng `Measure`, chia **DisplayFolder** theo 6 nhóm. Sơ đồ: `mindmaps/key_measures.html`.
+
+
+```mermaid
+mindmap
+  root((KEY MEASURES))
+    Doanh thu
+      Doanh thu thực hiện
+      Doanh thu cùng kỳ
+      Lũy kế năm
+    Lợi nhuận gộp
+      Giá vốn
+      Biên lợi nhuận
+    Khuyến mãi
+      Tổng khuyến mãi
+      Tỷ lệ khuyến mãi trên doanh thu
+    Sản lượng
+      Số sản phẩm bán
+      Số đơn hàng
+    Khách hàng
+      Số khách mua
+      Khách mua lại
+    Kế hoạch và so sánh
+      Chỉ tiêu
+      Tỷ lệ hoàn thành
+      Chênh lệch thực hiện vs kế hoạch
+```
 
 ## Quy tắc đặt tên & tổ chức
 - Bảng riêng `Measure` (chỉ chứa measure). Folder con = 6 nhóm chỉ số.

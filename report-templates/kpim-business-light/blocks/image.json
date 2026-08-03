@@ -20,7 +20,7 @@
                 "ResourcePackageItem": {
                   "PackageName": "RegisteredResources",
                   "PackageType": 1,
-                  "ItemName": "Logo_KPIM10469296841355136.png"
+                  "ItemName": "TEMPLATE_IMAGE.png"
                 }
               }
             }
@@ -35,7 +35,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_IMAGE.png'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 },
@@ -51,7 +51,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'Normal'"
+                      "Value": "'TEMPLATE_TEXT'"
                     }
                   }
                 }

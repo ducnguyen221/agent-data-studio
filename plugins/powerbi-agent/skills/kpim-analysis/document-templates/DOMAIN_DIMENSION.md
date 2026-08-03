@@ -10,7 +10,28 @@ tags: [dimensions, business-thinking, kpim-mart, power-bi]
 
 # 🧭 DOMAIN_DIMENSION — KPIM Mart
 
-> Các cột chiều phân tích chính + tư duy nghiệp vụ đi kèm. Ảnh: `mindmaps/key_analysis.png` (nhánh trái).
+> Các cột chiều phân tích chính + tư duy nghiệp vụ đi kèm. Sơ đồ: `mindmaps/key_dimensions.html`.
+
+
+```mermaid
+mindmap
+  root((KEY DIMENSIONS))
+    Thời gian
+      Năm, quý, tháng, ngày
+      Cùng kỳ và lũy kế
+    Khách hàng
+      Phân khúc
+      Nhóm hành vi mua
+    Sản phẩm
+      Ngành hàng
+      Nhóm và mã sản phẩm
+    Khu vực
+      Vùng, tỉnh, cửa hàng
+      Người phụ trách
+    Kịch bản
+      Thực hiện
+      Kế hoạch
+```
 
 ## 1. Thời gian (`Dim_Date`)
 | Cột chiều | Cấp | Tư duy nghiệp vụ |
