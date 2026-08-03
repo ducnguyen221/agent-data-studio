@@ -35,7 +35,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -51,7 +51,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }

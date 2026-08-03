@@ -23,11 +23,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_22"
+                  "Property": "TEMPLATE_FIELD_12"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
-              "nativeQueryRef": "TEMPLATE_FIELD_22",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_12",
+              "nativeQueryRef": "TEMPLATE_FIELD_12",
               "active": true
             },
             {
@@ -38,11 +38,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_27"
+                  "Property": "TEMPLATE_FIELD_16"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_27",
-              "nativeQueryRef": "TEMPLATE_FIELD_27",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_16",
+              "nativeQueryRef": "TEMPLATE_FIELD_16",
               "active": false
             },
             {
@@ -53,10 +53,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_23"
+                  "Property": "TEMPLATE_FIELD_13"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_23",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_13",
               "nativeQueryRef": "TEMPLATE_LABEL_11",
               "active": false,
               "displayName": "TEMPLATE_LABEL_11"
@@ -73,11 +73,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_29"
+                  "Property": "TEMPLATE_FIELD_18"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
-              "nativeQueryRef": "TEMPLATE_FIELD_29"
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
+              "nativeQueryRef": "TEMPLATE_FIELD_18"
             },
             {
               "field": {
@@ -87,10 +87,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_35"
+                  "Property": "TEMPLATE_FIELD_22"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
               "nativeQueryRef": "TEMPLATE_LABEL_9",
               "displayName": "TEMPLATE_LABEL_9"
             },
@@ -104,13 +104,13 @@
                           "Entity": "TEMPLATE_TABLE"
                         }
                       },
-                      "Property": "TEMPLATE_FIELD_37"
+                      "Property": "TEMPLATE_FIELD_23"
                     }
                   },
                   "Function": 1
                 }
               },
-              "queryRef": "Sum(TEMPLATE_TABLE.TEMPLATE_FIELD_37)",
+              "queryRef": "TEMPLATE_LABEL_14.TEMPLATE_FIELD_23)",
               "nativeQueryRef": "TEMPLATE_LABEL_12",
               "displayName": "TEMPLATE_LABEL_12"
             },
@@ -137,10 +137,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_5"
+                  "Property": "TEMPLATE_FIELD_34"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_5",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_34",
               "nativeQueryRef": "TEMPLATE_LABEL_5",
               "displayName": "TEMPLATE_LABEL_5"
             },
@@ -152,10 +152,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_4"
+                  "Property": "TEMPLATE_FIELD_25"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_4",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_25",
               "nativeQueryRef": "TEMPLATE_LABEL_4",
               "displayName": "TEMPLATE_LABEL_4"
             },
@@ -167,10 +167,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_2"
+                  "Property": "TEMPLATE_FIELD_9"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_9",
               "nativeQueryRef": "TEMPLATE_LABEL_2",
               "displayName": "TEMPLATE_LABEL_2"
             },
@@ -182,10 +182,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_3"
+                  "Property": "TEMPLATE_FIELD_19"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_3",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_19",
               "nativeQueryRef": "TEMPLATE_LABEL_3",
               "displayName": "TEMPLATE_LABEL_3"
             }
@@ -201,7 +201,7 @@
         "levels": [
           {
             "queryRefs": [
-              "TEMPLATE_TABLE.TEMPLATE_FIELD_22"
+              "TEMPLATE_TABLE.TEMPLATE_FIELD_12"
             ],
             "isCollapsed": true,
             "identityKeys": [
@@ -212,7 +212,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_22"
+                  "Property": "TEMPLATE_FIELD_12"
                 }
               }
             ],
@@ -220,7 +220,7 @@
           },
           {
             "queryRefs": [
-              "TEMPLATE_TABLE.TEMPLATE_FIELD_27"
+              "TEMPLATE_TABLE.TEMPLATE_FIELD_16"
             ],
             "isCollapsed": true,
             "identityKeys": [
@@ -231,7 +231,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_27"
+                  "Property": "TEMPLATE_FIELD_16"
                 }
               }
             ],
@@ -239,7 +239,7 @@
           },
           {
             "queryRefs": [
-              "TEMPLATE_TABLE.TEMPLATE_FIELD_23"
+              "TEMPLATE_TABLE.TEMPLATE_FIELD_13"
             ],
             "isCollapsed": true,
             "isPinned": true
@@ -305,14 +305,14 @@
             "alignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Right'"
                 }
               }
             },
             "titleAlignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Left'"
                 }
               }
             },
@@ -364,7 +364,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#EFF8FF'"
                     }
                   }
                 }
@@ -456,7 +456,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18"
           }
         }
       ],
@@ -468,7 +468,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#EFF8FF'"
                     }
                   }
                 }
@@ -489,7 +489,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_19"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_8"
           }
         },
         {
@@ -503,7 +503,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_20"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10"
           }
         },
         {
@@ -517,7 +517,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_14"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_5"
           }
         },
         {
@@ -531,7 +531,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_26"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_15"
           }
         },
         {
@@ -542,7 +542,7 @@
                   "color": {
                     "expr": {
                       "Literal": {
-                        "Value": "'TEMPLATE_TEXT'"
+                        "Value": "'#D8EEFF'"
                       }
                     }
                   }
@@ -553,7 +553,7 @@
                   "color": {
                     "expr": {
                       "Literal": {
-                        "Value": "'TEMPLATE_TEXT'"
+                        "Value": "'minColor'"
                       }
                     }
                   }
@@ -564,7 +564,7 @@
                   "color": {
                     "expr": {
                       "Literal": {
-                        "Value": "'TEMPLATE_TEXT'"
+                        "Value": "'#FFFFFF'"
                       }
                     }
                   }
@@ -594,7 +594,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18"
           }
         }
       ],
@@ -618,7 +618,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_19"
+                                  "Property": "TEMPLATE_FIELD_8"
                                 }
                               },
                               "Right": {
@@ -645,7 +645,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_19"
+                                  "Property": "TEMPLATE_FIELD_8"
                                 }
                               },
                               "Right": {
@@ -657,7 +657,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         }
@@ -676,7 +676,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_19"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_8"
           }
         },
         {
@@ -689,7 +689,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_20"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10"
           }
         },
         {
@@ -711,7 +711,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_20"
+                                  "Property": "TEMPLATE_FIELD_10"
                                 }
                               },
                               "Right": {
@@ -738,7 +738,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_20"
+                                  "Property": "TEMPLATE_FIELD_10"
                                 }
                               },
                               "Right": {
@@ -750,7 +750,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         }
@@ -769,7 +769,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_20"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10"
           }
         },
         {
@@ -791,7 +791,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_26"
+                                  "Property": "TEMPLATE_FIELD_15"
                                 }
                               },
                               "Right": {
@@ -818,7 +818,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_26"
+                                  "Property": "TEMPLATE_FIELD_15"
                                 }
                               },
                               "Right": {
@@ -830,7 +830,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         }
@@ -849,7 +849,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_26"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_15"
           }
         },
         {
@@ -871,7 +871,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_14"
+                                  "Property": "TEMPLATE_FIELD_5"
                                 }
                               },
                               "Right": {
@@ -898,7 +898,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_14"
+                                  "Property": "TEMPLATE_FIELD_5"
                                 }
                               },
                               "Right": {
@@ -910,7 +910,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         }
@@ -929,7 +929,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_14"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_5"
           }
         }
       ]
@@ -1069,7 +1069,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -1093,7 +1093,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -1104,7 +1104,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -1115,7 +1115,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }
@@ -1126,7 +1126,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -1143,7 +1143,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -1154,7 +1154,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -1165,7 +1165,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -1203,7 +1203,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -1214,7 +1214,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }
@@ -1229,7 +1229,7 @@
             "name": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Minimal'"
                 }
               }
             }

@@ -53,9 +53,16 @@ def register(mcp):
         projects/ · knowledge/ 4 trục · templates/ · INDEX.md · TIMELINE.md. Idempotent.
         """
         try:
-            base = os.path.abspath(os.path.expanduser(path.strip().strip('"')))
+            base = os.path.abspath(os.path.expanduser(path.strip().strip('"').strip("'")))
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
-            if os.path.commonpath([base, repo_root]) == repo_root:
+            # commonpath NÉM ValueError khi hai đường dẫn khác ổ đĩa (hoặc UNC vs local) —
+            # mà "để dữ liệu sang ổ khác" chính là cấu hình phổ biến nhất cho mục tiêu này.
+            # Khác ổ đĩa ⇒ hiển nhiên NGOÀI repo ⇒ cho qua.
+            try:
+                inside_repo = os.path.commonpath([base, repo_root]) == repo_root
+            except ValueError:
+                inside_repo = False
+            if inside_repo:
                 return (
                     "TỪ CHỐI: đường dẫn nằm TRONG repo. Repo là git working tree — chỉ một lệnh "
                     "`git add -A` là tài liệu khách hàng bị commit, và `git pull`/cài lại có thể "

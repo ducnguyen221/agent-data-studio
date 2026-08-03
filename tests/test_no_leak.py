@@ -18,7 +18,9 @@ import subprocess
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Chỉ file do CHÍNH repo phát hành mới bị soi gắt. Artifact kế hoạch giữ nguyên vẹn làm lịch sử.
-SKIP_PREFIXES = ("docs/plans/", "docs/internal/", ".git/")
+# docs/internal/ khong duoc track. docs/plans/ THI CO -> khong duoc mien,
+# neu khong thi "file public duoc mien khoi quet file public".
+SKIP_PREFIXES = ("docs/internal/", ".git/")
 
 
 def tracked_files() -> list[str]:
@@ -199,3 +201,136 @@ class TestNoPersonalPaths:
                 for m in pat.finditer(line):
                     bad.append(f"{rel}:{i}: {m.group(0)}")
         assert not bad, "Đường dẫn home THẬT trong file công khai:\n  " + "\n  ".join(bad)
+
+
+class TestLeakedTokensNeverReturn:
+    """Deny-list các chuỗi ĐÃ TỪNG lọt ra kit công khai.
+
+    Lý do tồn tại: chính commit sửa rò rỉ lại chép nguyên các tên đó vào comment source
+    để giải thích. Sửa lỗi mà tái xuất bản đúng dữ liệu vừa gỡ — và không test nào thấy,
+    vì bộ quét cũ chỉ soi `report-templates/`.
+
+    Cũng chặn phần ASCII: heuristic "chữ có dấu tiếng Việt" mù hoàn toàn với tên
+    tiếng Anh / viết tắt, mà đó lại là loại dễ nhận dạng khách hàng nhất.
+    """
+
+    # Mã hoá base64 CÓ CHỦ ĐÍCH: nếu viết thẳng, chính file này lại là một chỗ tái xuất bản
+    # các chuỗi đã rò rỉ — và test sẽ tự bắt chính nó. Giải mã lúc chạy.
+    _DENY_B64 = [
+        "QVJQVQ==", "TXlUVg==", "QlJDxJA=", "VOG7tyBs4buHIHLhu51pIG3huqFuZw==",
+        "VOG7lW5nIHThuq1wIMSRb8Ogbg==", "U+G7kSBraGnhur91IG7huqFp",
+        "U+G7kSBz4buxIGPhu5E=", "S0hEVA==", "TG9nb19LUElN",
+    ]
+
+    @property
+    def DENY(self) -> tuple:
+        import base64
+        return tuple(base64.b64decode(x).decode("utf-8") for x in self._DENY_B64)
+    SCAN_EXT = (".py", ".ps1", ".md", ".json", ".html", ".js", ".yml", ".toml", ".example")
+
+    def test_no_known_leaked_token_anywhere(self):
+        bad = []
+        for rel in tracked_files():
+            if not rel.endswith(self.SCAN_EXT):
+                continue
+            try:
+                txt = read(rel)
+            except (UnicodeDecodeError, FileNotFoundError):
+                continue
+            for i, line in enumerate(txt.splitlines(), 1):
+                for tok in self.DENY:
+                    if tok in line:
+                        bad.append(f"{rel}:{i}: chứa {tok!r}")
+        assert not bad, (
+            "Chuỗi đã từng lọt ra bản public xuất hiện trở lại (kể cả trong comment/test):\n  "
+            + "\n  ".join(bad)
+        )
+
+    def test_kit_strings_are_style_or_placeholder(self):
+        """Mọi chuỗi trong kit phải là placeholder, token style, hoặc từ khoá PBIR.
+
+        Bắt được cả tên ASCII (`revenue_(1)…png`) mà bộ quét dấu tiếng Việt bỏ lọt.
+        """
+        import sys
+        sys.path.insert(0, REPO)
+        from powerbi_agent.pbir import is_placeholder_only
+
+        style = re.compile(
+            r"^'?#[0-9A-Fa-f]{3,8}'?$"           # màu hex
+            r"|^'?[A-Za-z][A-Za-z0-9 ]{0,30}'?$"  # enum / tên font: 1 cụm chữ, không dấu
+            r"|^[\d.,\-+eLD%]*$"                  # số / đơn vị
+            r"|^blocks/[\w.\-]+$"                 # đường dẫn nội bộ kit
+            r"|^https?://\S+$"                    # $schema và URL chuẩn của Microsoft
+            r"|^'?[\w.\- /:]+'?$"                 # định danh kỹ thuật không dấu
+            r"|^'?\(sanitized\)'?$"               # nhãn do chính distill_template ghi
+            # Giá trị enum nhiều từ có sẵn của Power BI, vd nội dung nhãn donut
+            # ("Category, data value, percent of total"). Thuần ASCII, không dấu.
+            r"|^'?[A-Za-z][A-Za-z ,]{2,60}'?$"
+        )
+        # Lưu ý giới hạn: nhánh cuối chấp nhận cụm tiếng Anh, nên một measure đặt tên
+        # tiếng Anh sẽ lọt qua CA NÀY. Lớp chặn cho trường hợp đó là
+        # test_json_blocks_only_reference_placeholders (Entity/Property) và deny-list.
+        bad = []
+        for rel in [f for f in tracked_files()
+                    if f.startswith("report-templates/") and f.endswith(".json")]:
+            obj = json.loads(read(rel))
+
+            def walk(node, _rel=rel):
+                if isinstance(node, dict):
+                    items = node.items()
+                elif isinstance(node, list):
+                    items = ((None, v) for v in node)
+                else:
+                    return
+                for k, v in items:
+                    if isinstance(v, str):
+                        s = v.strip()
+                        if s and not is_placeholder_only(s) and not style.match(s):
+                            bad.append(f"{_rel}: {k} = {s[:60]!r}")
+                    else:
+                        walk(v)
+
+            walk(obj)
+        assert not bad, (
+            "Chuỗi trong kit không phải placeholder cũng không phải token style "
+            "— nghi là tên nghiệp vụ:\n  " + "\n  ".join(sorted(set(bad))[:25])
+        )
+
+
+class TestMindmapsStayInSync:
+    """HTML mindmap sinh RA TỪ khối mermaid trong .md — hai bản không được lệch."""
+
+    def test_regenerating_html_produces_identical_files(self, tmp_path):
+        import shutil
+        import subprocess
+        import sys
+        skill = os.path.join(REPO, "plugins", "powerbi-agent", "skills", "kpim-analysis")
+        out = os.path.join(skill, "document-templates", "mindmaps")
+        before = {f: open(os.path.join(out, f), encoding="utf-8").read()
+                  for f in os.listdir(out) if f.endswith(".html")}
+        assert before, "không có mindmap HTML nào"
+        backup = tmp_path / "bak"
+        shutil.copytree(out, backup)
+        try:
+            r = subprocess.run(
+                [sys.executable, os.path.join(skill, "scripts", "generate_mindmap_html.py")],
+                capture_output=True, text=True, encoding="utf-8",
+            )
+            assert r.returncode == 0, f"generator lỗi:\n{r.stdout}\n{r.stderr}"
+            after = {f: open(os.path.join(out, f), encoding="utf-8").read()
+                     for f in os.listdir(out) if f.endswith(".html")}
+            assert after.keys() == before.keys(), (
+                f"đổi tập file: {sorted(before)} -> {sorted(after)}")
+            drift = [f for f in before if before[f] != after[f]]
+            assert not drift, (
+                "HTML đã lệch khỏi khối mermaid trong .md — chạy lại "
+                f"generate_mindmap_html.py rồi commit: {drift}")
+        finally:
+            shutil.rmtree(out)
+            shutil.copytree(backup, out)
+
+    def test_no_reference_to_deleted_png_mindmaps(self):
+        bad = [f"{rel}" for rel in tracked_files()
+               if rel.endswith((".md", ".html")) and "mindmaps/key_" in read(rel)
+               and ".png" in read(rel).split("mindmaps/key_")[1][:40]]
+        assert not bad, f"còn trỏ tới mindmap PNG đã xoá: {bad}"

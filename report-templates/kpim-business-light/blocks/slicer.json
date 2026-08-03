@@ -23,11 +23,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_27"
+                  "Property": "TEMPLATE_FIELD_16"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_27",
-              "nativeQueryRef": "TEMPLATE_FIELD_27",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_16",
+              "nativeQueryRef": "TEMPLATE_FIELD_16",
               "active": true
             }
           ]
@@ -42,7 +42,7 @@
         "levels": [
           {
             "queryRefs": [
-              "TEMPLATE_TABLE.TEMPLATE_FIELD_27"
+              "TEMPLATE_TABLE.TEMPLATE_FIELD_16"
             ],
             "isCollapsed": true,
             "identityKeys": [
@@ -53,7 +53,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_27"
+                  "Property": "TEMPLATE_FIELD_16"
                 }
               }
             ],
@@ -70,7 +70,7 @@
             "mode": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Dropdown'"
                 }
               }
             }

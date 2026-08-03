@@ -72,15 +72,15 @@
                                       "Source": "c"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_28"
+                                  "Property": "TEMPLATE_FIELD_17"
                                 },
-                                "Name": "TEMPLATE_FIELD_12"
+                                "Name": "TEMPLATE_FIELD_4"
                               }
                             ]
                           }
                         }
                       },
-                      "Property": "TEMPLATE_FIELD_12"
+                      "Property": "TEMPLATE_FIELD_4"
                     }
                   },
                   "IncludeAllTypes": 1

@@ -23,11 +23,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_39"
+                  "Property": "TEMPLATE_FIELD_24"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_39",
-              "nativeQueryRef": "TEMPLATE_FIELD_39",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_24",
+              "nativeQueryRef": "TEMPLATE_FIELD_24",
               "active": true
             },
             {
@@ -38,11 +38,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_9"
+                  "Property": "TEMPLATE_FIELD_39"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_9",
-              "nativeQueryRef": "TEMPLATE_FIELD_9",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_39",
+              "nativeQueryRef": "TEMPLATE_FIELD_39",
               "active": false
             },
             {
@@ -53,17 +53,49 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_24"
+                  "Property": "TEMPLATE_FIELD_14"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_24",
-              "nativeQueryRef": "TEMPLATE_FIELD_24",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_14",
+              "nativeQueryRef": "TEMPLATE_FIELD_14",
               "active": false
             }
           ]
         },
         "Y": {
           "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "TEMPLATE_TABLE"
+                    }
+                  },
+                  "Property": "TEMPLATE_FIELD_18"
+                }
+              },
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
+              "nativeQueryRef": "TEMPLATE_FIELD_18"
+            }
+          ]
+        },
+        "Y2": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "TEMPLATE_TABLE"
+                    }
+                  },
+                  "Property": "TEMPLATE_FIELD_31"
+                }
+              },
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_31",
+              "nativeQueryRef": "TEMPLATE_FIELD_31"
+            },
             {
               "field": {
                 "Measure": {
@@ -79,42 +111,23 @@
               "nativeQueryRef": "TEMPLATE_FIELD_29"
             }
           ]
-        },
-        "Y2": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "TEMPLATE_TABLE"
-                    }
-                  },
-                  "Property": "TEMPLATE_FIELD_45"
-                }
-              },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_45",
-              "nativeQueryRef": "TEMPLATE_FIELD_45"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "TEMPLATE_TABLE"
-                    }
-                  },
-                  "Property": "TEMPLATE_FIELD_43"
-                }
-              },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_43",
-              "nativeQueryRef": "TEMPLATE_FIELD_43"
-            }
-          ]
         }
       },
       "sortDefinition": {
         "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "TEMPLATE_TABLE"
+                  }
+                },
+                "Property": "TEMPLATE_FIELD_24"
+              }
+            },
+            "direction": "Ascending"
+          },
           {
             "field": {
               "Column": {
@@ -136,20 +149,7 @@
                     "Entity": "TEMPLATE_TABLE"
                   }
                 },
-                "Property": "TEMPLATE_FIELD_9"
-              }
-            },
-            "direction": "Ascending"
-          },
-          {
-            "field": {
-              "Column": {
-                "Expression": {
-                  "SourceRef": {
-                    "Entity": "TEMPLATE_TABLE"
-                  }
-                },
-                "Property": "TEMPLATE_FIELD_24"
+                "Property": "TEMPLATE_FIELD_14"
               }
             },
             "direction": "Ascending"
@@ -172,7 +172,7 @@
             "axisType": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Scalar'"
                 }
               }
             },
@@ -218,7 +218,7 @@
             "gridlineStyle": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'dotted'"
                 }
               }
             },
@@ -307,7 +307,7 @@
             "displayName": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Trend line 1'"
                 }
               }
             },
@@ -326,7 +326,7 @@
             "style": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'dotted'"
                 }
               }
             }
@@ -390,7 +390,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Top'"
                 }
               }
             },
@@ -411,7 +411,7 @@
             "legendMarkerRendering": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'lineAndMarker'"
                 }
               }
             }
@@ -449,7 +449,7 @@
             "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'InsideBase'"
                 }
               }
             },
@@ -567,7 +567,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -578,7 +578,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -589,7 +589,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -604,7 +604,7 @@
             "section": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'fa77887c9a293023e5d2'"
                 }
               }
             },
@@ -613,7 +613,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -624,7 +624,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -635,7 +635,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }
@@ -646,7 +646,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -683,7 +683,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -780,7 +780,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -791,7 +791,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }

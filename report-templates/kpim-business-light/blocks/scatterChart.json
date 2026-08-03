@@ -23,11 +23,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_16"
+                  "Property": "TEMPLATE_FIELD_7"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_16",
-              "nativeQueryRef": "TEMPLATE_FIELD_16",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_7",
+              "nativeQueryRef": "TEMPLATE_FIELD_7",
               "active": true
             },
             {
@@ -38,11 +38,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_21"
+                  "Property": "TEMPLATE_FIELD_11"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_21",
-              "nativeQueryRef": "TEMPLATE_FIELD_21",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_11",
+              "nativeQueryRef": "TEMPLATE_FIELD_11",
               "active": false
             },
             {
@@ -53,11 +53,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_50"
+                  "Property": "TEMPLATE_FIELD_35"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_50",
-              "nativeQueryRef": "TEMPLATE_FIELD_50",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+              "nativeQueryRef": "TEMPLATE_FIELD_35",
               "active": false
             },
             {
@@ -68,11 +68,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_22"
+                  "Property": "TEMPLATE_FIELD_12"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
-              "nativeQueryRef": "TEMPLATE_FIELD_22",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_12",
+              "nativeQueryRef": "TEMPLATE_FIELD_12",
               "active": false
             }
           ]
@@ -87,11 +87,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_29"
+                  "Property": "TEMPLATE_FIELD_18"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
-              "nativeQueryRef": "TEMPLATE_FIELD_29"
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
+              "nativeQueryRef": "TEMPLATE_FIELD_18"
             }
           ]
         },
@@ -105,11 +105,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_35"
+                  "Property": "TEMPLATE_FIELD_22"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
-              "nativeQueryRef": "TEMPLATE_FIELD_35",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
+              "nativeQueryRef": "TEMPLATE_FIELD_22",
               "active": true
             }
           ]
@@ -124,11 +124,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_10"
+                  "Property": "TEMPLATE_FIELD_2"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
-              "nativeQueryRef": "TEMPLATE_FIELD_10"
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
+              "nativeQueryRef": "TEMPLATE_FIELD_2"
             }
           ]
         }
@@ -148,7 +148,7 @@
             "axisType": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Scalar'"
                 }
               }
             },
@@ -194,7 +194,7 @@
             "gridlineStyle": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'dotted'"
                 }
               }
             },
@@ -221,7 +221,7 @@
             "displayName": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Trend line 1'"
                 }
               }
             },
@@ -240,7 +240,7 @@
             "style": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'dotted'"
                 }
               }
             }
@@ -265,7 +265,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Top'"
                 }
               }
             },
@@ -382,7 +382,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -393,7 +393,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -404,7 +404,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -426,7 +426,7 @@
             "section": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'fa77887c9a293023e5d2'"
                 }
               }
             },
@@ -435,7 +435,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -446,7 +446,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -457,7 +457,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }
@@ -468,7 +468,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -505,7 +505,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -602,7 +602,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -613,7 +613,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }

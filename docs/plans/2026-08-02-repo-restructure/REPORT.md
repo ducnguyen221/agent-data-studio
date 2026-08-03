@@ -20,7 +20,7 @@ Nhánh `restructure/v3` · 5 commit · 2026-08-02/03 · **chưa merge vào `main
 **Cách chạy lại toàn bộ:**
 
 ```powershell
-cd C:\Users\DucNguyen\.mcp\powerbi-mcp
+cd %USERPROFILE%\.mcp\powerbi-mcp
 git checkout restructure/v3
 .venv\Scripts\python.exe -m pytest tests -m "not integration" -q
 .venv\Scripts\python.exe -m ruff check powerbi_agent tests mcp_server_powerbi.py scripts
@@ -103,7 +103,7 @@ Installer tự dọn 6 lệnh cũ (có test `C-legacy-cmd-cleanup` chứng minh 
 ## 7. Cách anh kiểm tra lại
 
 ```powershell
-cd C:\Users\DucNguyen\.mcp\powerbi-mcp
+cd %USERPROFILE%\.mcp\powerbi-mcp
 git log --oneline main..restructure/v3        # 5 commit
 git diff --stat main...restructure/v3          # ~90 file
 git diff main...restructure/v3 -- install.ps1  # phần rủi ro nhất

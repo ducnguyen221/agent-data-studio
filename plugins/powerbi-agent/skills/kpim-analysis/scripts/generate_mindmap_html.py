@@ -137,11 +137,11 @@ def main() -> int:
     for n in names:
         total += build(n)
     if not total:
-        print("Không tìm thấy khối ```mermaid mindmap nào.")
+        print("Khong tim thay khoi mermaid mindmap nao.")
         return 1
     for f in total:
         print("  ->", f)
-    print(f"Đã sinh {len(total)} mindmap HTML trong {os.path.relpath(OUT, DOCS)}/")
+    print(f"Da sinh {len(total)} mindmap HTML trong {os.path.relpath(OUT, DOCS)}/")
     return 0
 
 

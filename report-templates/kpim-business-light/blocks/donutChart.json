@@ -23,11 +23,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_22"
+                  "Property": "TEMPLATE_FIELD_12"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
-              "nativeQueryRef": "TEMPLATE_FIELD_22",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_12",
+              "nativeQueryRef": "TEMPLATE_FIELD_12",
               "active": false
             },
             {
@@ -38,11 +38,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_27"
+                  "Property": "TEMPLATE_FIELD_16"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_27",
-              "nativeQueryRef": "TEMPLATE_FIELD_27",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_16",
+              "nativeQueryRef": "TEMPLATE_FIELD_16",
               "active": true
             },
             {
@@ -53,11 +53,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_15"
+                  "Property": "TEMPLATE_FIELD_6"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_15",
-              "nativeQueryRef": "TEMPLATE_FIELD_15",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_6",
+              "nativeQueryRef": "TEMPLATE_FIELD_6",
               "active": false
             },
             {
@@ -68,11 +68,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_21"
+                  "Property": "TEMPLATE_FIELD_11"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_21",
-              "nativeQueryRef": "TEMPLATE_FIELD_21",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_11",
+              "nativeQueryRef": "TEMPLATE_FIELD_11",
               "active": false
             },
             {
@@ -83,11 +83,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_40"
+                  "Property": "TEMPLATE_FIELD_26"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_40",
-              "nativeQueryRef": "TEMPLATE_FIELD_40",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_26",
+              "nativeQueryRef": "TEMPLATE_FIELD_26",
               "active": false
             }
           ]
@@ -102,11 +102,11 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_29"
+                  "Property": "TEMPLATE_FIELD_18"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
-              "nativeQueryRef": "TEMPLATE_FIELD_29"
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
+              "nativeQueryRef": "TEMPLATE_FIELD_18"
             }
           ]
         }
@@ -121,7 +121,7 @@
                     "Entity": "TEMPLATE_TABLE"
                   }
                 },
-                "Property": "TEMPLATE_FIELD_29"
+                "Property": "TEMPLATE_FIELD_18"
               }
             },
             "direction": "Descending"
@@ -149,7 +149,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Left'"
                 }
               }
             },
@@ -176,7 +176,7 @@
             "labelStyle": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Category, data value, percent of total'"
                 }
               }
             },
@@ -351,7 +351,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -375,7 +375,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -386,7 +386,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -397,7 +397,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }
@@ -408,7 +408,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -417,7 +417,7 @@
             "section": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'___AUTO___'"
                 }
               }
             }
@@ -432,7 +432,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -443,7 +443,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -454,7 +454,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#FFFFFF'"
                     }
                   }
                 }
@@ -471,7 +471,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#2B395B'"
                     }
                   }
                 }
@@ -482,7 +482,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'#F6F8FB'"
                     }
                   }
                 }

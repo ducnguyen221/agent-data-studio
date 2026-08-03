@@ -23,12 +23,12 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_29"
+                  "Property": "TEMPLATE_FIELD_18"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
-              "nativeQueryRef": "TEMPLATE_FIELD_29",
-              "displayName": "TEMPLATE_FIELD_29"
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
+              "nativeQueryRef": "TEMPLATE_FIELD_18",
+              "displayName": "TEMPLATE_FIELD_18"
             },
             {
               "field": {
@@ -38,10 +38,10 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_10"
+                  "Property": "TEMPLATE_FIELD_2"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
               "nativeQueryRef": "TEMPLATE_LABEL_7",
               "displayName": "TEMPLATE_LABEL_7"
             },
@@ -53,12 +53,12 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_35"
+                  "Property": "TEMPLATE_FIELD_22"
                 }
               },
-              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
-              "nativeQueryRef": "TEMPLATE_LABEL_15",
-              "displayName": "TEMPLATE_LABEL_15"
+              "queryRef": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
+              "nativeQueryRef": "TEMPLATE_LABEL_16",
+              "displayName": "TEMPLATE_LABEL_16"
             }
           ]
         }
@@ -112,7 +112,7 @@
             "contentOrder": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'callout_image_referenceLabel'"
                 }
               }
             },
@@ -133,7 +133,7 @@
             "alignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'middle'"
                 }
               }
             }
@@ -162,7 +162,7 @@
             "fontFamily": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'Calibri'"
                 }
               }
             },
@@ -261,7 +261,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18"
           }
         },
         {
@@ -275,7 +275,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2"
           }
         }
       ],
@@ -318,7 +318,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_33"
+                  "Property": "TEMPLATE_FIELD_21"
                 }
               }
             }
@@ -331,7 +331,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r1",
             "order": 0
           }
@@ -346,7 +346,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_30"
+                  "Property": "TEMPLATE_FIELD_20"
                 }
               }
             }
@@ -359,7 +359,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r2",
             "order": 1
           }
@@ -374,7 +374,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_11"
+                  "Property": "TEMPLATE_FIELD_3"
                 }
               }
             }
@@ -387,7 +387,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r1",
             "order": 0
           }
@@ -402,7 +402,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_8"
+                  "Property": "TEMPLATE_FIELD_38"
                 }
               }
             }
@@ -415,7 +415,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r2",
             "order": 1
           }
@@ -430,7 +430,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_47"
+                  "Property": "TEMPLATE_FIELD_32"
                 }
               }
             }
@@ -443,7 +443,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r1",
             "order": 0
           }
@@ -458,7 +458,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_49"
+                  "Property": "TEMPLATE_FIELD_33"
                 }
               }
             }
@@ -471,7 +471,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r2",
             "order": 1
           }
@@ -517,7 +517,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r1"
           }
         },
@@ -539,7 +539,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r2"
           }
         },
@@ -561,7 +561,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r1"
           }
         },
@@ -583,7 +583,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r2"
           }
         },
@@ -605,7 +605,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r1"
           }
         },
@@ -627,7 +627,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r2"
           }
         }
@@ -658,7 +658,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r1"
           }
         },
@@ -673,7 +673,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r2"
           }
         },
@@ -688,7 +688,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r1"
           }
         },
@@ -703,7 +703,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r2"
           }
         },
@@ -718,7 +718,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r1"
           }
         },
@@ -733,7 +733,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r2"
           }
         }
@@ -827,21 +827,21 @@
             "arrangement": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'rows'"
                 }
               }
             },
             "style": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'sentence'"
                 }
               }
             },
             "horizontalAlignment": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'left'"
                 }
               }
             },
@@ -855,7 +855,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'TEMPLATE_TEXT'"
+                  "Value": "'below'"
                 }
               }
             }
@@ -896,7 +896,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -912,7 +912,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -944,7 +944,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -960,7 +960,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -978,7 +978,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -994,7 +994,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -1012,7 +1012,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -1021,14 +1021,14 @@
                     "ResourcePackageItem": {
                       "PackageName": "RegisteredResources",
                       "PackageType": 1,
-                      "ItemName": "revenue_(1)TEMPLATE_IMAGE.png"
+                      "ItemName": "TEMPLATE_IMAGE.png"
                     }
                   }
                 },
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -1046,7 +1046,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -1062,7 +1062,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -1070,7 +1070,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18"
           }
         },
         {
@@ -1080,7 +1080,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -1096,7 +1096,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -1104,7 +1104,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2"
           }
         },
         {
@@ -1114,7 +1114,7 @@
                 "name": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'TEMPLATE_IMAGE.png'"
                     }
                   }
                 },
@@ -1130,7 +1130,7 @@
                 "scaling": {
                   "expr": {
                     "Literal": {
-                      "Value": "'TEMPLATE_TEXT'"
+                      "Value": "'Normal'"
                     }
                   }
                 }
@@ -1138,7 +1138,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22"
           }
         }
       ],
@@ -1214,7 +1214,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r1"
           }
         },
@@ -1228,7 +1228,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_45"
+                  "Property": "TEMPLATE_FIELD_31"
                 }
               }
             },
@@ -1249,7 +1249,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_45"
+                                  "Property": "TEMPLATE_FIELD_31"
                                 }
                               },
                               "Right": {
@@ -1261,7 +1261,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         },
@@ -1276,7 +1276,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_45"
+                                  "Property": "TEMPLATE_FIELD_31"
                                 }
                               },
                               "Right": {
@@ -1315,7 +1315,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_45"
+                                  "Property": "TEMPLATE_FIELD_31"
                                 }
                               },
                               "Right": {
@@ -1327,7 +1327,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#efb5bb'"
                             }
                           }
                         },
@@ -1342,7 +1342,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_45"
+                                  "Property": "TEMPLATE_FIELD_31"
                                 }
                               },
                               "Right": {
@@ -1354,7 +1354,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#b3d9d9'"
                             }
                           }
                         }
@@ -1373,7 +1373,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r1"
           }
         },
@@ -1395,7 +1395,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r2"
           }
         },
@@ -1409,7 +1409,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_43"
+                  "Property": "TEMPLATE_FIELD_29"
                 }
               }
             },
@@ -1430,7 +1430,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_43"
+                                  "Property": "TEMPLATE_FIELD_29"
                                 }
                               },
                               "Right": {
@@ -1442,7 +1442,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         },
@@ -1457,7 +1457,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_43"
+                                  "Property": "TEMPLATE_FIELD_29"
                                 }
                               },
                               "Right": {
@@ -1496,7 +1496,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_43"
+                                  "Property": "TEMPLATE_FIELD_29"
                                 }
                               },
                               "Right": {
@@ -1508,7 +1508,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#efb5bb'"
                             }
                           }
                         },
@@ -1523,7 +1523,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_43"
+                                  "Property": "TEMPLATE_FIELD_29"
                                 }
                               },
                               "Right": {
@@ -1535,7 +1535,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#b3d9d9'"
                             }
                           }
                         }
@@ -1554,7 +1554,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_29",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_18",
             "id": "field-t1r2"
           }
         },
@@ -1576,7 +1576,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r1"
           }
         },
@@ -1590,7 +1590,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_44"
+                  "Property": "TEMPLATE_FIELD_30"
                 }
               }
             },
@@ -1611,7 +1611,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_44"
+                                  "Property": "TEMPLATE_FIELD_30"
                                 }
                               },
                               "Right": {
@@ -1623,7 +1623,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         },
@@ -1638,7 +1638,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_44"
+                                  "Property": "TEMPLATE_FIELD_30"
                                 }
                               },
                               "Right": {
@@ -1677,7 +1677,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_44"
+                                  "Property": "TEMPLATE_FIELD_30"
                                 }
                               },
                               "Right": {
@@ -1689,7 +1689,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#efb5bb'"
                             }
                           }
                         },
@@ -1704,7 +1704,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_44"
+                                  "Property": "TEMPLATE_FIELD_30"
                                 }
                               },
                               "Right": {
@@ -1716,7 +1716,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#b3d9d9'"
                             }
                           }
                         }
@@ -1735,7 +1735,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r1"
           }
         },
@@ -1757,7 +1757,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r2"
           }
         },
@@ -1771,7 +1771,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_42"
+                  "Property": "TEMPLATE_FIELD_28"
                 }
               }
             },
@@ -1792,7 +1792,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_42"
+                                  "Property": "TEMPLATE_FIELD_28"
                                 }
                               },
                               "Right": {
@@ -1804,7 +1804,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#D64554'"
                             }
                           }
                         },
@@ -1819,7 +1819,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_42"
+                                  "Property": "TEMPLATE_FIELD_28"
                                 }
                               },
                               "Right": {
@@ -1858,7 +1858,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_42"
+                                  "Property": "TEMPLATE_FIELD_28"
                                 }
                               },
                               "Right": {
@@ -1870,7 +1870,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#efb5bb'"
                             }
                           }
                         },
@@ -1885,7 +1885,7 @@
                                       "Entity": "TEMPLATE_TABLE"
                                     }
                                   },
-                                  "Property": "TEMPLATE_FIELD_42"
+                                  "Property": "TEMPLATE_FIELD_28"
                                 }
                               },
                               "Right": {
@@ -1897,7 +1897,7 @@
                           },
                           "Value": {
                             "Literal": {
-                              "Value": "'TEMPLATE_TEXT'"
+                              "Value": "'#b3d9d9'"
                             }
                           }
                         }
@@ -1916,7 +1916,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_10",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_2",
             "id": "field-t2r2"
           }
         },
@@ -1938,7 +1938,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r1"
           }
         },
@@ -1952,7 +1952,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_6"
+                  "Property": "TEMPLATE_FIELD_36"
                 }
               }
             }
@@ -1965,7 +1965,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r1"
           }
         },
@@ -1987,7 +1987,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r2"
           }
         },
@@ -2001,7 +2001,7 @@
                       "Entity": "TEMPLATE_TABLE"
                     }
                   },
-                  "Property": "TEMPLATE_FIELD_7"
+                  "Property": "TEMPLATE_FIELD_37"
                 }
               }
             }
@@ -2014,7 +2014,7 @@
                 }
               }
             ],
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35",
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22",
             "id": "field-t3r2"
           }
         },
@@ -2029,7 +2029,7 @@
             }
           },
           "selector": {
-            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_35"
+            "metadata": "TEMPLATE_TABLE.TEMPLATE_FIELD_22"
           }
         }
       ]

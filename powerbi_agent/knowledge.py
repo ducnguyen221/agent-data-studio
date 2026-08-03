@@ -87,7 +87,11 @@ def resolve_root() -> str | None:
         if base:
             legacy = os.path.join(os.path.expanduser(base), "powerbi-agent")
             return legacy if os.path.isdir(legacy) else os.path.expanduser(base)
-    return os.path.expanduser(base) if base else None
+    if not base:
+        return None
+    # Chuẩn hoá Ở CHỖ ĐỌC nữa: set_project_dir đã strip nhưng biến môi trường do user tự
+    # `setx` thì không qua đó — giá trị `"C:\Data"` (kèm nháy) sẽ tạo thư mục tên có nháy.
+    return os.path.expanduser(base.strip().strip('"').strip("'"))
 
 
 def set_project_dir(path: str) -> str:

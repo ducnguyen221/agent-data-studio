@@ -13,7 +13,7 @@
               "color": {
                 "expr": {
                   "Literal": {
-                    "Value": "'TEMPLATE_TEXT'"
+                    "Value": "'#DFE7F6'"
                   }
                 }
               }

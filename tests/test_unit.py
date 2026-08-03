@@ -131,9 +131,9 @@ class TestPbir:
 
     def test_projection_measure(self):
         from powerbi_agent import pbir
-        p = pbir.projection("Measure", "Công thức", "Tổng TB")
-        assert p["field"]["Measure"]["Expression"]["SourceRef"]["Entity"] == "Công thức"
-        assert p["queryRef"] == "Công thức.Tổng TB" and p["nativeQueryRef"] == "Tổng TB"
+        p = pbir.projection("Measure", "Bảng Tính", "Tổng TB")
+        assert p["field"]["Measure"]["Expression"]["SourceRef"]["Entity"] == "Bảng Tính"
+        assert p["queryRef"] == "Bảng Tính.Tổng TB" and p["nativeQueryRef"] == "Tổng TB"
 
     def test_projection_rejects_bad_kind(self):
         from powerbi_agent import pbir
@@ -153,10 +153,10 @@ class TestPbir:
             "visual": {
                 "visualType": "cardVisual",
                 "query": {"queryState": {"Data": {"projections": [
-                    {"field": {"Measure": {"Expression": {"SourceRef": {"Entity": "Công thức"}},
-                               "Property": "TB PTM"}},
-                     "queryRef": "Công thức.TB PTM", "nativeQueryRef": "TB PTM"}]}}},
-                "visualContainerObjects": {"x": [{"sel": "Công thức.TB PTM"}]},
+                    {"field": {"Measure": {"Expression": {"SourceRef": {"Entity": "Bảng Tính"}},
+                               "Property": "Chỉ số Mẫu"}},
+                     "queryRef": "Bảng Tính.Chỉ số Mẫu", "nativeQueryRef": "Chỉ số Mẫu"}]}}},
+                "visualContainerObjects": {"x": [{"sel": "Bảng Tính.Chỉ số Mẫu"}]},
             },
             "filterConfig": {"filters": [{"field": "bí mật"}]},
         }
@@ -164,7 +164,7 @@ class TestPbir:
         m = pbir.build_sanitize_map(e, p)
         pbir.deep_sanitize(v, m)
         s = json.dumps(v, ensure_ascii=False)
-        assert "Công thức" not in s and "TB PTM" not in s
+        assert "Bảng Tính" not in s and "Chỉ số Mẫu" not in s
         assert "filterConfig" not in v
         assert "TEMPLATE_TABLE" in s
 
@@ -426,3 +426,26 @@ class TestIndexMigration:
         idx.write_text("Bài học: dùng SUMMARIZECOLUMNS. Lệnh `/pbi-pack`.\n", encoding="utf-8")
         kn.migrate_index(str(tmp_path))
         assert "Bài học: dùng SUMMARIZECOLUMNS." in idx.read_text(encoding="utf-8")
+
+
+class TestSanitizeDefaults:
+    """Mặc định phải an toàn — kit từng lọt tên khách vì an toàn là tuỳ chọn."""
+
+    def test_distill_template_defaults_to_sanitize_true(self):
+        import inspect
+        from powerbi_agent import tools_template
+
+        captured = {}
+
+        class _FakeMcp:
+            def tool(self):
+                def deco(fn):
+                    captured[fn.__name__] = fn
+                    return fn
+                return deco
+
+        tools_template.register(_FakeMcp())
+        sig = inspect.signature(captured["distill_template"])
+        assert sig.parameters["sanitize"].default is True, (
+            "distill_template phải mặc định sanitize=True — an toàn không được là tuỳ chọn"
+        )
