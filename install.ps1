@@ -314,11 +314,21 @@ function Install-Skill([string]$SkillRoot) {
             $dst = Join-Path $SkillRoot $_.Name
             # MIRROR, không phải merge: xóa bản đích cũ trước khi copy — file đã bị xóa/đổi tên
             # ở nguồn sẽ không thành "xác sống" drift ở host (đã tái hiện bằng harness audit).
+            # Dựng ở thư mục TẠM cạnh đích rồi mới tráo vào: bản cũ chỉ bị xoá khi bản mới
+            # đã copy xong và kiểm được. Trước đây xoá đích TRƯỚC rồi copy với
+            # -ErrorAction SilentlyContinue và luôn in "thành công" — lỗi quyền/đường dẫn quá dài
+            # là user mất luôn skill đang chạy tốt mà installer vẫn báo OK.
+            $stage = "$dst.__new"
+            if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
+            New-Item -ItemType Directory -Path $stage -Force | Out-Null
+            Copy-Item (Join-Path $_.FullName "*") $stage -Recurse -Force -Exclude "__pycache__","out"
+            if (-not (Test-Path (Join-Path $stage "SKILL.md"))) {
+                Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                Err "Skill $($_.Name): copy hỏng (thiếu SKILL.md) — GIỮ NGUYÊN bản cũ ở $dst"
+                return
+            }
             if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
-            New-Item -ItemType Directory -Path $dst -Force | Out-Null
-            # copy toàn bộ nội dung skill (bỏ __pycache__ và out/ tạm)
-            Copy-Item (Join-Path $_.FullName "*") $dst -Recurse -Force `
-                -Exclude "__pycache__","out" -ErrorAction SilentlyContinue
+            Move-Item $stage $dst
             Info "Skill $($_.Name) (full) -> $dst"
         }
     }

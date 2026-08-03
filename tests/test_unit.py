@@ -399,3 +399,30 @@ class TestDistill:
         monkeypatch.delenv("POWERBI_DISTILL_DIR", raising=False)
         out = _resolve_output_dir(None)
         assert ".powerbi-agent" not in out  # không dùng thư mục dấu chấm nữa
+
+
+class TestIndexMigration:
+    """INDEX.md dựng bởi bản <0.5.0 trỏ tới lệnh /pbi-* mà installer đã xoá."""
+
+    def test_migrate_renames_old_commands(self, tmp_path):
+        from powerbi_agent import knowledge as kn
+        idx = tmp_path / "INDEX.md"
+        idx.write_text("Chạy `/pbi-new <tên>` rồi `/pbi-done`.\n", encoding="utf-8")
+        assert kn.migrate_index(str(tmp_path)) is True
+        txt = idx.read_text(encoding="utf-8")
+        assert "/powerbi-new" in txt and "/powerbi-done" in txt
+        assert "/pbi-new" not in txt
+
+    def test_migrate_is_idempotent_and_reports_no_change(self, tmp_path):
+        from powerbi_agent import knowledge as kn
+        idx = tmp_path / "INDEX.md"
+        idx.write_text("Chạy `/powerbi-new`.\n", encoding="utf-8")
+        assert kn.migrate_index(str(tmp_path)) is False
+
+    def test_migrate_leaves_user_knowledge_alone(self, tmp_path):
+        """Chỉ đổi TÊN LỆNH — không đụng nội dung tri thức user tự viết."""
+        from powerbi_agent import knowledge as kn
+        idx = tmp_path / "INDEX.md"
+        idx.write_text("Bài học: dùng SUMMARIZECOLUMNS. Lệnh `/pbi-pack`.\n", encoding="utf-8")
+        kn.migrate_index(str(tmp_path))
+        assert "Bài học: dùng SUMMARIZECOLUMNS." in idx.read_text(encoding="utf-8")

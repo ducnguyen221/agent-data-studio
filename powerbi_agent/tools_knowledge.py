@@ -27,6 +27,7 @@ def register(mcp):
                 f"Config trỏ tới '{root}' nhưng folder không tồn tại (đổi máy/di chuyển?). "
                 "Hỏi user xác nhận lại đường dẫn rồi gọi setup_knowledge(path) lần nữa."
             )
+        kn.migrate_index(root)   # va ten lenh doi tu ban < 0.5.0, idempotent
         projects = sorted(os.listdir(os.path.join(root, "projects"))) if os.path.isdir(
             os.path.join(root, "projects")) else []
         n_knowledge = sum(
@@ -63,11 +64,13 @@ def register(mcp):
             os.makedirs(base, exist_ok=True)
             root = kn.set_project_dir(base)
             kn.ensure_skeleton(root)
+            migrated = kn.migrate_index(root)
             kn.append_timeline(root, "—", "Thiết lập thư mục dự án", f"skeleton tại {root}")
             return (
                 f"Đã thiết lập thư mục dự án: `{root}`\n"
-                f"Con trỏ ghi tại: `{kn.CONFIG_FILE}` (ngoài repo).\n"
-                "Cấu trúc: projects/ · knowledge/{tech-stack,industry,business-domain,powerbi}/ · "
+                f"Con trỏ ghi tại: `{kn.ENV_FILE}` (dòng {kn.ENV_KEY}=, gitignored).\n"
+                + ("Đã cập nhật tên lệnh cũ trong INDEX.md.\n" if migrated else "")
+                + "Cấu trúc: projects/ · knowledge/{tech-stack,industry,business-domain,powerbi}/ · "
                 "templates/ · INDEX.md · TIMELINE.md.\n"
                 "Muốn dùng kit riêng: đặt env POWERBI_TEMPLATES_DIR trỏ vào `templates/` trong này."
             )

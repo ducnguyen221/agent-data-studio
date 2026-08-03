@@ -217,6 +217,28 @@ def append_timeline(root: str, project: str, event: str, lesson: str = "", link:
         f.write(line)
 
 
+def migrate_index(root: str) -> bool:
+    """Cập nhật INDEX.md của thư mục dữ liệu dựng bởi bản cũ. Idempotent, trả True nếu có sửa.
+
+    ensure_skeleton chỉ GHI INDEX.md khi file chưa tồn tại, nên người nâng cấp giữ nguyên
+    nội dung cũ trỏ tới các lệnh `/pbi-*` mà installer vừa xoá. Nếu chỉ vá lúc tạo dự án mới
+    thì ai không tạo dự án sẽ không bao giờ được sửa — nên chạy ở cả setup lẫn status.
+    """
+    index = os.path.join(root, "INDEX.md")
+    if not os.path.exists(index):
+        return False
+    with open(index, encoding="utf-8") as f:
+        txt = old = f.read()
+    # Chỉ đổi tên lệnh; KHÔNG đụng nội dung tri thức user tự viết.
+    for cmd in ("setup", "new", "scan", "done", "pack", "recall"):
+        txt = txt.replace(f"/pbi-{cmd}", f"/powerbi-{cmd}")
+    if txt == old:
+        return False
+    with open(index, "w", encoding="utf-8", newline="\n") as f:
+        f.write(txt)
+    return True
+
+
 def register_project_in_index(root: str, slug: str, name: str) -> None:
     """Thêm dòng dự án vào INDEX (thay placeholder nếu còn)."""
     index = os.path.join(root, "INDEX.md")

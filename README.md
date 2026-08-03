@@ -52,7 +52,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
 The installer builds a `.venv`, probes for ADOMD.NET/TOM, registers the MCP server on all three
-hosts, then installs the 4 skills + 8 commands + the curator agent **on each host**. It is
+hosts, then installs the 4 skills + 8 commands on each host (the curator agent only lands in Claude Code's `agents/` folder — other hosts
+get the same capability through the `powerbi-knowledge` skill). It is
 idempotent — safe to re-run. To refresh only the workflows: `.\install.ps1 -Only plugin`.
 
 **Requirements:** Windows · Python 3.11+ · ADOMD.NET (bundled with SSMS, or the

@@ -52,7 +52,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
 Installer dựng `.venv`, dò ADOMD.NET/TOM, đăng ký MCP server vào cả 3 host, rồi cài 4 skill + 8 lệnh
-+ agent curator **cho từng host**. Idempotent — chạy lại nhiều lần an toàn. Chỉ muốn cập nhật phần
+cho từng host (agent curator chỉ Claude Code có thư mục `agents/` chuẩn — host khác
+vẫn có năng lực đó qua skill `powerbi-knowledge`). Idempotent — chạy lại nhiều lần an toàn. Chỉ muốn cập nhật phần
 quy trình: `.\install.ps1 -Only plugin`.
 
 **Yêu cầu:** Windows · Python 3.11+ · ADOMD.NET (có sẵn khi cài SSMS, hoặc
