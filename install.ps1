@@ -53,7 +53,10 @@ $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 function Info($m)  { Write-Host "[i] $m" -ForegroundColor Cyan }
 function Ok($m)    { Write-Host "[OK] $m" -ForegroundColor Green }
 function Warn($m)  { Write-Host "[!] $m" -ForegroundColor Yellow }
-function Err($m)   { Write-Host "[X] $m" -ForegroundColor Red }
+# Ba cho goi Err roi CHAY TIEP (merge JSON hong, config.toml khong parse, skill copy hong).
+# Truoc day installer van in "HOAN TAT" va exit 0 -> CI xanh, script goi no tuong da cai xong.
+$script:HadError = $false
+function Err($m)   { $script:HadError = $true; Write-Host "[X] $m" -ForegroundColor Red }
 function Step($m)  { Write-Host "`n=== $m ===" -ForegroundColor Magenta }
 
 # Ghi file UTF-8 KHÔNG BOM (an toàn cho JSON/TOML)
@@ -232,10 +235,16 @@ print("MERGE_OK")
     # Cach an toan: ha ErrorActionPreference dung quanh loi goi roi tra lai.
     $prevEap = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
-    try   { $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1 }
-    finally { $ErrorActionPreference = $prevEap }
-    Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
-    if ("$out" -match "MERGE_OK") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
+    $helperExit = 1
+    try     { $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1; $helperExit = $LASTEXITCODE }
+    finally { $ErrorActionPreference = $prevEap
+              # Dọn trong finally: ném giữa chừng mà dọn ở ngoài thì mỗi lần chạy để lại
+              # một file tạm TÊN DUY NHẤT -> rác tích tụ trong %TEMP% thay vì bị ghi đè.
+              Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue }
+    # PHAI doc $LASTEXITCODE, va khop NEO DONG. Truoc day chi tim chuoi con trong
+    # stdout+stderr da gop: helper in "MERGE_OK" roi exit 1, hoac traceback tinh co
+    # chua chuoi do, deu lam installer bao dang ky THANH CONG trong khi khong co gi xay ra.
+    if ($helperExit -eq 0 -and "$out" -match "(?m)^MERGE_OK\s*$") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
     else { Err "Merge JSON thất bại ($out). File gốc còn nguyên trong .bak.$Stamp — KHÔNG ghi đè."; }
 }
 
@@ -344,8 +353,13 @@ function Install-Skill([string]$SkillRoot) {
                 if (-not $mine) {
                     $skf = Join-Path $dst "SKILL.md"
                     if (Test-Path $skf) {
-                        $h = (Get-Content $skf -TotalCount 8 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
-                        if ($h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$") { $mine = $true }
+                        # Doc CA frontmatter (den `---` dong), khong cat cung 8 dong: mo ta
+                        # dai hon la ta doc hut dau van -> skill CUA TA thanh khong go duoc.
+                        $h = (Get-Content $skf -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                        # HAI dau hieu. Chi doi 'name:' la du de xoa mat skill rieng cua user
+                        # dat trung ten — da tai hien duoc bang chay that.
+                        if (($h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$") -and
+                            ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$")) { $mine = $true }
                     }
                     # KHONG coi thu muc thieu SKILL.md la cua ta: do co the la thu muc user
                     # tu tao (ghi chu, asset...). Xoa la mat du lieu ho, khong the hoan tac.
@@ -449,10 +463,10 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
                 # dinh ANSI tren PS 5.1 nen tieng Viet se lech va so khop luon truot.
                 $sk = Join-Path $dst "SKILL.md"
                 if (Test-Path $sk) {
-                    $head = (Get-Content $sk -TotalCount 8 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                    $head = (Get-Content $sk -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
                     $nameOk = $head -match "(?m)^name:\s*$([regex]::Escape($name))\s*$"
                     $prov   = ($head -match "(?m)^x-generated-by:\s*powerbi-agent\s*$") -or
-                              ($head -match ([regex]::Escape("Gọi khi user nói")))
+                              ($head -match ([regex]::Escape("Gọi khi user nói `"chạy $name`"")))
                     if ($nameOk -and $prov) { $owned = $true }
                 }
             }
@@ -574,6 +588,11 @@ print('KNOWLEDGE=%s' % ('yes' if resolve_root() else 'no'))
 }
 
 Write-Host "`n=============================================" -ForegroundColor Green
+if ($script:HadError) {
+    Err "CHƯA HOÀN TẤT — có bước lỗi ở trên (xem dòng [X]). Sửa rồi chạy lại install.ps1."
+    Write-Host "Bản sao lưu .bak.$Stamp còn nguyên cạnh mỗi file cấu hình." -ForegroundColor Gray
+    exit 1
+}
 Ok "HOÀN TẤT."
 $nextSetup = if ($knowledgeReady) { "(đã xong — bỏ qua)" } else { "/powerbi-setup   -> chỉ định Knowledge Dir (làm 1 lần)" }
 Write-Host @"

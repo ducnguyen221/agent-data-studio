@@ -1,5 +1,6 @@
 ---
 name: powerbi-knowledge
+x-generated-by: powerbi-agent
 description: >
   Knowledge OS của powerbi-agent — cơ chế lưu trữ & học hỏi tri thức dự án Power BI vào
   thư mục dự án do USER CHỈ ĐỊNH ngoài repo (mặc định `~/powerbi-project`).

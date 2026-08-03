@@ -1,5 +1,6 @@
 ---
 name: powerbi-pipeline
+x-generated-by: powerbi-agent
 description: >
   Quy trình chuẩn 9 khâu để AI Agent làm phân tích dữ liệu end-to-end trên Power BI —
   từ kết nối Power Query, transform M, mô hình hóa, DAX, đến trang báo cáo hoàn thiện

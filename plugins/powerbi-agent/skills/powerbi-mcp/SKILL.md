@@ -1,5 +1,6 @@
 ---
 name: powerbi-mcp
+x-generated-by: powerbi-agent
 description: Kết nối và tương tác trực tiếp với Power BI Desktop (Local) và Power BI Service (Cloud) qua MCP Server.
 ---
 # powerbi-mcp

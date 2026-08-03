@@ -456,21 +456,19 @@ class TestOutputsStayOutsideRepo:
 
     def test_rejects_path_inside_repo(self):
         from powerbi_agent import knowledge as kn
-        import pytest as _pt
         repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
         for bad in ("docs/leak", "powerbi_agent", "."):
-            with _pt.raises(ValueError):
+            with pytest.raises(ValueError):
                 kn.ensure_outside_repo(os.path.join(repo, bad))
 
     def test_public_kit_folder_only_with_explicit_opt_in(self):
         """report-templates/ chỉ mở cho kit ĐÃ sanitize, không mở theo đường dẫn."""
         from powerbi_agent import knowledge as kn
-        import pytest as _pt
         repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
         target = os.path.join(repo, "report-templates", "kit-moi")
         # mặc định: TỪ CHỐI — nếu không thì distill_template(sanitize=False) tuồn được
         # dữ liệu thô vào đúng thư mục công khai.
-        with _pt.raises(ValueError):
+        with pytest.raises(ValueError):
             kn.ensure_outside_repo(target)
         got = kn.ensure_outside_repo(target, allow_public_kits=True)
         assert got.endswith(os.path.join("report-templates", "kit-moi"))
@@ -483,7 +481,6 @@ class TestOutputsStayOutsideRepo:
         ⇒ an toàn" — trong khi cả hai dạng đều trỏ đúng vào repo.
         """
         from powerbi_agent import knowledge as kn
-        import pytest as _pt
         repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
         b = "\\"
         variants = {
@@ -497,10 +494,18 @@ class TestOutputsStayOutsideRepo:
                                        + repo[0] + "$" + repo[2:] + b + "leak"),
             "chính gốc repo": repo,
         }
+        # KHONG dung `with raises(): call(); fail(label)` — fail() nam SAU loi goi da nem
+        # nen khong bao gio chay, va raises() chi bao "DID NOT RAISE" khong kem nhan.
+        # Gom het roi assert mot lan: mot lan chay liet ke MOI cach viet con lot.
+        leaked = []
         for label, p in variants.items():
-            with _pt.raises(ValueError, match="TỪ CHỐI"):
+            try:
                 kn.ensure_outside_repo(p)
-                _pt.fail(f"lọt: {label}")
+            except ValueError as exc:
+                assert "TỪ CHỐI" in str(exc), f"{label}: sai thông điệp ({exc})"
+            else:
+                leaked.append(label)
+        assert not leaked, f"ghi được vào repo qua: {leaked}"
 
     def test_allows_outside(self, tmp_path):
         from powerbi_agent import knowledge as kn
@@ -523,6 +528,16 @@ class TestPlaceholderGrammarIsClosed:
         for s in ("TEMPLATE_DOANHTHU", "TEMPLATE_FIELD_1_TY_LE",
                   "TEMPLATE_FIELD_29 Hủy", "TEMPLATE_KHACHHANG"):
             assert not is_placeholder_only(s), s
+
+    def test_index_is_bounded_so_digits_cannot_ride_along(self):
+        """`_[0-9]+` tham lam nuốt cả dãy số dính liền — số điện thoại / mã KH tự nhận là sạch."""
+        from powerbi_agent.pbir import is_placeholder_only
+        for s in ("TEMPLATE_FIELD_10905123456", "TEMPLATE_LABEL_0905123456",
+                  "TEMPLATE_FIELD_1 0905.123.456"):
+            assert not is_placeholder_only(s), s
+        # chỉ số thật (0–999) vẫn phải được chấp nhận
+        for s in ("TEMPLATE_FIELD_0", "TEMPLATE_FIELD_101", "TEMPLATE_TABLE.TEMPLATE_LABEL_999"):
+            assert is_placeholder_only(s), s
 
 
 class TestLiteralScrubKeepsStyle:

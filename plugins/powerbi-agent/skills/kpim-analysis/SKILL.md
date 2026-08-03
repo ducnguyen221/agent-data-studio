@@ -1,5 +1,6 @@
 ---
 name: kpim-analysis
+x-generated-by: powerbi-agent
 description: >
   Quy trình phân tích KPIM để AI Agent triển khai một dự án báo cáo Power BI trọn vẹn từ
   một bộ dữ liệu + tài liệu đầu vào — tự khảo sát, hỏi ngược người dùng, dựng tài liệu nghiệp
@@ -54,9 +55,8 @@ Tiến độ, bàn giao, cảnh báo, đào tạo, mở rộng.
 
 ## Scripts (`scripts/`)
 - `generate_mindmap_html.py` — sinh 6 bản xem HTML tự chứa từ khối mermaid trong các file .md.
-- `generate_data_dictionary_img.py` — sinh ảnh bảng data dictionary (matplotlib).
 - `generate_project_management_xlsx.py` — sinh Excel 6 sheet (openpyxl).
-Yêu cầu: `pip install openpyxl python-docx` (sinh xlsx/docx). Mindmap HTML **không cần thư viện nào** — chỉ dùng thư viện chuẩn Python.
+Yêu cầu: `pip install openpyxl` (sinh xlsx). Mindmap HTML **không cần thư viện nào** — chỉ dùng thư viện chuẩn Python.
 
 ## Nguyên tắc KPIM
 Chuẩn hóa trước — Tự động hóa sau — Phân tích sau cùng · Data model dùng chung theo chủ đề · clone-and-rebind báo cáo (không dựng layout từ 0) · dữ liệu thô ở lại engine (policy).

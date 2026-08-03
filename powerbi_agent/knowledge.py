@@ -227,6 +227,51 @@ def _canon(p: str) -> str:
     return os.path.normcase(os.path.realpath(_to_drive_form(os.path.expanduser(str(p)))))
 
 
+def _nearest_existing(p: str) -> str | None:
+    """Tổ tiên gần nhất CÓ THẬT của `p` — để stat được cả đường dẫn chưa tồn tại."""
+    cur = os.path.abspath(p)
+    seen = set()
+    while cur and cur not in seen:
+        if os.path.exists(cur):
+            return cur
+        seen.add(cur)
+        parent = os.path.dirname(cur)
+        if parent == cur:
+            return None
+        cur = parent
+    return None
+
+
+def _same_or_inside(target: str, root: str) -> bool | None:
+    r"""So DANH TÍNH file thay vì so chuỗi. None = không xác định được.
+
+    Đây là điểm then chốt: liệt kê cách viết đường dẫn (`\\?\`, UNC, 8.3, hoa/thường,
+    tên máy, FQDN, alias DNS, share thường trỏ vào cùng thư mục…) là việc KHÔNG BAO GIỜ
+    làm xong — ba vòng review liên tiếp đều tìm ra một cách viết mới lọt qua.
+    `(st_dev, st_ino)` thì không quan tâm đường dẫn viết kiểu gì: cùng một thư mục
+    trên đĩa luôn cho cùng một cặp số.
+    """
+    try:
+        anc = _nearest_existing(target)
+        if anc is None:
+            return None
+        st_root = os.stat(root)
+        cur = anc
+        while True:
+            try:
+                st = os.stat(cur)
+            except OSError:
+                return None
+            if (st.st_dev, st.st_ino) == (st_root.st_dev, st_root.st_ino):
+                return True
+            parent = os.path.dirname(cur)
+            if parent == cur:
+                return False
+            cur = parent
+    except OSError:
+        return None
+
+
 def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits: bool = False) -> str:
     """Chặn mọi đường ghi dữ liệu khách hàng vào TRONG repo. Raise ValueError nếu vi phạm.
 
@@ -240,23 +285,25 @@ def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits:
     hay `POWERBI_DISTILL_DIR=<repo>/report-templates/...` đều tuồn được dữ liệu thô vào
     đúng thư mục công khai.
     """
-    full = os.path.realpath(_to_drive_form(os.path.expanduser(str(path))))
-    c_full, c_repo = _canon(full), _canon(_REPO_ROOT)
+    # Bỏ nháy/space TRƯỚC khi expanduser: `"~/pbi"` (dạng Explorer "Copy as path" sinh ra)
+    # mà expand sau thì `~` không ở vị trí 0 nên không được mở, tạo ra thư mục tên `~`.
+    cleaned = str(path).strip().strip('"').strip("'")
     try:
-        inside_repo = os.path.commonpath([c_full, c_repo]) == c_repo
-    except ValueError:
-        # KHÔNG mặc định "khác ổ đĩa ⇒ an toàn": commonpath cũng ném lỗi cho dạng đường
-        # vòng, và đó chính là kẽ hở. Lùi về so chuỗi theo ranh giới thư mục.
-        inside_repo = c_full == c_repo or c_full.startswith(c_repo.rstrip("\\/") + os.sep)
-    if not inside_repo:
+        full = os.path.realpath(_to_drive_form(os.path.expanduser(cleaned)))
+    except OSError:
+        # Host UNC không tồn tại/không phản hồi → không xác định được ⇒ FAIL CLOSED.
+        raise ValueError(f"TỪ CHỐI ghi {what}: không phân giải được đường dẫn {cleaned!r}.") from None
+
+    # Ưu tiên so DANH TÍNH (st_dev, st_ino) — không phụ thuộc cách viết đường dẫn.
+    ident = _same_or_inside(full, _REPO_ROOT)
+    if ident is None:
+        # Không stat được ⇒ fail closed, trừ khi so chuỗi khẳng định rõ là ngoài repo.
+        c_full, c_repo = _canon(full), _canon(_REPO_ROOT)
+        ident = c_full == c_repo or c_full.startswith(c_repo.rstrip("\\/") + os.sep)
+    if not ident:
         return full
-    if allow_public_kits:
-        c_kits = _canon(os.path.join(_REPO_ROOT, "report-templates"))
-        try:
-            if os.path.commonpath([c_full, c_kits]) == c_kits:
-                return full
-        except ValueError:
-            pass
+    if allow_public_kits and _same_or_inside(full, os.path.join(_REPO_ROOT, "report-templates")):
+        return full
     raise ValueError(
         f"TỪ CHỐI ghi {what} vào trong repo: {full}\n"
         "Repo là git working tree công khai — dữ liệu khách hàng phải nằm ở thư mục dự án "

@@ -58,10 +58,16 @@ else:
     # Cach an toan: ha ErrorActionPreference dung quanh loi goi roi tra lai.
     $prevEap = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
-    try   { $out = & $venvPy $tmpPy $Path $name 2>&1 }
-    finally { $ErrorActionPreference = $prevEap }
-    Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
-    if ("$out" -match "REMOVED") { Ok "Đã gỡ '$name' khỏi $Path (validate OK)" }
+    $helperExit = 1
+    try     { $out = & $venvPy $tmpPy $Path $name 2>&1; $helperExit = $LASTEXITCODE }
+    finally { $ErrorActionPreference = $prevEap
+              # Dọn trong finally: ném giữa chừng mà dọn ở ngoài thì mỗi lần chạy để lại
+              # một file tạm TÊN DUY NHẤT -> rác tích tụ trong %TEMP% thay vì bị ghi đè.
+              Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue }
+    # PHAI doc $LASTEXITCODE, va khop NEO DONG. Truoc day chi tim chuoi con trong
+    # stdout+stderr da gop: helper in "REMOVED" roi exit 1, hoac traceback tinh co
+    # chua chuoi do, deu lam installer bao dang ky THANH CONG trong khi khong co gi xay ra.
+    if ($helperExit -eq 0 -and "$out" -match "(?m)^REMOVED\s*$") { Ok "Đã gỡ '$name' khỏi $Path (validate OK)" }
     elseif ("$out" -match "ABSENT") { Info "$Path không chứa '$name'." }
     else { Warn "Không gỡ được khỏi $Path ($out) — file gốc còn nguyên (.bak.$Stamp)." }
 }
@@ -123,9 +129,6 @@ if (Test-Path $cmdDirForSkills) {
     $skillNames += @(Get-ChildItem $cmdDirForSkills -Filter "*.md" |
         ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) })
 }
-$ownSkillNames = @()
-if (Test-Path $skillBase) { $ownSkillNames = (Get-ChildItem $skillBase -Directory).Name }
-$ownSkillNames += @("pbi-pipeline", "pbi-knowledge")
 foreach ($skRoot in $hostSkillRoots) {
     foreach ($n in $skillNames) {
         $p = Join-Path $skRoot $n
@@ -139,13 +142,18 @@ foreach ($skRoot in $hostSkillRoots) {
             # Khong co buoc nay thi nguoi nang cap khong bao gio go duoc skill cu.
             $skf = Join-Path $p "SKILL.md"
             if (Test-Path $skf) {
-                $h = (Get-Content $skf -TotalCount 8 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                # Doc CA frontmatter, khong cat cung 8 dong.
+                $h = (Get-Content $skf -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
                 $nameOk = $h -match "(?m)^name:\s*$([regex]::Escape($n))\s*$"
-                $prov   = ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$") -or
-                          ($h -match ([regex]::Escape("Gọi khi user nói")))
+                # Dau hieu ASCII la chinh. Van xuoi tieng Viet CHI dung cho skill-lenh doi
+                # v0.5.x, va phai la CA CUM co ten lenh — cum ngan la cau noi thong thuong,
+                # skill tieng Viet nao cung co the chua, va da tai hien duoc canh mat du lieu.
+                $prov = ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$") -or
+                        ($h -match ([regex]::Escape("Gọi khi user nói `"chạy $n`"")))
                 if ($nameOk -and $prov) { $mine = $true }
-                elseif ($ownSkillNames -contains $n -and $nameOk) { $mine = $true }
-            } elseif ($ownSkillNames -contains $n) { $mine = $true }
+            }
+            # Thu muc KHONG co SKILL.md: khong bao gio coi la cua ta (co the la thu muc
+            # ghi chu/asset cua user). install.ps1 da theo luat nay, uninstall phai giong.
         }
         if (-not $mine) {
             Warn "Giu lai '$p': khong phai skill do powerbi-agent tao."

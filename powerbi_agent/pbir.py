@@ -216,7 +216,9 @@ def build_sanitize_map(entities: set, properties: set, labels: set | None = None
 # NGỮ PHÁP ĐÓNG: chỉ đúng những placeholder mà build_sanitize_map/deep_sanitize sinh ra.
 # Trước đây cho `TEMPLATE_[A-Z0-9_]+` là quá rộng — một measure tên "TEMPLATE_DOANHTHU" hay
 # chuỗi "TEMPLATE_FIELD_1_TY_LE" tự nhận là "đã sạch" rồi đi thẳng vào bản public.
-_PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_[0-9]+)"
+# Gioi han 1-3 chu so: `[0-9]+` tham lam nen no NUOT day so lien ke —
+# "TEMPLATE_FIELD_10905123456" (so dien thoai dinh lien) tu nhan la da sach.
+_PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_(?:0|[1-9][0-9]{0,2})(?![0-9]))"
 # KHONG cho 0-9 vao day phan cach: mot placeholder se hop thuc hoa moi day so ben canh,
 # vd 'TEMPLATE_FIELD_1 0905.123.456' tu nhan la sach -> so dien thoai vao kit public.
 # Chu so chi duoc phep BEN TRONG chinh placeholder (TEMPLATE_FIELD_12).
