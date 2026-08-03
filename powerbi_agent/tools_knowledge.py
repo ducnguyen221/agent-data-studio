@@ -3,9 +3,7 @@
 Quy trình đầy đủ + luật riêng tư: skill `powerbi-knowledge` và ROADMAP §M5.
 """
 
-import json
 import os
-from datetime import date
 
 from powerbi_agent import knowledge as kn
 from powerbi_agent.util import log, short_err
@@ -46,31 +44,32 @@ def register(mcp):
     @mcp.tool()
     def setup_knowledge(path: str) -> str:
         """
-        Thiết lập Knowledge Dir tại `path` do USER CHỈ ĐỊNH (folder NGOÀI repo — ưu tiên
-        knowledge base/Brain có sẵn của user; agent phải HỎI user trước, không tự chọn).
-        Ghi knowledge.config.json (gitignored) + dựng skeleton (projects/ · knowledge/ 4 trục ·
-        templates/ · INDEX.md · TIMELINE.md). Idempotent.
+        Thiết lập THƯ MỤC DỰ ÁN tại `path` do USER CHỈ ĐỊNH — luôn NẰM NGOÀI repo.
+        Agent phải HỎI user trước, gợi ý mặc định `~/powerbi-project`, không tự chọn.
+
+        Con trỏ ghi vào %LOCALAPPDATA%\\powerbi-agent\\config.json (ngoài repo, nên sống sót
+        khi repo bị xoá/clone lại và không thể bị commit nhầm). Dựng skeleton:
+        projects/ · knowledge/ 4 trục · templates/ · INDEX.md · TIMELINE.md. Idempotent.
         """
         try:
-            base = os.path.expanduser(path.strip().strip('"'))
-            repo_root = os.path.dirname(kn.CONFIG_FILE)
-            if os.path.commonpath([os.path.abspath(base), repo_root]) == repo_root:
+            base = os.path.abspath(os.path.expanduser(path.strip().strip('"')))
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+            if os.path.commonpath([base, repo_root]) == repo_root:
                 return (
-                    "TỪ CHỐI: đường dẫn nằm TRONG repo. Tri thức cá nhân phải ở NGOÀI repo "
-                    "public — hỏi user chọn folder khác (Brain có sẵn hoặc ~/powerbi-knowledge)."
+                    "TỪ CHỐI: đường dẫn nằm TRONG repo. Repo là git working tree — chỉ một lệnh "
+                    "`git add -A` là tài liệu khách hàng bị commit, và `git pull`/cài lại có thể "
+                    f"xoá đè. Hỏi user chọn nơi khác, mặc định `{kn.default_project_dir()}`."
                 )
             os.makedirs(base, exist_ok=True)
-            with open(kn.CONFIG_FILE, "w", encoding="utf-8", newline="\n") as f:
-                json.dump({"knowledge_dir": base, "created": date.today().isoformat()}, f,
-                          ensure_ascii=False, indent=2)
-            root = os.path.join(base, "powerbi-agent")
+            root = kn.set_project_dir(base)
             kn.ensure_skeleton(root)
-            kn.append_timeline(root, "—", "Thiết lập Knowledge Dir", f"skeleton tại {root}")
+            kn.append_timeline(root, "—", "Thiết lập thư mục dự án", f"skeleton tại {root}")
             return (
-                f"Đã thiết lập Knowledge Dir: `{root}` (config: knowledge.config.json — gitignored).\n"
+                f"Đã thiết lập thư mục dự án: `{root}`\n"
+                f"Con trỏ ghi tại: `{kn.CONFIG_FILE}` (ngoài repo).\n"
                 "Cấu trúc: projects/ · knowledge/{tech-stack,industry,business-domain,powerbi}/ · "
                 "templates/ · INDEX.md · TIMELINE.md.\n"
-                "Gợi ý thêm: đặt env POWERBI_TEMPLATES_DIR trỏ `templates/` trong này để dùng kit riêng."
+                "Muốn dùng kit riêng: đặt env POWERBI_TEMPLATES_DIR trỏ vào `templates/` trong này."
             )
         except Exception as e:
             log.exception("setup_knowledge thất bại")
@@ -96,6 +95,9 @@ def register(mcp):
             if not existed:
                 kn.register_project_in_index(root, slug, name)
                 kn.append_timeline(root, name, "Khởi tạo dự án", "", f"projects/{slug}/")
+            # Sổ ghi nhớ nằm ngoài repo: sau này truy vết được tài liệu dự án nằm ở đâu,
+            # kể cả khi user cho ghi ra một thư mục khác hoàn toàn.
+            kn.register_project(slug, name, pdir)
             return (
                 f"{'Dự án đã tồn tại' if existed else 'Đã tạo dự án'}: `{pdir}`\n"
                 "- Tài liệu KPIM (PROJECT.md, DATA_DICTIONARY.md…) ghi thẳng vào đây\n"

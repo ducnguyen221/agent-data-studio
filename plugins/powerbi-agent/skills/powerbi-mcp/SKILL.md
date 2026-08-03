@@ -26,7 +26,7 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 
 4. `distill_model_schema(port?, model_id?, output_filename?, output_dir?)`
    - **Mô tả:** Chưng cất cấu trúc model (bảng/cột/measure/relationship) thành Markdown blueprint kèm Mermaid ERD — để Agent tham chiếu khi viết DAX/thiết kế báo cáo.
-   - **Đích ghi:** mặc định `~/.powerbi-agent/distilled/` (đổi qua `output_dir` hoặc env `POWERBI_DISTILL_DIR`). ⚠️ Schema model có thể nhạy cảm — KHÔNG ghi vào repo public/thư mục sync chia sẻ.
+   - **Đích ghi:** mặc định `%LOCALAPPDATA%/powerbi-agent/distilled/` (đổi qua `output_dir` hoặc env `POWERBI_DISTILL_DIR`). ⚠️ Schema model có thể nhạy cảm — KHÔNG ghi vào repo public/thư mục sync chia sẻ.
 
 5. `add_measure_local(port, model_id, table_name, measure_name, expression, format_string?, description?)` — tạo/sửa 1 measure qua TOM (GHI model).
 6. `add_relationship_local(port, model_id, from_table, from_column, to_table, to_column, is_active?)` — tạo relationship Many-to-One qua TOM (GHI model).
@@ -49,7 +49,7 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 
 - `aggregate_only` **mặc định BẬT**: `EVALUATE 'Bảng'` / `EVALUATE ALL(...)` bị server TỪ CHỐI kèm hint viết lại (SUMMARIZECOLUMNS/TOPN/measure). Tắt khi user chủ đích: env `POWERBI_AGGREGATE_ONLY=0`.
 - **PII blocklist**: `policy.json` cạnh server (hoặc env `POWERBI_POLICY_FILE`) liệt kê cột cấm project. Đầu dự án dữ liệu nhạy cảm → hỏi user và ghi file này.
-- **Audit log**: mọi truy vấn ghi `~/.powerbi-agent/audit/*.jsonl` (verdict + số dòng) — dùng chứng minh "không dump dữ liệu thô".
+- **Audit log**: mọi truy vấn ghi `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` (verdict + số dòng) — dùng chứng minh "không dump dữ liệu thô".
 - Kết quả có cột dimension bị siết trần 200 dòng (thuần measure thì không).
 - Trung thực: đây là guard chống rò rỉ SƠ Ý — bảo mật cứng vẫn là RLS + service principal quyền tối thiểu.
 

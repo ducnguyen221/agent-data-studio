@@ -52,8 +52,8 @@ The bridge. Everything else is worthless without it.
 | | `distill_template` | Distill a polished page into a reusable kit (sanitizable) |
 | **Distill** | `distill_model_schema` | Model → Markdown blueprint + Mermaid ERD |
 | | `distill_report_design` | Scan a whole report: every page + theme + DESIGN + CATALOG |
-| **Knowledge OS** 🧠 | `knowledge_status` | Is the Knowledge Dir set up + current state |
-| | `setup_knowledge` | Set up the user-designated Knowledge Dir (outside the repo) |
+| **Knowledge OS** 🧠 | `knowledge_status` | Is the project dir set up + current state |
+| | `setup_knowledge` | Set up the user-designated project dir (outside the repo) |
 | | `init_project` | Create `projects/<slug>/` + register in INDEX + TIMELINE |
 | | `log_timeline` | Log an event/lesson to TIMELINE.md (append-only) |
 
@@ -192,7 +192,7 @@ carry a qualifier instead.
 | `report-templates/` | Report-**page** kits (PBIR), sanitized | Repo | ✅ |
 | `…/kpim-analysis/document-templates/` | **Document** templates (md/xlsx/theme/mindmaps) | Repo, ships with the skill | ✅ |
 | `docs/template/` | The website gallery **route** | Repo (stable URL) | ✅ |
-| `<Knowledge Dir>/templates/` | Your **private** kits, not sanitized | **You**, outside the repo | ❌ never |
+| `<project dir>/templates/` | Your **private** kits, not sanitized | **You**, outside the repo | ❌ never |
 
 ### Four names for what feels like one thing
 
@@ -214,7 +214,7 @@ approximately zero benefit.
 | **skill** | A process the agent reads and follows (`SKILL.md` + supporting files) |
 | **command** | A `/powerbi-*` shortcut that kicks off a process |
 | **tool** | An MCP function the agent calls (16 of them) |
-| **Knowledge Dir** | A folder **you** designate outside the repo, where all project knowledge lives |
+| **project dir** | A folder **you** designate outside the repo, where all project knowledge lives |
 | **host** | The AI app running the agent: Claude Code, Codex CLI, Antigravity |
 | **policy** | Server-side data-safety enforcement — not a prompt hint |
 | **PBIP / PBIR** | Power BI's project / enhanced-report file formats (Microsoft names) |
@@ -237,7 +237,7 @@ approximately zero benefit.
                        │                 + policy 🛡️                packages lessons on 4 axes
                        │                 + kits 🎨                          │
                        └──── /powerbi-recall ◀── INDEX + TIMELINE ◀─────────┘
-                                                 (in YOUR Knowledge Dir)
+                                                 (in YOUR project dir)
 
   Side paths:  /powerbi-scan <.pbip>  understand an existing report
                /powerbi-kit  <.pbip>  turn it into reusable kits
@@ -252,7 +252,7 @@ Clone it and these will be missing. That is intentional, not a broken checkout.
 
 | Missing | Where it lives | Why |
 |---|---|---|
-| **Knowledge Dir** | A folder you designate, outside the repo | It holds real client data. `knowledge.config.json` is gitignored so nobody receives anyone else's knowledge through git |
+| **project dir** | A folder you designate, outside the repo | It holds real client data. `%LOCALAPPDATA%\powerbi-agent\config.json` is gitignored so nobody receives anyone else's knowledge through git |
 | `.env` | Your machine | Service-principal secrets. Created from `.env.example`, never committed |
 | `policy.json` | Your machine | Lists the actual PII column names of your data |
 | `.venv/` | Your machine | Built by `install.ps1` |

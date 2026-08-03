@@ -13,7 +13,7 @@ Trình bày năng lực powerbi-agent và định tuyến việc của user: $AR
 Chạy `knowledge_status` và `list_templates`, rồi báo trạng thái thật:
 - MCP có trả lời không → nếu tool lỗi: server chưa chạy, bảo user **restart host** (sau `install.ps1`
   bắt buộc restart) hoặc chạy `.venv\Scripts\python.exe scripts\cli.py list` để kiểm.
-- Knowledge Dir đã setup chưa → **chưa** thì việc đầu tiên là `/powerbi-setup`.
+- thư mục dự án đã setup chưa → **chưa** thì việc đầu tiên là `/powerbi-setup`.
 - Có bao nhiêu kit dùng được.
 
 ## 8 lệnh
@@ -21,7 +21,7 @@ Chạy `knowledge_status` và `list_templates`, rồi báo trạng thái thật:
 | Lệnh | Dùng khi | Kết quả |
 |---|---|---|
 | `/powerbi-help` | Không biết bắt đầu từ đâu | Chính trang này + định tuyến |
-| `/powerbi-setup` | **Lần đầu trên máy mới** | Khai báo Knowledge Dir (ngoài repo) — làm 1 lần |
+| `/powerbi-setup` | **Lần đầu trên máy mới** | Khai báo thư mục dự án (ngoài repo) — làm 1 lần |
 | `/powerbi-new <tên>` | Bắt đầu dự án mới | Folder dự án + đọc kinh nghiệm cũ + chạy quy trình phân tích |
 | `/powerbi-scan <path.pbip>` | Muốn **hiểu** một báo cáo có sẵn | Hồ sơ thiết kế: mọi trang + theme + DESIGN.md + catalog |
 | `/powerbi-kit <path.pbip>` | Muốn **tái dùng** thiết kế của báo cáo có sẵn | Bộ template kit + theme dùng chung |

@@ -6,7 +6,7 @@ Nguyên tắc: dữ liệu thô ở lại trong engine Power BI; chỉ kết qu�
 - PII blocklist: file `policy.json` (repo root, hoặc env POWERBI_POLICY_FILE) — cột cấm xuất hiện
   trong truy vấn. Heuristic BẢO THỦ: chặn khi tên cột xuất hiện bất kỳ đâu trong DAX (parser DAX
   đầy đủ ngoài scope; thà chặn nhầm hơn lộ nhầm — user tắt được per-cột bằng cách sửa policy.json).
-- Audit log JSONL: ~/.powerbi-agent/audit/YYYY-MM.jsonl (đổi qua POWERBI_AUDIT_DIR).
+- Audit log JSONL: %LOCALAPPDATA%/powerbi-agent/audit/YYYY-MM.jsonl (đổi qua POWERBI_AUDIT_DIR).
 
 TRUNG THỰC VỀ GIỚI HẠN: đây là guard chống rò rỉ do SƠ Ý (agent tiện tay dump bảng),
 KHÔNG phải bảo mật cứng. Bảo mật cứng = RLS trên model + service principal quyền tối thiểu.
@@ -88,7 +88,8 @@ def _audit_dir() -> str:
     env = os.getenv("POWERBI_AUDIT_DIR")
     if env:
         return env
-    return os.path.join(os.path.expanduser("~"), ".powerbi-agent", "audit")
+    from powerbi_agent.knowledge import machine_dir
+    return os.path.join(machine_dir(), "audit")
 
 
 def audit(tool: str, dax_query: str, verdict: str, rows: int = -1) -> None:

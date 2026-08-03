@@ -109,7 +109,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
 <pre><code>claude mcp list        # phải thấy: powerbi-mcp-bridge ... ✔ Connected</code></pre>
 <p>Rồi mở 1 file <code>.pbix</code> bất kỳ trong Power BI Desktop và hỏi agent:</p>
 <pre><code>Liệt kê các báo cáo Power BI đang mở, cho tôi xem danh sách bảng và measure của model.</code></pre>
-<div class="note"><b>Bước tiếp theo (1 lần):</b> gõ <code>/powerbi-setup</code> — agent hỏi bạn chỉ định <b>Knowledge Dir</b> (folder NGOÀI repo, ưu tiên Brain/knowledge base có sẵn) để lưu tri thức dự án. Sau đó: <code>/powerbi-new</code> mở dự án · <code>/powerbi-scan</code> quét thiết kế · <code>/powerbi-done</code> đóng · <code>/powerbi-pack</code> đóng gói · <code>/powerbi-recall</code> gợi nhớ. Danh sách đầy đủ + luồng: README.</div>
+<div class="note"><b>Bước tiếp theo (1 lần):</b> gõ <code>/powerbi-setup</code> — agent hỏi bạn chỉ định <b>thư mục dự án</b> (folder NGOÀI repo, mặc định ~/powerbi-project) để lưu tri thức dự án. Sau đó: <code>/powerbi-new</code> mở dự án · <code>/powerbi-scan</code> quét thiết kế · <code>/powerbi-done</code> đóng · <code>/powerbi-pack</code> đóng gói · <code>/powerbi-recall</code> gợi nhớ. Danh sách đầy đủ + luồng: README.</div>
 <p>Agent gọi <span class="tool">list_local_reports</span> → <span class="tool">list_tables</span> →
 <span class="tool">describe_table</span> là cài đặt <span class="ok">thành công</span>.</p>
 
@@ -128,8 +128,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
   <tr><td><code>distill_template</code></td><td>Trang đẹp → kit tái dùng (sanitize trước khi chia sẻ)</td></tr>
   <tr><td rowspan="2">Distill</td><td><code>distill_model_schema</code></td><td>Model → blueprint Markdown + Mermaid ERD</td></tr>
   <tr><td><code>distill_report_design</code></td><td>Quét TRỌN báo cáo: mọi trang + theme + DESIGN + CATALOG</td></tr>
-  <tr><td rowspan="4">Knowledge OS 🧠</td><td><code>knowledge_status</code></td><td>Kiểm tra Knowledge Dir + hiện trạng</td></tr>
-  <tr><td><code>setup_knowledge</code></td><td>Thiết lập Knowledge Dir user chỉ định (ngoài repo)</td></tr>
+  <tr><td rowspan="4">Knowledge OS 🧠</td><td><code>knowledge_status</code></td><td>Kiểm tra thư mục dự án + hiện trạng</td></tr>
+  <tr><td><code>setup_knowledge</code></td><td>Thiết lập thư mục dự án user chỉ định (ngoài repo)</td></tr>
   <tr><td><code>init_project</code></td><td>Mở dự án mới projects/&lt;slug&gt;/</td></tr>
   <tr><td><code>log_timeline</code></td><td>Ghi lịch sử/bài học vào TIMELINE.md</td></tr>
 </table>
@@ -147,7 +147,7 @@ TMDL, validate DAX giao cho MCP chính chủ Microsoft:</p>
   <tr><th>Lớp</th><th>Mặc định</th><th>Điều chỉnh</th></tr>
   <tr><td>Chặn dump thô (<code>EVALUATE 'Bảng'</code>, <code>ALL()</code>)</td><td class="ok">BẬT</td><td><code>POWERBI_AGGREGATE_ONLY=0</code> để tắt</td></tr>
   <tr><td>PII blocklist (cột cấm project)</td><td>Theo file</td><td>Copy <code>policy.example.json</code> → <code>policy.json</code>, liệt kê cột</td></tr>
-  <tr><td>Audit log JSONL</td><td class="ok">BẬT</td><td><code>~/.powerbi-agent/audit/</code> (đổi: <code>POWERBI_AUDIT_DIR</code>)</td></tr>
+  <tr><td>Audit log JSONL</td><td class="ok">BẬT</td><td><code>%LOCALAPPDATA%/powerbi-agent/audit/</code> (đổi: <code>POWERBI_AUDIT_DIR</code>)</td></tr>
   <tr><td>Trần 200 dòng cho kết quả có cột dimension</td><td class="ok">BẬT</td><td><code>POWERBI_DIMENSION_ROW_CAP</code></td></tr>
 </table>
 <div class="danger"><b>Trung thực về giới hạn:</b> đây là guard chống rò rỉ <i>sơ ý</i>. Bảo mật cứng =

@@ -1,12 +1,23 @@
-"""Knowledge OS — tầng lưu trữ tri thức NGOÀI repo, do user chỉ định (ROADMAP §M5.0).
+"""Knowledge OS — nơi lưu tài liệu dự án, NẰM NGOÀI repo.
 
-Thứ tự resolve Knowledge Dir:
-1. env `POWERBI_KNOWLEDGE_DIR`
-2. `knowledge.config.json` ở gốc repo (GITIGNORED — cấu hình của MÁY, không theo repo)
-3. Chưa có → None (tool trả hướng dẫn chạy setup; agent DỪNG hỏi user chỉ định folder,
-   ưu tiên knowledge base/Brain có sẵn của user).
+Hai vùng tách bạch, không vùng nào nằm trong repo:
 
-Luật riêng tư: Knowledge Dir + config KHÔNG BAO GIỜ được commit vào repo public.
+  MÁY   %LOCALAPPDATA%\\powerbi-agent\\     con trỏ + sổ ghi nhớ + audit + distill
+        config.json      địa chỉ thư mục dự án của máy này
+        projects.json    SỔ GHI NHỚ: dự án nào, tài liệu nằm ở đâu, lúc nào
+  DỮ LIỆU  <project_dir>, mặc định ~/powerbi-project/
+        <slug>/ · knowledge/{4 trục}/ · templates/ · INDEX.md · TIMELINE.md
+
+Vì sao con trỏ KHÔNG để trong repo (trước đây là `knowledge.config.json` ở gốc repo):
+  - repo bị xoá / clone lại / đổi máy là mất sạch con trỏ, agent quên hết dự án cũ;
+  - file nằm trong working tree thì luôn cách một lệnh `git add -A` là bị commit.
+Đặt ở LOCALAPPDATA thì nó sống sót mọi thao tác với repo và không thể bị commit.
+
+Thứ tự resolve:
+1. env `POWERBI_PROJECT_DIR`
+2. `config.json` trong thư mục máy
+3. `knowledge.config.json` cũ ở gốc repo — CHỈ ĐỌC, để bản cài cũ không gãy
+4. Chưa có → None (agent dừng, hỏi user chọn nơi lưu; gợi ý mặc định ~/powerbi-project)
 """
 
 import json
@@ -16,7 +27,29 @@ import unicodedata
 from datetime import date
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_FILE = os.path.join(_REPO_ROOT, "knowledge.config.json")
+# Con trỏ đời cũ — chỉ đọc để migrate, không ghi mới vào đây nữa.
+LEGACY_CONFIG_FILE = os.path.join(_REPO_ROOT, "knowledge.config.json")
+
+DEFAULT_PROJECT_DIRNAME = "powerbi-project"
+
+
+def machine_dir() -> str:
+    """Thư mục cấu hình theo MÁY. Không có dấu chấm ở tên (yêu cầu của chủ repo).
+
+    Windows dùng %LOCALAPPDATA% — đúng chỗ quy ước cho state của ứng dụng.
+    Nền khác thì lùi về ~/powerbi-agent để code vẫn chạy được khi test.
+    """
+    base = os.getenv("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), ".local", "share")
+    return os.path.join(base, "powerbi-agent")
+
+
+CONFIG_FILE = os.path.join(machine_dir(), "config.json")
+REGISTRY_FILE = os.path.join(machine_dir(), "projects.json")
+
+
+def default_project_dir() -> str:
+    """Gợi ý mặc định để user chỉ cần bấm Enter."""
+    return os.path.join(os.path.expanduser("~"), DEFAULT_PROJECT_DIRNAME)
 
 # 4 trục đóng gói tri thức (quy trình #3)
 KNOWLEDGE_AXES = ("tech-stack", "industry", "business-domain", "powerbi")
@@ -31,25 +64,84 @@ def slugify(name: str) -> str:
     return s or "project"
 
 
+def _read_json(path: str) -> dict:
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _write_json(path: str, data) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    os.replace(tmp, path)  # thay ATOMIC — không để lại file nửa vời nếu tiến trình chết
+
+
 def resolve_root() -> str | None:
-    """Trả về <KNOWLEDGE_DIR>/powerbi-agent nếu đã setup, ngược lại None."""
-    base = os.getenv("POWERBI_KNOWLEDGE_DIR")
-    if not base and os.path.exists(CONFIG_FILE):
-        try:
-            with open(CONFIG_FILE, encoding="utf-8") as f:
-                base = json.load(f).get("knowledge_dir")
-        except Exception:
-            base = None
+    """Thư mục dự án của máy này, hoặc None nếu chưa setup.
+
+    Thư mục user chọn CHÍNH LÀ gốc — không tự đẻ thêm cấp con, để cái user thấy
+    trong File Explorer đúng bằng cái agent ghi vào.
+    """
+    base = os.getenv("POWERBI_PROJECT_DIR") or _read_json(CONFIG_FILE).get("project_dir")
     if not base:
-        return None
-    return os.path.join(os.path.expanduser(base), "powerbi-agent")
+        # Bản cài cũ: con trỏ còn nằm trong repo. Chỉ đọc, không ghi lại vào đó.
+        base = _read_json(LEGACY_CONFIG_FILE).get("knowledge_dir")
+        if base:
+            legacy = os.path.join(os.path.expanduser(base), "powerbi-agent")
+            return legacy if os.path.isdir(legacy) else os.path.expanduser(base)
+    return os.path.expanduser(base) if base else None
+
+
+def set_project_dir(path: str) -> str:
+    """Ghi con trỏ vào thư mục MÁY (ngoài repo) và trả về đường dẫn đã chuẩn hoá."""
+    full = os.path.abspath(os.path.expanduser(path))
+    cfg = _read_json(CONFIG_FILE)
+    cfg["project_dir"] = full
+    _write_json(CONFIG_FILE, cfg)
+    return full
+
+
+# ---- Sổ ghi nhớ dự án -------------------------------------------------------
+# Mục đích: 6 tháng sau vẫn truy vết được "tài liệu dự án X nằm ở đâu", kể cả khi
+# user cho agent ghi ra một thư mục hoàn toàn khác ngoài thư mục dự án mặc định.
+
+def load_registry() -> list[dict]:
+    data = _read_json(REGISTRY_FILE)
+    return data.get("projects", []) if isinstance(data, dict) else []
+
+
+def register_project(slug: str, name: str, path: str, note: str = "") -> None:
+    """Ghi/cập nhật một dự án vào sổ. Khoá theo slug — chạy lại không tạo bản trùng."""
+    items = load_registry()
+    entry = {
+        "slug": slug,
+        "name": name,
+        "path": os.path.abspath(os.path.expanduser(path)),
+        "opened": date.today().isoformat(),
+        "note": note,
+    }
+    for i, it in enumerate(items):
+        if it.get("slug") == slug:
+            entry["opened"] = it.get("opened", entry["opened"])
+            items[i] = {**it, **entry}
+            break
+    else:
+        items.append(entry)
+    _write_json(REGISTRY_FILE, {"projects": items})
 
 
 NOT_SETUP_MSG = (
-    "Knowledge Dir CHƯA được thiết lập. Hỏi user chỉ định một folder NGOÀI repo để lưu "
-    "tri thức (ưu tiên knowledge base / folder Brain có sẵn của user; chưa có thì đề xuất "
-    "tạo mới, vd ~/powerbi-knowledge). Sau đó gọi tool setup_knowledge(path). "
-    "KHÔNG lưu tri thức dự án vào trong repo."
+    "Chưa thiết lập nơi lưu tài liệu dự án. HỎI user một câu duy nhất: lưu ở đâu?\n"
+    f"  1. {default_project_dir()}   (mặc định — user chỉ cần đồng ý)\n"
+    "  2. Một thư mục khác — user dán đường dẫn.\n"
+    "Rồi gọi tool setup_knowledge(path).\n"
+    "TUYỆT ĐỐI không lưu tài liệu dự án vào trong repo: repo là git working tree, "
+    "chỉ một lệnh `git add -A` là dữ liệu khách hàng bị commit."
 )
 
 

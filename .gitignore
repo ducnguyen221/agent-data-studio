@@ -25,7 +25,7 @@ policy.json
 # Cache tool local
 .ruff_cache/
 
-# Knowledge OS — config máy cá nhân (trỏ Brain/Knowledge Dir riêng)
+# Con trỏ đời cũ (trước v0.6) — con trỏ mới nằm ngoài repo ở %LOCALAPPDATA%
 knowledge.config.json
 
 # Residue cua bo test installer (fake USERPROFILE)

@@ -75,7 +75,7 @@ Per-host details: [`hosts/`](hosts/).
 ```
 1.  restart your AI host          →  it picks up the MCP server
 2.  /powerbi-help                 →  the agent lists what it can do and routes your request
-3.  /powerbi-setup                →  designate a Knowledge Dir (a folder OUTSIDE the repo). Once.
+3.  /powerbi-setup                →  designate a project dir (a folder OUTSIDE the repo). Once.
 4.  /powerbi-new "Revenue report" →  it reads past lessons, surveys the data, documents, then builds
 ```
 
@@ -89,7 +89,7 @@ Already have a `.pbip` you like? `/powerbi-scan <path>` explains its design;
 | Command | What it does |
 |---|---|
 | `/powerbi-help` | List every capability + route your request to the right process |
-| `/powerbi-setup` | Declare the Knowledge Dir — where all knowledge lives, outside the repo (once) |
+| `/powerbi-setup` | Declare the project dir — where all knowledge lives, outside the repo (once) |
 | `/powerbi-new <name>` | Open a project: its own folder + prior lessons + the analysis process |
 | `/powerbi-scan <path.pbip>` | Scan a report's design: every page + theme + DESIGN.md + catalog |
 | `/powerbi-kit <path.pbip>` | Distill a report into a **set** of reusable report-page kits |
@@ -122,11 +122,11 @@ Full table with descriptions: [INDEX.md](INDEX.md).
 - **aggregate-only, ON by default** — `EVALUATE '<table>'` and `EVALUATE ALL(...)` are refused with a
   rewrite hint toward `SUMMARIZECOLUMNS`/`TOPN`. Disable with `POWERBI_AGGREGATE_ONLY=0`.
 - **PII blocklist + audit log** — copy `policy.example.json` → `policy.json` and list the columns to
-  block; every query is recorded to `~/.powerbi-agent/audit/*.jsonl` with its verdict and row count.
+  block; every query is recorded to `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` with its verdict and row count.
 - **Honest about limits** — this guards against accidental leaks. Real security is still RLS on the
   model plus a least-privilege service principal.
 
-Your project knowledge lives in a **Knowledge Dir you designate, outside the repo**. Nobody receives
+Your project knowledge lives in a **project dir you designate, outside the repo**. Nobody receives
 anyone else's knowledge through git. The only path out is you asking, `sanitize=True`, and a review.
 
 ## Runs alongside microsoft/powerbi-modeling-mcp

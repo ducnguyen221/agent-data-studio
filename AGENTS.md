@@ -103,7 +103,7 @@ Mọi vai đều đọc được an toàn đồng thời — tool ĐỌC (list/d
 - **Artifact files trong thư mục dự án** (nguồn sự thật, agent nào cũng đọc/ghi nối tiếp):
   `PLAN.md` → `CHANGESET.md` → `VERIFICATION.md` → `HANDOFF.md` (+ tài liệu kpim-analysis).
   Bàn giao giữa 2 agent = ghi rõ trạng thái vào artifact, KHÔNG dựa vào trí nhớ phiên chat.
-- **Audit log** `~/.powerbi-agent/audit/*.jsonl` = sổ cái chung mọi truy vấn (agent nào, chặn gì)
+- **Audit log** `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` = sổ cái chung mọi truy vấn (agent nào, chặn gì)
   — Reviewer dùng làm bằng chứng kiểm tra.
 - **Blueprint từ `distill_model_schema`** = "bản đồ model" chung: Builder tạo sau mỗi đợt ghi
   model; các agent khác đọc thay vì tự query lại schema.
@@ -121,7 +121,7 @@ gitignored — mỗi máy tự khai báo). Cơ chế đầy đủ: skill `powerb
 | Lệnh (Claude) / luồng (host khác) | Làm gì |
 |---|---|
 | `/powerbi-help` | Liệt kê lệnh/skill/16 tool + **bảng định tuyến** "user nói gì thì chạy gì" |
-| `/powerbi-setup` | Hỏi user chỉ định Knowledge Dir (ưu tiên Brain có sẵn) → `setup_knowledge` |
+| `/powerbi-setup` | Hỏi user chọn nơi lưu tài liệu dự án (mặc định ~/powerbi-project) → `setup_knowledge` |
 | `/powerbi-new <tên>` | `init_project` + đọc kinh nghiệm cũ + chạy kpim-analysis → powerbi-pipeline |
 | `/powerbi-scan <path>` | `distill_report_design` — hồ sơ thiết kế trọn báo cáo vào projects/<slug>/design/ |
 | `/powerbi-kit <path>` | Chưng cất 1 file .pbip thành **BỘ** kit tái dùng (nhiều trang + theme chung) |

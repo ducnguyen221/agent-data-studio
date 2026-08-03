@@ -276,15 +276,43 @@ class TestKnowledge:
         assert kn.slugify("///") == "project"
 
     def test_resolve_root_env(self, tmp_path, monkeypatch):
+        """Thư mục user chọn CHÍNH LÀ gốc — không tự đẻ thêm cấp con."""
         from powerbi_agent import knowledge as kn
-        monkeypatch.setenv("POWERBI_KNOWLEDGE_DIR", str(tmp_path))
-        assert kn.resolve_root() == os.path.join(str(tmp_path), "powerbi-agent")
+        monkeypatch.setenv("POWERBI_PROJECT_DIR", str(tmp_path))
+        assert kn.resolve_root() == str(tmp_path)
 
     def test_resolve_root_none_when_unset(self, monkeypatch):
         from powerbi_agent import knowledge as kn
-        monkeypatch.delenv("POWERBI_KNOWLEDGE_DIR", raising=False)
+        monkeypatch.delenv("POWERBI_PROJECT_DIR", raising=False)
         monkeypatch.setattr(kn, "CONFIG_FILE", "Z:/khong/ton/tai.json")
+        monkeypatch.setattr(kn, "LEGACY_CONFIG_FILE", "Z:/khong/ton/tai-cu.json")
         assert kn.resolve_root() is None
+
+    def test_machine_dir_has_no_dot_prefix(self):
+        """Chủ repo yêu cầu KHÔNG dùng thư mục có dấu chấm."""
+        from powerbi_agent import knowledge as kn
+        assert os.path.basename(kn.machine_dir()) == "powerbi-agent"
+        assert not os.path.basename(kn.machine_dir()).startswith(".")
+
+    def test_machine_dir_is_outside_repo(self):
+        """Con trỏ phải sống sót khi repo bị xoá / clone lại, và không thể bị commit."""
+        from powerbi_agent import knowledge as kn
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        assert os.path.commonpath([os.path.abspath(kn.machine_dir()), repo]) != repo
+
+    def test_registry_records_where_docs_live(self, tmp_path, monkeypatch):
+        """Sổ ghi nhớ: 6 tháng sau vẫn truy vết được tài liệu dự án nằm ở đâu."""
+        from powerbi_agent import knowledge as kn
+        monkeypatch.setattr(kn, "REGISTRY_FILE", str(tmp_path / "projects.json"))
+        kn.register_project("bao-cao-a", "Báo cáo A", str(tmp_path / "noi-khac" / "bao-cao-a"))
+        items = kn.load_registry()
+        assert len(items) == 1
+        assert items[0]["name"] == "Báo cáo A"
+        assert items[0]["path"].endswith(os.path.join("noi-khac", "bao-cao-a"))
+        # ghi lại cùng slug -> cập nhật, KHÔNG tạo bản trùng
+        kn.register_project("bao-cao-a", "Báo cáo A (đổi tên)", str(tmp_path / "moi"))
+        items = kn.load_registry()
+        assert len(items) == 1 and items[0]["path"].endswith("moi")
 
     def test_skeleton_and_timeline_and_index(self, tmp_path):
         from powerbi_agent import knowledge as kn
@@ -319,4 +347,4 @@ class TestDistill:
         from powerbi_agent.tools_distill import _resolve_output_dir
         monkeypatch.delenv("POWERBI_DISTILL_DIR", raising=False)
         out = _resolve_output_dir(None)
-        assert ".powerbi-agent" in out  # NGOÀI repo — không commit schema khách
+        assert "powerbi-agent" in out and ".powerbi-agent" not in out  # ngoài repo, không dấu chấm

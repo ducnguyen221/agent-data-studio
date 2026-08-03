@@ -75,7 +75,7 @@ Chi tiết từng host: [`hosts/`](hosts/).
 ```
 1.  restart AI host của bạn        →  host nạp MCP server
 2.  /powerbi-help                  →  agent tự liệt kê năng lực và định tuyến yêu cầu của bạn
-3.  /powerbi-setup                 →  chỉ định Knowledge Dir (folder NGOÀI repo). Làm 1 lần.
+3.  /powerbi-setup                 →  chỉ định thư mục dự án (folder NGOÀI repo). Làm 1 lần.
 4.  /powerbi-new "Báo cáo doanh thu" →  agent đọc kinh nghiệm cũ, khảo sát, tài liệu hóa, rồi dựng
 ```
 
@@ -89,7 +89,7 @@ Chi tiết từng host: [`hosts/`](hosts/).
 | Lệnh | Làm gì |
 |---|---|
 | `/powerbi-help` | Liệt kê mọi năng lực + định tuyến yêu cầu của bạn tới đúng quy trình |
-| `/powerbi-setup` | Khai báo Knowledge Dir — nơi lưu toàn bộ tri thức, ngoài repo (làm 1 lần) |
+| `/powerbi-setup` | Khai báo thư mục dự án — nơi lưu toàn bộ tri thức, ngoài repo (làm 1 lần) |
 | `/powerbi-new <tên>` | Mở dự án: folder riêng + đọc kinh nghiệm cũ + chạy quy trình phân tích |
 | `/powerbi-scan <path.pbip>` | Quét thiết kế 1 báo cáo: mọi trang + theme + DESIGN.md + catalog |
 | `/powerbi-kit <path.pbip>` | Chưng cất báo cáo thành **bộ** kit trang báo cáo tái dùng |
@@ -122,11 +122,11 @@ thuật) · `powerbi-mcp` (sổ tay tra cứu tool) · `powerbi-knowledge` (Know
 - **aggregate-only, BẬT mặc định** — `EVALUATE '<table>'` và `EVALUATE ALL(...)` bị từ chối kèm gợi ý
   viết lại bằng `SUMMARIZECOLUMNS`/`TOPN`. Tắt bằng `POWERBI_AGGREGATE_ONLY=0`.
 - **Blocklist PII + nhật ký audit** — copy `policy.example.json` → `policy.json` rồi liệt kê cột cần
-  chặn; mọi truy vấn được ghi vào `~/.powerbi-agent/audit/*.jsonl` kèm phán quyết và số dòng.
+  chặn; mọi truy vấn được ghi vào `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` kèm phán quyết và số dòng.
 - **Nói thật về giới hạn** — đây là lớp chắn rò rỉ do sơ suất. Bảo mật thật vẫn là RLS trên model +
   service principal quyền tối thiểu.
 
-Tri thức dự án sống trong **Knowledge Dir bạn chỉ định, ngoài repo**. Không ai nhận tri thức của ai
+Tri thức dự án sống trong **thư mục dự án bạn chỉ định, ngoài repo**. Không ai nhận tri thức của ai
 qua git. Đường duy nhất đi ra: bạn chủ động yêu cầu + `sanitize=True` + review.
 
 ## Chạy song song microsoft/powerbi-modeling-mcp
