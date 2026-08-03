@@ -536,8 +536,10 @@ class TestPlaceholderGrammarIsClosed:
                   "TEMPLATE_FIELD_1 0905.123.456"):
             assert not is_placeholder_only(s), s
         # chỉ số thật (0–999) vẫn phải được chấp nhận
-        for s in ("TEMPLATE_FIELD_0", "TEMPLATE_FIELD_101", "TEMPLATE_TABLE.TEMPLATE_LABEL_999"):
+        for s in ("TEMPLATE_FIELD_1", "TEMPLATE_FIELD_101", "TEMPLATE_TABLE.TEMPLATE_LABEL_999"):
             assert is_placeholder_only(s), s
+        # build_sanitize_map danh so tu 1 -> chi so 0 khong thuoc ngu phap
+        assert not is_placeholder_only("TEMPLATE_FIELD_0")
 
 
 class TestLiteralScrubKeepsStyle:

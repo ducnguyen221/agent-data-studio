@@ -308,6 +308,37 @@ $left = @(Get-ChildItem $sk -Directory -ErrorAction SilentlyContinue).Name -join
 $cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
 Add-Result 'C-uninstall-symmetric' ($left -eq '' -and $cmdsLeft -eq 0) "skillsConLai='$left' cmdsConLai=$cmdsLeft"
 
+# Nâng cấp từ bản cài THẬT trước khi có dấu sở hữu (SKILL.md của cb94d27: có `name:` do ta ghi,
+# KHÔNG có `x-generated-by`, KHÔNG có file marker — Install-Skill xưa nay không hề ghi marker).
+# Không có ca này thì luật two-signal làm 4 skill gốc kẹt vĩnh viễn: install bỏ qua, uninstall giữ lại.
+Reset-Home
+$legacySkill = Join-Path $FakeHome '.codex\skills\powerbi-knowledge'
+New-Item -ItemType Directory -Path $legacySkill -Force | Out-Null
+$legacyBody = & git -C $RepoRoot show 'cb94d27:plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md' 2>$null
+if (-not $legacyBody) { $legacyBody = @("---","name: powerbi-knowledge","description: ban cu","---","NOI DUNG CU") }
+Set-Content (Join-Path $legacySkill 'SKILL.md') ($legacyBody -join "`n") -Encoding UTF8
+$null = Run-Install 'codex'
+$skRootC = Join-Path $FakeHome '.codex\skills'
+$nowHasProv = (Get-Content (Join-Path $legacySkill 'SKILL.md') -Raw -Encoding UTF8) -match 'x-generated-by:\s*powerbi-agent'
+$hasMarkerNow = Test-Path (Join-Path $legacySkill '.powerbi-agent-generated')
+# Bản cũ phải được GIỮ (không xoá mất dữ liệu) nhưng nằm NGOÀI skills/ — trong skills/ thì
+# host vẫn nạp nó như một skill xác sống, đúng cái bug đang muốn diệt.
+$bkOutside = @(Get-ChildItem (Join-Path $FakeHome '.codex') -Directory -Filter 'powerbi-agent-backup-*' -ErrorAction SilentlyContinue).Count
+$skillDirs = @(Get-ChildItem $skRootC -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') }).Count
+$null = Run-Uninstall 'codex'
+$goneNow = -not (Test-Path $legacySkill)
+Add-Result 'D-upgrade-repo-skill-no-marker' ($nowHasProv -and $hasMarkerNow -and $bkOutside -eq 1 -and $skillDirs -eq 12 -and $goneNow) `
+    "capNhat=$nowHasProv marker=$hasMarkerNow backupNgoaiSkills=$bkOutside skillTrongSkills=$skillDirs/12 goDuoc=$goneNow"
+
+# Bước lỗi phải làm install exit 1. Trước đây 3 chỗ gọi Err rồi chạy tiếp -> vẫn in HOÀN TẤT + exit 0.
+Reset-Home
+Set-Content (Join-Path $FakeHome '.claude.json') '[1,2,3]' -Encoding UTF8   # root khong phai object -> helper sys.exit
+$null = Run-Install 'claude'
+$installExit = $LASTEXITCODE
+$cfgUntouched = (Get-Content (Join-Path $FakeHome '.claude.json') -Raw) -match '\[\s*1'
+Add-Result 'D-install-exits-1-on-failure' ($installExit -eq 1 -and $cfgUntouched) `
+    "exitCode=$installExit (phai=1) fileGocConNguyen=$cfgUntouched"
+
 if (Test-Path $FakeHome) { Remove-Item $FakeHome -Recurse -Force }  # tự dọn residue
 Write-Host "`n===== TONG KET ====="
 $results | Format-Table -AutoSize | Out-String | Write-Host

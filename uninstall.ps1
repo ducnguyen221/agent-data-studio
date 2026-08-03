@@ -19,6 +19,9 @@ if (-not (Test-Path $venvPy) -and $env:POWERBI_INSTALL_PYTHON) { $venvPy = $env:
 function Info($m){Write-Host "[i] $m" -ForegroundColor Cyan}
 function Ok($m){Write-Host "[OK] $m" -ForegroundColor Green}
 function Warn($m){Write-Host "[!] $m" -ForegroundColor Yellow}
+# Đối xứng với install.ps1: gỡ hụt mà vẫn exit 0 thì script gọi (hoặc CI) tưởng đã sạch.
+$script:HadError = $false
+function Err($m){$script:HadError = $true; Write-Host "[X] $m" -ForegroundColor Red}
 function Backup-File($p){ if(Test-Path $p){ Copy-Item $p "$p.bak.$Stamp" -Force; Info "Backup: $p.bak.$Stamp" } }
 function Write-Utf8NoBom($Path,$Text){ [System.IO.File]::WriteAllText($Path,$Text,(New-Object System.Text.UTF8Encoding($false)))}
 $name = "powerbi-mcp-bridge"
@@ -67,9 +70,13 @@ else:
     # PHAI doc $LASTEXITCODE, va khop NEO DONG. Truoc day chi tim chuoi con trong
     # stdout+stderr da gop: helper in "REMOVED" roi exit 1, hoac traceback tinh co
     # chua chuoi do, deu lam installer bao dang ky THANH CONG trong khi khong co gi xay ra.
-    if ($helperExit -eq 0 -and "$out" -match "(?m)^REMOVED\s*$") { Ok "Đã gỡ '$name' khỏi $Path (validate OK)" }
-    elseif ("$out" -match "ABSENT") { Info "$Path không chứa '$name'." }
-    else { Warn "Không gỡ được khỏi $Path ($out) — file gốc còn nguyên (.bak.$Stamp)." }
+    # `"$out"` nối MẢNG bằng DẤU CÁCH chứ không phải newline -> neo `(?m)^...$` chỉ khớp khi
+    # REMOVED là TOÀN BỘ output. Một dòng warning bất kỳ của Python là gỡ THÀNH CÔNG mà
+    # script báo thất bại. Phải tự nối bằng LF trước khi khớp.
+    $outText = (@($out) | ForEach-Object { "$_" }) -join "`n"
+    if ($helperExit -eq 0 -and $outText -match "(?m)^REMOVED\s*$") { Ok "Đã gỡ '$name' khỏi $Path (validate OK)" }
+    elseif ($outText -match "(?m)^ABSENT\s*$") { Info "$Path không chứa '$name'." }
+    else { Err "Không gỡ được khỏi $Path ($outText) — file gốc còn nguyên (.bak.$Stamp)." }
 }
 
 if ($Hosts -contains "claude") {
@@ -141,8 +148,9 @@ foreach ($skRoot in $hostSkillRoots) {
             # Ban cai truoc v0.6 chua co marker -> nhan dien bang frontmatter `name:` do ta ghi.
             # Khong co buoc nay thi nguoi nang cap khong bao gio go duoc skill cu.
             $skf = Join-Path $p "SKILL.md"
+            $nameOk = $false
             if (Test-Path $skf) {
-                # Doc CA frontmatter, khong cat cung 8 dong.
+                # Đọc 40 dòng đầu — đủ vì `name:`/`x-generated-by:` luôn nằm ngay đầu frontmatter.
                 $h = (Get-Content $skf -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
                 $nameOk = $h -match "(?m)^name:\s*$([regex]::Escape($n))\s*$"
                 # Dau hieu ASCII la chinh. Van xuoi tieng Viet CHI dung cho skill-lenh doi
@@ -156,7 +164,14 @@ foreach ($skRoot in $hostSkillRoots) {
             # ghi chu/asset cua user). install.ps1 da theo luat nay, uninstall phai giong.
         }
         if (-not $mine) {
-            Warn "Giu lai '$p': khong phai skill do powerbi-agent tao."
+            Warn "Giữ lại '$p': không mang dấu sở hữu của powerbi-agent."
+            if ($nameOk) {
+                # Bản cài trước khi có marker: `name:` là của ta nhưng thiếu dấu hiệu thứ hai để
+                # chắc chắn. Không đoán mò rồi xoá — chỉ nói rõ đường xử lý, vì đoán sai là mất
+                # dữ liệu không hoàn tác được, còn giữ lại thì cùng lắm là thừa một thư mục.
+                Warn "  Là bản cài cũ? -> chạy install.ps1 MỘT lần (nó tự dời bản cũ sang backup và"
+                Warn "     cài bản có dấu sở hữu), rồi chạy lại uninstall.ps1. Hoặc xoá tay: $p"
+            }
             continue
         }
         Remove-Item $p -Recurse -Force; Info "Xoá skill: $p"
@@ -217,5 +232,9 @@ if ($Hosts -contains "claude") {
 if ($RemoveVenv) {
     $venv = Join-Path $Root ".venv"
     if (Test-Path $venv) { Remove-Item $venv -Recurse -Force; Ok "Đã xoá .venv" }
+}
+if ($script:HadError) {
+    Err "GỠ CHƯA SẠCH — xem các dòng [X] ở trên. Cấu hình gốc còn nguyên trong bản .bak.$Stamp."
+    exit 1
 }
 Ok "Gỡ cài hoàn tất. Khởi động lại host để áp dụng. (Thư mục mã nguồn giữ nguyên.)"

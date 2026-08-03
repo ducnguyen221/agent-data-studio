@@ -218,7 +218,14 @@ def build_sanitize_map(entities: set, properties: set, labels: set | None = None
 # chuỗi "TEMPLATE_FIELD_1_TY_LE" tự nhận là "đã sạch" rồi đi thẳng vào bản public.
 # Gioi han 1-3 chu so: `[0-9]+` tham lam nen no NUOT day so lien ke —
 # "TEMPLATE_FIELD_10905123456" (so dien thoai dinh lien) tu nhan la da sach.
-_PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_(?:0|[1-9][0-9]{0,2})(?![0-9]))"
+# NGU PHAP DONG: build_sanitize_map danh so tu 1 (enumerate start=1, n=1) nen chi so 0
+# KHONG BAO GIO duoc sinh ra -> khong nhan. TRAN: 1-999. Kit lon nhat dang ship dung toi
+# FIELD_258, con xa tran. Kit >1000 field
+# van duoc sanitize binh thuong; chi `is_placeholder_only` tra False nen kit lay ten
+# chung "kit" thay vi ten rut ra — an toan mac dinh, khong phai ro ri.
+# Muon nang tran: KHONG doi thanh `[0-9]+`. Noi rong tung nac ({0,3}) va giu
+# `(?![0-9])`, vi chinh do dai co han moi chan duoc day so nghiep vu di ke.
+_PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_[1-9][0-9]{0,2}(?![0-9]))"
 # KHONG cho 0-9 vao day phan cach: mot placeholder se hop thuc hoa moi day so ben canh,
 # vd 'TEMPLATE_FIELD_1 0905.123.456' tu nhan la sach -> so dien thoai vao kit public.
 # Chu so chi duoc phep BEN TRONG chinh placeholder (TEMPLATE_FIELD_12).

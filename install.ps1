@@ -244,7 +244,11 @@ print("MERGE_OK")
     # PHAI doc $LASTEXITCODE, va khop NEO DONG. Truoc day chi tim chuoi con trong
     # stdout+stderr da gop: helper in "MERGE_OK" roi exit 1, hoac traceback tinh co
     # chua chuoi do, deu lam installer bao dang ky THANH CONG trong khi khong co gi xay ra.
-    if ($helperExit -eq 0 -and "$out" -match "(?m)^MERGE_OK\s*$") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
+    # `"$out"` nối MẢNG bằng DẤU CÁCH, không phải newline -> neo `(?m)^...$` chỉ khớp khi
+    # MERGE_OK là TOÀN BỘ output. Python in thêm một dòng warning bất kỳ (PYTHONWARNINGS,
+    # sitecustomize...) là merge THÀNH CÔNG mà installer báo thất bại, khuyên restore .bak oan.
+    $outText = (@($out) | ForEach-Object { "$_" }) -join "`n"
+    if ($helperExit -eq 0 -and $outText -match "(?m)^MERGE_OK\s*$") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
     else { Err "Merge JSON thất bại ($out). File gốc còn nguyên trong .bak.$Stamp — KHÔNG ghi đè."; }
 }
 
@@ -313,6 +317,20 @@ PYTHONUNBUFFERED = "1"
         } else { Info "config.toml parse OK." }
     }
 }
+# Dời một thư mục skill sang chỗ an toàn thay vì xoá.
+# PHẢI ra NGOÀI thư mục skills: host dò skill theo "mọi thư mục con có SKILL.md", nên đổi tên
+# tại chỗ ("pbi-pipeline.backup-...") vẫn để lại một skill xác sống được nạp như thường —
+# đúng cái bug mà bước dọn này sinh ra để diệt. Đặt cạnh skills/, không ai quét tới.
+function Move-SkillAside([string]$Path, [string]$SkillRoot, [string]$Why) {
+    $bkRoot = Join-Path (Split-Path $SkillRoot -Parent) "powerbi-agent-backup-$Stamp"
+    New-Item -ItemType Directory -Path $bkRoot -Force | Out-Null
+    $bk = Join-Path $bkRoot (Split-Path $Path -Leaf)
+    if (Test-Path $bk) { Remove-Item $bk -Recurse -Force }
+    Move-Item $Path $bk -Force
+    Warn "$Why -> đã dời sang: $bk"
+    return $bk
+}
+
 function Install-Skill([string]$SkillRoot) {
     # Copy MỌI skill (powerbi-mcp, powerbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
     # plugins\powerbi-agent\skills\ (fallback layout cũ skill\ cho bản clone cũ).
@@ -323,9 +341,15 @@ function Install-Skill([string]$SkillRoot) {
     # Skill ĐỔI TÊN ở v0.5.0: mirror chỉ xử lý skill CÓ trong nguồn, nên bản cũ nằm lại thành
     # xác sống. Tệ hơn nhiều so với rác thường: pbi-knowledge/SKILL.md chứa nguyên bảng định tuyến
     # bảo agent chạy /pbi-setup, /pbi-new... — đúng những lệnh mà chính installer vừa xoá.
+    # DỜI SANG BÊN, không Remove-Item: "pbi-pipeline" là cái tên bất kỳ ai trong hệ sinh thái
+    # Power BI cũng có thể đã đặt cho skill riêng của họ. Xoá thẳng ở đây thì user mất dữ liệu
+    # không hoàn tác được — và mâu thuẫn với chính luật two-signal áp cho các skill khác dưới đây.
     foreach ($old in @("pbi-pipeline", "pbi-knowledge")) {
         $p = Join-Path $SkillRoot $old
-        if (Test-Path $p) { Remove-Item $p -Recurse -Force; Info "Xoá skill cũ (<0.5.0): $old" }
+        if (Test-Path $p) {
+            Move-SkillAside $p $SkillRoot "Skill cũ (<0.5.0) '$old'" | Out-Null
+            Warn "  Nếu đó là skill CỦA BẠN, chuyển thư mục đó về '$p'. Nếu không, xoá bản backup đi."
+        }
     }
     Get-ChildItem -Path $skillBase -Directory | ForEach-Object {
         $src = Join-Path $_.FullName "SKILL.md"
@@ -346,30 +370,46 @@ function Install-Skill([string]$SkillRoot) {
                 Err "Skill $($_.Name): copy hỏng (thiếu SKILL.md) — GIỮ NGUYÊN bản cũ ở $dst"
                 return
             }
+            # Dấu hiệu sở hữu HẠNG NHẤT: file marker ta tự ghi (dòng ngay dưới). Không phụ
+            # thuộc nội dung SKILL.md nên không vỡ khi mô tả skill đổi qua các phiên bản.
+            Write-Utf8NoBom (Join-Path $stage ".powerbi-agent-generated") `
+                "powerbi-agent sinh tu plugins/powerbi-agent/skills/$($_.Name)`n"
             # Skill goc cua repo cung phai ton trong so huu: user co the co skill rieng
             # trung ten (vd powerbi-knowledge). Nhan dien ban CUA TA bang frontmatter name:.
             if (Test-Path $dst) {
                 $mine = Test-Path (Join-Path $dst ".powerbi-agent-generated")
+                $nameMatches = $false
                 if (-not $mine) {
                     $skf = Join-Path $dst "SKILL.md"
                     if (Test-Path $skf) {
-                        # Doc CA frontmatter (den `---` dong), khong cat cung 8 dong: mo ta
-                        # dai hon la ta doc hut dau van -> skill CUA TA thanh khong go duoc.
+                        # Đọc 40 dòng đầu — ĐỦ vì cả hai khoá (`name:`, `x-generated-by:`) nằm ngay
+                        # đầu frontmatter. (Không parse tới `---` đóng: mô tả nhiều skill dài hơn
+                        # 40 dòng, mà hai khoá này thì không bao giờ trôi xuống dưới.)
                         $h = (Get-Content $skf -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                        $nameMatches = $h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$"
                         # HAI dau hieu. Chi doi 'name:' la du de xoa mat skill rieng cua user
                         # dat trung ten — da tai hien duoc bang chay that.
-                        if (($h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$") -and
-                            ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$")) { $mine = $true }
+                        if ($nameMatches -and ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$")) { $mine = $true }
                     }
                     # KHONG coi thu muc thieu SKILL.md la cua ta: do co the la thu muc user
                     # tu tao (ghi chu, asset...). Xoa la mat du lieu ho, khong the hoan tac.
                 }
                 if (-not $mine) {
-                    Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
-                    Warn "Bo qua skill '$($_.Name)': da co skill CUNG TEN khong phai do powerbi-agent tao."
-                    return
+                    if ($nameMatches) {
+                        # Bản cài TRƯỚC commit này: `name:` do ta ghi nhưng chưa có marker lẫn
+                        # `x-generated-by`. Nếu bỏ qua thì skill đóng băng vĩnh viễn ở nội dung cũ
+                        # — không nâng cấp được, mà uninstall cũng không gỡ được. Dời sang bên rồi
+                        # cài bản mới: nếu thật ra là skill của user thì dữ liệu vẫn còn nguyên.
+                        Move-SkillAside $dst $SkillRoot "Skill '$($_.Name)' bản cũ (thiếu dấu sở hữu)" | Out-Null
+                        Warn "  Đó là skill CỦA BẠN? -> xoá bản vừa cài rồi chuyển backup về. Không phải? -> xoá backup."
+                    } else {
+                        Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                        Warn "Bo qua skill '$($_.Name)': da co skill CUNG TEN khong phai do powerbi-agent tao."
+                        return
+                    }
+                } else {
+                    Remove-Item $dst -Recurse -Force
                 }
-                Remove-Item $dst -Recurse -Force
             }
             Move-Item $stage $dst
             Info "Skill $($_.Name) (full) -> $dst"
