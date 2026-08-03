@@ -265,3 +265,13 @@ Add-Result 'C-uninstall-symmetric' ($left -eq '' -and $cmdsLeft -eq 0) "skillsCo
 if (Test-Path $FakeHome) { Remove-Item $FakeHome -Recurse -Force }  # tự dọn residue
 Write-Host "`n===== TONG KET ====="
 $results | Format-Table -AutoSize | Out-String | Write-Host
+
+# Exit code PHAI phan anh ket qua. Truoc day in ca bang roi luon exit 0 -> chay doc lap
+# (hoac trong CI khong qua pytest) thay 20 FAIL ma van bao thanh cong.
+$failed = @($results | Where-Object { -not $_.pass })
+if ($failed.Count -gt 0) {
+    Write-Host "FAILED: $($failed.Count)/$($results.Count) ca" -ForegroundColor Red
+    exit 1
+}
+Write-Host "OK: $($results.Count)/$($results.Count) ca" -ForegroundColor Green
+exit 0

@@ -402,8 +402,19 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
         $body = $body -replace '\$ARGUMENTS', '(tham số user đưa vào khi gọi quy trình này)'
 
         $dst = Join-Path $SkillRoot $name
-        if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+        # KHONG xoa bua thu muc trung ten: nguoi dung co the co skill rieng ten powerbi-help.
+        # Chi ghi de thu MINH TUNG TAO (co file danh dau). Trung ten ma khong phai cua minh
+        # thi BAO va bo qua, khong pha do cua ho.
+        $marker = Join-Path $dst ".powerbi-agent-generated"
+        if (Test-Path $dst) {
+            if (-not (Test-Path $marker)) {
+                Warn "Bo qua '$name': da co skill CUNG TEN khong phai do powerbi-agent tao ($dst)."
+                continue
+            }
+            Remove-Item $dst -Recurse -Force
+        }
         New-Item -ItemType Directory -Path $dst -Force | Out-Null
+        Write-Utf8NoBom $marker "powerbi-agent sinh tu plugins/powerbi-agent/commands/$name.md`n"
         $head = "---`nname: $name`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
         Write-Utf8NoBom (Join-Path $dst "SKILL.md") ($head + $body)
         $n++

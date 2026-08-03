@@ -83,6 +83,10 @@ def register(mcp):
             if not visuals:
                 return f"Trang '{page}' không có visual nào."
 
+            # Kit CHUA sanitize la du lieu khach -> chan ghi vao repo.
+            # report-templates/ duoc mien vi do la noi kit DA sanitize duoc phep nam.
+            from powerbi_agent.knowledge import ensure_outside_repo
+            out_dir = ensure_outside_repo(out_dir, "template kit")
             os.makedirs(out_dir, exist_ok=True)
             blocks_dir = os.path.join(out_dir, "blocks")
 
@@ -137,9 +141,15 @@ def register(mcp):
                     "source_visual": vid,
                 })
 
-            # _page.json: page settings + nền, BỎ filter/interaction đặc thù trang nguồn
+            # _page.json: page settings + nền, BỎ filter/interaction đặc thù trang nguồn.
+            # page_json CŨNG là dữ liệu khách (`displayName` là tên trang user đặt, nền có thể
+            # tham chiếu ảnh của họ) — trước đây ghi thẳng, không qua sanitize.
             page_tpl = {k: v for k, v in page_json.items()
                         if k not in ("filterConfig", "visualInteractions", "name")}
+            if sanitize:
+                page_tpl = json.loads(json.dumps(page_tpl))
+                pbir.deep_sanitize(page_tpl, san_map)
+                page_tpl.pop("displayName", None)   # tên trang không suy ra được từ map
             pbir.write_json_no_bom(os.path.join(out_dir, "_page.json"), page_tpl)
 
             # blueprint.md
@@ -167,8 +177,17 @@ def register(mcp):
                 f.write("\n".join(bp) + "\n")
 
             # kit.json
+            # kit_name do NGƯỜI GỌI đặt — có thể là "Telco Churn" hay tên khách. Khi sanitize
+            # thì tên kit cũng phải sạch, nếu không thì cả kit ẩn danh mà nhãn lại chỉ đích danh.
+            safe_name = kit_name or os.path.basename(out_dir.rstrip("\\/"))
+            if sanitize and not pbir.is_placeholder_only(safe_name):
+                import re as _re
+                cleaned = _re.sub(r"[^A-Za-z0-9\-_]+", "-", safe_name).strip("-").lower()
+                if _re.search(r"[^\x00-\x7F]", safe_name):
+                    cleaned = "kit"          # có dấu ⇒ gần như chắc là tên nghiệp vụ
+                safe_name = cleaned or "kit"
             kit = {
-                "name": kit_name or os.path.basename(out_dir.rstrip("\\/")),
+                "name": safe_name,
                 "schema": "powerbi-agent/kit/v1",
                 "created": date.today().isoformat(),
                 "sanitized": sanitize,

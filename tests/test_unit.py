@@ -449,3 +449,69 @@ class TestSanitizeDefaults:
         assert sig.parameters["sanitize"].default is True, (
             "distill_template phải mặc định sanitize=True — an toàn không được là tuỳ chọn"
         )
+
+
+class TestOutputsStayOutsideRepo:
+    """Không đường nào được ghi dữ liệu khách hàng vào repo (git working tree công khai)."""
+
+    def test_rejects_path_inside_repo(self):
+        from powerbi_agent import knowledge as kn
+        import pytest as _pt
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        for bad in ("docs/leak", "powerbi_agent", "."):
+            with _pt.raises(ValueError):
+                kn.ensure_outside_repo(os.path.join(repo, bad))
+
+    def test_allows_public_kit_folder(self):
+        """report-templates/ là ngoại lệ DUY NHẤT — nơi kit đã sanitize được phép nằm."""
+        from powerbi_agent import knowledge as kn
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        got = kn.ensure_outside_repo(os.path.join(repo, "report-templates", "kit-moi"))
+        assert got.endswith(os.path.join("report-templates", "kit-moi"))
+
+    def test_allows_outside(self, tmp_path):
+        from powerbi_agent import knowledge as kn
+        assert kn.ensure_outside_repo(str(tmp_path)) == os.path.abspath(str(tmp_path))
+
+
+class TestPlaceholderGrammarIsClosed:
+    """`is_placeholder_only` phải chỉ nhận đúng placeholder repo tự sinh."""
+
+    def test_accepts_generated_placeholders(self):
+        from powerbi_agent.pbir import is_placeholder_only
+        for s in ("TEMPLATE_TABLE", "TEMPLATE_FIELD_12", "TEMPLATE_LABEL_3",
+                  "'TEMPLATE_TEXT'", "TEMPLATE_IMAGE.png",
+                  "TEMPLATE_TABLE.TEMPLATE_FIELD_1", ""):
+            assert is_placeholder_only(s), s
+
+    def test_rejects_names_wearing_the_prefix(self):
+        """Tên nghiệp vụ mang tiền tố TEMPLATE_ từng tự nhận là 'đã sạch'."""
+        from powerbi_agent.pbir import is_placeholder_only
+        for s in ("TEMPLATE_DOANHTHU", "TEMPLATE_FIELD_1_TY_LE",
+                  "TEMPLATE_FIELD_29 Hủy", "TEMPLATE_KHACHHANG"):
+            assert not is_placeholder_only(s), s
+
+
+class TestLiteralScrubKeepsStyle:
+    """Xoá chữ của user, GIỮ màu/enum/font — bản trước xoá sạch cả bảng màu."""
+
+    def _visual(self, prop, value):
+        return {"visual": {"visualType": "cardVisual", "visualContainerObjects": {
+            "obj": [{"properties": {prop: {"expr": {"Literal": {"Value": value}}}}}]}}}
+
+    def test_scrubs_user_text_including_double_quotes(self):
+        from powerbi_agent import pbir
+        for quoted in ("'Doanh thu quý 4'", '"Doanh thu quý 4"'):
+            v = self._visual("titleText", quoted)
+            pbir.deep_sanitize(v, {})
+            got = json.dumps(v, ensure_ascii=False)
+            assert "Doanh thu" not in got, quoted
+            assert "TEMPLATE_TEXT" in got, quoted
+
+    def test_keeps_colors_and_enums(self):
+        from powerbi_agent import pbir
+        for prop, val in (("labelColor", "'#2B395B'"), ("titleFontFamily", "'Calibri'"),
+                          ("tileShape", "'rectangleRounded'"), ("labelPosition", "'InsideBase'")):
+            v = self._visual(prop, val)
+            pbir.deep_sanitize(v, {})
+            assert val in json.dumps(v), f"{prop}={val} bị xoá mất — đó là STYLE"

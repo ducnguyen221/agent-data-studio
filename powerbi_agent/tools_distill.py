@@ -191,7 +191,8 @@ def register(mcp):
             else:
                 md.append("\n*Không có liên kết quan hệ.*")
 
-            dest_dir = _resolve_output_dir(output_dir)
+            from powerbi_agent.knowledge import ensure_outside_repo
+            dest_dir = ensure_outside_repo(_resolve_output_dir(output_dir), "schema model")
             os.makedirs(dest_dir, exist_ok=True)
             fname = output_filename if output_filename else f"distilled_model_{model_id}.md"
             fname = re.sub(r'[\\/*?:"<>|]', "_", fname)

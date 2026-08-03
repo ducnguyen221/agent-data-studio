@@ -169,6 +169,32 @@ def register_project(slug: str, name: str, path: str, note: str = "") -> None:
     _write_json(reg, {"projects": items})
 
 
+def ensure_outside_repo(path: str, what: str = "dữ liệu") -> str:
+    """Chặn mọi đường ghi dữ liệu khách hàng vào TRONG repo. Raise ValueError nếu vi phạm.
+
+    Mặc định an toàn là chưa đủ: `distill_*` đều nhận `out_dir` tuỳ ý, và env
+    POWERBI_AUDIT_DIR / POWERBI_POLICY_FILE / POWERBI_DISTILL_DIR cũng trỏ được vào repo.
+    Chỉ cần một lần trỏ nhầm là schema model / câu DAX / cột PII nằm trong git working tree —
+    đúng con đường đã làm lọt tên khách ra bản public.
+
+    Ngoại lệ DUY NHẤT: `report-templates/` — nơi kit ĐÃ sanitize được phép nằm.
+    """
+    full = os.path.abspath(os.path.expanduser(str(path).strip().strip('"').strip("'")))
+    public_kits = os.path.join(_REPO_ROOT, "report-templates")
+    try:
+        inside_repo = os.path.commonpath([full, _REPO_ROOT]) == _REPO_ROOT
+        inside_kits = os.path.commonpath([full, public_kits]) == public_kits
+    except ValueError:
+        return full          # khác ổ đĩa ⇒ hiển nhiên ngoài repo
+    if inside_repo and not inside_kits:
+        raise ValueError(
+            f"TỪ CHỐI ghi {what} vào trong repo: {full}\n"
+            "Repo là git working tree công khai — dữ liệu khách hàng phải nằm ở thư mục dự án "
+            f"(hiện tại: {resolve_root() or 'chưa setup, chạy /powerbi-setup'})."
+        )
+    return full
+
+
 NOT_SETUP_MSG = (
     "Chưa thiết lập nơi lưu tài liệu dự án. HỎI user một câu duy nhất: lưu ở đâu?\n"
     f"  1. {default_project_dir()}   (mặc định — user chỉ cần đồng ý)\n"

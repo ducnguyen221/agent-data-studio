@@ -60,6 +60,7 @@ def register(mcp):
                 slug = kn.slugify(project or report_name)
                 os.makedirs(os.path.join(root, "projects", slug), exist_ok=True)
                 out_dir = os.path.join(root, "projects", slug, "design")
+            out_dir = kn.ensure_outside_repo(out_dir, "hồ sơ thiết kế báo cáo")
             os.makedirs(out_dir, exist_ok=True)
 
             # ---- report.json + theme ----

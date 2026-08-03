@@ -113,10 +113,21 @@ if (Test-Path $cmdDirForSkills) {
     $skillNames += @(Get-ChildItem $cmdDirForSkills -Filter "*.md" |
         ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) })
 }
+$ownSkillNames = @()
+if (Test-Path $skillBase) { $ownSkillNames = (Get-ChildItem $skillBase -Directory).Name }
+$ownSkillNames += @("pbi-pipeline", "pbi-knowledge")
 foreach ($skRoot in $hostSkillRoots) {
     foreach ($n in $skillNames) {
         $p = Join-Path $skRoot $n
-        if (Test-Path $p) { Remove-Item $p -Recurse -Force; Info "Xoá skill: $p" }
+        if (-not (Test-Path $p)) { continue }
+        # Skill-lenh (sinh tu commands/) co file danh dau. Skill goc cua repo thi khong,
+        # nen chi ap luat "phai co marker" cho nhom sinh ra - tranh xoa skill rieng cua user
+        # chi vi no trung ten voi mot lenh.
+        if ($ownSkillNames -notcontains $n -and -not (Test-Path (Join-Path $p ".powerbi-agent-generated"))) {
+            Warn "Giu lai '$p': khong phai skill do powerbi-agent tao."
+            continue
+        }
+        Remove-Item $p -Recurse -Force; Info "Xoá skill: $p"
     }
 }
 # Gỡ ĐỐI XỨNG với bước 4 của installer. Installer ghi vào 3 nơi (Claude commands+agents,

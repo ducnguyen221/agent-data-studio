@@ -213,12 +213,20 @@ def build_sanitize_map(entities: set, properties: set, labels: set | None = None
     return mapping
 
 
-# Chuỗi "đã sạch" = chỉ gồm token TEMPLATE_*, số, dấu nháy và ký tự phân cách vô hại.
-_SAFE_ONLY = re.compile(r"^[\s'\"\.\-_/#()0-9]*(?:TEMPLATE_[A-Z0-9_]+[\s'\"\.\-_/#()0-9]*)*$")
+# NGỮ PHÁP ĐÓNG: chỉ đúng những placeholder mà build_sanitize_map/deep_sanitize sinh ra.
+# Trước đây cho `TEMPLATE_[A-Z0-9_]+` là quá rộng — một measure tên "TEMPLATE_DOANHTHU" hay
+# chuỗi "TEMPLATE_FIELD_1_TY_LE" tự nhận là "đã sạch" rồi đi thẳng vào bản public.
+_PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_[0-9]+)"
+_SEP = r"[\s'\"\.\-_/#()0-9]*"
+_SAFE_ONLY = re.compile(rf"^{_SEP}(?:{_PLACEHOLDER}{_SEP})*$")
 
 
 def is_placeholder_only(s: str) -> bool:
-    """True nếu chuỗi KHÔNG còn mẩu văn bản nghiệp vụ nào."""
+    """True nếu chuỗi KHÔNG còn mẩu văn bản nghiệp vụ nào.
+
+    Chỉ chấp nhận đúng bộ placeholder repo tự sinh — không nhận mọi thứ bắt đầu bằng
+    "TEMPLATE_", vì tên nghiệp vụ có thể cố tình hoặc vô tình mang tiền tố đó.
+    """
     return bool(_SAFE_ONLY.match(s or ""))
 
 
@@ -298,8 +306,11 @@ def deep_sanitize(visual_obj: dict, mapping: dict[str, str]) -> None:
             for k, v in node.items():
                 if k == "Value" and isinstance(v, str) and is_user_text_prop(prop_name):
                     s = v.strip()
-                    if len(s) >= 2 and s[0] == "'" and s[-1] == "'" and not is_placeholder_only(s):
-                        node[k] = "'TEMPLATE_TEXT'"
+                    # PBIR ghi literal chuỗi bằng CẢ nháy đơn lẫn nháy kép — chỉ xử nháy đơn
+                    # thì bản nháy kép đi thẳng ra ngoài.
+                    q = s[0] if len(s) >= 2 and s[0] in "'\"" and s[-1] == s[0] else ""
+                    if q and not is_placeholder_only(s):
+                        node[k] = f"{q}TEMPLATE_TEXT{q}"
                 else:
                     # `properties` mở ra một tầng tên property mới; các tầng khác giữ nguyên tên.
                     scrub_literals(v, k if prop_name == "__props__" else
