@@ -30,4 +30,4 @@ policy.json
 knowledge.config.json
 
 # Residue cua bo test installer (fake USERPROFILE)
-tests/installer/fakehome/
+tests/installer/fakehome*/

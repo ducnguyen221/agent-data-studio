@@ -31,9 +31,10 @@ Bộ quy trình + template biến AI Agent thành **chuyên gia phân tích dữ
 Requirements · Analytics Questions · Data Required · Metrics & Dimensions · Result & Delivery.
 **Đầu ra:**
 - `PROJECT.md` — mỗi thành phần 1 bảng chuẩn hóa + mindmap mermaid.
-- **6 mindmap HTML** (`document-templates/mindmaps/`): key_objectives, key_questions, key_data_dictionary, key_analysis, key_report → sinh bằng `scripts/generate_mindmap_html.py` (graphviz, font "DejaVu Sans" render tiếng Việt; render vào ./out rồi copy).
+- **6 mindmap HTML** (`document-templates/mindmaps/`): key_objectives, key_questions, key_data_dictionary, key_measures, key_dimensions, key_reports.
+  NGUỒN là khối ```mermaid mindmap nằm ngay trong file .md tương ứng; `scripts/generate_mindmap_html.py` chỉ sinh thêm bản xem HTML tự chứa (không cần graphviz, không cần mạng). Sửa mindmap = sửa file .md rồi chạy lại script.
 - File chi tiết: `DATA_DICTIONARY.md`, `METRICS_CALCULATION.md`, `DOMAIN_DIMENSION.md`, `REPORTS.md`.
-- `PROJECT.docx` — Word proposal (từ `PROJECT.md` + gộp 6 mindmap; dùng python-docx).
+- `PROJECT.docx` — Word proposal (từ `PROJECT.md`; dùng python-docx).
 - ✅ Cổng kiểm: PROJECT.md đủ 5 bảng + 6 mindmap + Word; user duyệt.
 
 ### Pha 2 — PLANNING
@@ -52,10 +53,10 @@ Tiến độ, bàn giao, cảnh báo, đào tạo, mở rộng.
 `PROJECT.md` · `RESEARCH_NOTES.md` · `DATA_DICTIONARY.md` · `METRICS_CALCULATION.md` · `DOMAIN_DIMENSION.md` · `REPORTS.md` · `DESIGN.md` + `theme.json` (theme Power BI import chạy ngay) · `Project_Management.xlsx` (6 sheet) · `mindmaps/*.html`. **Đây là worked-example trên dataset bán lẻ "KPIM Mart"** — agent nhân bản & thay nội dung cho dự án mới.
 
 ## Scripts (`scripts/`)
-- `generate_mindmap_html.py` — sinh 4 mindmap PNG (graphviz).
+- `generate_mindmap_html.py` — sinh 6 bản xem HTML tự chứa từ khối mermaid trong các file .md.
 - `generate_data_dictionary_img.py` — sinh ảnh bảng data dictionary (matplotlib).
 - `generate_project_management_xlsx.py` — sinh Excel 6 sheet (openpyxl).
-Yêu cầu: `pip install graphviz matplotlib openpyxl python-docx` + `graphviz` (apt/`dot`).
+Yêu cầu: `pip install openpyxl python-docx` (sinh xlsx/docx). Mindmap HTML **không cần thư viện nào** — chỉ dùng thư viện chuẩn Python.
 
 ## Nguyên tắc KPIM
 Chuẩn hóa trước — Tự động hóa sau — Phân tích sau cùng · Data model dùng chung theo chủ đề · clone-and-rebind báo cáo (không dựng layout từ 0) · dữ liệu thô ở lại engine (policy).

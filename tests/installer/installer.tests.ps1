@@ -6,7 +6,9 @@ param(
 )
 $ErrorActionPreference = 'Continue'
 $S = Split-Path -Parent $MyInvocation.MyCommand.Path
-$FakeHome = Join-Path $S 'fakehome'
+# Duy nhat theo tien trinh: pytest cung goi harness nay, chay song song ma dung chung
+# mot duong dan co dinh thi hai lan chay pha state cua nhau -> FAIL gia, rat kho truy.
+$FakeHome = Join-Path $S "fakehome-$PID"
 $venvPy = if ($PythonExe) { $PythonExe } else { Join-Path $RepoRoot '.venv\Scripts\python.exe' }
 if (-not (Test-Path $venvPy)) { $venvPy = 'python' }
 $results = @()

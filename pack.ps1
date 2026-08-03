@@ -26,7 +26,6 @@ $ErrorActionPreference = "Stop"
 $Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Stamp = Get-Date -Format "yyyyMMdd"
 $stage = Join-Path $env:TEMP ("pbimcp-pack-" + (Get-Date -Format "yyyyMMddHHmmss"))
-$zip   = Join-Path $OutDir "powerbi-mcp-setup-$Stamp.zip"
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw "Cần git để lấy danh sách file được phép đóng gói (allowlist). Không có git thì DỪNG — không fallback sang copy-tất-cả."
@@ -34,12 +33,31 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 
 try {
     New-Item -ItemType Directory -Path $stage -Force | Out-Null
-    if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir -Force | Out-Null }
+
+    # Zip KHÔNG được nằm trong repo: `git add -A` sau đó sẽ commit luôn cả gói (kèm .env
+    # nếu dùng -IncludeEnv). Mặc định "." chính là repo, nên phải chặn tường minh.
+    # Windows PowerShell 5.1 KHÔNG có toán tử `?.` — dùng if thường.
+    $rp = Resolve-Path $OutDir -ErrorAction SilentlyContinue
+    if ($rp) { $outFull = $rp.Path }
+    else {
+        New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
+        $outFull = (Resolve-Path $OutDir).Path
+    }
+    if ($outFull.TrimEnd('\') -eq $Root.TrimEnd('\') -or $outFull.StartsWith($Root.TrimEnd('\') + '\')) {
+        throw "TỪ CHỐI ghi zip vào trong repo ($outFull). Gói này có thể chứa secret; để trong working tree là một lệnh 'git add -A' nữa là bị commit. Dùng -OutDir <thư mục ngoài repo>."
+    }
+    $zip = Join-Path $outFull "powerbi-mcp-setup-$Stamp.zip"
 
     Write-Host "[i] Đóng gói từ: $Root (allowlist = git ls-files)" -ForegroundColor Cyan
-    $files = & git -C $Root ls-files
-    if ($LASTEXITCODE -ne 0 -or -not $files) { throw "git ls-files không trả về file nào — dừng để không đóng gói nhầm." }
+    # -z: phân tách bằng NUL, KHÔNG C-quote đường dẫn non-ASCII. Mặc định git bọc nháy
+    # những path có ký tự lạ; script cũ coi chuỗi đã bọc nháy là tên file thật -> Test-Path
+    # trượt -> file bị bỏ IM LẶNG mà số đếm vẫn báo đủ.
+    $raw = & git -C $Root -c core.quotepath=false ls-files -z
+    if ($LASTEXITCODE -ne 0) { throw "git ls-files lỗi — dừng để không đóng gói nhầm." }
+    $files = @(($raw -split "`0") | Where-Object { $_ })
+    if (-not $files) { throw "git ls-files không trả về file nào — dừng để không đóng gói nhầm." }
 
+    $copied = 0
     foreach ($rel in $files) {
         $src = Join-Path $Root $rel
         if (-not (Test-Path -LiteralPath $src)) { continue }   # file đã xoá nhưng chưa commit
@@ -47,8 +65,12 @@ try {
         $dir = Split-Path -Parent $dst
         if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
         Copy-Item -LiteralPath $src -Destination $dst -Force
+        $copied++
     }
-    Write-Host "[OK] $($files.Count) file được track -> staging" -ForegroundColor Green
+    if ($copied -ne $files.Count) {
+        throw "Chi copy duoc $copied/$($files.Count) file - co path khong doc duoc. Dung de khong giao goi thieu."
+    }
+    Write-Host "[OK] $copied/$($files.Count) file duoc track -> staging" -ForegroundColor Green
 
     # .env là NGOẠI LỆ có chủ đích: gitignored nên allowlist không lấy, chỉ thêm khi user yêu cầu rõ.
     if ($IncludeEnv) {

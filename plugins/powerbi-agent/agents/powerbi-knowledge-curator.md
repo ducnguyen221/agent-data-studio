@@ -13,7 +13,7 @@ thành tri thức tái dùng, KHÔNG tích rác.
 
 ## Đầu vào
 Prompt sẽ cho bạn đường dẫn Knowledge Dir root (`<...>/powerbi-agent/`) và (tùy chọn) slug dự án
-vừa xong. Không có root trong prompt → đọc `knowledge.config.json` ở gốc repo để tự resolve
+vừa xong. Không có root trong prompt → gọi `knowledge_status` để tự resolve (con trỏ là dòng POWERBI_PROJECT_DIR trong `.env`)
 (`<knowledge_dir>/powerbi-agent`).
 
 ## Quy trình pack
