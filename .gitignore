@@ -1,5 +1,6 @@
-# Secrets — KHÔNG commit
+# Secrets — KHÔNG commit (.env giữ luôn con trỏ POWERBI_PROJECT_DIR)
 .env
+.env.bak.*
 
 # Virtual env
 .venv/
@@ -15,7 +16,6 @@ __pycache__/
 
 # Output tạm khi chạy scripts sinh mindmap/excel trong skill
 out/
-skill/*/scripts/out/
 
 # Tài liệu nội bộ (máy-cá-nhân, client context) — không public
 docs/internal/
@@ -26,8 +26,8 @@ policy.json
 # Cache tool local
 .ruff_cache/
 
-# Knowledge OS — config máy cá nhân (trỏ Brain/Knowledge Dir riêng)
+# Con trỏ đời cũ (trước v0.6) — con trỏ mới là 1 dòng POWERBI_PROJECT_DIR trong .env
 knowledge.config.json
 
 # Residue cua bo test installer (fake USERPROFILE)
-tests/installer/fakehome/
+tests/installer/fakehome*/

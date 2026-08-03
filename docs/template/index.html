@@ -84,10 +84,10 @@
 
   <div class="note" style="margin-top:34px">
     <b>Tự tạo template của riêng bạn:</b> có trang báo cáo ưng ý → bảo AI
-    <code class="inline">distill_template</code> (hoặc chạy <code class="inline">/pbi-scan</code> rồi chọn trang).
+    <code class="inline">distill_template</code> (hoặc chạy <code class="inline">/powerbi-scan</code> rồi chọn trang).
     Kit riêng nằm trong Knowledge Dir của bạn; muốn chia sẻ công khai → distill với
     <code class="inline">sanitize=True</code> (tự xóa tên bảng/cột nghiệp vụ) rồi đưa vào thư mục
-    <code class="inline">templates/</code> của repo và chạy <code class="inline">scripts/build_template_gallery.py</code> —
+    <code class="inline">report-templates/</code> của repo và chạy <code class="inline">scripts/build_template_gallery.py</code> —
     trang này sẽ tự có thẻ mới, kèm ảnh nếu kit có <code class="inline">preview*.png</code>.
   </div>
 </div>
@@ -135,7 +135,7 @@
       (imgs?'<div class="imgs">'+imgs+'</div>':'')+
       '<div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">'+
       '<a class="btn btn-ghost btn-sm" href="'+safeGh(k.readme_url)+'" target="_blank" rel="noopener">Xem trên GitHub</a>'+
-      '<button class="btn btn-primary btn-sm copy-btn" data-copy="Dùng apply_template với kit templates/'+esc(k.dir)+' dựng trang báo cáo mới trên model hiện tại, bind field phù hợp."><span class="lbl">Chép lệnh cho AI</span></button></div>';
+      '<button class="btn btn-primary btn-sm copy-btn" data-copy="Dùng apply_template với kit report-templates/'+esc(k.dir)+' dựng trang báo cáo mới trên model hiện tại, bind field phù hợp."><span class="lbl">Chép lệnh cho AI</span></button></div>';
     detail.classList.add('open');
     detail.querySelector('.close').onclick=function(){detail.classList.remove('open');};
     // re-wire copy for dynamically added button

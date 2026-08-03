@@ -11,6 +11,6 @@
     "repository": "https://github.com/ducnguyen221/powerbi-agent"
   },
   "plugins": [
-    { "name": "powerbi-agent", "source": "./plugins/powerbi-agent", "version": "0.3.0" }
+    { "name": "powerbi-agent", "source": "./plugins/powerbi-agent", "version": "0.6.0" }
   ]
 }

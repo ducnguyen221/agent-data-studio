@@ -26,13 +26,25 @@
   Bỏ qua tạo venv / cài pip (chỉ cập nhật cấu hình host).
 .PARAMETER SkipHosts
   Chỉ dựng venv, không đụng cấu hình host nào.
+.PARAMETER Only
+  Chỉ chạy MỘT bước: "plugin" = chỉ cài skill + lệnh + agent (bước 4), không đụng venv/MCP.
+  Dùng khi đã cài rồi và chỉ muốn cập nhật phần quy trình.
 #>
 [CmdletBinding()]
 param(
     [string[]] $Hosts = @("claude", "codex", "antigravity"),
     [switch]   $SkipVenv,
-    [switch]   $SkipHosts
+    [switch]   $SkipHosts,
+    [ValidateSet("plugin")]
+    [string]   $Only
 )
+
+# -Only plugin: bỏ qua venv + đăng ký MCP, chỉ chạy bước 4 (skill/lệnh/agent).
+# KHÔNG overload $SkipHosts: -SkipHosts có hợp đồng riêng ("không đụng thư mục host nào"),
+# nếu dùng chung cờ thì -SkipHosts sẽ vẫn ghi skill/lệnh vào host — sai tài liệu.
+$SkipMcp    = $SkipHosts
+$RunPlugin  = -not $SkipHosts
+if ($Only -eq "plugin") { $SkipVenv = $true; $SkipMcp = $true; $RunPlugin = $true }
 
 $ErrorActionPreference = "Stop"
 $Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -41,7 +53,10 @@ $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 function Info($m)  { Write-Host "[i] $m" -ForegroundColor Cyan }
 function Ok($m)    { Write-Host "[OK] $m" -ForegroundColor Green }
 function Warn($m)  { Write-Host "[!] $m" -ForegroundColor Yellow }
-function Err($m)   { Write-Host "[X] $m" -ForegroundColor Red }
+# Ba cho goi Err roi CHAY TIEP (merge JSON hong, config.toml khong parse, skill copy hong).
+# Truoc day installer van in "HOAN TAT" va exit 0 -> CI xanh, script goi no tuong da cai xong.
+$script:HadError = $false
+function Err($m)   { $script:HadError = $true; Write-Host "[X] $m" -ForegroundColor Red }
 function Step($m)  { Write-Host "`n=== $m ===" -ForegroundColor Magenta }
 
 # Ghi file UTF-8 KHÔNG BOM (an toàn cho JSON/TOML)
@@ -81,8 +96,13 @@ if ((-not (Test-Path $envFile)) -and (Test-Path $envEx)) {
 # 1) PYTHON VENV + DEPENDENCIES
 # ============================================================
 $venvPy = Join-Path $Root ".venv\Scripts\python.exe"
-# Override cho CI/test (không có venv): dùng python chỉ định để merge/validate config
-if (-not (Test-Path $venvPy) -and $env:POWERBI_INSTALL_PYTHON) { $venvPy = $env:POWERBI_INSTALL_PYTHON }
+# Override cho CI/test: dùng python chỉ định để merge/validate config.
+# PHẢI thắng cả khi repo CÓ venv, miễn là -SkipVenv: nếu không thì harness chạy trên máy dev
+# (có .venv) sẽ âm thầm dùng venv thật thay vì python mà test chỉ định — ca test wrapper
+# trở thành XANH GIẢ, chỉ đỏ trong CI. (uninstall.ps1 vẫn theo luật cũ vì không có -SkipVenv.)
+if ($env:POWERBI_INSTALL_PYTHON -and ($SkipVenv -or -not (Test-Path $venvPy))) {
+    $venvPy = $env:POWERBI_INSTALL_PYTHON
+}
 
 if ($SkipVenv) {
     Warn "Bỏ qua venv/pip (-SkipVenv)."
@@ -201,7 +221,7 @@ data.setdefault("mcpServers", {})["powerbi-mcp-bridge"] = {
 out = json.dumps(data, ensure_ascii=False, indent=2)
 json.loads(out)  # validate truoc khi ghi
 import os
-tmp = path + ".pbi-tmp"
+tmp = path + ".powerbi-tmp"
 with open(tmp, "w", encoding="utf-8", newline="\n") as f:
     f.write(out + "\n")
 json.load(open(tmp, encoding="utf-8"))  # validate ban tam
@@ -209,11 +229,31 @@ os.replace(tmp, path)                    # thay the ATOMIC — khong co trang th
 json.load(open(path, encoding="utf-8"))  # validate sau khi ghi
 print("MERGE_OK")
 '@
-    $tmpPy = Join-Path $env:TEMP "pbi-merge-mcp.py"
+    # Ten DUY NHAT theo tien trinh: ten co dinh thi hai lan chay song song (pytest goi
+    # harness, harness goi installer) xoa file cua nhau giua chung -> "can't open file".
+    $tmpPy = Join-Path $env:TEMP ("powerbi-merge-mcp-$PID-" + [guid]::NewGuid().ToString("N") + ".py")
     Write-Utf8NoBom $tmpPy $mergePy
-    $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1
-    Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue
-    if ("$out" -match "MERGE_OK") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
+    # KHONG dung `2>&1` phia PowerShell voi native command khi $ErrorActionPreference=Stop:
+    # stderr bi boc thanh NativeCommandError TERMINATING -> script chet TRUOC khi toi nhanh
+    # xu ly loi ben duoi, va installer dung o giua (buoc 4 khong chay).
+    # Cung KHONG boc qua cmd /c: tham so o day la JSON co dau nhay, cmd se lam hong.
+    # Cach an toan: ha ErrorActionPreference dung quanh loi goi roi tra lai.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    $helperExit = 1
+    try     { $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1; $helperExit = $LASTEXITCODE }
+    finally { $ErrorActionPreference = $prevEap
+              # Dọn trong finally: ném giữa chừng mà dọn ở ngoài thì mỗi lần chạy để lại
+              # một file tạm TÊN DUY NHẤT -> rác tích tụ trong %TEMP% thay vì bị ghi đè.
+              Remove-Item $tmpPy -Force -ErrorAction SilentlyContinue }
+    # PHAI doc $LASTEXITCODE, va khop NEO DONG. Truoc day chi tim chuoi con trong
+    # stdout+stderr da gop: helper in "MERGE_OK" roi exit 1, hoac traceback tinh co
+    # chua chuoi do, deu lam installer bao dang ky THANH CONG trong khi khong co gi xay ra.
+    # `"$out"` nối MẢNG bằng DẤU CÁCH, không phải newline -> neo `(?m)^...$` chỉ khớp khi
+    # MERGE_OK là TOÀN BỘ output. Python in thêm một dòng warning bất kỳ (PYTHONWARNINGS,
+    # sitecustomize...) là merge THÀNH CÔNG mà installer báo thất bại, khuyên restore .bak oan.
+    $outText = (@($out) | ForEach-Object { "$_" }) -join "`n"
+    if ($helperExit -eq 0 -and $outText -match "(?m)^MERGE_OK\s*$") { Ok "Đã ghi + validate cấu hình MCP trong $Path" }
     else { Err "Merge JSON thất bại ($out). File gốc còn nguyên trong .bak.$Stamp — KHÔNG ghi đè."; }
 }
 
@@ -282,64 +322,364 @@ PYTHONUNBUFFERED = "1"
         } else { Info "config.toml parse OK." }
     }
 }
+# Cờ user tự đặt để nói "thư mục này là CỦA TÔI, đừng đụng". Cần thiết vì nhánh dời-sang-bên
+# dựa trên `name:` — user có skill riêng trùng tên sẽ bị dời đi MỖI LẦN cài, và lời khuyên
+# "chuyển backup về" tự nó là ngõ cụt: chuyển về xong lần sau lại bị dời tiếp.
+# uninstall.ps1 tôn trọng cùng file này.
+$KeepFile = ".powerbi-agent-keep"
+
+# Dời một thư mục skill sang chỗ an toàn thay vì xoá.
+# PHẢI ra NGOÀI thư mục skills: host dò skill theo "mọi thư mục con có SKILL.md", nên đổi tên
+# tại chỗ ("pbi-pipeline.backup-...") vẫn để lại một skill xác sống được nạp như thường —
+# đúng cái bug mà bước dọn này sinh ra để diệt. Đặt cạnh skills/, không ai quét tới.
+function Move-SkillAside([string]$Path, [string]$SkillRoot, [string]$Why) {
+    $bkRoot = Join-Path (Split-Path $SkillRoot -Parent) "powerbi-agent-backup-$Stamp"
+    New-Item -ItemType Directory -Path $bkRoot -Force | Out-Null
+    $bk = Join-Path $bkRoot (Split-Path $Path -Leaf)
+    if (Test-Path $bk) { Remove-Item $bk -Recurse -Force }
+    Move-Item $Path $bk -Force
+    Warn "$Why -> đã dời sang: $bk"
+    return $bk
+}
+
 function Install-Skill([string]$SkillRoot) {
-    # Copy MỌI skill (powerbi-mcp, pbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
+    # Copy MỌI skill (powerbi-mcp, powerbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
     # plugins\powerbi-agent\skills\ (fallback layout cũ skill\ cho bản clone cũ).
-    # Copy CẢ thư mục: SKILL.md + references\ + templates\ + scripts\ + assets\
+    # Copy CẢ thư mục: SKILL.md + references\ + document-templates\ + scripts\ + assets\
     $skillBase = Join-Path $Root "plugins\powerbi-agent\skills"
     if (-not (Test-Path $skillBase)) { $skillBase = Join-Path $Root "skill" }
     if (-not (Test-Path $skillBase)) { return }
+    # Skill ĐỔI TÊN ở v0.5.0: mirror chỉ xử lý skill CÓ trong nguồn, nên bản cũ nằm lại thành
+    # xác sống. Tệ hơn nhiều so với rác thường: pbi-knowledge/SKILL.md chứa nguyên bảng định tuyến
+    # bảo agent chạy /pbi-setup, /pbi-new... — đúng những lệnh mà chính installer vừa xoá.
+    # DỜI SANG BÊN, không Remove-Item: "pbi-pipeline" là cái tên bất kỳ ai trong hệ sinh thái
+    # Power BI cũng có thể đã đặt cho skill riêng của họ. Xoá thẳng ở đây thì user mất dữ liệu
+    # không hoàn tác được — và mâu thuẫn với chính luật two-signal áp cho các skill khác dưới đây.
+    foreach ($old in @("pbi-pipeline", "pbi-knowledge")) {
+        $p = Join-Path $SkillRoot $old
+        if (Test-Path $p) {
+            if (Test-Path (Join-Path $p $KeepFile)) { Info "Giữ nguyên '$old' (có $KeepFile)."; continue }
+            Move-SkillAside $p $SkillRoot "Skill cũ (<0.5.0) '$old'" | Out-Null
+            Warn "  Là skill CỦA BẠN? -> chuyển về '$p' rồi đặt file rỗng '$KeepFile' vào trong."
+        }
+    }
     Get-ChildItem -Path $skillBase -Directory | ForEach-Object {
         $src = Join-Path $_.FullName "SKILL.md"
         if (Test-Path $src) {
             $dst = Join-Path $SkillRoot $_.Name
             # MIRROR, không phải merge: xóa bản đích cũ trước khi copy — file đã bị xóa/đổi tên
             # ở nguồn sẽ không thành "xác sống" drift ở host (đã tái hiện bằng harness audit).
-            if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
-            New-Item -ItemType Directory -Path $dst -Force | Out-Null
-            # copy toàn bộ nội dung skill (bỏ __pycache__ và out/ tạm)
-            Copy-Item (Join-Path $_.FullName "*") $dst -Recurse -Force `
-                -Exclude "__pycache__","out" -ErrorAction SilentlyContinue
+            # Dựng ở thư mục TẠM cạnh đích rồi mới tráo vào: bản cũ chỉ bị xoá khi bản mới
+            # đã copy xong và kiểm được. Trước đây xoá đích TRƯỚC rồi copy với
+            # -ErrorAction SilentlyContinue và luôn in "thành công" — lỗi quyền/đường dẫn quá dài
+            # là user mất luôn skill đang chạy tốt mà installer vẫn báo OK.
+            $stage = "$dst.__new"
+            if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
+            New-Item -ItemType Directory -Path $stage -Force | Out-Null
+            Copy-Item (Join-Path $_.FullName "*") $stage -Recurse -Force -Exclude "__pycache__","out"
+            if (-not (Test-Path (Join-Path $stage "SKILL.md"))) {
+                Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                Err "Skill $($_.Name): copy hỏng (thiếu SKILL.md) — GIỮ NGUYÊN bản cũ ở $dst"
+                return
+            }
+            # Dấu hiệu sở hữu HẠNG NHẤT: file marker ta tự ghi (dòng ngay dưới). Không phụ
+            # thuộc nội dung SKILL.md nên không vỡ khi mô tả skill đổi qua các phiên bản.
+            Write-Utf8NoBom (Join-Path $stage ".powerbi-agent-generated") `
+                "powerbi-agent sinh tu plugins/powerbi-agent/skills/$($_.Name)`n"
+            # Skill goc cua repo cung phai ton trong so huu: user co the co skill rieng
+            # trung ten (vd powerbi-knowledge). Nhan dien ban CUA TA bang frontmatter name:.
+            if (Test-Path $dst) {
+                # Cờ user đặt thắng MỌI suy đoán khác — kể cả `name:` trùng.
+                if (Test-Path (Join-Path $dst $KeepFile)) {
+                    Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                    Info "Giữ nguyên skill '$($_.Name)' của bạn (có $KeepFile) — không cài đè."
+                    return
+                }
+                $mine = Test-Path (Join-Path $dst ".powerbi-agent-generated")
+                $nameMatches = $false
+                if (-not $mine) {
+                    $skf = Join-Path $dst "SKILL.md"
+                    if (Test-Path $skf) {
+                        # Đọc 40 dòng đầu — ĐỦ vì cả hai khoá (`name:`, `x-generated-by:`) nằm ngay
+                        # đầu frontmatter. (Không parse tới `---` đóng: mô tả nhiều skill dài hơn
+                        # 40 dòng, mà hai khoá này thì không bao giờ trôi xuống dưới.)
+                        $h = (Get-Content $skf -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                        $nameMatches = $h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$"
+                        # HAI dau hieu. Chi doi 'name:' la du de xoa mat skill rieng cua user
+                        # dat trung ten — da tai hien duoc bang chay that.
+                        if ($nameMatches -and ($h -match "(?m)^x-generated-by:\s*powerbi-agent\s*$")) { $mine = $true }
+                    }
+                    # KHONG coi thu muc thieu SKILL.md la cua ta: do co the la thu muc user
+                    # tu tao (ghi chu, asset...). Xoa la mat du lieu ho, khong the hoan tac.
+                }
+                if (-not $mine) {
+                    if ($nameMatches) {
+                        # Bản cài TRƯỚC commit này: `name:` do ta ghi nhưng chưa có marker lẫn
+                        # `x-generated-by`. Nếu bỏ qua thì skill đóng băng vĩnh viễn ở nội dung cũ
+                        # — không nâng cấp được, mà uninstall cũng không gỡ được. Dời sang bên rồi
+                        # cài bản mới: nếu thật ra là skill của user thì dữ liệu vẫn còn nguyên.
+                        Move-SkillAside $dst $SkillRoot "Skill '$($_.Name)' bản cũ (thiếu dấu sở hữu)" | Out-Null
+                        Warn "  Đó là skill CỦA BẠN? -> chuyển backup về rồi đặt file rỗng"
+                        Warn "     '$KeepFile' vào trong nó. Không có bước đó thì lần cài sau lại dời tiếp."
+                    } else {
+                        Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                        Warn "Bo qua skill '$($_.Name)': da co skill CUNG TEN khong phai do powerbi-agent tao."
+                        return
+                    }
+                } else {
+                    Remove-Item $dst -Recurse -Force
+                }
+            }
+            Move-Item $stage $dst
             Info "Skill $($_.Name) (full) -> $dst"
         }
     }
 
-    # Claude: copy thêm 6 lệnh /pbi-* vào ~/.claude/commands (host khác dùng skill pbi-knowledge)
-    if ($SkillRoot -like "*\.claude\skills") {
-        $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
-        $cmdDst = Join-Path (Split-Path -Parent $SkillRoot) "commands"
-        if (Test-Path $cmdSrc) {
-            if (-not (Test-Path $cmdDst)) { New-Item -ItemType Directory -Path $cmdDst -Force | Out-Null }
-            # mirror phần lệnh pbi-* (lệnh khác của user giữ nguyên)
-            Get-ChildItem $cmdDst -Filter "pbi-*.md" -ErrorAction SilentlyContinue | Remove-Item -Force
-            Copy-Item (Join-Path $cmdSrc "*.md") $cmdDst -Force
-            Info "Commands /pbi-* -> $cmdDst"
-        }
-    }
 }
 
-if ($SkipHosts) {
-    Step "3/3 Đăng ký host"; Warn "Bỏ qua đăng ký host (-SkipHosts)."
+# Mirror thư mục lệnh: dọn CẢ họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*" rồi copy lại.
+# Nếu chỉ dọn họ mới thì người nâng cấp giữ 6 lệnh cũ mồ côi -> thấy 12 lệnh, gọi nhầm bản cũ.
+# -Filter "pbi-*.md" KHÔNG khớp "powerbi-*.md" (wildcard khớp từ ĐẦU tên) nên phải duyệt cả hai.
+# Lệnh khác của user trong cùng thư mục KHÔNG bị đụng.
+# Xoá MỘT mục theo sổ ghi, an toàn trước sổ ghi rác.
+# Sổ ghi là file text nằm trong thư mục user ghi được, nên phải coi nội dung là KHÔNG tin cậy:
+#  - "powerbi-*.md" đi qua Join-Path vẫn là wildcard hợp lệ -> Remove-Item xoá luôn lệnh riêng
+#    của user, tái tạo đúng cái bug mà sổ ghi sinh ra để chống;
+#  - "..\..\x.md" resolve ra NGOÀI thư mục đích;
+#  - ký tự lạ (tab, "<") làm Test-Path NÉM lỗi, mà $ErrorActionPreference='Stop' -> chết installer.
+function Remove-LedgerEntry([string]$Dir, [string]$Name) {
+    if ([string]::IsNullOrWhiteSpace($Name)) { return }
+    if ($Name -ne [System.IO.Path]::GetFileName($Name) -or $Name -match '[\*\?\[\]]') {
+        Warn "Bỏ qua mục sổ ghi không hợp lệ: $Name"; return
+    }
+    try {
+        $p = Join-Path $Dir $Name
+        if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force }
+    } catch { Warn "Bỏ qua mục sổ ghi không xử lý được: $Name" }
+}
+
+function Install-Commands([string]$CmdDst, [string]$Label) {
+    $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+    if (-not (Test-Path $cmdSrc)) { return }
+    if (-not (Test-Path $CmdDst)) { New-Item -ItemType Directory -Path $CmdDst -Force | Out-Null }
+    # Xoá theo SỔ GHI những gì LẦN TRƯỚC ta đã cài, không dùng wildcard.
+    #  - wildcard "powerbi-*.md" sẽ nuốt cả lệnh riêng của user (vd powerbi-cua-toi.md)
+    #    và chiếm namespace mà repo không sở hữu;
+    #  - chỉ suy từ manifest hiện tại thì lệnh ĐÃ BỊ BỎ khỏi repo sẽ thành xác sống ở host.
+    # Sổ ghi giải quyết cả hai: xoá đúng thứ ta từng đặt vào, không hơn không kém.
+    $ownNames    = @(Get-ChildItem $cmdSrc -Filter "*.md" | ForEach-Object { $_.Name })
+    $ledger      = Join-Path $CmdDst ".powerbi-agent-installed.txt"
+    $prev        = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
+    $legacyNames = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
+    foreach ($nm in ($prev + $ownNames + $legacyNames | Sort-Object -Unique)) {
+        Remove-LedgerEntry $CmdDst $nm
+    }
+    Copy-Item (Join-Path $cmdSrc "*.md") $CmdDst -Force
+    Set-Content -Path $ledger -Value $ownNames -Encoding UTF8
+    Info "$($ownNames.Count) lệnh /powerbi-* -> $CmdDst ($Label)"
+}
+
+# Codex KHÔNG có slash-command tự do như Claude: file trong ~/.codex/prompts/ được gọi bằng
+# `/prompts:<tên>`, không phải `/<tên>` — nên đặt ở đó thì tên lệnh lệch hẳn so với Claude, mà
+# installer vẫn báo thành công và test vẫn xanh (test chỉ đếm file ở nơi CHÍNH NÓ vừa ghi vào).
+# Cách đúng theo hướng hiện tại của Codex: mỗi lệnh thành MỘT SKILL, agent gọi theo tên.
+# Nguồn vẫn là commands/ — không nhân bản nội dung, chỉ bọc thêm frontmatter skill.
+function Install-CommandsAsSkills([string]$SkillRoot) {
+    $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+    if (-not (Test-Path $cmdSrc)) { return }
+    $n = 0
+    $generated = @()
+    foreach ($f in Get-ChildItem $cmdSrc -Filter "*.md") {
+        $name = [System.IO.Path]::GetFileNameWithoutExtension($f.Name)
+        $raw  = Get-Content $f.FullName -Raw -Encoding UTF8
+
+        # Lấy description trong frontmatter của command để làm description của skill.
+        $desc = "Quy trình powerbi-agent: $name"
+        if ($raw -match '(?ms)\A---\s*\r?\n(.*?)\r?\n---\s*\r?\n') {
+            $fm = $Matches[1]
+            if ($fm -match '(?m)^description:\s*(.+)$') { $desc = $Matches[1].Trim() }
+            $body = $raw.Substring($Matches[0].Length)
+        } else { $body = $raw }
+
+        # $ARGUMENTS là cú pháp slash-command của Claude — Codex không thay thế nó.
+        $body = $body -replace '\$ARGUMENTS', '(tham số user đưa vào khi gọi quy trình này)'
+
+        $dst = Join-Path $SkillRoot $name
+        # KHONG xoa bua thu muc trung ten: nguoi dung co the co skill rieng ten powerbi-help.
+        # Chi ghi de thu MINH TUNG TAO (co file danh dau). Trung ten ma khong phai cua minh
+        # thi BAO va bo qua, khong pha do cua ho.
+        $marker = Join-Path $dst ".powerbi-agent-generated"
+        if (Test-Path $dst) {
+            # Cờ user thắng MỌI suy đoán — giống Install-Skill. Thiếu dòng này thì skill-lệnh
+            # đã gắn cờ vẫn bị Remove-Item -Recurse phía dưới, xoá luôn chính file cờ.
+            if (Test-Path (Join-Path $dst $KeepFile)) {
+                Info "Giữ nguyên skill-lệnh '$name' của bạn (có $KeepFile)."
+                continue
+            }
+            $owned = Test-Path $marker
+            if (-not $owned) {
+                # Ban truoc v0.6 sinh skill nay MA CHUA co marker. Neu doi hoi marker tuyet doi
+                # thi nguoi nang cap vua khong cap nhat duoc, vua khong go duoc — ket vinh vien.
+                # Nhan dien theo DAU VET SINH RA: frontmatter `name: <ten lenh>` do chinh ta ghi.
+                # HAI dau hieu, phai co ca hai. Chi doi 'name:' la chua du: user dat skill
+                # rieng dung ten powerbi-help thi cung khop -> ta xoa mat do cua ho.
+                # Dau hieu 2: truong provenance ASCII (v0.6+), hoac cau mo ta dac trung do
+                # chinh template cu sinh ra (v0.5.x). Doc UTF8 tuong minh — Get-Content mac
+                # dinh ANSI tren PS 5.1 nen tieng Viet se lech va so khop luon truot.
+                $sk = Join-Path $dst "SKILL.md"
+                if (Test-Path $sk) {
+                    $head = (Get-Content $sk -TotalCount 40 -Encoding UTF8 -ErrorAction SilentlyContinue) -join "`n"
+                    $nameOk = $head -match "(?m)^name:\s*$([regex]::Escape($name))\s*$"
+                    $prov   = ($head -match "(?m)^x-generated-by:\s*powerbi-agent\s*$") -or
+                              ($head -match ([regex]::Escape("Gọi khi user nói `"chạy $name`"")))
+                    if ($nameOk -and $prov) { $owned = $true }
+                }
+            }
+            if (-not $owned) {
+                Warn "Bo qua '$name': da co skill CUNG TEN khong phai do powerbi-agent tao ($dst)."
+                continue
+            }
+            Remove-Item $dst -Recurse -Force
+        }
+        New-Item -ItemType Directory -Path $dst -Force | Out-Null
+        $head = "---`nname: $name`nx-generated-by: powerbi-agent`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
+        Write-Utf8NoBom (Join-Path $dst "SKILL.md") ($head + $body)
+        # Marker ghi SAU CUNG: SKILL.md loi thi khong de lai thu muc co marker ma rong.
+        Write-Utf8NoBom $marker "powerbi-agent sinh tu plugins/powerbi-agent/commands/$name.md`n"
+        $generated += $name
+        $n++
+    }
+    $ledger = Join-Path $SkillRoot ".powerbi-agent-skills.txt"
+    # Lenh bi XOA khoi repo phai bien mat o host. Khong co so ghi thi no nam lai
+    # vinh vien — va gio con mang marker nen trong nhu hang chinh chu.
+    if (Test-Path $ledger) {
+        foreach ($old in (Get-Content $ledger | Where-Object { $_ -match '\S' })) {
+            if ($generated -contains $old) { continue }
+            if ($old -ne [System.IO.Path]::GetFileName($old) -or $old -match '[\*\?\[\]]') { continue }
+            $p = Join-Path $SkillRoot $old
+            # Cờ keep phải chặn CẢ đường này. Skill-lệnh đã gắn cờ bị `continue` ở vòng trên nên
+            # KHÔNG vào $generated -> ở đây trông y hệt "lệnh đã bị xoá khỏi repo", và vì nó vẫn
+            # mang marker cũ nên bị xoá sạch. Đã tái hiện: chắn ở vòng trên thôi là chưa đủ.
+            if (Test-Path (Join-Path $p $KeepFile)) {
+                Info "Giữ nguyên skill-lệnh '$old' của bạn (có $KeepFile)."
+                continue
+            }
+            if ((Test-Path (Join-Path $p ".powerbi-agent-generated"))) {
+                Remove-Item $p -Recurse -Force; Info "Xoa skill-lenh da bo: $old"
+            }
+        }
+    }
+    Set-Content -Path $ledger -Value $generated -Encoding UTF8
+    Info "$n lệnh -> skill Codex tại $SkillRoot (gọi theo tên, vd `"chạy powerbi-help`")"
+}
+
+# Agent phụ (powerbi-knowledge-curator). Chỉ Claude Code có thư mục agents/ chuẩn;
+# host khác vẫn có nội dung đó qua skill powerbi-knowledge nên không mất năng lực.
+function Install-Agents([string]$AgentDst) {
+    $src = Join-Path $Root "plugins\powerbi-agent\agents"
+    if (-not (Test-Path $src)) { return }
+    if (-not (Test-Path $AgentDst)) { New-Item -ItemType Directory -Path $AgentDst -Force | Out-Null }
+    foreach ($nm in (@(Get-ChildItem $src -Filter "*.md" | ForEach-Object { $_.Name }) + @("pbi-knowledge-curator.md"))) {
+        Remove-LedgerEntry $AgentDst $nm
+    }
+    Copy-Item (Join-Path $src "*.md") $AgentDst -Force
+    Info "Agent powerbi-knowledge-curator -> $AgentDst"
+}
+
+Step "3/4 Đăng ký MCP vào host"
+if ($SkipMcp) {
+    if ($Only -eq "plugin") { Info "Bỏ qua đăng ký MCP (-Only plugin)." }
+    else                    { Warn "Bỏ qua đăng ký host (-SkipHosts)." }
 } else {
-    Step "3/3 Đăng ký MCP vào host"
-    if ($Hosts -contains "claude")      { Register-Claude;      Install-Skill (Join-Path $env:USERPROFILE ".claude\skills") }
-    if ($Hosts -contains "codex")       { Register-Codex;       Install-Skill (Join-Path $env:USERPROFILE ".codex\skills") }
-    if ($Hosts -contains "antigravity") { Register-Antigravity; Install-Skill (Join-Path $env:USERPROFILE ".gemini\antigravity\skills") }
+    if ($Hosts -contains "claude")      { Register-Claude }
+    if ($Hosts -contains "codex")       { Register-Codex }
+    if ($Hosts -contains "antigravity") { Register-Antigravity }
+}
+
+# ---- Bước 4: skill + lệnh + agent (chạy độc lập được: install.ps1 -Only plugin) ----
+Step "4/4 Cài quy trình (skill + lệnh + agent)"
+if (-not $RunPlugin) {
+    Warn "Bỏ qua cài quy trình (-SkipHosts): không đụng thư mục host nào."
+} else {
+if ($Hosts -contains "claude") {
+    $h = Join-Path $env:USERPROFILE ".claude"
+    Install-Skill    (Join-Path $h "skills")
+    Install-Commands (Join-Path $h "commands") "slash-command"
+    Install-Agents   (Join-Path $h "agents")
+}
+if ($Hosts -contains "codex") {
+    $h = Join-Path $env:USERPROFILE ".codex"
+    Install-Skill          (Join-Path $h "skills")
+    Install-CommandsAsSkills (Join-Path $h "skills")
+}
+if ($Hosts -contains "antigravity") {
+    $h = Join-Path $env:USERPROFILE ".gemini\antigravity"
+    Install-Skill (Join-Path $h "skills")
+    # Antigravity KHÔNG có cơ chế slash-command (xem hosts/antigravity/README.md). Đặt bộ lệnh
+    # ngay trong skill powerbi-knowledge để agent vẫn đọc được quy trình và gọi theo tên.
+    $kn = Join-Path $h "skills\powerbi-knowledge"
+    if (Test-Path (Join-Path $kn $KeepFile)) {
+        # "Để yên hoàn toàn" phải là hoàn toàn: giữ thân skill mà vẫn nhét 8 file lệnh + sổ ghi
+        # vào trong nó thì vẫn có thể đè file cùng tên của user.
+        Warn "Giữ nguyên '$kn' (có $KeepFile) -> Antigravity KHÔNG nhận được bộ lệnh."
+    }
+    elseif (Test-Path $kn) { Install-Commands (Join-Path $kn "commands") "tham chiếu trong skill" }
+    else {
+        # Im lặng ở đây là tệ nhất: Antigravity không có slash-command nên user không có cách
+        # nào tự phát hiện mình đang thiếu TOÀN BỘ bộ lệnh.
+        Warn "Không thấy skill powerbi-knowledge -> Antigravity KHÔNG nhận được bộ lệnh."
+        Warn "  Chạy lại install.ps1 đầy đủ (không -Only) từ thư mục repo còn nguyên vẹn."
+    }
+}
 }
 
 # ---- Smoke test ----
+# Không chỉ kiểm import: kiểm luôn 2 năng lực người dùng đụng vào đầu tiên (kit + Knowledge Dir),
+# để câu "việc cần làm tiếp" bên dưới nói đúng trạng thái THẬT của máy này thay vì đoán.
+$knowledgeReady = $false
 if ((-not $SkipVenv) -and (Test-Path $venvPy)) {
-    Step "Kiểm thử nhanh (import)"
+    Step "Kiểm thử nhanh"
     $probe = "import importlib;[importlib.import_module(m) for m in ('mcp.server.fastmcp','pyadomd','pandas','msal','dotenv','tabulate')];print('IMPORTS_OK')"
     $out = & $venvPy -c $probe 2>&1
     if ($out -match "IMPORTS_OK") { Ok "Thư viện import OK. Server sẵn sàng." } else { Warn "Import có vấn đề:"; Write-Host $out }
+
+    # KHÔNG nội suy $Root vào literal Python: đường dẫn có dấu nháy đơn (vd thư mục tên "Anh's PC")
+    # hoặc kết thúc bằng "\" sẽ tạo SyntaxError, probe im lặng thất bại và installer khuyên SAI.
+    # Truyền đường dẫn qua argv thay vì ghép chuỗi.
+    $probe2 = @'
+import sys
+sys.path.insert(0, sys.argv[1])
+from powerbi_agent.tools_template import _load_kits
+from powerbi_agent.knowledge import resolve_root
+print('KITS=%d' % len(_load_kits()))
+print('KNOWLEDGE=%s' % ('yes' if resolve_root() else 'no'))
+'@
+    $out2 = & $venvPy -c $probe2 $Root 2>&1
+    $probeOk = "$out2" -match "KITS=(\d+)"
+    if ($probeOk) { Ok "Kit báo cáo dùng được: $($Matches[1])" }
+    else { Warn "Không kiểm được kho kit / Knowledge Dir (probe lỗi): $out2" }
+    if ($probeOk) {
+        if ("$out2" -match "KNOWLEDGE=yes") { $knowledgeReady = $true; Ok "Knowledge Dir đã thiết lập." }
+        else { Info "Knowledge Dir CHƯA thiết lập (bình thường ở máy mới)." }
+    }
 }
 
 Write-Host "`n=============================================" -ForegroundColor Green
+if ($script:HadError) {
+    Err "CHƯA HOÀN TẤT — có bước lỗi ở trên (xem dòng [X]). Sửa rồi chạy lại install.ps1."
+    Write-Host "Bản sao lưu .bak.$Stamp còn nguyên cạnh mỗi file cấu hình." -ForegroundColor Gray
+    exit 1
+}
 Ok "HOÀN TẤT."
+$nextSetup = if ($knowledgeReady) { "(đã xong — bỏ qua)" } else { "/powerbi-setup   -> chỉ định Knowledge Dir (làm 1 lần)" }
 Write-Host @"
 
-Bước cuối: KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm).
+VIỆC CẦN LÀM TIẾP — 3 bước:
+  1. KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm).
+  2. $nextSetup
+  3. /powerbi-help    -> agent tự liệt kê năng lực và định tuyến việc của bạn.
+
 Server tại : $Root
+Cập nhật riêng phần quy trình (không đụng venv/MCP): .\install.ps1 -Only plugin
 Gỡ cài     : .\uninstall.ps1
 "@ -ForegroundColor Gray

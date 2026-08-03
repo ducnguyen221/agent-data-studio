@@ -1,6 +1,6 @@
 """Đồng bộ kho template → trang web /template/.
 
-Quét `templates/<kit>/` (kit.json + README.md + blueprint.md + ảnh preview*.png|jpg
+Quét `report-templates/<kit>/` (kit.json + README.md + blueprint.md + ảnh preview*.png|jpg
 hoặc assets/*.png|jpg) → sinh `docs/template/templates.json` + copy ảnh vào
 `docs/template/assets/<kit>/`. Trang web fetch JSON này để render kho.
 
@@ -16,7 +16,7 @@ import shutil
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(REPO, "templates")
+SRC = os.path.join(REPO, "report-templates")
 OUT_DIR = os.path.join(REPO, "docs", "template")
 OUT_ASSETS = os.path.join(OUT_DIR, "assets")
 IMG_EXT = (".png", ".jpg", ".jpeg", ".webp", ".gif")
@@ -38,7 +38,7 @@ def main() -> int:
     kits = []
     os.makedirs(OUT_ASSETS, exist_ok=True)
     if not os.path.isdir(SRC):
-        print("Không có templates/ — bỏ qua.")
+        print("Không có report-templates/ — bỏ qua.")
         return 0
     for name in sorted(os.listdir(SRC)):
         kdir = os.path.join(SRC, name)
@@ -69,7 +69,7 @@ def main() -> int:
             "blocks": [b.get("visualType", "?") for b in blocks],
             "n_blocks": len(blocks),
             "previews": previews,
-            "readme_url": f"https://github.com/ducnguyen221/powerbi-agent/tree/main/templates/{name}",
+            "readme_url": f"https://github.com/ducnguyen221/powerbi-agent/tree/main/report-templates/{name}",
         })
     out = os.path.join(OUT_DIR, "templates.json")
     os.makedirs(OUT_DIR, exist_ok=True)

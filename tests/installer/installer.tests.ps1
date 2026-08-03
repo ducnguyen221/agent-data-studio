@@ -6,7 +6,9 @@ param(
 )
 $ErrorActionPreference = 'Continue'
 $S = Split-Path -Parent $MyInvocation.MyCommand.Path
-$FakeHome = Join-Path $S 'fakehome'
+# Duy nhat theo tien trinh: pytest cung goi harness nay, chay song song ma dung chung
+# mot duong dan co dinh thi hai lan chay pha state cua nhau -> FAIL gia, rat kho truy.
+$FakeHome = Join-Path $S "fakehome-$PID"
 $venvPy = if ($PythonExe) { $PythonExe } else { Join-Path $RepoRoot '.venv\Scripts\python.exe' }
 if (-not (Test-Path $venvPy)) { $venvPy = 'python' }
 $results = @()
@@ -134,13 +136,344 @@ $stale = Join-Path $sk 'powerbi-mcp\STALE-OLD-FILE.md'
 'old' | Set-Content $stale
 $null = Run-Install 'claude'
 $staleSurvives = Test-Path $stale
-$cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
-Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq 6) "skills=$n1/4 cmds=$cmds/6 staleSauLan2=$staleSurvives (true=DRIFT)"
+# Suy số lệnh kỳ vọng TỪ NGUỒN, không hardcode: thêm/bớt lệnh không được làm test đỏ giả.
+$cmdSrcDir  = Join-Path $RepoRoot 'plugins\powerbi-agent\commands'
+$expectCmds = @(Get-ChildItem $cmdSrcDir -Filter '*.md').Count
+# Suy CA so skill tu nguon: them 1 skill vao repo khong duoc lam 3 ca do gia.
+$expectSkills = @(Get-ChildItem (Join-Path $RepoRoot 'plugins\powerbi-agent\skills') -Directory).Count
+$cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'C-skill-copy' ($n1 -eq $expectSkills -and $cmds -eq $expectCmds -and -not $staleSurvives) "skills=$n1/$expectSkills cmds=$cmds/$expectCmds staleSauLan2=$staleSurvives (true=DRIFT)"
+# Nội dung skill, không chỉ số lượng: mẫu tài liệu (trụ 4) phải đi theo skill sang host.
+# Thiếu assertion này thì đổi tên document-templates/ có thể hỏng mà test vẫn xanh.
+$kpim    = Join-Path $sk 'kpim-analysis'
+$docTpl  = Join-Path $kpim 'document-templates\PROJECT.md'
+$oldTpl  = Join-Path $kpim 'templates'
+Add-Result 'C-skill-content' ((Test-Path $docTpl) -and -not (Test-Path $oldTpl)) `
+    "document-templates/PROJECT.md=$(Test-Path $docTpl) folderCu_templates=$(Test-Path $oldTpl) (true=CHUA_DOI_TEN)"
+# Nâng cấp từ bản < 0.5.0: lệnh cũ họ "pbi-*" phải bị dọn, không được để lại 12 lệnh mồ côi.
+$cmdDir = Join-Path $FakeHome '.claude\commands'
+'legacy' | Set-Content (Join-Path $cmdDir 'pbi-new.md')
+'legacy' | Set-Content (Join-Path $cmdDir 'pbi-setup.md')
+$null = Run-Install 'claude'
+# Xác sống chiều ngược lại: lệnh ta TỪNG cài rồi bị bỏ khỏi repo phải biến mất khỏi host.
+# Giả lập bằng cách thêm 1 tên lạ vào sổ ghi + tạo file tương ứng.
+'powerbi-da-bo.md' | Add-Content (Join-Path $cmdDir '.powerbi-agent-installed.txt')
+'stale' | Set-Content (Join-Path $cmdDir 'powerbi-da-bo.md')
+# Lệnh RIÊNG của user cùng tiền tố powerbi- KHÔNG được đụng tới.
+'cua toi' | Set-Content (Join-Path $cmdDir 'powerbi-cua-toi.md')
+$null = Run-Install 'claude'
+$driftGone = -not (Test-Path (Join-Path $cmdDir 'powerbi-da-bo.md'))
+$userKept  = Test-Path (Join-Path $cmdDir 'powerbi-cua-toi.md')
+# -Filter 'pbi-*.md' KHÔNG khớp 'powerbi-*.md' (wildcard khớp từ đầu tên) — đã kiểm nghiệm.
+$legacyLeft = @(Get-ChildItem $cmdDir -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'C-cmd-drift-and-user-files' ($driftGone -and $userKept) `
+    "lenhDaBo_bienMat=$driftGone lenhRiengCuaUser_conNguyen=$userKept"
+Remove-Item (Join-Path $cmdDir 'powerbi-cua-toi.md') -Force -ErrorAction SilentlyContinue
+$newCount = @(Get-ChildItem $cmdDir -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'C-legacy-cmd-cleanup' ($legacyLeft -eq 0 -and $newCount -eq $expectCmds) `
+    "lenhCu_pbi_conLai=$legacyLeft (phai=0) lenhMoi=$newCount/$expectCmds"
+
+# Bước 4 mới: lệnh phải tới CẢ 3 host, không chỉ Claude (yêu cầu #5/#6).
+Reset-Home
+$null = Run-Install 'codex'
+# Codex: moi lenh la MOT SKILL (khong phai prompts/ - o do phai goi /prompts:<ten>).
+$codexDir    = Join-Path $FakeHome '.codex\skills'
+$codexAll    = @(Get-ChildItem $codexDir -Directory -ErrorAction SilentlyContinue)
+$codexCmdSk  = @($codexAll | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } |
+                 Where-Object { (Get-Content (Join-Path $_.FullName 'SKILL.md') -Raw) -match '(?m)^name:\s*powerbi-' })
+$codexNoPrompts = -not (Test-Path (Join-Path $FakeHome '.codex\prompts'))
+Add-Result 'D-codex-commands' ($codexAll.Count -eq ($expectSkills + $expectCmds) -and $codexNoPrompts) `
+    "skillTong=$($codexAll.Count)/$($expectSkills + $expectCmds) khongDungPrompts=$codexNoPrompts"
+
+Reset-Home
+$null = Run-Install 'antigravity'
+$agCmds = @(Get-ChildItem (Join-Path $FakeHome '.gemini\antigravity\skills\powerbi-knowledge\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'D-antigravity-commands' ($agCmds -eq $expectCmds) "lenhTrongSkill=$agCmds/$expectCmds"
+
+# -Only plugin: cài lại phần quy trình mà KHÔNG đụng venv/MCP config.
+Reset-Home
+$null = Run-Install 'claude'
+$cfgBefore = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
+$bakBefore = @(Get-ChildItem $FakeHome -Filter '.claude.json.bak.*' -Force -ErrorAction SilentlyContinue).Count
+Remove-Item (Join-Path $FakeHome '.claude\commands\powerbi-help.md') -Force -ErrorAction SilentlyContinue
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    `$env:USERPROFILE='$FakeHome'; `$env:POWERBI_INSTALL_PYTHON='$venvPy';
+    & '$RepoRoot\install.ps1' -Hosts claude -Only plugin" *>&1
+$restored = Test-Path (Join-Path $FakeHome '.claude\commands\powerbi-help.md')
+$cfgAfter = Get-Content (Join-Path $FakeHome '.claude.json') -Raw -ErrorAction SilentlyContinue
+# So sánh nội dung config là VÔ NGHĨA ở đây: đăng ký MCP vốn idempotent (ca A-merge-python đã
+# chứng minh), nên dù -Only plugin có chạy nhầm Register-Claude thì file vẫn y hệt. Bằng chứng
+# thật là KHÔNG có file .bak mới — Backup-File đóng dấu mỗi lần đăng ký.
+$bakAfter = @(Get-ChildItem $FakeHome -Filter '.claude.json.bak.*' -Force -ErrorAction SilentlyContinue).Count
+Add-Result 'D-only-plugin' ($restored -and $bakAfter -eq $bakBefore -and $cfgBefore -eq $cfgAfter) `
+    "lenhDuocPhucHoi=$restored soBanBak=$bakBefore->$bakAfter (phai bang nhau: tang = da dang ky lai MCP)"
+
+# Nâng cấp từ <0.5.0: skill mang tên cũ phải BIẾN MẤT, không được nằm lại thành xác sống —
+# bản cũ chứa bảng định tuyến trỏ tới các lệnh mà chính installer vừa xoá.
+Reset-Home
+$skDir = Join-Path $FakeHome '.claude\skills'
+foreach ($old in @('pbi-pipeline','pbi-knowledge')) {
+    New-Item -ItemType Directory -Path (Join-Path $skDir $old) -Force | Out-Null
+    'legacy' | Set-Content (Join-Path $skDir "$old\SKILL.md")
+}
+$null = Run-Install 'claude'
+$zombies = @(Get-ChildItem $skDir -Directory -EA SilentlyContinue | Where-Object { $_.Name -like 'pbi-*' -and $_.Name -notlike 'powerbi-*' }).Count
+$total   = @(Get-ChildItem $skDir -Directory -EA SilentlyContinue).Count
+Add-Result 'D-upgrade-no-zombie-skill' ($zombies -eq 0 -and $total -eq $expectSkills) `
+    "skillCu_conLai=$zombies (phai=0) tongSkill=$total/$expectSkills"
+
+# Nang cap tu ban CHUA CO marker: skill-lenh cu phai duoc cap nhat VA go duoc.
+# Neu doi hoi marker tuyet doi thi nguoi nang cap ket vinh vien (khong update, khong go).
+Reset-Home
+$cx = Join-Path $FakeHome '.codex\skills\powerbi-help'
+New-Item -ItemType Directory -Path $cx -Force | Out-Null
+# Fixture phai giong HET thu ban v0.5.x SINH RA — ke ca dong mo ta dac trung,
+# vi do la dau van thu hai dung de nhan dien quyen so huu.
+# Ghi UTF-8 TUONG MINH: Set-Content mac dinh ANSI tren PS 5.1, tieng Viet se lech.
+[System.IO.File]::WriteAllText((Join-Path $cx 'SKILL.md'),
+  "---`nname: powerbi-help`ndescription: >`n  ban cu`n  Gọi khi user nói `"chạy powerbi-help`" abc.`n---`nNOI DUNG CU",
+  (New-Object System.Text.UTF8Encoding($false)))
+$null = Run-Install 'codex'
+$updated = -not ((Get-Content (Join-Path $cx 'SKILL.md') -Raw) -match 'NOI DUNG CU')
+$hasMarker = Test-Path (Join-Path $cx '.powerbi-agent-generated')
+$null = Run-Uninstall 'codex'
+$removed = -not (Test-Path $cx)
+Add-Result 'D-upgrade-marker-migration' ($updated -and $hasMarker -and $removed) `
+    "capNhat=$updated coMarker=$hasMarker goDuoc=$removed"
+
+# Skill user trung CA TEN (name: powerbi-help) nhung khong phai ban ta sinh ra.
+# Chi doi moi dong `name:` la khong du — day la ca lam mat du lieu user.
+Reset-Home
+$same = Join-Path $FakeHome '.codex\skills\powerbi-help'
+New-Item -ItemType Directory -Path $same -Force | Out-Null
+Set-Content (Join-Path $same 'SKILL.md') "---`nname: powerbi-help`ndescription: ban TU VIET cua toi`n---`nGHI CHU RIENG"
+Set-Content (Join-Path $same 'ghi-chu.md') "tai lieu rieng cua user"
+$null = Run-Install 'codex'
+$bodyKept = (Get-Content (Join-Path $same 'SKILL.md') -Raw) -match 'GHI CHU RIENG'
+$sideKept = Test-Path (Join-Path $same 'ghi-chu.md')
+Add-Result 'D-same-name-user-skill-safe' ($bodyKept -and $sideKept) `
+    "noiDungConNguyen=$bodyKept fileKemConNguyen=$sideKept"
+
+# Skill RIENG cua user trung ten: khong duoc dung toi, ca luc cai lan luc go.
+Reset-Home
+$mine = Join-Path $FakeHome '.codex\skills\powerbi-help'
+New-Item -ItemType Directory -Path $mine -Force | Out-Null
+Set-Content (Join-Path $mine 'SKILL.md') "---`nname: skill-rieng-cua-toi`n---`nCUA TOI"
+$null = Run-Install 'codex'
+$keptOnInstall = (Get-Content (Join-Path $mine 'SKILL.md') -Raw) -match 'CUA TOI'
+$null = Run-Uninstall 'codex'
+$keptOnUninstall = Test-Path (Join-Path $mine 'SKILL.md')
+Add-Result 'D-respects-user-skill' ($keptOnInstall -and $keptOnUninstall) `
+    "conNguyenSauCai=$keptOnInstall conNguyenSauGo=$keptOnUninstall"
+
+# -SkipHosts phải giữ đúng hợp đồng: KHÔNG đụng thư mục host nào (kể cả bước 4).
+# Gọi trực tiếp nên PHẢI tự set env — Run-Install mới là chỗ set USERPROFILE giả.
+Reset-Home
+$env:USERPROFILE = $FakeHome
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    `$env:USERPROFILE='$FakeHome'; `$env:POWERBI_INSTALL_PYTHON='$venvPy';
+    & '$RepoRoot\install.ps1' -Hosts claude -SkipVenv -SkipHosts" *>&1
+$touched = (Test-Path (Join-Path $FakeHome '.claude\skills')) -or (Test-Path (Join-Path $FakeHome '.claude\commands'))
+Add-Result 'D-skiphosts-contract' (-not $touched) "daDungThuMucHost=$touched (phai=False)"
+
+# Config chi chua server KHAC co ten BAT DAU BANG ten cua ta (powerbi-mcp-bridge-v2):
+# prefix-match khong dong ngoac lam uninstall tuong co block cua minh -> ghi de + bao gia "da go".
+Reset-Home
+$onlyV2 = "[mcp_servers.powerbi-mcp-bridge-v2]`ncommand = `"KEEPME`"`nargs = [`"-u`", `"keep.py`"]`n"
+[System.IO.File]::WriteAllText($cfgPath, $onlyV2, (New-Object System.Text.UTF8Encoding($false)))
+$hashTruoc = (Get-FileHash $cfgPath).Hash
+$null = Run-Uninstall 'codex'
+$khongDungFile = ((Get-FileHash $cfgPath).Hash -eq $hashTruoc)
+$khongTaoBak   = @(Get-ChildItem (Split-Path $cfgPath -Parent) -Filter 'config.toml.bak.*').Count -eq 0
+Add-Result 'D-uninstall-leaves-lookalike-alone' ($khongDungFile -and $khongTaoBak) `
+    "fileNguyenVen=$khongDungFile khongTaoBakThua=$khongTaoBak"
+
+# So ghi skill-lenh Codex phai bien mat cung voi skill (truoc day mo coi lai sau khi go).
+Reset-Home
+$null = Run-Install 'codex'
+$null = Run-Uninstall 'codex'
+$soGhiConLai = Test-Path (Join-Path $FakeHome '.codex\skills\.powerbi-agent-skills.txt')
+Add-Result 'D-uninstall-removes-skill-ledger' (-not $soGhiConLai) "soGhiConLai=$soGhiConLai (phai=False)"
+
+# Gỡ phải ĐỐI XỨNG: Codex prompts + Claude agents cũng phải sạch, không chỉ Claude commands.
+Reset-Home
+$null = Run-Install 'claude'
+$null = Run-Install 'codex'
+$null = Run-Uninstall 'claude'
+$null = Run-Uninstall 'codex'
+$leftPrompts = @(Get-ChildItem (Join-Path $FakeHome '.codex\skills') -Directory -ErrorAction SilentlyContinue).Count
+$leftAgents  = @(Get-ChildItem (Join-Path $FakeHome '.claude\agents') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'D-uninstall-all-hosts' ($leftPrompts -eq 0 -and $leftAgents -eq 0) `
+    "codexSkillConLai=$leftPrompts claudeAgentsConLai=$leftAgents (deu phai=0)"
+
+# Sổ ghi rác không được xoá lệnh riêng của user, cũng không được giết installer.
+Reset-Home
+$null = Run-Install 'claude'
+$cd = Join-Path $FakeHome '.claude\commands'
+'cua toi' | Set-Content (Join-Path $cd 'powerbi-rieng.md')
+Set-Content (Join-Path $cd '.powerbi-agent-installed.txt') -Value @('powerbi-*.md', '..\..\ngoai-thu-muc.md', 'powerbi-help.md')
+'ngoai' | Set-Content (Join-Path $FakeHome 'ngoai-thu-muc.md')
+$null = Run-Install 'claude'
+$userSafe = Test-Path (Join-Path $cd 'powerbi-rieng.md')
+$outsideSafe = Test-Path (Join-Path $FakeHome 'ngoai-thu-muc.md')
+$stillInstalled = @(Get-ChildItem $cd -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+Add-Result 'D-ledger-hostile' ($userSafe -and $outsideSafe -and $stillInstalled -ge $expectCmds) `
+    "lenhRieng=$userSafe fileNgoaiThuMuc=$outsideSafe daCaiLai=$stillInstalled"
+
+# Các ca ở trên cố tình để lại state bẩn (sổ ghi rác, lệnh riêng của user). Dựng lại sạch
+# trước ca gỡ cuối, nếu không nó đo nhầm state của ca trước và đỏ giả.
+Reset-Home
+$null = Run-Install 'claude'
 $null = Run-Uninstall 'claude'
 $left = @(Get-ChildItem $sk -Directory -ErrorAction SilentlyContinue).Name -join ','
-$cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'pbi-*.md' -ErrorAction SilentlyContinue).Count
+$cmdsLeft = @(Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
 Add-Result 'C-uninstall-symmetric' ($left -eq '' -and $cmdsLeft -eq 0) "skillsConLai='$left' cmdsConLai=$cmdsLeft"
+
+# Nâng cấp từ bản cài THẬT trước khi có dấu sở hữu (SKILL.md của cb94d27: có `name:` do ta ghi,
+# KHÔNG có `x-generated-by`, KHÔNG có file marker — Install-Skill xưa nay không hề ghi marker).
+# Không có ca này thì luật two-signal làm 4 skill gốc kẹt vĩnh viễn: install bỏ qua, uninstall giữ lại.
+Reset-Home
+$legacySkill = Join-Path $FakeHome '.codex\skills\powerbi-knowledge'
+New-Item -ItemType Directory -Path $legacySkill -Force | Out-Null
+$legacyBody = & git -C $RepoRoot show 'cb94d27:plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md' 2>$null
+if (-not $legacyBody) { $legacyBody = @("---","name: powerbi-knowledge","description: ban cu","---","NOI DUNG CU") }
+Set-Content (Join-Path $legacySkill 'SKILL.md') ($legacyBody -join "`n") -Encoding UTF8
+$null = Run-Install 'codex'
+$skRootC = Join-Path $FakeHome '.codex\skills'
+$nowHasProv = (Get-Content (Join-Path $legacySkill 'SKILL.md') -Raw -Encoding UTF8) -match 'x-generated-by:\s*powerbi-agent'
+$hasMarkerNow = Test-Path (Join-Path $legacySkill '.powerbi-agent-generated')
+# Bản cũ phải được GIỮ (không xoá mất dữ liệu) nhưng nằm NGOÀI skills/ — trong skills/ thì
+# host vẫn nạp nó như một skill xác sống, đúng cái bug đang muốn diệt.
+$bkOutside = @(Get-ChildItem (Join-Path $FakeHome '.codex') -Directory -Filter 'powerbi-agent-backup-*' -ErrorAction SilentlyContinue).Count
+$expectSkillDirs = $expectSkills + $expectCmds
+$skillDirs = @(Get-ChildItem $skRootC -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') }).Count
+$null = Run-Uninstall 'codex'
+$goneNow = -not (Test-Path $legacySkill)
+Add-Result 'D-upgrade-repo-skill-no-marker' ($nowHasProv -and $hasMarkerNow -and $bkOutside -eq 1 -and $skillDirs -eq $expectSkillDirs -and $goneNow) `
+    "capNhat=$nowHasProv marker=$hasMarkerNow backupNgoaiSkills=$bkOutside skillTrongSkills=$skillDirs/$expectSkillDirs goDuoc=$goneNow"
+
+# Bước lỗi phải làm install exit 1. Trước đây 3 chỗ gọi Err rồi chạy tiếp -> vẫn in HOÀN TẤT + exit 0.
+Reset-Home
+Set-Content (Join-Path $FakeHome '.claude.json') '[1,2,3]' -Encoding UTF8   # root khong phai object -> helper sys.exit
+$null = Run-Install 'claude'
+$installExit = $LASTEXITCODE
+$cfgUntouched = (Get-Content (Join-Path $FakeHome '.claude.json') -Raw) -match '\[\s*1'
+Add-Result 'D-install-exits-1-on-failure' ($installExit -eq 1 -and $cfgUntouched) `
+    "exitCode=$installExit (phai=1) fileGocConNguyen=$cfgUntouched"
+
+# M1 vong 5: user đặt cờ .powerbi-agent-keep -> installer PHẢI để yên, chạy BAO NHIÊU LẦN cũng vậy.
+# Không có cờ này thì skill riêng trùng `name:` bị dời đi mỗi lần cài, không có trạng thái ổn định.
+Reset-Home
+$keepDir = Join-Path $FakeHome '.codex\skills\powerbi-knowledge'
+New-Item -ItemType Directory -Path $keepDir -Force | Out-Null
+Set-Content (Join-Path $keepDir 'SKILL.md') "---`nname: powerbi-knowledge`n---`nSKILL RIENG CUA TOI" -Encoding UTF8
+Set-Content (Join-Path $keepDir '.powerbi-agent-keep') '' -Encoding UTF8
+$null = Run-Install 'codex'
+$null = Run-Install 'codex'
+$keptBody = (Get-Content (Join-Path $keepDir 'SKILL.md') -Raw -Encoding UTF8) -match 'SKILL RIENG CUA TOI'
+$noBackup = @(Get-ChildItem (Join-Path $FakeHome '.codex') -Directory -Filter 'powerbi-agent-backup-*' -ErrorAction SilentlyContinue).Count
+$null = Run-Uninstall 'codex'
+$keptAfterUninstall = Test-Path (Join-Path $keepDir 'SKILL.md')
+Add-Result 'D-keep-flag-is-honoured' ($keptBody -and $noBackup -eq 0 -and $keptAfterUninstall) `
+    "conNguyenSau2LanCai=$keptBody soBackup=$noBackup (phai=0) conSauKhiGo=$keptAfterUninstall"
+
+# MAJOR-1 vong 6: co keep phai duoc ton trong CA o Install-CommandsAsSkills (skill-lenh Codex).
+# D-keep-flag-is-honoured chi dung ten skill GOC nen khong cham duong nay — ma chinh duong nay
+# xoa luon file keep, lam mat ca la chan ben uninstall.
+Reset-Home
+$null = Run-Install 'codex'
+$cmdSkill = Join-Path $FakeHome '.codex\skills\powerbi-help'
+Set-Content (Join-Path $cmdSkill 'SKILL.md') "---`nname: powerbi-help`nx-generated-by: powerbi-agent`n---`nTUY BIEN CUA TOI" -Encoding UTF8
+Set-Content (Join-Path $cmdSkill 'ghi-chu.md') 'ghi chu rieng' -Encoding UTF8
+Set-Content (Join-Path $cmdSkill '.powerbi-agent-keep') '' -Encoding UTF8
+$null = Run-Install 'codex'
+$cmdKept  = (Get-Content (Join-Path $cmdSkill 'SKILL.md') -Raw -Encoding UTF8) -match 'TUY BIEN CUA TOI'
+$cmdSide  = Test-Path (Join-Path $cmdSkill 'ghi-chu.md')
+$cmdFlag  = Test-Path (Join-Path $cmdSkill '.powerbi-agent-keep')
+$null = Run-Uninstall 'codex'
+$cmdAfter = Test-Path (Join-Path $cmdSkill 'SKILL.md')
+Add-Result 'D-keep-flag-on-command-skill' ($cmdKept -and $cmdSide -and $cmdFlag -and $cmdAfter) `
+    "noiDungConNguyen=$cmdKept fileKemConNguyen=$cmdSide coKeepConNguyen=$cmdFlag conSauKhiGo=$cmdAfter"
+
+# m2 vong 5: helper in thêm dòng noise ra stderr (PYTHONWARNINGS, sitecustomize...).
+# "$out" nối mảng bằng DẤU CÁCH nên neo (?m)^MERGE_OK$ không bao giờ khớp -> merge THÀNH CÔNG
+# mà installer báo thất bại (và từ vòng 3 là exit 1). Không có ca này thì bản vá join-LF không được khóa.
+Reset-Home
+$noisy = Join-Path $FakeHome "noisy-python.cmd"   # trong FakeHome: da gitignore + bi don cuong buc
+$sentinel = Join-Path $FakeHome "wrapper-da-chay.txt"
+Set-Content $noisy "@echo off`r`necho da chay> `"$sentinel`"`r`necho canh bao gia lap 1>&2`r`n`"$venvPy`" %*" -Encoding ASCII
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    `$env:USERPROFILE='$FakeHome';
+    `$env:Path='C:\Windows\System32;C:\Windows'; `$env:POWERBI_INSTALL_PYTHON='$noisy';
+    & '$RepoRoot\install.ps1' -SkipVenv -Hosts claude" *>&1 | Out-String
+$noisyExit = $LASTEXITCODE
+$cfgJson = Join-Path $FakeHome '.claude.json'
+$registered = (Test-Path $cfgJson) -and ((Get-Content $cfgJson -Raw) -match 'powerbi-mcp-bridge')
+# SENTINEL bat buoc: neu installer bo qua POWERBI_INSTALL_PYTHON (vi repo co .venv) thi
+# wrapper khong he chay, ca test do chinh no vo nghia ma van XANH — dung lop loi
+# "verify khong verify" ma chuoi review nay dang san.
+$wrapperRan = Test-Path $sentinel
+Remove-Item $noisy -Force -ErrorAction SilentlyContinue
+Add-Result 'D-merge-ok-despite-stderr-noise' ($noisyExit -eq 0 -and $registered -and $wrapperRan) `
+    "exitCode=$noisyExit (phai=0) daDangKy=$registered wrapperDaChay=$wrapperRan (phai=True)"
+
+# Gate exit-1 của uninstall cũng phải có ca khóa (đối xứng với D-install-exits-1-on-failure).
+Reset-Home
+$null = Run-Install 'claude'
+# JSON HONG (khong parse duoc) — khac '[1,2,3]': mang o goc chi la "khong co entry nao"
+# nen ABSENT/exit 0 moi dung. Hong that thi khong biet entry con hay khong -> phai bao that bai.
+Set-Content (Join-Path $FakeHome '.claude.json') '{"mcpServers": {' -Encoding UTF8
+$null = Run-Uninstall 'claude'
+$unExit = $LASTEXITCODE
+Add-Result 'D-uninstall-exits-1-on-failure' ($unExit -eq 1) "exitCode=$unExit (phai=1)"
+
+# Config RỖNG là vô hại ("không có gì để gỡ"), KHÔNG được thành fail cứng.
+Reset-Home
+Set-Content (Join-Path $FakeHome '.claude.json') '' -Encoding ASCII -NoNewline
+$null = Run-Uninstall 'claude'
+$emptyExit = $LASTEXITCODE
+Add-Result 'D-uninstall-empty-config-ok' ($emptyExit -eq 0) "exitCode=$emptyExit (phai=0)"
+
+# pack.ps1 la cong cu DUY NHAT dong goi mang di, ma khong mot ca pytest/harness nao chay no.
+# Hai luat song con: (a) khong duoc ghi zip vao TRONG repo, (b) zip chi chua file tracked.
+$packOut = Join-Path $env:TEMP "pbi-pack-$PID"
+if (Test-Path $packOut) { Remove-Item $packOut -Recurse -Force }
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    & '$RepoRoot\pack.ps1' -OutDir '$RepoRoot\zip-tam-$PID'" *>&1 | Out-String
+$packExit = $LASTEXITCODE
+# KHONG khop van xuoi tieng Viet trong output: khi harness bi goi TU PYTEST (subprocess),
+# console encoding lech nen chuoi 'TU CHOI' khong khop -> ca test DO GIA. Da tai hien:
+# chay harness truc tiep thi PASS, chay qua pytest thi FAIL. Tin hieu ASCII moi dang tin.
+$refused   = ($packExit -ne 0)
+$noResidue = (-not (Test-Path (Join-Path $RepoRoot "zip-tam-$PID"))) -and
+             (@(Get-ChildItem $RepoRoot -Filter '*.zip' -ErrorAction SilentlyContinue).Count -eq 0)
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    & '$RepoRoot\pack.ps1' -OutDir '$packOut'" *>&1 | Out-String
+$zipFile = @(Get-ChildItem $packOut -Filter '*.zip' -ErrorAction SilentlyContinue)[0]
+$zipClean = $false; $zipCount = 0
+if ($zipFile) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $z = [System.IO.Compression.ZipFile]::OpenRead($zipFile.FullName)
+    $names = @($z.Entries | ForEach-Object { $_.FullName }); $z.Dispose()
+    $zipCount = $names.Count
+    $zipClean = -not ($names | Where-Object { $_ -match '(^|/)\.env$|policy\.json$|\.venv/|\.bak' })
+}
+Remove-Item $packOut -Recurse -Force -ErrorAction SilentlyContinue
+Add-Result 'E-pack-refuses-outdir-in-repo' ($refused -and $noResidue) `
+    "daTuChoi=$refused khongDeLaiThuMucRong=$noResidue"
+Add-Result 'E-pack-zip-has-no-secrets' ([bool]$zipFile -and $zipClean) `
+    "coZip=$([bool]$zipFile) soFile=$zipCount khongCoSecret=$zipClean"
 
 if (Test-Path $FakeHome) { Remove-Item $FakeHome -Recurse -Force }  # tự dọn residue
 Write-Host "`n===== TONG KET ====="
 $results | Format-Table -AutoSize | Out-String | Write-Host
+
+# Exit code PHAI phan anh ket qua. Truoc day in ca bang roi luon exit 0 -> chay doc lap
+# (hoac trong CI khong qua pytest) thay 20 FAIL ma van bao thanh cong.
+$failed = @($results | Where-Object { -not $_.pass })
+if ($failed.Count -gt 0) {
+    Write-Host "FAILED: $($failed.Count)/$($results.Count) ca" -ForegroundColor Red
+    exit 1
+}
+Write-Host "OK: $($results.Count)/$($results.Count) ca" -ForegroundColor Green
+exit 0

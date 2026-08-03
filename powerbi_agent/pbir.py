@@ -9,6 +9,7 @@ Luật cứng (đúc từ thực chiến — xem skill powerbi-report-design):
 
 import json
 import os
+import re
 import secrets
 
 
@@ -123,6 +124,13 @@ def set_title(visual_obj: dict, title: str) -> None:
     props["text"] = {"expr": {"Literal": {"Value": f"'{escaped}'"}}}
 
 
+# Khóa mang NHÃN HIỂN THỊ do người dùng đặt — KHÁC với tên kỹ thuật ở Entity/Property.
+# Đây chính là lỗ hổng từng làm lộ tên measure nghiệp vụ ra một kit công khai: sanitize đời đầu
+# chỉ gom Entity/Property, nên nhãn kiểu "Doanh thu BQ (đ)" không bao giờ vào map thay thế.
+# So khớp KHÔNG phân biệt hoa thường: PBIR xuất hiện cả `displayName` lẫn `DisplayName`.
+LABEL_KEYS = {"nativequeryref", "displayname", "metadata", "queryref"}
+
+
 def collect_field_names(obj) -> tuple[set, set]:
     """Gom mọi giá trị của khóa 'Entity' và 'Property' trong cả cây JSON."""
     entities, properties = set(), set()
@@ -144,14 +152,99 @@ def collect_field_names(obj) -> tuple[set, set]:
     return entities, properties
 
 
-def build_sanitize_map(entities: set, properties: set) -> dict[str, str]:
-    """Map tên thật → placeholder ổn định (sort để deterministic)."""
+def collect_display_labels(obj) -> set:
+    """Gom nhãn hiển thị (nativeQueryRef/displayName/metadata) — tên nghiệp vụ do user đặt.
+
+    `metadata` có dạng `Bảng.Measure`; chỉ phần sau dấu chấm cuối mới là nhãn.
+    """
+    labels = set()
+
+    def take(key: str, val: str) -> None:
+        if not val.strip():
+            return
+        # `metadata`/`queryRef` là "Bảng.Cột" hoặc sâu hơn: LẤY TỪNG ĐOẠN, không chỉ đoạn cuối.
+        # Chỉ lấy đoạn cuối thì "KH.Phân khúc.Chi tiết" còn sót "Phân khúc".
+        if key in ("metadata", "queryref"):
+            labels.update(p for p in val.split(".") if p.strip())
+        else:
+            labels.add(val)
+
+    def walk(node, parent_key=""):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                lk = k.lower()
+                if lk in LABEL_KEYS and isinstance(v, str):
+                    take(lk, v)
+                else:
+                    walk(v, lk)
+        elif isinstance(node, list):
+            for it in node:
+                # Chuỗi nằm TRỰC TIẾP trong mảng: collector cũ bỏ qua trong khi deep_sanitize
+                # lại có xử lý — lệch nhau nghĩa là sanitizer sẵn sàng thay thứ nó chưa hề gom.
+                if isinstance(it, str) and parent_key in LABEL_KEYS:
+                    take(parent_key, it)
+                else:
+                    walk(it, parent_key)
+
+    walk(obj)
+    return labels
+
+
+def build_sanitize_map(entities: set, properties: set, labels: set | None = None) -> dict[str, str]:
+    """Map tên thật → placeholder ổn định (sort để deterministic).
+
+    `labels` = nhãn hiển thị (xem collect_display_labels). Bỏ qua nhãn đã là placeholder,
+    và bỏ qua nhãn TRÙNG tên kỹ thuật (đã có trong map rồi) để không ghi đè lẫn nhau.
+    """
     mapping = {}
     for e in sorted(entities):
         mapping[e] = "TEMPLATE_TABLE"
     for i, p in enumerate(sorted(properties), start=1):
         mapping[p] = f"TEMPLATE_FIELD_{i}"
+    n = 1
+    for lb in sorted(labels or ()):
+        # CHỈ bỏ qua khi nhãn đã sạch HOÀN TOÀN. Dùng startswith() là bẫy: nhãn ghép kiểu
+        # "TEMPLATE_FIELD_29 <đuôi nghiệp vụ>" cũng startswith("TEMPLATE_") nên phần đuôi đó
+        # sẽ sống sót — đúng lỗi đã làm lọt tên thật ra kit công khai.
+        if lb in mapping or is_placeholder_only(lb):
+            continue
+        mapping[lb] = f"TEMPLATE_LABEL_{n}"
+        n += 1
     return mapping
+
+
+# NGỮ PHÁP ĐÓNG: chỉ đúng những placeholder mà build_sanitize_map/deep_sanitize sinh ra.
+# Trước đây cho `TEMPLATE_[A-Z0-9_]+` là quá rộng — một measure tên "TEMPLATE_DOANHTHU" hay
+# chuỗi "TEMPLATE_FIELD_1_TY_LE" tự nhận là "đã sạch" rồi đi thẳng vào bản public.
+# Gioi han 1-3 chu so: `[0-9]+` tham lam nen no NUOT day so lien ke —
+# "TEMPLATE_FIELD_10905123456" (so dien thoai dinh lien) tu nhan la da sach.
+# NGU PHAP DONG: build_sanitize_map danh so tu 1 (enumerate start=1, n=1) nen chi so 0
+# KHONG BAO GIO duoc sinh ra -> khong nhan. TRAN: 1-999. Kit lon nhat dang ship dung toi
+# FIELD_258, con xa tran. Kit >1000 field
+# van duoc sanitize binh thuong; chi `is_placeholder_only` tra False nen kit lay ten
+# chung "kit" thay vi ten rut ra — an toan mac dinh, khong phai ro ri.
+# Muon nang tran: KHONG doi thanh `[0-9]+`. Noi rong tung nac ({0,3}) va giu
+# `(?![0-9])`, vi chinh do dai co han moi chan duoc day so nghiep vu di ke.
+_PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_[1-9][0-9]{0,2}(?![0-9]))"
+# KHONG cho 0-9 vao day phan cach: mot placeholder se hop thuc hoa moi day so ben canh,
+# vd 'TEMPLATE_FIELD_1 0905.123.456' tu nhan la sach -> so dien thoai vao kit public.
+# Chu so chi duoc phep BEN TRONG chinh placeholder (TEMPLATE_FIELD_12).
+_SEP = r"[\s'\"\.\-_/#()]*"
+# PHAI co it nhat MOT placeholder. Cho phep 0 placeholder nghia la chuoi toan so/dau
+# ("0912345678", "01/02/2024", ma khach hang) tu nhan la da sach va di thang ra ban public.
+_SAFE_ONLY = re.compile(rf"^{_SEP}{_PLACEHOLDER}(?:{_SEP}{_PLACEHOLDER})*{_SEP}$")
+
+
+def is_placeholder_only(s: str) -> bool:
+    """True nếu chuỗi KHÔNG còn mẩu văn bản nghiệp vụ nào.
+
+    Chỉ chấp nhận đúng bộ placeholder repo tự sinh — không nhận mọi thứ bắt đầu bằng
+    "TEMPLATE_", vì tên nghiệp vụ có thể cố tình hoặc vô tình mang tiền tố đó.
+    Chuỗi rỗng/toàn khoảng trắng xử riêng: không có gì để lộ.
+    """
+    if not (s or "").strip():
+        return True
+    return bool(_SAFE_ONLY.match(s))
 
 
 def deep_sanitize(visual_obj: dict, mapping: dict[str, str]) -> None:
@@ -159,19 +252,30 @@ def deep_sanitize(visual_obj: dict, mapping: dict[str, str]) -> None:
     queryState mà cả objects/visualContainerObjects (conditional color, dataPoint selector,
     sortDefinition, queryRef string...). Style giữ nguyên; apply_template sẽ rebind lại.
 
-    Thay chuỗi theo tên DÀI TRƯỚC để tránh tên ngắn ăn mất một phần tên dài."""
+    Thay MỘT LƯỢT bằng regex alternation (tên dài trước), KHÔNG lặp str.replace nhiều vòng:
+    replace tuần tự thì placeholder do vòng trước chèn vào lại thành đầu vào của vòng sau, nên
+    một bảng tên "T" hay cột tên "FIELD" sẽ ăn vào chính chữ TEMPLATE_TABLE/TEMPLATE_FIELD_n
+    và sinh ra chuỗi rác kiểu "TEMPLATE_TABLEEMPLATEMPLATE_TABLEE_..." — hỏng kit chứ không
+    phải sanitize. Một lượt thì mỗi ký tự chỉ bị tiêu thụ đúng một lần."""
     import re as _re
-    keys_desc = sorted(mapping.keys(), key=len, reverse=True)
-    # Tên file resource (logo/ảnh đăng ký trong registeredResources) cũng là thông tin
-    # nguồn — thay luôn (resource không resolve được cross-report nên không mất gì)
-    _img_re = _re.compile(r"[\w\-. %]+\.(png|jpe?g|gif|svg|bmp|webp)", _re.IGNORECASE)
+    _sub = None
+    if mapping:
+        keys_desc = sorted(mapping.keys(), key=len, reverse=True)
+        _pat = _re.compile("|".join(_re.escape(k) for k in keys_desc))
+        _sub = lambda s: _pat.sub(lambda m: mapping[m.group(0)], s)  # noqa: E731
+
+    # Tên file resource (logo/ảnh khách hàng) là thông tin nguồn → thay TRỌN chuỗi.
+    # Regex cũ chỉ khớp `[\w\-. %]+` nên tên có dấu ngoặc/&/+ chỉ bị cắt phần đuôi, để lại
+    # phần đọc được: "revenue_(1)23578.png" -> "revenue_(1)TEMPLATE_IMAGE.png". Nay chuỗi nào
+    # KẾT THÚC bằng đuôi ảnh thì thay nguyên chuỗi.
+    # Cho phép chuỗi bọc nháy đơn: PBIR lưu tên ảnh cả ở `ItemName` (trần) lẫn trong
+    # `Literal.Value` (dạng `'revenue (1).png'`). Không xử nháy thì bản trong Literal lọt.
+    _img_re = _re.compile(r"^'?.*\.(png|jpe?g|gif|svg|bmp|webp)'?$", _re.IGNORECASE)
 
     def repl_str(s: str) -> str:
-        for k in keys_desc:
-            if k in s:
-                s = s.replace(k, mapping[k])
-        s = _img_re.sub("TEMPLATE_IMAGE.png", s)
-        return s
+        if _img_re.match(s):
+            return "'TEMPLATE_IMAGE.png'" if s.startswith("'") else "TEMPLATE_IMAGE.png"
+        return _sub(s) if _sub else s
 
     def walk(node):
         if isinstance(node, dict):
@@ -191,6 +295,48 @@ def deep_sanitize(visual_obj: dict, mapping: dict[str, str]) -> None:
     # filter mức visual chứa field + giá trị lọc thật → bỏ hẳn
     visual_obj.pop("filterConfig", None)
     walk(visual_obj)
+
+    # Literal Value dạng chuỗi user GÕ VÀO (tiêu đề, nhãn, chữ trên shape) là văn bản nghiệp vụ.
+    # Phân loại theo VỊ TRÍ trong cây, KHÔNG theo ký tự.
+    #
+    # Bản trước lọc theo bộ ký tự cho phép (không chữ cái) nên nó xoá luôn `'#2B395B'`,
+    # `'rectangle'`, `'Dropdown'`, `'Calibri'`… — tức là xoá sạch bảng màu và enum bố cục,
+    # phá đúng cái mà kit sinh ra để giữ. Chỉ những Literal nằm trong Ô CHỮ mới là văn bản
+    # người dùng; màu/enum/font nằm ở ô khác và phải giữ nguyên 100%.
+    # Quyết định dựa trên TÊN PROPERTY chứa literal (khoá ngay dưới `properties`), vì PBIR
+    # luôn có dạng  objects.<tênObject>[i].properties.<tênProp>.expr.Literal.Value.
+    # So khớp theo CHỨA chữ, không khớp chính xác: thực tế là `titleText`, `referenceLabelTitle`,
+    # `labelText`… nên khớp chính xác "title"/"text" sẽ trượt hết.
+    # Trừ ra các property STYLE: `labelColor`, `titleFontSize`… cũng chứa "label"/"title"
+    # nhưng giá trị là màu/size — xoá là mất style, đúng lỗi đã phá cả bảng màu của kit.
+    TEXTISH = ("text", "title", "label", "caption", "paragraph", "tooltip")
+    STYLISH = ("color", "colour", "size", "font", "weight", "align", "position",
+               "style", "transparency", "bold", "italic", "underline", "display",
+               "show", "visible", "shape", "width", "height", "padding", "margin")
+
+    def is_user_text_prop(name: str) -> bool:
+        n = name.lower()
+        return any(t in n for t in TEXTISH) and not any(s in n for s in STYLISH)
+
+    def scrub_literals(node, prop_name=""):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k == "Value" and isinstance(v, str) and is_user_text_prop(prop_name):
+                    s = v.strip()
+                    # PBIR ghi literal chuỗi bằng CẢ nháy đơn lẫn nháy kép — chỉ xử nháy đơn
+                    # thì bản nháy kép đi thẳng ra ngoài.
+                    q = s[0] if len(s) >= 2 and s[0] in "'\"" and s[-1] == s[0] else ""
+                    if q and not is_placeholder_only(s):
+                        node[k] = f"{q}TEMPLATE_TEXT{q}"
+                else:
+                    # `properties` mở ra một tầng tên property mới; các tầng khác giữ nguyên tên.
+                    scrub_literals(v, k if prop_name == "__props__" else
+                                   ("__props__" if k == "properties" else prop_name))
+        elif isinstance(node, list):
+            for it in node:
+                scrub_literals(it, prop_name)
+
+    scrub_literals(visual_obj)
 
     # textbox: nội dung chữ là văn bản nghiệp vụ → thay bằng placeholder
     v = visual_obj.get("visual", {})

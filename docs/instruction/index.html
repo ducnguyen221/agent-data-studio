@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hướng dẫn · powerbi-agent — dùng AI làm Power BI từng bước</title>
-<meta name="description" content="Hướng dẫn dùng powerbi-agent theo bước và theo tình huống: 6 lệnh /pbi-*, quy trình KPIM, các skill và agent, khái niệm quan trọng — viết cho cả người mới lẫn chuyên gia Power BI.">
+<meta name="description" content="Hướng dẫn dùng powerbi-agent theo bước và theo tình huống: 8 lệnh /powerbi-*, quy trình KPIM, các skill và agent, khái niệm quan trọng — viết cho cả người mới lẫn chuyên gia Power BI.">
 <link rel="icon" href="../assets/logo-128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +50,7 @@
 
 <nav class="quicknav" aria-label="Điều hướng nhanh">
   <a href="#bat-dau"><span class="qdot"></span><span class="qlabel">Bắt đầu</span></a>
-  <a href="#lenh"><span class="qdot"></span><span class="qlabel">6 lệnh</span></a>
+  <a href="#lenh"><span class="qdot"></span><span class="qlabel">8 lệnh</span></a>
   <a href="#tinh-huong"><span class="qdot"></span><span class="qlabel">Tình huống</span></a>
   <a href="#kpim"><span class="qdot"></span><span class="qlabel">KPIM workflow</span></a>
   <a href="#khai-niem"><span class="qdot"></span><span class="qlabel">Khái niệm</span></a>
@@ -90,7 +90,7 @@
       <div class="step">
         <span class="num">2</span>
         <div class="body">
-          <h3>Chỉ định "ngăn tủ tri thức" — gõ <code class="inline">/pbi-setup</code></h3>
+          <h3>Chỉ định "ngăn tủ tri thức" — gõ <code class="inline">/powerbi-setup</code></h3>
           <p>AI hỏi bạn muốn lưu tri thức dự án (tài liệu, kinh nghiệm, template riêng) ở thư mục nào
           trên máy — <b>ngoài phần mềm, hoàn toàn của bạn</b>. Có sẵn thư mục ghi chú/knowledge base thì
           trỏ vào đó; chưa có thì để AI tạo mới. Làm đúng 1 lần.</p>
@@ -99,7 +99,7 @@
       <div class="step">
         <span class="num">3</span>
         <div class="body">
-          <h3>Mở dự án đầu tiên — gõ <code class="inline">/pbi-new tên-dự-án</code></h3>
+          <h3>Mở dự án đầu tiên — gõ <code class="inline">/powerbi-new tên-dự-án</code></h3>
           <p>Đưa AI bộ dữ liệu (Excel/CSV/database) + mô tả bài toán. Nó sẽ khảo sát, <b>hỏi ngược lại
           bạn</b> những điểm chưa rõ, lập tài liệu và kế hoạch, rồi mới bắt tay dựng mô hình và báo cáo.
           Mở Power BI Desktop sẵn để AI kết nối.</p>
@@ -108,24 +108,26 @@
     </div>
   </section>
 
-  <!-- 6 LỆNH -->
+  <!-- 8 LỆNH -->
   <section id="lenh" style="padding-top:8px">
     <div class="sec-head reveal">
       <span class="eyebrow"><span class="dot"></span>Bộ lệnh</span>
-      <h2>6 lệnh — toàn bộ vòng đời dự án</h2>
+      <h2>8 lệnh — toàn bộ vòng đời dự án</h2>
       <p>Lệnh dùng trên Claude Code. Với Codex/Antigravity: nói bằng lời ("mở dự án mới…",
-      "quét thiết kế file này…") — skill <code class="inline">pbi-knowledge</code> dẫn AI đi cùng luồng.</p>
+      "quét thiết kế file này…") — skill <code class="inline">powerbi-knowledge</code> dẫn AI đi cùng luồng.</p>
     </div>
     <div class="tbl-wrap reveal">
       <table class="tbl">
         <thead><tr><th>Lệnh</th><th>Khi nào dùng</th><th>AI sẽ làm gì</th></tr></thead>
         <tbody>
-          <tr><td><code>/pbi-setup</code></td><td class="lbl">Lần đầu tiên</td><td>Hỏi bạn chỉ định thư mục lưu tri thức → dựng cấu trúc chuẩn</td></tr>
-          <tr><td><code>/pbi-new &lt;tên&gt;</code></td><td class="lbl">Bắt đầu dự án</td><td>Mở hồ sơ dự án + đọc kinh nghiệm cũ + chạy quy trình KPIM</td></tr>
-          <tr><td><code>/pbi-scan &lt;file&gt;</code></td><td class="lbl">Có báo cáo mẫu đẹp</td><td>Quét trọn thiết kế: mọi trang, theme, danh mục visual → hồ sơ lưu trữ</td></tr>
-          <tr><td><code>/pbi-done</code></td><td class="lbl">Xong dự án</td><td>Checklist bàn giao + chốt hồ sơ + ghi nhật ký + đóng gói bài học</td></tr>
-          <tr><td><code>/pbi-pack</code></td><td class="lbl">Định kỳ / sau dự án</td><td>Chưng cất bài học vào 4 ngăn: công nghệ · ngành · nghiệp vụ · Power BI</td></tr>
-          <tr><td><code>/pbi-recall &lt;từ khóa&gt;</code></td><td class="lbl">"Đã làm cái này chưa?"</td><td>Tra dự án cũ, bài học, template tái dùng được — kèm đường dẫn</td></tr>
+          <tr><td><code>/powerbi-help</code></td><td class="lbl">Không biết bắt đầu từ đâu</td><td>Liệt kê mọi năng lực + tự định tuyến yêu cầu của bạn vào đúng quy trình</td></tr>
+          <tr><td><code>/powerbi-setup</code></td><td class="lbl">Lần đầu tiên</td><td>Hỏi bạn chọn thư mục lưu tài liệu dự án (ngoài repo) → dựng cấu trúc chuẩn</td></tr>
+          <tr><td><code>/powerbi-new &lt;tên&gt;</code></td><td class="lbl">Bắt đầu dự án</td><td>Mở hồ sơ dự án + đọc kinh nghiệm cũ + chạy quy trình KPIM</td></tr>
+          <tr><td><code>/powerbi-scan &lt;file&gt;</code></td><td class="lbl">Có báo cáo mẫu đẹp</td><td>Quét trọn thiết kế: mọi trang, theme, danh mục visual → hồ sơ lưu trữ</td></tr>
+          <tr><td><code>/powerbi-kit &lt;file&gt;</code></td><td class="lbl">Muốn TÁI DÙNG thiết kế báo cáo</td><td>Chưng cất báo cáo thành <b>bộ</b> template kit + theme dùng chung (đã sanitize)</td></tr>
+          <tr><td><code>/powerbi-done</code></td><td class="lbl">Xong dự án</td><td>Checklist bàn giao + chốt hồ sơ + ghi nhật ký + đóng gói bài học</td></tr>
+          <tr><td><code>/powerbi-pack</code></td><td class="lbl">Định kỳ / sau dự án</td><td>Chưng cất bài học vào 4 ngăn: công nghệ · ngành · nghiệp vụ · Power BI</td></tr>
+          <tr><td><code>/powerbi-recall &lt;từ khóa&gt;</code></td><td class="lbl">"Đã làm cái này chưa?"</td><td>Tra dự án cũ, bài học, template tái dùng được — kèm đường dẫn</td></tr>
         </tbody>
       </table>
     </div>
@@ -140,12 +142,12 @@
     </div>
     <div class="scenario reveal">
       <div class="scn"><span class="q">"Doanh thu quý này theo chi nhánh?"</span><span class="arr">→</span><span class="a">AI truy vấn trực tiếp (<code>execute_dax</code>) — trả bảng tổng hợp, dữ liệu chi tiết không rời Power BI</span></div>
-      <div class="scn"><span class="q">"Làm cho tôi dashboard từ file Excel này"</span><span class="arr">→</span><span class="a">Trọn quy trình: <code>/pbi-new</code> → khảo sát KPIM → mô hình → báo cáo theo template</span></div>
+      <div class="scn"><span class="q">"Làm cho tôi dashboard từ file Excel này"</span><span class="arr">→</span><span class="a">Trọn quy trình: <code>/powerbi-new</code> → khảo sát KPIM → mô hình → báo cáo theo template</span></div>
       <div class="scn"><span class="q">"Model này có gì, các bảng nối nhau ra sao?"</span><span class="arr">→</span><span class="a"><code>list_tables</code> + <code>distill_model_schema</code> — kèm sơ đồ quan hệ tự vẽ</span></div>
       <div class="scn"><span class="q">"Thêm trang báo cáo giống trang trước đã làm"</span><span class="arr">→</span><span class="a"><code>apply_template</code> từ kit đã distill — thiết kế giữ nguyên 100%</span></div>
       <div class="scn"><span class="q">"Viết giúp measure tỷ lệ churn"</span><span class="arr">→</span><span class="a"><code>add_measure_local</code> + tự chạy thử đối chiếu số trước khi báo xong</span></div>
-      <div class="scn"><span class="q">"Báo cáo mẫu này đẹp, giữ lại phong cách"</span><span class="arr">→</span><span class="a"><code>/pbi-scan</code> lưu hồ sơ + <code>distill_template</code> đóng khuôn trang thành kit</span></div>
-      <div class="scn"><span class="q">"Trước đây mình xử lý ngày Excel lỗi thế nào nhỉ?"</span><span class="arr">→</span><span class="a"><code>/pbi-recall ngày excel</code> — lật lại bài học đã đóng gói</span></div>
+      <div class="scn"><span class="q">"Báo cáo mẫu này đẹp, giữ lại phong cách"</span><span class="arr">→</span><span class="a"><code>/powerbi-scan</code> lưu hồ sơ + <code>distill_template</code> đóng khuôn trang thành kit</span></div>
+      <div class="scn"><span class="q">"Trước đây mình xử lý ngày Excel lỗi thế nào nhỉ?"</span><span class="arr">→</span><span class="a"><code>/powerbi-recall ngày excel</code> — lật lại bài học đã đóng gói</span></div>
     </div>
   </section>
 
@@ -193,11 +195,11 @@
       16 tool — 16 thao tác AI làm được trên Power BI (truy vấn, viết công thức, dựng trang…).</dd>
       <dt><code>Skill</code></dt>
       <dd>"Sách quy trình" dạy AI cách làm việc bài bản. Có 4 skill: <b>kpim-analysis</b> (khảo sát &amp;
-      tài liệu hóa) · <b>pbi-pipeline</b> (kỹ thuật 9 khâu) · <b>pbi-knowledge</b> (bộ nhớ tri thức) ·
+      tài liệu hóa) · <b>powerbi-pipeline</b> (kỹ thuật 9 khâu) · <b>powerbi-knowledge</b> (bộ nhớ tri thức) ·
       <b>powerbi-mcp</b> (sổ tay tra cứu tool). AI tự mở đúng sách theo việc.</dd>
-      <dt><code>Command</code> (lệnh /pbi-*)</dt>
-      <dd>Nút bấm nhanh: gõ 1 lệnh, AI chạy trọn một quy trình nhiều bước. 6 lệnh ở mục trên.</dd>
-      <dt><code>Agent</code> (pbi-knowledge-curator)</dt>
+      <dt><code>Command</code> (lệnh /powerbi-*)</dt>
+      <dd>Nút bấm nhanh: gõ 1 lệnh, AI chạy trọn một quy trình nhiều bước. 8 lệnh ở mục trên.</dd>
+      <dt><code>Agent</code> (powerbi-knowledge-curator)</dt>
       <dd>"Nhân sự ảo" chuyên trách một vai. Curator là thủ thư: cuối dự án tự đọc hồ sơ, rút bài học
       đáng giữ, xếp vào đúng ngăn — có tiêu chuẩn chất lượng (mỗi bài học phải có "vì sao đúng"
       và "lần sau áp dụng thế nào").</dd>

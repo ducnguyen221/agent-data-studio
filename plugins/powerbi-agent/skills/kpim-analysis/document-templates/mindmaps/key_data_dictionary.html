@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KEY DATA DICTIONARY — mindmap</title>
+<style>
+  :root{--bg:#fbfcfe;--ink:#16202c;--muted:#5b6b7f;--line:#d6dee8;--accent:#1f6feb;--card:#fff}
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0f151c;--ink:#e6edf5;--muted:#93a3b6;--line:#26303c;--accent:#5296ff;--card:#151d26}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 20px;background:var(--bg);color:var(--ink);
+    font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:26px}
+  .sub code{background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  .root{display:inline-block;background:var(--accent);color:#fff;font-weight:700;
+    padding:9px 20px;border-radius:999px;margin-bottom:18px}
+  ul{list-style:none;margin:0;padding-left:26px}
+  li{position:relative;padding:3px 0 3px 18px}
+  li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:1px solid var(--line)}
+  li:last-child::before{bottom:calc(100% - 17px)}
+  li::after{content:"";position:absolute;left:0;top:16px;width:13px;border-top:1px solid var(--line)}
+  .n{display:inline-block;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;padding:4px 12px}
+  .l0{font-weight:700;border-color:var(--accent)}
+  .l1{font-weight:600}
+  .l2,.l3{color:var(--muted);font-size:14px}
+  @media print{body{background:#fff}}
+</style>
+<div class="wrap">
+  <h1>KEY DATA DICTIONARY</h1>
+  <p class="sub">Bản xem của khối <code>mermaid mindmap</code> trong <code>DATA_DICTIONARY.md</code>.
+     Sửa nội dung ở file đó rồi chạy lại <code>generate_mindmap_html.py</code> — đừng sửa file HTML này.</p>
+  <div class="root">KEY DATA DICTIONARY</div>
+  <ul><li><span class="n l0">Nguồn dữ liệu</span><ul><li><span class="n l1">Cơ sở dữ liệu giao dịch</span></li><li><span class="n l1">File Excel nghiệp vụ</span></li><li><span class="n l1">Kho tài liệu dùng chung</span></li></ul></li><li><span class="n l0">Bảng Fact</span><ul><li><span class="n l1">Khóa liên kết các chiều</span></li><li><span class="n l1">Trường số để tính toán</span></li><li><span class="n l1">Trường thời gian</span></li></ul></li><li><span class="n l0">Bảng Dim</span><ul><li><span class="n l1">Thời gian</span></li><li><span class="n l1">Khách hàng</span></li><li><span class="n l1">Sản phẩm</span></li><li><span class="n l1">Khu vực</span></li></ul></li><li><span class="n l0">Quan hệ</span><ul><li><span class="n l1">Một chiều từ Dim sang Fact</span></li><li><span class="n l1">Tránh quan hệ hai chiều</span></li><li><span class="n l1">Tránh quan hệ nhiều nhiều</span></li></ul></li></ul>
+</div>

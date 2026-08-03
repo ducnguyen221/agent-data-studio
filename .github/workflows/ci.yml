@@ -18,6 +18,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .[dev]
       - name: Lint
-        run: ruff check powerbi_agent tests mcp_server_powerbi.py scripts/cli.py
+        run: ruff check powerbi_agent tests mcp_server_powerbi.py scripts
       - name: Unit tests (không cần Power BI Desktop)
         run: pytest tests -m "not integration" -v

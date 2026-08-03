@@ -1,7 +1,7 @@
 {
   "name": "powerbi-agent",
-  "version": "0.3.0",
-  "description": "Turn your AI Agent into a Power BI analyst. 4 skills (kpim-analysis · pbi-pipeline · powerbi-mcp · pbi-knowledge), 6 /pbi-* commands, and the pbi-knowledge-curator agent. For the 16 MCP tools (DAX/model/report/knowledge) run install.ps1 in the repo root — this plugin ships the workflows & knowledge layer. Built by KPIM (kpim.vn), shared free.",
+  "version": "0.6.0",
+  "description": "Turn your AI Agent into a Power BI analyst. 4 skills (kpim-analysis · powerbi-pipeline · powerbi-mcp · powerbi-knowledge), 8 /powerbi-* commands, and the powerbi-knowledge-curator agent. For the 16 MCP tools (DAX/model/report/knowledge) run install.ps1 in the repo root — this plugin ships the workflows & knowledge layer. Built by KPIM (kpim.vn), shared free.",
   "author": {
     "name": "KPIM",
     "email": "ducnguyen.ams@gmail.com",

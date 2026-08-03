@@ -26,8 +26,11 @@ def test_installer_config_suite():
         capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600,
     )
     out = proc.stdout + proc.stderr
+    # Harness da tu exit 1 khi co ca do — phai KIEM ma tra ve, khong chi doc stdout,
+    # neu khong thi mot lan refactor lam mat exit code se troi qua im lang.
+    assert proc.returncode == 0, f"harness exit {proc.returncode}:\n{out[-3000:]}"
     lines = [line for line in out.splitlines() if line.startswith(("PASS", "FAIL"))]
     assert lines, f"suite không chạy ra ca nào:\n{out[-2000:]}"
     fails = [line for line in lines if line.startswith("FAIL")]
     assert not fails, "Có ca FAIL:\n" + "\n".join(fails) + f"\n--- full ---\n{out[-3000:]}"
-    assert len(lines) >= 13, f"thiếu ca (được {len(lines)}/13):\n" + "\n".join(lines)
+    assert len(lines) >= 26, f"thiếu ca (được {len(lines)}/26):\n" + "\n".join(lines)

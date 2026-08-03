@@ -17,7 +17,7 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _template_dirs() -> list[str]:
-    dirs = [os.path.join(_REPO_ROOT, "templates")]
+    dirs = [os.path.join(_REPO_ROOT, "report-templates")]
     env = os.getenv("POWERBI_TEMPLATES_DIR")
     if env:
         dirs.append(env)
@@ -42,7 +42,7 @@ def register(mcp):
 
     @mcp.tool()
     def list_templates() -> str:
-        """Liệt kê các template kit báo cáo có sẵn (repo templates/ + env POWERBI_TEMPLATES_DIR).
+        """Liệt kê các template kit báo cáo có sẵn (repo report-templates/ + env POWERBI_TEMPLATES_DIR).
         Mỗi kit gồm: blocks (visual.json verbatim theo loại), blueprint, page settings, design tokens."""
         kits = _load_kits()
         if not kits:
@@ -63,15 +63,17 @@ def register(mcp):
 
     @mcp.tool()
     def distill_template(report_path: str, page: str, out_dir: str, kit_name: str = None,
-                         sanitize: bool = False) -> str:
+                         sanitize: bool = True) -> str:
         """
         Chưng cất 1 trang báo cáo PBIR thành template kit tái dùng (blueprint.md + blocks/*.json
         verbatim mỗi loại visual + _page.json + kit.json).
         - report_path: file .pbip, folder *.Report, hoặc folder definition.
-        - page: GUID trang hoặc displayName chính xác (vd '02 · Phân Tích Khách Hàng').
-        - out_dir: thư mục ghi kit (nên NGOÀI repo nếu chứa binding nghiệp vụ thật).
-        - sanitize: True = thay tên bảng/cột thật bằng placeholder TEMPLATE_* (bắt buộc trước khi
-          public kit); False = giữ binding gốc làm tham chiếu (kit nội bộ).
+        - page: GUID trang hoặc displayName chính xác.
+        - out_dir: thư mục ghi kit — mặc định nên là `templates/` trong THƯ MỤC DỰ ÁN (ngoài repo).
+        - sanitize: **MẶC ĐỊNH True** — thay tên bảng/cột/nhãn thật bằng placeholder TEMPLATE_*.
+          Đặt False chỉ khi user nói RÕ kit này dùng nội bộ và chấp nhận giữ tên nghiệp vụ thật.
+          Mặc định phải an toàn: kit từng lọt tên measure thật của khách ra bản public vì
+          an toàn phụ thuộc vào việc người gọi nhớ bật cờ.
         CHỈ ĐỌC — không sửa báo cáo nguồn.
         """
         try:
@@ -81,6 +83,12 @@ def register(mcp):
             if not visuals:
                 return f"Trang '{page}' không có visual nào."
 
+            # Kit CHUA sanitize la du lieu khach -> chan ghi vao repo.
+            # report-templates/ duoc mien vi do la noi kit DA sanitize duoc phep nam.
+            from powerbi_agent.knowledge import ensure_outside_repo
+            # Ngoai le report-templates/ CHI danh cho kit DA sanitize. Truoc day ngoai le
+            # theo DUONG DAN nen sanitize=False cung tuon duoc du lieu tho vao thu muc cong khai.
+            out_dir = ensure_outside_repo(out_dir, "template kit", allow_public_kits=sanitize)
             os.makedirs(out_dir, exist_ok=True)
             blocks_dir = os.path.join(out_dir, "blocks")
 
@@ -88,12 +96,16 @@ def register(mcp):
             # nhất quán cho cả blocks lẫn blueprint
             san_map = {}
             if sanitize:
-                all_e, all_p = set(), set()
+                all_e, all_p, all_lb = set(), set(), set()
                 for _, vobj in visuals:
                     e, p = pbir.collect_field_names(vobj)
                     all_e |= e
                     all_p |= p
-                san_map = pbir.build_sanitize_map(all_e, all_p)
+                    # Nhãn hiển thị (nativeQueryRef/displayName/metadata) là tên nghiệp vụ
+                    # user tự đặt — KHÔNG suy ra được từ Entity/Property. Thiếu bước này
+                    # từng làm lọt tên measure thật của khách hàng vào kit công khai.
+                    all_lb |= pbir.collect_display_labels(vobj)
+                san_map = pbir.build_sanitize_map(all_e, all_p, all_lb)
 
             # 1 exemplar / visualType — chọn file GIÀU style nhất (JSON dài nhất)
             exemplars: dict[str, tuple[str, dict, int]] = {}
@@ -131,9 +143,15 @@ def register(mcp):
                     "source_visual": vid,
                 })
 
-            # _page.json: page settings + nền, BỎ filter/interaction đặc thù trang nguồn
+            # _page.json: page settings + nền, BỎ filter/interaction đặc thù trang nguồn.
+            # page_json CŨNG là dữ liệu khách (`displayName` là tên trang user đặt, nền có thể
+            # tham chiếu ảnh của họ) — trước đây ghi thẳng, không qua sanitize.
             page_tpl = {k: v for k, v in page_json.items()
                         if k not in ("filterConfig", "visualInteractions", "name")}
+            if sanitize:
+                page_tpl = json.loads(json.dumps(page_tpl))
+                pbir.deep_sanitize(page_tpl, san_map)
+                page_tpl.pop("displayName", None)   # tên trang không suy ra được từ map
             pbir.write_json_no_bom(os.path.join(out_dir, "_page.json"), page_tpl)
 
             # blueprint.md
@@ -161,8 +179,16 @@ def register(mcp):
                 f.write("\n".join(bp) + "\n")
 
             # kit.json
+            # kit_name do NGƯỜI GỌI đặt — có thể là "Telco Churn" hay tên khách. Khi sanitize
+            # thì tên kit cũng phải sạch, nếu không thì cả kit ẩn danh mà nhãn lại chỉ đích danh.
+            safe_name = kit_name or os.path.basename(out_dir.rstrip("\\/"))
+            if sanitize and not pbir.is_placeholder_only(safe_name):
+                # KHÔNG "làm sạch" tên do người gọi đặt. Slugify chỉ bỏ dấu nên giữ nguyên
+                # mọi tên khách ASCII ("Acme Bank Q3" → "acme-bank-q3") — kit ẩn danh mà nhãn
+                # lại chỉ đích danh thì vô nghĩa. Sanitize nghĩa là KHÔNG dùng tên đó nữa.
+                safe_name = "kit"
             kit = {
-                "name": kit_name or os.path.basename(out_dir.rstrip("\\/")),
+                "name": safe_name,
                 "schema": "powerbi-agent/kit/v1",
                 "created": date.today().isoformat(),
                 "sanitized": sanitize,
@@ -180,7 +206,9 @@ def register(mcp):
             pbir.write_json_no_bom(os.path.join(out_dir, "kit.json"), kit)
 
             return (
-                f"Đã distill trang '{src_name}' thành kit tại `{out_dir}`:\n"
+                # Mọi FILE ghi ra đều đã sạch, nhưng chuỗi trả về đi thẳng vào context LLM —
+                # nêu tên trang thật ở đây là rò rỉ qua một đường khác.
+                f"Đã distill trang '{'(sanitized)' if sanitize else src_name}' thành kit tại `{out_dir}`:\n"
                 f"- {len(block_meta)} block: " + ", ".join(b["visualType"] for b in block_meta) + "\n"
                 f"- blueprint.md ({len(visuals)} visual) + _page.json + kit.json\n"
                 + ("- ĐÃ sanitize (an toàn để chia sẻ/public)\n" if sanitize else
@@ -196,7 +224,7 @@ def register(mcp):
         Dựng TRANG MỚI vào báo cáo PBIR từ template kit (clone-and-rebind — không dựng layout từ đầu).
         ⚠️ File .pbip phải ĐANG ĐÓNG trong Power BI Desktop (mở + Ctrl+S sẽ đè mất trang mới).
         - report_path: file .pbip, folder *.Report, hoặc folder definition (SẼ GHI vào đây).
-        - kit_dir: thư mục kit (tạo bởi distill_template, hoặc templates/ có sẵn — xem list_templates).
+        - kit_dir: thư mục kit (tạo bởi distill_template, hoặc report-templates/ có sẵn — xem list_templates).
         - page_spec: JSON string:
           {"displayName": "Tên trang", "visuals": [
               {"block": "cardVisual", "x": 30, "y": 100, "z": 1000, "width": 280, "height": 110,

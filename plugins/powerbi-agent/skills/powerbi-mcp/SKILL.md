@@ -1,5 +1,6 @@
 ---
 name: powerbi-mcp
+x-generated-by: powerbi-agent
 description: Kết nối và tương tác trực tiếp với Power BI Desktop (Local) và Power BI Service (Cloud) qua MCP Server.
 ---
 # powerbi-mcp
@@ -16,7 +17,7 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 
 2. `execute_dax_local(port: str, model_id: str, dax_query: str, max_rows: int = 1000)`
    - **Mô tả:** Chạy truy vấn DAX trực tiếp lên file Power BI Desktop đang mở qua cổng kết nối cục bộ.
-   - **Cách dùng:** Truyền vào cổng kết nối và model_id lấy từ `list_local_reports`, cùng câu lệnh DAX (ví dụ: `EVALUATE TableName`).
+   - **Cách dùng:** Truyền vào cổng kết nối và model_id lấy từ `list_local_reports`, cùng câu lệnh DAX (ví dụ: `EVALUATE TOPN(10, SUMMARIZECOLUMNS(...))`).
    - **`max_rows`:** Mặc định cắt còn 1000 dòng để tránh tràn context. Đặt `0` chỉ khi user thực sự cần toàn bộ dữ liệu.
 
 3. `execute_dax_service(dataset_id: str, dax_query: str, max_rows: int = 1000)`
@@ -26,7 +27,7 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 
 4. `distill_model_schema(port?, model_id?, output_filename?, output_dir?)`
    - **Mô tả:** Chưng cất cấu trúc model (bảng/cột/measure/relationship) thành Markdown blueprint kèm Mermaid ERD — để Agent tham chiếu khi viết DAX/thiết kế báo cáo.
-   - **Đích ghi:** mặc định `~/.powerbi-agent/distilled/` (đổi qua `output_dir` hoặc env `POWERBI_DISTILL_DIR`). ⚠️ Schema model có thể nhạy cảm — KHÔNG ghi vào repo public/thư mục sync chia sẻ.
+   - **Đích ghi:** mặc định `<thư mục dự án>/distilled/` (đổi qua `output_dir` hoặc env `POWERBI_DISTILL_DIR`). ⚠️ Schema model có thể nhạy cảm — KHÔNG ghi vào repo public/thư mục sync chia sẻ.
 
 5. `add_measure_local(port, model_id, table_name, measure_name, expression, format_string?, description?)` — tạo/sửa 1 measure qua TOM (GHI model).
 6. `add_relationship_local(port, model_id, from_table, from_column, to_table, to_column, is_active?)` — tạo relationship Many-to-One qua TOM (GHI model).
@@ -35,21 +36,21 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 7. `list_tables(port, model_id)` / `describe_table(port, model_id, table_name)` — khám phá schema (bảng, cột + kiểu, measure + expression) không cần thuộc DMV.
 
 8. **Template kit (report layer — PBIR, file .pbip ĐÓNG):**
-   - `list_templates()` — kit có sẵn (repo `templates/` + env `POWERBI_TEMPLATES_DIR`).
+   - `list_templates()` — kit có sẵn (repo `report-templates/` + env `POWERBI_TEMPLATES_DIR`).
    - `apply_template(report_path, kit_dir, page_spec)` — dựng TRANG MỚI từ kit theo luật clone-and-rebind (giữ style `visualContainerObjects`, chỉ đổi name/position/fields/visualType/title). KHÔNG BAO GIỜ tự dựng layout PBIR từ đầu.
    - `distill_template(report_path, page, out_dir, sanitize?)` — chưng cất trang đẹp thành kit tái dùng; `sanitize=True` TRƯỚC khi chia sẻ/public (xóa tên bảng/cột nghiệp vụ).
 9. **Distill & Knowledge OS:**
    - `distill_report_design(report_path, project?, out_dir?)` — quét TRỌN báo cáo: mọi trang + theme + DESIGN.md + REPORT_CATALOG.md (hồ sơ thiết kế toàn dự án, mặc định vào Knowledge Dir).
    - `knowledge_status()` — GỌI ĐẦU TIÊN trước mọi quy trình tri thức; chưa setup thì hỏi user chỉ định folder.
-   - `setup_knowledge(path)` / `init_project(name)` / `log_timeline(project, event, lesson?, link?)` — thiết lập Knowledge Dir, mở dự án, ghi timeline. Luồng đầy đủ: [`../pbi-knowledge/SKILL.md`](../pbi-knowledge/SKILL.md).
+   - `setup_knowledge(path)` / `init_project(name)` / `log_timeline(project, event, lesson?, link?)` — thiết lập Knowledge Dir, mở dự án, ghi timeline. Luồng đầy đủ: [`../powerbi-knowledge/SKILL.md`](../powerbi-knowledge/SKILL.md).
 
-   - Quy trình dự án trọn gói: pha nghiệp vụ [`../kpim-analysis/SKILL.md`](../kpim-analysis/SKILL.md) → pha kỹ thuật 9 khâu [`../pbi-pipeline/SKILL.md`](../pbi-pipeline/SKILL.md).
+   - Quy trình dự án trọn gói: pha nghiệp vụ [`../kpim-analysis/SKILL.md`](../kpim-analysis/SKILL.md) → pha kỹ thuật 9 khâu [`../powerbi-pipeline/SKILL.md`](../powerbi-pipeline/SKILL.md).
 
 ## Chính sách an toàn dữ liệu (server enforce — không phải chỉ lời nhắc)
 
 - `aggregate_only` **mặc định BẬT**: `EVALUATE 'Bảng'` / `EVALUATE ALL(...)` bị server TỪ CHỐI kèm hint viết lại (SUMMARIZECOLUMNS/TOPN/measure). Tắt khi user chủ đích: env `POWERBI_AGGREGATE_ONLY=0`.
 - **PII blocklist**: `policy.json` cạnh server (hoặc env `POWERBI_POLICY_FILE`) liệt kê cột cấm project. Đầu dự án dữ liệu nhạy cảm → hỏi user và ghi file này.
-- **Audit log**: mọi truy vấn ghi `~/.powerbi-agent/audit/*.jsonl` (verdict + số dòng) — dùng chứng minh "không dump dữ liệu thô".
+- **Audit log**: mọi truy vấn ghi `<thư mục dự án>/audit/*.jsonl` (verdict + số dòng) — dùng chứng minh "không dump dữ liệu thô".
 - Kết quả có cột dimension bị siết trần 200 dòng (thuần measure thì không).
 - Trung thực: đây là guard chống rò rỉ SƠ Ý — bảo mật cứng vẫn là RLS + service principal quyền tối thiểu.
 
@@ -90,7 +91,7 @@ Hai server chạy song song, KHÔNG giẫm chân:
 |---|---|
 | Truy vấn/tổng hợp dữ liệu bằng DAX, khám phá schema, đọc báo cáo đang mở | **powerbi-mcp-bridge** (server này) |
 | Tạo/sửa measure, calculated column, relationship, table; bulk rename/refactor; TMDL/PBIP; validate DAX | **powerbi-modeling** (`npx @microsoft/powerbi-modeling-mcp`) |
-| Trang báo cáo / visual (PBIR) | Server này (roadmap M2) — modeling-mcp KHÔNG làm report layer |
+| Trang báo cáo / visual (PBIR) | Server này  — modeling-mcp KHÔNG làm report layer |
 
 Quy tắc: không interleave thao tác GHI từ 2 server cùng lúc lên 1 model; modeling ops xong (SaveChanges) rồi mới quay lại query.
 
