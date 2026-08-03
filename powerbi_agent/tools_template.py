@@ -86,7 +86,9 @@ def register(mcp):
             # Kit CHUA sanitize la du lieu khach -> chan ghi vao repo.
             # report-templates/ duoc mien vi do la noi kit DA sanitize duoc phep nam.
             from powerbi_agent.knowledge import ensure_outside_repo
-            out_dir = ensure_outside_repo(out_dir, "template kit")
+            # Ngoai le report-templates/ CHI danh cho kit DA sanitize. Truoc day ngoai le
+            # theo DUONG DAN nen sanitize=False cung tuon duoc du lieu tho vao thu muc cong khai.
+            out_dir = ensure_outside_repo(out_dir, "template kit", allow_public_kits=sanitize)
             os.makedirs(out_dir, exist_ok=True)
             blocks_dir = os.path.join(out_dir, "blocks")
 
@@ -181,11 +183,10 @@ def register(mcp):
             # thì tên kit cũng phải sạch, nếu không thì cả kit ẩn danh mà nhãn lại chỉ đích danh.
             safe_name = kit_name or os.path.basename(out_dir.rstrip("\\/"))
             if sanitize and not pbir.is_placeholder_only(safe_name):
-                import re as _re
-                cleaned = _re.sub(r"[^A-Za-z0-9\-_]+", "-", safe_name).strip("-").lower()
-                if _re.search(r"[^\x00-\x7F]", safe_name):
-                    cleaned = "kit"          # có dấu ⇒ gần như chắc là tên nghiệp vụ
-                safe_name = cleaned or "kit"
+                # KHÔNG "làm sạch" tên do người gọi đặt. Slugify chỉ bỏ dấu nên giữ nguyên
+                # mọi tên khách ASCII ("Acme Bank Q3" → "acme-bank-q3") — kit ẩn danh mà nhãn
+                # lại chỉ đích danh thì vô nghĩa. Sanitize nghĩa là KHÔNG dùng tên đó nữa.
+                safe_name = "kit"
             kit = {
                 "name": safe_name,
                 "schema": "powerbi-agent/kit/v1",

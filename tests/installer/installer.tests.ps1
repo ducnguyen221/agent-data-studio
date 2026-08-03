@@ -220,6 +220,32 @@ $total   = @(Get-ChildItem $skDir -Directory -EA SilentlyContinue).Count
 Add-Result 'D-upgrade-no-zombie-skill' ($zombies -eq 0 -and $total -eq 4) `
     "skillCu_conLai=$zombies (phai=0) tongSkill=$total/4"
 
+# Nang cap tu ban CHUA CO marker: skill-lenh cu phai duoc cap nhat VA go duoc.
+# Neu doi hoi marker tuyet doi thi nguoi nang cap ket vinh vien (khong update, khong go).
+Reset-Home
+$cx = Join-Path $FakeHome '.codex\skills\powerbi-help'
+New-Item -ItemType Directory -Path $cx -Force | Out-Null
+Set-Content (Join-Path $cx 'SKILL.md') "---`nname: powerbi-help`ndescription: ban cu`n---`nNOI DUNG CU"
+$null = Run-Install 'codex'
+$updated = -not ((Get-Content (Join-Path $cx 'SKILL.md') -Raw) -match 'NOI DUNG CU')
+$hasMarker = Test-Path (Join-Path $cx '.powerbi-agent-generated')
+$null = Run-Uninstall 'codex'
+$removed = -not (Test-Path $cx)
+Add-Result 'D-upgrade-marker-migration' ($updated -and $hasMarker -and $removed) `
+    "capNhat=$updated coMarker=$hasMarker goDuoc=$removed"
+
+# Skill RIENG cua user trung ten: khong duoc dung toi, ca luc cai lan luc go.
+Reset-Home
+$mine = Join-Path $FakeHome '.codex\skills\powerbi-help'
+New-Item -ItemType Directory -Path $mine -Force | Out-Null
+Set-Content (Join-Path $mine 'SKILL.md') "---`nname: skill-rieng-cua-toi`n---`nCUA TOI"
+$null = Run-Install 'codex'
+$keptOnInstall = (Get-Content (Join-Path $mine 'SKILL.md') -Raw) -match 'CUA TOI'
+$null = Run-Uninstall 'codex'
+$keptOnUninstall = Test-Path (Join-Path $mine 'SKILL.md')
+Add-Result 'D-respects-user-skill' ($keptOnInstall -and $keptOnUninstall) `
+    "conNguyenSauCai=$keptOnInstall conNguyenSauGo=$keptOnUninstall"
+
 # -SkipHosts phải giữ đúng hợp đồng: KHÔNG đụng thư mục host nào (kể cả bước 4).
 # Gọi trực tiếp nên PHẢI tự set env — Run-Install mới là chỗ set USERPROFILE giả.
 Reset-Home

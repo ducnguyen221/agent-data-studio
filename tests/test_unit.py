@@ -462,12 +462,27 @@ class TestOutputsStayOutsideRepo:
             with _pt.raises(ValueError):
                 kn.ensure_outside_repo(os.path.join(repo, bad))
 
-    def test_allows_public_kit_folder(self):
-        """report-templates/ là ngoại lệ DUY NHẤT — nơi kit đã sanitize được phép nằm."""
+    def test_public_kit_folder_only_with_explicit_opt_in(self):
+        """report-templates/ chỉ mở cho kit ĐÃ sanitize, không mở theo đường dẫn."""
         from powerbi_agent import knowledge as kn
+        import pytest as _pt
         repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
-        got = kn.ensure_outside_repo(os.path.join(repo, "report-templates", "kit-moi"))
+        target = os.path.join(repo, "report-templates", "kit-moi")
+        # mặc định: TỪ CHỐI — nếu không thì distill_template(sanitize=False) tuồn được
+        # dữ liệu thô vào đúng thư mục công khai.
+        with _pt.raises(ValueError):
+            kn.ensure_outside_repo(target)
+        got = kn.ensure_outside_repo(target, allow_public_kits=True)
         assert got.endswith(os.path.join("report-templates", "kit-moi"))
+
+    def test_blocks_case_variants_and_short_names(self):
+        """Windows: cùng một thư mục viết nhiều kiểu — mọi kiểu đều phải bị chặn."""
+        from powerbi_agent import knowledge as kn
+        import pytest as _pt
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        for variant in (repo.lower(), repo.upper(), os.path.join(repo, "docs", "..", "leak")):
+            with _pt.raises(ValueError):
+                kn.ensure_outside_repo(os.path.join(variant, "leak"))
 
     def test_allows_outside(self, tmp_path):
         from powerbi_agent import knowledge as kn

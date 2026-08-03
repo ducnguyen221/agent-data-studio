@@ -123,7 +123,17 @@ foreach ($skRoot in $hostSkillRoots) {
         # Skill-lenh (sinh tu commands/) co file danh dau. Skill goc cua repo thi khong,
         # nen chi ap luat "phai co marker" cho nhom sinh ra - tranh xoa skill rieng cua user
         # chi vi no trung ten voi mot lenh.
-        if ($ownSkillNames -notcontains $n -and -not (Test-Path (Join-Path $p ".powerbi-agent-generated"))) {
+        $mine = (Test-Path (Join-Path $p ".powerbi-agent-generated"))
+        if (-not $mine) {
+            # Ban cai truoc v0.6 chua co marker -> nhan dien bang frontmatter `name:` do ta ghi.
+            # Khong co buoc nay thi nguoi nang cap khong bao gio go duoc skill cu.
+            $skf = Join-Path $p "SKILL.md"
+            if (Test-Path $skf) {
+                $h = (Get-Content $skf -TotalCount 5 -ErrorAction SilentlyContinue) -join "`n"
+                if ($h -match "(?m)^name:\s*$([regex]::Escape($n))\s*$") { $mine = $true }
+            } elseif ($ownSkillNames -contains $n) { $mine = $true }
+        }
+        if (-not $mine) {
             Warn "Giu lai '$p': khong phai skill do powerbi-agent tao."
             continue
         }

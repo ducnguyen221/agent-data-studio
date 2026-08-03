@@ -218,7 +218,9 @@ def build_sanitize_map(entities: set, properties: set, labels: set | None = None
 # chuỗi "TEMPLATE_FIELD_1_TY_LE" tự nhận là "đã sạch" rồi đi thẳng vào bản public.
 _PLACEHOLDER = r"TEMPLATE_(?:TABLE|TEXT|IMAGE\.png|(?:FIELD|LABEL)_[0-9]+)"
 _SEP = r"[\s'\"\.\-_/#()0-9]*"
-_SAFE_ONLY = re.compile(rf"^{_SEP}(?:{_PLACEHOLDER}{_SEP})*$")
+# PHAI co it nhat MOT placeholder. Cho phep 0 placeholder nghia la chuoi toan so/dau
+# ("0912345678", "01/02/2024", ma khach hang) tu nhan la da sach va di thang ra ban public.
+_SAFE_ONLY = re.compile(rf"^{_SEP}{_PLACEHOLDER}(?:{_SEP}{_PLACEHOLDER})*{_SEP}$")
 
 
 def is_placeholder_only(s: str) -> bool:
@@ -226,8 +228,11 @@ def is_placeholder_only(s: str) -> bool:
 
     Chỉ chấp nhận đúng bộ placeholder repo tự sinh — không nhận mọi thứ bắt đầu bằng
     "TEMPLATE_", vì tên nghiệp vụ có thể cố tình hoặc vô tình mang tiền tố đó.
+    Chuỗi rỗng/toàn khoảng trắng xử riêng: không có gì để lộ.
     """
-    return bool(_SAFE_ONLY.match(s or ""))
+    if not (s or "").strip():
+        return True
+    return bool(_SAFE_ONLY.match(s))
 
 
 def deep_sanitize(visual_obj: dict, mapping: dict[str, str]) -> None:

@@ -91,7 +91,35 @@ def resolve_root() -> str | None:
         return None
     # Chuẩn hoá Ở CHỖ ĐỌC nữa: set_project_dir đã strip nhưng biến môi trường do user tự
     # `setx` thì không qua đó — giá trị `"C:\Data"` (kèm nháy) sẽ tạo thư mục tên có nháy.
-    return os.path.expanduser(base.strip().strip('"').strip("'"))
+    root = os.path.expanduser(base.strip().strip('"').strip("'"))
+    # CHỐT DUY NHẤT: env trỏ thẳng vào repo thì mọi thứ dựng sau đó (INDEX.md, TIMELINE.md,
+    # projects.json, audit/) đều rơi vào git working tree. Chặn ở đây thay vì ở từng chỗ gọi.
+    try:
+        ensure_outside_repo(root, "thư mục dự án")
+    except ValueError:
+        log_once_bad_project_dir(root)
+        return None
+    return root
+
+
+_warned_bad_root: set[str] = set()
+
+
+def log_once_bad_project_dir(root: str) -> None:
+    if root in _warned_bad_root:
+        return
+    _warned_bad_root.add(root)
+    from powerbi_agent.util import log
+    log.error(
+        "POWERBI_PROJECT_DIR trỏ vào TRONG repo (%s) — bỏ qua, coi như chưa setup. "
+        "Chọn thư mục ngoài repo rồi chạy lại /powerbi-setup.", root
+    )
+
+
+def resolve_root_raw() -> str | None:
+    """Giá trị con trỏ chưa qua kiểm tra — chỉ dùng để HIỂN THỊ trong thông báo lỗi."""
+    base = os.getenv(ENV_KEY) or _read_json(LEGACY_CONFIG_FILE).get("knowledge_dir")
+    return os.path.expanduser(base.strip().strip('"').strip("'")) if base else None
 
 
 def set_project_dir(path: str) -> str:
@@ -169,30 +197,50 @@ def register_project(slug: str, name: str, path: str, note: str = "") -> None:
     _write_json(reg, {"projects": items})
 
 
-def ensure_outside_repo(path: str, what: str = "dữ liệu") -> str:
+def _canon(p: str) -> str:
+    """Dạng chuẩn để SO SÁNH đường dẫn trên Windows.
+
+    So chuỗi thô là không đủ — cùng một thư mục viết được nhiều kiểu và mọi kiểu đều
+    lách qua guard: chữ thường, tên 8.3 (`DUCNGU~1` — đúng dạng %TEMP% trên máy này),
+    UNC `\\\\localhost\\C$\\...`, tiền tố `\\\\?\\`. `realpath` gỡ cả junction/symlink
+    (abspath KHÔNG gỡ), `normcase` gỡ khác biệt hoa thường.
+    """
+    return os.path.normcase(os.path.realpath(os.path.expanduser(str(p).strip().strip('"').strip("'"))))
+
+
+def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits: bool = False) -> str:
     """Chặn mọi đường ghi dữ liệu khách hàng vào TRONG repo. Raise ValueError nếu vi phạm.
 
     Mặc định an toàn là chưa đủ: `distill_*` đều nhận `out_dir` tuỳ ý, và env
-    POWERBI_AUDIT_DIR / POWERBI_POLICY_FILE / POWERBI_DISTILL_DIR cũng trỏ được vào repo.
-    Chỉ cần một lần trỏ nhầm là schema model / câu DAX / cột PII nằm trong git working tree —
-    đúng con đường đã làm lọt tên khách ra bản public.
+    POWERBI_AUDIT_DIR / POWERBI_POLICY_FILE / POWERBI_DISTILL_DIR / POWERBI_PROJECT_DIR
+    cũng trỏ được vào repo. Một lần trỏ nhầm là schema model / câu DAX / cột PII nằm
+    trong git working tree — đúng con đường đã làm lọt tên khách ra bản public.
 
-    Ngoại lệ DUY NHẤT: `report-templates/` — nơi kit ĐÃ sanitize được phép nằm.
+    `allow_public_kits` chỉ được bật bởi `distill_template` KHI sanitize=True. Trước đây
+    `report-templates/` là ngoại lệ theo ĐƯỜNG DẪN, nên `distill_template(sanitize=False)`
+    hay `POWERBI_DISTILL_DIR=<repo>/report-templates/...` đều tuồn được dữ liệu thô vào
+    đúng thư mục công khai.
     """
-    full = os.path.abspath(os.path.expanduser(str(path).strip().strip('"').strip("'")))
-    public_kits = os.path.join(_REPO_ROOT, "report-templates")
+    full = os.path.realpath(os.path.expanduser(str(path).strip().strip('"').strip("'")))
+    c_full, c_repo = _canon(full), _canon(_REPO_ROOT)
     try:
-        inside_repo = os.path.commonpath([full, _REPO_ROOT]) == _REPO_ROOT
-        inside_kits = os.path.commonpath([full, public_kits]) == public_kits
+        inside_repo = os.path.commonpath([c_full, c_repo]) == c_repo
     except ValueError:
         return full          # khác ổ đĩa ⇒ hiển nhiên ngoài repo
-    if inside_repo and not inside_kits:
-        raise ValueError(
-            f"TỪ CHỐI ghi {what} vào trong repo: {full}\n"
-            "Repo là git working tree công khai — dữ liệu khách hàng phải nằm ở thư mục dự án "
-            f"(hiện tại: {resolve_root() or 'chưa setup, chạy /powerbi-setup'})."
-        )
-    return full
+    if not inside_repo:
+        return full
+    if allow_public_kits:
+        c_kits = _canon(os.path.join(_REPO_ROOT, "report-templates"))
+        try:
+            if os.path.commonpath([c_full, c_kits]) == c_kits:
+                return full
+        except ValueError:
+            pass
+    raise ValueError(
+        f"TỪ CHỐI ghi {what} vào trong repo: {full}\n"
+        "Repo là git working tree công khai — dữ liệu khách hàng phải nằm ở thư mục dự án "
+        f"(hiện tại: {resolve_root_raw() or 'chưa setup, chạy /powerbi-setup'})."
+    )
 
 
 NOT_SETUP_MSG = (

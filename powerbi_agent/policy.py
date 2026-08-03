@@ -58,7 +58,8 @@ def _policy_file() -> str:
     """
     env = os.getenv("POWERBI_POLICY_FILE")
     if env:
-        return env
+        from powerbi_agent.knowledge import ensure_outside_repo
+        return ensure_outside_repo(env, "blocklist PII")
     from powerbi_agent.knowledge import resolve_root
     root = resolve_root()
     if root:
@@ -109,14 +110,19 @@ def _audit_dir() -> str:
     Chưa setup thì vẫn có thể chạy DAX, mà câu DAX chứa tên bảng/cột khách hàng nên
     KHÔNG được ghi vào repo. Lúc đó lùi về %TEMP% — tạm nhưng nằm ngoài git.
     """
+    from powerbi_agent.knowledge import ensure_outside_repo, resolve_root
+    fallback = os.path.join(tempfile.gettempdir(), "powerbi-agent-audit")
     env = os.getenv("POWERBI_AUDIT_DIR")
-    if env:
-        return env
-    from powerbi_agent.knowledge import resolve_root
     root = resolve_root()
-    if root:
-        return os.path.join(root, "audit")
-    return os.path.join(tempfile.gettempdir(), "powerbi-agent-audit")
+    candidate = env or (os.path.join(root, "audit") if root else fallback)
+    try:
+        # Câu DAX trong log mang tên bảng/cột khách hàng — env trỏ vào repo là đưa thẳng
+        # dữ liệu đó vào git working tree. Chặn, nhưng KHÔNG được làm hỏng truy vấn:
+        # lùi về %TEMP% thay vì ném lỗi lên người dùng.
+        return ensure_outside_repo(candidate, "audit log")
+    except ValueError:
+        log.error("POWERBI_AUDIT_DIR trỏ vào trong repo (%s) — ghi tạm vào %s.", candidate, fallback)
+        return fallback
 
 
 def audit(tool: str, dax_query: str, verdict: str, rows: int = -1) -> None:

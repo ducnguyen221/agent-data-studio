@@ -327,7 +327,24 @@ function Install-Skill([string]$SkillRoot) {
                 Err "Skill $($_.Name): copy hỏng (thiếu SKILL.md) — GIỮ NGUYÊN bản cũ ở $dst"
                 return
             }
-            if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+            # Skill goc cua repo cung phai ton trong so huu: user co the co skill rieng
+            # trung ten (vd powerbi-knowledge). Nhan dien ban CUA TA bang frontmatter name:.
+            if (Test-Path $dst) {
+                $mine = Test-Path (Join-Path $dst ".powerbi-agent-generated")
+                if (-not $mine) {
+                    $skf = Join-Path $dst "SKILL.md"
+                    if (Test-Path $skf) {
+                        $h = (Get-Content $skf -TotalCount 5 -ErrorAction SilentlyContinue) -join "`n"
+                        if ($h -match "(?m)^name:\s*$([regex]::Escape($_.Name))\s*$") { $mine = $true }
+                    } else { $mine = $true }   # thu muc rong/rac -> coi la cua ta
+                }
+                if (-not $mine) {
+                    Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                    Warn "Bo qua skill '$($_.Name)': da co skill CUNG TEN khong phai do powerbi-agent tao."
+                    return
+                }
+                Remove-Item $dst -Recurse -Force
+            }
             Move-Item $stage $dst
             Info "Skill $($_.Name) (full) -> $dst"
         }
@@ -386,6 +403,7 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
     $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
     if (-not (Test-Path $cmdSrc)) { return }
     $n = 0
+    $generated = @()
     foreach ($f in Get-ChildItem $cmdSrc -Filter "*.md") {
         $name = [System.IO.Path]::GetFileNameWithoutExtension($f.Name)
         $raw  = Get-Content $f.FullName -Raw -Encoding UTF8
@@ -407,18 +425,45 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
         # thi BAO va bo qua, khong pha do cua ho.
         $marker = Join-Path $dst ".powerbi-agent-generated"
         if (Test-Path $dst) {
-            if (-not (Test-Path $marker)) {
+            $owned = Test-Path $marker
+            if (-not $owned) {
+                # Ban truoc v0.6 sinh skill nay MA CHUA co marker. Neu doi hoi marker tuyet doi
+                # thi nguoi nang cap vua khong cap nhat duoc, vua khong go duoc — ket vinh vien.
+                # Nhan dien theo DAU VET SINH RA: frontmatter `name: <ten lenh>` do chinh ta ghi.
+                $sk = Join-Path $dst "SKILL.md"
+                if (Test-Path $sk) {
+                    $head = Get-Content $sk -TotalCount 5 -ErrorAction SilentlyContinue
+                    if (($head -join "`n") -match "(?m)^name:\s*$([regex]::Escape($name))\s*$") { $owned = $true }
+                }
+            }
+            if (-not $owned) {
                 Warn "Bo qua '$name': da co skill CUNG TEN khong phai do powerbi-agent tao ($dst)."
                 continue
             }
             Remove-Item $dst -Recurse -Force
         }
         New-Item -ItemType Directory -Path $dst -Force | Out-Null
-        Write-Utf8NoBom $marker "powerbi-agent sinh tu plugins/powerbi-agent/commands/$name.md`n"
         $head = "---`nname: $name`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
         Write-Utf8NoBom (Join-Path $dst "SKILL.md") ($head + $body)
+        # Marker ghi SAU CUNG: SKILL.md loi thi khong de lai thu muc co marker ma rong.
+        Write-Utf8NoBom $marker "powerbi-agent sinh tu plugins/powerbi-agent/commands/$name.md`n"
+        $generated += $name
         $n++
     }
+    $ledger = Join-Path $SkillRoot ".powerbi-agent-skills.txt"
+    # Lenh bi XOA khoi repo phai bien mat o host. Khong co so ghi thi no nam lai
+    # vinh vien — va gio con mang marker nen trong nhu hang chinh chu.
+    if (Test-Path $ledger) {
+        foreach ($old in (Get-Content $ledger | Where-Object { $_ -match '\S' })) {
+            if ($generated -contains $old) { continue }
+            if ($old -ne [System.IO.Path]::GetFileName($old) -or $old -match '[\*\?\[\]]') { continue }
+            $p = Join-Path $SkillRoot $old
+            if ((Test-Path (Join-Path $p ".powerbi-agent-generated"))) {
+                Remove-Item $p -Recurse -Force; Info "Xoa skill-lenh da bo: $old"
+            }
+        }
+    }
+    Set-Content -Path $ledger -Value $generated -Encoding UTF8
     Info "$n lệnh -> skill Codex tại $SkillRoot (gọi theo tên, vd `"chạy powerbi-help`")"
 }
 
