@@ -138,7 +138,7 @@ $staleSurvives = Test-Path $stale
 $cmdSrcDir  = Join-Path $RepoRoot 'plugins\powerbi-agent\commands'
 $expectCmds = @(Get-ChildItem $cmdSrcDir -Filter '*.md').Count
 $cmds = (Get-ChildItem (Join-Path $FakeHome '.claude\commands') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
-Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq $expectCmds) "skills=$n1/4 cmds=$cmds/$expectCmds staleSauLan2=$staleSurvives (true=DRIFT)"
+Add-Result 'C-skill-copy' ($n1 -eq 4 -and $cmds -eq $expectCmds -and -not $staleSurvives) "skills=$n1/4 cmds=$cmds/$expectCmds staleSauLan2=$staleSurvives (true=DRIFT)"
 # Nội dung skill, không chỉ số lượng: mẫu tài liệu (trụ 4) phải đi theo skill sang host.
 # Thiếu assertion này thì đổi tên document-templates/ có thể hỏng mà test vẫn xanh.
 $kpim    = Join-Path $sk 'kpim-analysis'
@@ -172,10 +172,14 @@ Add-Result 'C-legacy-cmd-cleanup' ($legacyLeft -eq 0 -and $newCount -eq $expectC
 # Bước 4 mới: lệnh phải tới CẢ 3 host, không chỉ Claude (yêu cầu #5/#6).
 Reset-Home
 $null = Run-Install 'codex'
-$codexPrompts = @(Get-ChildItem (Join-Path $FakeHome '.codex\prompts') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
-$codexSkills  = @(Get-ChildItem (Join-Path $FakeHome '.codex\skills') -Directory -ErrorAction SilentlyContinue).Count
-Add-Result 'D-codex-commands' ($codexPrompts -eq $expectCmds -and $codexSkills -eq 4) `
-    "prompts=$codexPrompts/$expectCmds skills=$codexSkills/4"
+# Codex: moi lenh la MOT SKILL (khong phai prompts/ - o do phai goi /prompts:<ten>).
+$codexDir    = Join-Path $FakeHome '.codex\skills'
+$codexAll    = @(Get-ChildItem $codexDir -Directory -ErrorAction SilentlyContinue)
+$codexCmdSk  = @($codexAll | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } |
+                 Where-Object { (Get-Content (Join-Path $_.FullName 'SKILL.md') -Raw) -match '(?m)^name:\s*powerbi-' })
+$codexNoPrompts = -not (Test-Path (Join-Path $FakeHome '.codex\prompts'))
+Add-Result 'D-codex-commands' ($codexAll.Count -eq (4 + $expectCmds) -and $codexNoPrompts) `
+    "skillTong=$($codexAll.Count)/$(4 + $expectCmds) khongDungPrompts=$codexNoPrompts"
 
 Reset-Home
 $null = Run-Install 'antigravity'
@@ -230,10 +234,10 @@ $null = Run-Install 'claude'
 $null = Run-Install 'codex'
 $null = Run-Uninstall 'claude'
 $null = Run-Uninstall 'codex'
-$leftPrompts = @(Get-ChildItem (Join-Path $FakeHome '.codex\prompts') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
+$leftPrompts = @(Get-ChildItem (Join-Path $FakeHome '.codex\skills') -Directory -ErrorAction SilentlyContinue).Count
 $leftAgents  = @(Get-ChildItem (Join-Path $FakeHome '.claude\agents') -Filter 'powerbi-*.md' -ErrorAction SilentlyContinue).Count
 Add-Result 'D-uninstall-all-hosts' ($leftPrompts -eq 0 -and $leftAgents -eq 0) `
-    "codexPromptsConLai=$leftPrompts claudeAgentsConLai=$leftAgents (deu phai=0)"
+    "codexSkillConLai=$leftPrompts claudeAgentsConLai=$leftAgents (deu phai=0)"
 
 # Sổ ghi rác không được xoá lệnh riêng của user, cũng không được giết installer.
 Reset-Home

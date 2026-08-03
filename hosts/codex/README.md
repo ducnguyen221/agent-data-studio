@@ -13,8 +13,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex
 Installer làm 3 việc:
 1. Thêm block `[mcp_servers.powerbi-mcp-bridge]` vào `~/.codex/config.toml` (backup `.bak`).
 2. Copy 4 skill vào `~/.codex/skills/`.
-3. **Copy 8 lệnh vào `~/.codex/prompts/`** → gõ `/powerbi-help`, `/powerbi-setup`… ngay trong Codex.
-   *(Từ v0.5.0 — trước đó chỉ Claude Code mới có lệnh.)*
+3. **Cài 8 quy trình thành SKILL** trong `~/.codex/skills/` — gọi bằng tên:
+   *"chạy powerbi-help"*, *"chạy powerbi-setup"*…
+   *(Từ v0.6 — trước đó đặt nhầm vào `~/.codex/prompts/`, mà file ở đó phải gọi bằng
+   `/prompts:<tên>` chứ không phải `/<tên>` — nên tên lệnh lệch hẳn so với Claude.)*
+
+Sau cài, Codex có **12 skill**: 4 quy trình chuyên môn + 8 quy trình lệnh.
 
 **Restart phiên Codex** sau cài.
 

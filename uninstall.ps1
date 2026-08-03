@@ -60,8 +60,14 @@ if ($Hosts -contains "claude") {
     if (Get-Command claude -ErrorAction SilentlyContinue) {
         # LƯU Ý PS 5.1: không redirect stderr của native command phía PowerShell khi
         # $ErrorActionPreference=Stop (NativeCommandError terminating) — gộp trong cmd /c.
-        & cmd /c "claude mcp remove $name -s user 2>&1" | Out-Null
-        Ok "Claude: remove qua CLI."
+        $rmOut = & cmd /c "claude mcp remove $name -s user 2>&1"
+        # Trước đây báo "đã gỡ" vô điều kiện: CLI lỗi thì user tưởng sạch
+        # nhưng entry MCP vẫn sống trong config.
+        if ($LASTEXITCODE -eq 0) { Ok "Claude: remove qua CLI." }
+        else {
+            Warn "claude CLI không gỡ được ($rmOut) -> gỡ trực tiếp trong .claude.json"
+            Remove-FromJson (Join-Path $env:USERPROFILE ".claude.json")
+        }
     }
     else { Remove-FromJson (Join-Path $env:USERPROFILE ".claude.json") }
 }
@@ -98,7 +104,15 @@ if ($Hosts -contains "codex")       { $hostSkillRoots += (Join-Path $env:USERPRO
 if ($Hosts -contains "antigravity") { $hostSkillRoots += (Join-Path $env:USERPROFILE ".gemini\antigravity\skills") }
 # KHÔNG đặt tên biến lặp là $root: PowerShell không phân biệt hoa/thường nên nó GHI ĐÈ $Root
 # (thư mục repo) và mọi Join-Path $Root phía dưới sẽ trỏ vào ...\.gemini\antigravity\skills\...
+$RepoDir = $PSScriptRoot
 $skillNames += @("pbi-pipeline", "pbi-knowledge")   # tên trước v0.5.0 — gỡ cả bản cũ
+# Codex nhận MỖI LỆNH là MỘT SKILL (xem Install-CommandsAsSkills). Không gỡ chúng thì
+# sau khi user gỡ cài, Codex vẫn còn 8 skill sống nhăn gọi tool đã biến mất.
+$cmdDirForSkills = Join-Path $RepoDir "plugins\powerbi-agent\commands"
+if (Test-Path $cmdDirForSkills) {
+    $skillNames += @(Get-ChildItem $cmdDirForSkills -Filter "*.md" |
+        ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) })
+}
 foreach ($skRoot in $hostSkillRoots) {
     foreach ($n in $skillNames) {
         $p = Join-Path $skRoot $n

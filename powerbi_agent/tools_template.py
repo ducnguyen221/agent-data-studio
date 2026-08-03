@@ -63,15 +63,17 @@ def register(mcp):
 
     @mcp.tool()
     def distill_template(report_path: str, page: str, out_dir: str, kit_name: str = None,
-                         sanitize: bool = False) -> str:
+                         sanitize: bool = True) -> str:
         """
         Chưng cất 1 trang báo cáo PBIR thành template kit tái dùng (blueprint.md + blocks/*.json
         verbatim mỗi loại visual + _page.json + kit.json).
         - report_path: file .pbip, folder *.Report, hoặc folder definition.
-        - page: GUID trang hoặc displayName chính xác (vd '02 · Phân Tích Khách Hàng').
-        - out_dir: thư mục ghi kit (nên NGOÀI repo nếu chứa binding nghiệp vụ thật).
-        - sanitize: True = thay tên bảng/cột thật bằng placeholder TEMPLATE_* (bắt buộc trước khi
-          public kit); False = giữ binding gốc làm tham chiếu (kit nội bộ).
+        - page: GUID trang hoặc displayName chính xác.
+        - out_dir: thư mục ghi kit — mặc định nên là `templates/` trong THƯ MỤC DỰ ÁN (ngoài repo).
+        - sanitize: **MẶC ĐỊNH True** — thay tên bảng/cột/nhãn thật bằng placeholder TEMPLATE_*.
+          Đặt False chỉ khi user nói RÕ kit này dùng nội bộ và chấp nhận giữ tên nghiệp vụ thật.
+          Mặc định phải an toàn: kit từng lọt tên measure thật của khách ra bản public vì
+          an toàn phụ thuộc vào việc người gọi nhớ bật cờ.
         CHỈ ĐỌC — không sửa báo cáo nguồn.
         """
         try:

@@ -75,5 +75,5 @@ Chạy `knowledge_status` và `list_templates`, rồi báo trạng thái thật:
 
 Chi tiết đầy đủ: [INDEX.md](https://github.com/ducnguyen221/powerbi-agent/blob/main/INDEX.md) ·
 luật làm việc: [AGENTS.md](https://github.com/ducnguyen221/powerbi-agent/blob/main/AGENTS.md).
-*(URL tuyệt đối có chủ đích — file này được copy sang `~/.claude/commands/`, `~/.codex/prompts/`…
+*(URL tuyệt đối có chủ đích — file này được copy sang `~/.claude/commands/`, `~/.codex/skills/`…
 nên link tương đối sẽ trỏ vào thư mục lung tung của người dùng.)*

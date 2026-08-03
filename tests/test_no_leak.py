@@ -132,6 +132,55 @@ class TestNoPrivateArtifactsTracked:
         assert not hit, f"docs/internal/ là tài liệu nội bộ, không được track: {hit}"
 
 
+class TestRepoIsNotAWorkspace:
+    """AGENTS.md §0 — repo giữ thứ đến từ GitHub, sản phẩm tạo ra đi ra ngoài.
+
+    Luật này phải do MÁY kiểm. Một file `BAO_CAO_KHACH_A.md` lỡ tay commit vào gốc repo
+    trông vô hại trong `git status` giữa hàng chục thay đổi khác — nhưng nó là dữ liệu
+    khách hàng nằm trên repo public.
+    """
+
+    # Danh sách file gốc repo được phép — mọi thứ khác là ứng viên "lỡ tay".
+    ALLOWED_ROOT_FILES = {
+        "README.md", "README.vi.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
+        "ROADMAP.md", "LICENSE", ".gitignore", ".env.example", "policy.example.json",
+        "pyproject.toml", "requirements.txt", "requirements.loose.txt",
+        "install.ps1", "uninstall.ps1", "pack.ps1", "mcp_server_powerbi.py",
+    }
+    ALLOWED_ROOT_DIRS = {
+        ".claude-plugin", ".github", "docs", "hosts", "plugins", "powerbi_agent",
+        "report-templates", "scripts", "tests",
+    }
+
+    def test_no_stray_files_at_repo_root(self):
+        roots = {f.split("/")[0] for f in tracked_files()}
+        stray = sorted(
+            r for r in roots
+            if r not in self.ALLOWED_ROOT_FILES and r not in self.ALLOWED_ROOT_DIRS
+        )
+        assert not stray, (
+            "File/thư mục lạ ở gốc repo — sản phẩm làm việc phải ra thư mục dữ liệu "
+            "(AGENTS.md §0). Nếu thật sự thuộc về repo, thêm vào ALLOWED_* trong test này:\n  "
+            + "\n  ".join(stray)
+        )
+
+    def test_no_project_deliverables_committed(self):
+        """Tên file bàn giao dự án (theo bộ mẫu KPIM) không được nằm ngoài document-templates/."""
+        deliverables = {
+            "PROJECT.md", "RESEARCH_NOTES.md", "DATA_DICTIONARY.md",
+            "METRICS_CALCULATION.md", "DOMAIN_DIMENSION.md", "REPORTS.md", "DESIGN.md",
+        }
+        allowed_prefix = "plugins/powerbi-agent/skills/kpim-analysis/document-templates/"
+        bad = [
+            f for f in tracked_files()
+            if os.path.basename(f) in deliverables and not f.startswith(allowed_prefix)
+        ]
+        assert not bad, (
+            "Tài liệu bàn giao dự án bị commit vào repo — chúng thuộc về thư mục dữ liệu:\n  "
+            + "\n  ".join(bad)
+        )
+
+
 class TestNoPersonalPaths:
     """Docs công khai phải machine-agnostic (AGENTS.md)."""
 

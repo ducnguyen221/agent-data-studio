@@ -367,6 +367,40 @@ function Install-Commands([string]$CmdDst, [string]$Label) {
     Info "$($ownNames.Count) lệnh /powerbi-* -> $CmdDst ($Label)"
 }
 
+# Codex KHÔNG có slash-command tự do như Claude: file trong ~/.codex/prompts/ được gọi bằng
+# `/prompts:<tên>`, không phải `/<tên>` — nên đặt ở đó thì tên lệnh lệch hẳn so với Claude, mà
+# installer vẫn báo thành công và test vẫn xanh (test chỉ đếm file ở nơi CHÍNH NÓ vừa ghi vào).
+# Cách đúng theo hướng hiện tại của Codex: mỗi lệnh thành MỘT SKILL, agent gọi theo tên.
+# Nguồn vẫn là commands/ — không nhân bản nội dung, chỉ bọc thêm frontmatter skill.
+function Install-CommandsAsSkills([string]$SkillRoot) {
+    $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+    if (-not (Test-Path $cmdSrc)) { return }
+    $n = 0
+    foreach ($f in Get-ChildItem $cmdSrc -Filter "*.md") {
+        $name = [System.IO.Path]::GetFileNameWithoutExtension($f.Name)
+        $raw  = Get-Content $f.FullName -Raw -Encoding UTF8
+
+        # Lấy description trong frontmatter của command để làm description của skill.
+        $desc = "Quy trình powerbi-agent: $name"
+        if ($raw -match '(?ms)\A---\s*\r?\n(.*?)\r?\n---\s*\r?\n') {
+            $fm = $Matches[1]
+            if ($fm -match '(?m)^description:\s*(.+)$') { $desc = $Matches[1].Trim() }
+            $body = $raw.Substring($Matches[0].Length)
+        } else { $body = $raw }
+
+        # $ARGUMENTS là cú pháp slash-command của Claude — Codex không thay thế nó.
+        $body = $body -replace '\$ARGUMENTS', '(tham số user đưa vào khi gọi quy trình này)'
+
+        $dst = Join-Path $SkillRoot $name
+        if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+        New-Item -ItemType Directory -Path $dst -Force | Out-Null
+        $head = "---`nname: $name`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
+        Write-Utf8NoBom (Join-Path $dst "SKILL.md") ($head + $body)
+        $n++
+    }
+    Info "$n lệnh -> skill Codex tại $SkillRoot (gọi theo tên, vd `"chạy powerbi-help`")"
+}
+
 # Agent phụ (powerbi-knowledge-curator). Chỉ Claude Code có thư mục agents/ chuẩn;
 # host khác vẫn có nội dung đó qua skill powerbi-knowledge nên không mất năng lực.
 function Install-Agents([string]$AgentDst) {
@@ -403,9 +437,8 @@ if ($Hosts -contains "claude") {
 }
 if ($Hosts -contains "codex") {
     $h = Join-Path $env:USERPROFILE ".codex"
-    Install-Skill    (Join-Path $h "skills")
-    # Codex đọc custom prompt từ ~/.codex/prompts/ -> file .md thành lệnh /<tên>.
-    Install-Commands (Join-Path $h "prompts") "custom prompt"
+    Install-Skill          (Join-Path $h "skills")
+    Install-CommandsAsSkills (Join-Path $h "skills")
 }
 if ($Hosts -contains "antigravity") {
     $h = Join-Path $env:USERPROFILE ".gemini\antigravity"

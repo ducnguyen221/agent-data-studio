@@ -3,6 +3,31 @@
 > File hướng dẫn CHUẨN cho mọi AI agent (Claude Code · Codex CLI · Google Antigravity · bất kỳ
 > tool nào đọc AGENTS.md). `CLAUDE.md` và `GEMINI.md` chỉ là con trỏ về file này — sửa Ở ĐÂY.
 
+## 0. LUẬT SỐ 0 — repo này KHÔNG phải nơi làm việc
+
+**Repo giữ thứ đến từ GitHub. MỌI sản phẩm tạo ra đi về thư mục dữ liệu ngoài repo.**
+
+Repo là **git working tree công khai**. Một lệnh `git add -A` là tài liệu khách hàng bị commit —
+và chuyện đó đã xảy ra thật: kit `kpim-business-light` từng mang tên measure thật của khách hàng
+suốt nhiều tháng trước khi bị test tự động phát hiện.
+
+**Agent chỉ được GHI vào repo đúng 3 loại:**
+
+| Được ghi | Ví dụ |
+|---|---|
+| 1. **Template ĐÃ sanitize** | kit mới vào `report-templates/` — bắt buộc `sanitize=True` + user duyệt |
+| 2. **Tri thức NỀN TẢNG** | best-practice DAX/M/SQL, cách làm chung — **không tên khách, không số liệu dự án** |
+| 3. **Sửa code / docs / test** của chính repo | bug fix, tài liệu, CI |
+
+**Mọi thứ khác đi ra thư mục dữ liệu** (`POWERBI_PROJECT_DIR`): tài liệu dự án, báo cáo,
+model schema đã distill, kit chưa sanitize, log truy vấn, blocklist PII.
+
+Chưa biết thư mục dữ liệu ở đâu → gọi `knowledge_status`; chưa setup thì **DỪNG và hỏi user**,
+không được tiện tay ghi vào repo.
+
+> Máy kiểm luật này, không phải mắt: `tests/test_no_leak.py` chặn tên nghiệp vụ trong kit,
+> file riêng tư bị track, đường dẫn home thật, và file lạ ở thư mục gốc.
+
 ## 1. Repo này là gì
 
 **powerbi-agent** = MCP server (16 tool) + 4 skill + 8 lệnh /powerbi-* giúp AI Agent làm phân tích dữ liệu

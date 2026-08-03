@@ -40,7 +40,7 @@ Chi tiết từng thư mục & file: [`../INDEX.md`](../INDEX.md).
 | **Antigravity** | Không có store → skill nạp từ `~/.gemini/antigravity/skills/` (installer copy) | `install.ps1 -Hosts antigravity` |
 
 Từ v0.5.0 installer cấp **lệnh cho cả 3 host**: Claude → `~/.claude/commands/`,
-Codex → `~/.codex/prompts/`, Antigravity → trong skill `powerbi-knowledge/commands/`
+Codex → mỗi lệnh thành 1 skill trong `~/.codex/skills/`, Antigravity → trong skill `powerbi-knowledge/commands/`
 (host này không có cơ chế slash-command). Cập nhật riêng phần này: `install.ps1 -Only plugin`.
 
 Đã verify: cùng 1 `.claude-plugin/marketplace.json` cài sạch trên cả Claude lẫn Codex; commands/agents được auto-discover (KHÔNG khai báo trong plugin.json — Claude từ chối field `agents`).

@@ -27,10 +27,26 @@ Dựng bộ template kit từ báo cáo Power BI: $ARGUMENTS
    - **bỏ** trang nháp, trang chỉ có 1–2 visual, trang phụ thuộc dữ liệu quá đặc thù
    Chờ user chốt danh sách trước khi chạy bước 5.
 
-5. Với **mỗi** trang đã chốt → `distill_template(report_path, page=<tên trang>, out_dir=<kho kit>,
-   kit_name=<slug-mô-tả-vai-trò>, sanitize=True)`.
-   ⚠️ `sanitize=True` là **mặc định bắt buộc** ở lệnh này — kit sinh ra từ báo cáo thật luôn
-   mang tên bảng/cột nghiệp vụ. Chỉ đặt `sanitize=False` khi user nói rõ kit chỉ dùng nội bộ.
+5. Với **mỗi** trang đã chốt → `distill_template(report_path, page=<tên trang>,
+   out_dir=<kho-bộ>/<slug-vai-trò>, kit_name=<slug-vai-trò>)`.
+
+   ⚠️ **`out_dir` phải KHÁC NHAU cho từng trang.** `distill_template` ghi `kit.json`,
+   `blueprint.md`, `_page.json` và `blocks/` **thẳng vào `out_dir`** — đưa cùng một `out_dir`
+   cho nhiều trang thì trang sau **đè mất** trang trước, và cuối cùng chỉ còn đúng 1 kit.
+   `kit_name` chỉ đổi metadata, không đổi nơi ghi.
+
+   Cấu trúc đúng:
+   ```
+   <kho-bộ>/
+     tong-quan/        kit.json · blueprint.md · _page.json · blocks/
+     phan-tich-chieu/  kit.json · blueprint.md · _page.json · blocks/
+     chi-tiet/         …
+   ```
+
+   `sanitize` **mặc định đã là True** — đừng tắt trừ khi user nói rõ kit chỉ dùng nội bộ.
+
+   Sau mỗi lần gọi, **kiểm** `<kho-bộ>/<slug>/kit.json` tồn tại rồi mới sang trang kế —
+   phát hiện ngay nếu lỡ ghi đè, thay vì đến cuối mới thấy thiếu kit.
 
 6. **Gom thành bộ** — viết `README.md` ở thư mục cha của các kit, mô tả:
    - bộ này chưng cất từ báo cáo nào, ngày nào, gồm mấy kit
