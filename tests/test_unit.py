@@ -565,3 +565,99 @@ class TestLiteralScrubKeepsStyle:
             v = self._visual(prop, val)
             pbir.deep_sanitize(v, {})
             assert val in json.dumps(v), f"{prop}={val} bị xoá mất — đó là STYLE"
+
+
+class TestCollectDisplayLabels:
+    """Collector nhãn hiển thị — chính bản vá cho vụ rò tên nghiệp vụ ra kit công khai.
+
+    Trước khi có lớp test này, GIẾT HẲN `collect_display_labels` vẫn cho suite xanh:
+    `test_no_leak.py` chỉ quét DỮ LIỆU kit đã ship, không bao giờ chạy collector.
+    Kit sạch vì đã được sanitize một lần bằng tay — không phải vì code còn đúng.
+    """
+
+    def test_takes_every_segment_not_just_the_last(self):
+        """`metadata` dạng "Bảng.Nhóm.Cột": chỉ lấy đoạn cuối là bỏ sót đoạn giữa."""
+        from powerbi_agent.pbir import collect_display_labels
+        got = collect_display_labels({"metadata": "KH.Phân khúc.Chi tiết"})
+        assert got == {"KH", "Phân khúc", "Chi tiết"}, got
+
+    def test_label_keys_are_case_insensitive(self):
+        """PBIR xuất hiện cả `displayName` lẫn `DisplayName` — khớp hoa/thường là lọt."""
+        from powerbi_agent.pbir import collect_display_labels
+        for key in ("displayName", "DisplayName", "NATIVEQUERYREF", "nativeQueryRef"):
+            assert collect_display_labels({key: "Doanh thu BQ"}) == {"Doanh thu BQ"}, key
+
+    def test_bare_strings_inside_arrays_are_collected(self):
+        """Chuỗi nằm TRỰC TIẾP trong mảng: collector từng bỏ qua trong khi
+        deep_sanitize lại xử lý — lệch nhau nghĩa là sanitizer sẵn sàng thay
+        thứ nó chưa hề gom, và tên thật sống sót."""
+        from powerbi_agent.pbir import collect_display_labels
+        assert collect_display_labels({"nativeQueryRef": ["Số đơn hủy", "Tỷ lệ giao đúng hẹn"]}) == {
+            "Số đơn hủy", "Tỷ lệ giao đúng hẹn"
+        }
+
+    def test_collector_feeds_the_map_end_to_end(self):
+        """Ràng buộc collector -> map: nhãn gom được PHẢI thành placeholder."""
+        from powerbi_agent.pbir import build_sanitize_map, collect_display_labels, deep_sanitize
+        page = {"visual": {"query": {"queryState": {"Y": {"projections": [
+            {"field": {"Measure": {"Expression": {"SourceRef": {"Entity": "Fact"}},
+                                   "Property": "DoanhThu"}},
+             "nativeQueryRef": "Doanh thu bình quân (đ)",
+             "metadata": "Fact.DoanhThu"}]}}}}}
+        ents, props = __import__("powerbi_agent.pbir", fromlist=["x"]).collect_field_names(page)
+        mapping = build_sanitize_map(ents, props, collect_display_labels(page))
+        deep_sanitize(page, mapping)
+        blob = json.dumps(page, ensure_ascii=False)
+        assert "Doanh thu bình quân" not in blob, blob
+        assert "DoanhThu" not in blob and "Fact" not in blob, blob
+
+
+class TestPublicKitFolderNeedsSanitize:
+    """`allow_public_kits=sanitize` — dây nối giữa cờ sanitize và guard ghi-vào-repo.
+
+    Hai đầu đều có test, RIÊNG SỢI DÂY thì không: đổi thành `allow_public_kits=True`
+    là mở lại đúng đường `distill_template(sanitize=False)` tuồn dữ liệu thô vào
+    `report-templates/`, mà toàn bộ suite vẫn xanh.
+    """
+
+    def test_sanitize_flag_is_wired_into_the_repo_write_guard(self, tmp_path, monkeypatch):
+        """`allow_public_kits` PHẢI bằng `sanitize`, không phải hằng True.
+
+        KHÔNG ghi thật vào `report-templates/` để kiểm: test mà đụng working tree
+        vừa vi phạm AGENTS §0, vừa làm `test_no_leak` đỏ khi chạy song song —
+        đã tái hiện. Chặn guard lại và soi đúng đối số nó nhận.
+        """
+        from powerbi_agent import knowledge as kn
+        from powerbi_agent import tools_template as tt
+
+        seen = {}
+
+        def _spy(path, what, allow_public_kits=False):
+            seen["allow"] = allow_public_kits
+            raise ValueError(f"TỪ CHỐI (spy) {what}")
+
+        monkeypatch.setattr(kn, "ensure_outside_repo", _spy)
+
+        vis = tmp_path / "R.Report" / "definition" / "pages" / "p1" / "visuals" / "v1"
+        vis.mkdir(parents=True)
+        (vis / "visual.json").write_text('{"visual": {"visualType": "cardVisual"}}', encoding="utf-8")
+        (vis.parent.parent / "page.json").write_text('{"displayName": "T"}', encoding="utf-8")
+
+        captured = {}
+
+        class _FakeMcp:
+            def tool(self):
+                def deco(fn):
+                    captured[fn.__name__] = fn
+                    return fn
+                return deco
+
+        tt.register(_FakeMcp())
+        src = str(tmp_path / "R.Report")
+        for sanitize in (False, True):
+            seen.clear()
+            captured["distill_template"](src, "p1", str(tmp_path / "kit"), sanitize=sanitize)
+            assert seen.get("allow") is sanitize, (
+                f"sanitize={sanitize} nhưng guard nhận allow_public_kits={seen.get('allow')} "
+                "— dây nối đứt, distill chưa sanitize sẽ ghi được vào report-templates/"
+            )

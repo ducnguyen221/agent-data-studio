@@ -25,7 +25,9 @@ param(
 $ErrorActionPreference = "Stop"
 $Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Stamp = Get-Date -Format "yyyyMMdd"
-$stage = Join-Path $env:TEMP ("pbimcp-pack-" + (Get-Date -Format "yyyyMMddHHmmss"))
+# Ten DUY NHAT theo tien trinh: dat theo GIAY thi hai lan chay song song (harness chay
+# 3 ban) dung chung mot thu muc staging va xoa file cua nhau giua chung.
+$stage = Join-Path $env:TEMP ("pbimcp-pack-$PID-" + [guid]::NewGuid().ToString("N"))
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw "Cần git để lấy danh sách file được phép đóng gói (allowlist). Không có git thì DỪNG — không fallback sang copy-tất-cả."
@@ -37,15 +39,22 @@ try {
     # Zip KHÔNG được nằm trong repo: `git add -A` sau đó sẽ commit luôn cả gói (kèm .env
     # nếu dùng -IncludeEnv). Mặc định "." chính là repo, nên phải chặn tường minh.
     # Windows PowerShell 5.1 KHÔNG có toán tử `?.` — dùng if thường.
+    # KIEM TRUOC, TAO SAU: truoc day nhanh 'chua ton tai' tao thu muc roi moi tu choi,
+    # de lai mot thu muc rong ngay trong working tree — dung thu rac ma chinh lenh nay
+    # sinh ra de chong.
     $rp = Resolve-Path $OutDir -ErrorAction SilentlyContinue
     if ($rp) { $outFull = $rp.Path }
     else {
-        New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
-        $outFull = (Resolve-Path $OutDir).Path
+        # Join-Path với đường dẫn ĐÃ tuyệt đối cho ra "C:\a\C:\b" -> GetFullPath ném
+        # "path's format is not supported". Phải tách hai trường hợp.
+        $combined = if ([System.IO.Path]::IsPathRooted($OutDir)) { $OutDir }
+                    else { Join-Path (Get-Location).Path $OutDir }
+        $outFull = [System.IO.Path]::GetFullPath($combined)
     }
     if ($outFull.TrimEnd('\') -eq $Root.TrimEnd('\') -or $outFull.StartsWith($Root.TrimEnd('\') + '\')) {
         throw "TỪ CHỐI ghi zip vào trong repo ($outFull). Gói này có thể chứa secret; để trong working tree là một lệnh 'git add -A' nữa là bị commit. Dùng -OutDir <thư mục ngoài repo>."
     }
+    if (-not (Test-Path $outFull)) { New-Item -ItemType Directory -Path $outFull -Force | Out-Null }
     $zip = Join-Path $outFull "powerbi-mcp-setup-$Stamp.zip"
 
     Write-Host "[i] Đóng gói từ: $Root (allowlist = git ls-files)" -ForegroundColor Cyan

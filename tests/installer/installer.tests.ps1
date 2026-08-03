@@ -434,6 +434,36 @@ $null = Run-Uninstall 'claude'
 $emptyExit = $LASTEXITCODE
 Add-Result 'D-uninstall-empty-config-ok' ($emptyExit -eq 0) "exitCode=$emptyExit (phai=0)"
 
+# pack.ps1 la cong cu DUY NHAT dong goi mang di, ma khong mot ca pytest/harness nao chay no.
+# Hai luat song con: (a) khong duoc ghi zip vao TRONG repo, (b) zip chi chua file tracked.
+$packOut = Join-Path $env:TEMP "pbi-pack-$PID"
+if (Test-Path $packOut) { Remove-Item $packOut -Recurse -Force }
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    & '$RepoRoot\pack.ps1' -OutDir '$RepoRoot\zip-tam-$PID'" *>&1 | Out-String
+$packExit = $LASTEXITCODE
+# KHONG khop van xuoi tieng Viet trong output: khi harness bi goi TU PYTEST (subprocess),
+# console encoding lech nen chuoi 'TU CHOI' khong khop -> ca test DO GIA. Da tai hien:
+# chay harness truc tiep thi PASS, chay qua pytest thi FAIL. Tin hieu ASCII moi dang tin.
+$refused   = ($packExit -ne 0)
+$noResidue = (-not (Test-Path (Join-Path $RepoRoot "zip-tam-$PID"))) -and
+             (@(Get-ChildItem $RepoRoot -Filter '*.zip' -ErrorAction SilentlyContinue).Count -eq 0)
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    & '$RepoRoot\pack.ps1' -OutDir '$packOut'" *>&1 | Out-String
+$zipFile = @(Get-ChildItem $packOut -Filter '*.zip' -ErrorAction SilentlyContinue)[0]
+$zipClean = $false; $zipCount = 0
+if ($zipFile) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $z = [System.IO.Compression.ZipFile]::OpenRead($zipFile.FullName)
+    $names = @($z.Entries | ForEach-Object { $_.FullName }); $z.Dispose()
+    $zipCount = $names.Count
+    $zipClean = -not ($names | Where-Object { $_ -match '(^|/)\.env$|policy\.json$|\.venv/|\.bak' })
+}
+Remove-Item $packOut -Recurse -Force -ErrorAction SilentlyContinue
+Add-Result 'E-pack-refuses-outdir-in-repo' ($refused -and $noResidue) `
+    "daTuChoi=$refused khongDeLaiThuMucRong=$noResidue"
+Add-Result 'E-pack-zip-has-no-secrets' ([bool]$zipFile -and $zipClean) `
+    "coZip=$([bool]$zipFile) soFile=$zipCount khongCoSecret=$zipClean"
+
 if (Test-Path $FakeHome) { Remove-Item $FakeHome -Recurse -Force }  # tự dọn residue
 Write-Host "`n===== TONG KET ====="
 $results | Format-Table -AutoSize | Out-String | Write-Host
