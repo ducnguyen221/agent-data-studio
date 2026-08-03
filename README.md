@@ -155,6 +155,12 @@ claude mcp add powerbi-modeling -s user -- npx -y "@microsoft/powerbi-modeling-m
 
 Uninstall: `.\uninstall.ps1` (keeps files) · `.\uninstall.ps1 -RemoveVenv`.
 
+**Already have a skill with the same name?** The installer never deletes a skill it did not create.
+If it finds one whose `name:` matches ours but which lacks our ownership marker, it *moves* that copy
+next to the skills folder (`powerbi-agent-backup-<timestamp>\`) and installs ours. To keep yours
+instead, put an empty file named `.powerbi-agent-keep` inside its folder — install and uninstall both
+leave such a folder completely alone, on every run.
+
 ## Authors & credit
 
 The **KPIM analysis process, tooling, templates and techniques** here were built by

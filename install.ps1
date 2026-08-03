@@ -317,6 +317,12 @@ PYTHONUNBUFFERED = "1"
         } else { Info "config.toml parse OK." }
     }
 }
+# Cờ user tự đặt để nói "thư mục này là CỦA TÔI, đừng đụng". Cần thiết vì nhánh dời-sang-bên
+# dựa trên `name:` — user có skill riêng trùng tên sẽ bị dời đi MỖI LẦN cài, và lời khuyên
+# "chuyển backup về" tự nó là ngõ cụt: chuyển về xong lần sau lại bị dời tiếp.
+# uninstall.ps1 tôn trọng cùng file này.
+$KeepFile = ".powerbi-agent-keep"
+
 # Dời một thư mục skill sang chỗ an toàn thay vì xoá.
 # PHẢI ra NGOÀI thư mục skills: host dò skill theo "mọi thư mục con có SKILL.md", nên đổi tên
 # tại chỗ ("pbi-pipeline.backup-...") vẫn để lại một skill xác sống được nạp như thường —
@@ -347,8 +353,9 @@ function Install-Skill([string]$SkillRoot) {
     foreach ($old in @("pbi-pipeline", "pbi-knowledge")) {
         $p = Join-Path $SkillRoot $old
         if (Test-Path $p) {
+            if (Test-Path (Join-Path $p $KeepFile)) { Info "Giữ nguyên '$old' (có $KeepFile)."; continue }
             Move-SkillAside $p $SkillRoot "Skill cũ (<0.5.0) '$old'" | Out-Null
-            Warn "  Nếu đó là skill CỦA BẠN, chuyển thư mục đó về '$p'. Nếu không, xoá bản backup đi."
+            Warn "  Là skill CỦA BẠN? -> chuyển về '$p' rồi đặt file rỗng '$KeepFile' vào trong."
         }
     }
     Get-ChildItem -Path $skillBase -Directory | ForEach-Object {
@@ -377,6 +384,12 @@ function Install-Skill([string]$SkillRoot) {
             # Skill goc cua repo cung phai ton trong so huu: user co the co skill rieng
             # trung ten (vd powerbi-knowledge). Nhan dien ban CUA TA bang frontmatter name:.
             if (Test-Path $dst) {
+                # Cờ user đặt thắng MỌI suy đoán khác — kể cả `name:` trùng.
+                if (Test-Path (Join-Path $dst $KeepFile)) {
+                    Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+                    Info "Giữ nguyên skill '$($_.Name)' của bạn (có $KeepFile) — không cài đè."
+                    return
+                }
                 $mine = Test-Path (Join-Path $dst ".powerbi-agent-generated")
                 $nameMatches = $false
                 if (-not $mine) {
@@ -401,7 +414,8 @@ function Install-Skill([string]$SkillRoot) {
                         # — không nâng cấp được, mà uninstall cũng không gỡ được. Dời sang bên rồi
                         # cài bản mới: nếu thật ra là skill của user thì dữ liệu vẫn còn nguyên.
                         Move-SkillAside $dst $SkillRoot "Skill '$($_.Name)' bản cũ (thiếu dấu sở hữu)" | Out-Null
-                        Warn "  Đó là skill CỦA BẠN? -> xoá bản vừa cài rồi chuyển backup về. Không phải? -> xoá backup."
+                        Warn "  Đó là skill CỦA BẠN? -> chuyển backup về rồi đặt file rỗng"
+                        Warn "     '$KeepFile' vào trong nó. Không có bước đó thì lần cài sau lại dời tiếp."
                     } else {
                         Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
                         Warn "Bo qua skill '$($_.Name)': da co skill CUNG TEN khong phai do powerbi-agent tao."

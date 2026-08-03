@@ -35,7 +35,15 @@ function Remove-FromJson($Path){
     $py = @'
 import json, os, sys
 path, name = sys.argv[1], sys.argv[2]
-data = json.load(open(path, encoding="utf-8-sig"))
+# File RONG khong phai loi: khong co gi de go. json.load() se nem JSONDecodeError,
+# gio Err -> exit 1, bao "GO CHUA SACH" cho mot trang thai hoan toan vo hai.
+# (Helper merge ben install.ps1 da xu ly file rong theo dung cach nay.)
+with open(path, encoding="utf-8-sig") as f:
+    raw = f.read().strip()
+if not raw:
+    print("ABSENT")
+    sys.exit(0)
+data = json.loads(raw)
 if isinstance(data, dict) and isinstance(data.get("mcpServers"), dict) and name in data["mcpServers"]:
     del data["mcpServers"][name]
     out = json.dumps(data, ensure_ascii=False, indent=2)
@@ -110,7 +118,7 @@ if ($Hosts -contains "codex") {
         # validate parse sau khi ghi (tiêu chí audit: MỌI nhánh ghi config đều validate)
         if (Test-Path $venvPy) {
             & $venvPy -c "import tomllib,sys; tomllib.load(open(sys.argv[1],'rb'))" $cfg 2>$null
-            if ($LASTEXITCODE -ne 0) { Warn "config.toml KHÔNG parse được sau khi gỡ — khôi phục từ .bak.$Stamp!" }
+            if ($LASTEXITCODE -ne 0) { Err "config.toml KHÔNG parse được sau khi gỡ — khôi phục từ .bak.$Stamp!" }
             else { Ok "Đã gỡ block khỏi $cfg (validate OK)" }
         } else { Ok "Đã gỡ block khỏi $cfg" }
     }
@@ -143,6 +151,11 @@ foreach ($skRoot in $hostSkillRoots) {
         # Skill-lenh (sinh tu commands/) co file danh dau. Skill goc cua repo thi khong,
         # nen chi ap luat "phai co marker" cho nhom sinh ra - tranh xoa skill rieng cua user
         # chi vi no trung ten voi mot lenh.
+        # Cờ user đặt thắng mọi suy đoán (đối xứng với install.ps1).
+        if (Test-Path (Join-Path $p ".powerbi-agent-keep")) {
+            Info "Giữ nguyên '$p' (có .powerbi-agent-keep)."
+            continue
+        }
         $mine = (Test-Path (Join-Path $p ".powerbi-agent-generated"))
         if (-not $mine) {
             # Ban cai truoc v0.6 chua co marker -> nhan dien bang frontmatter `name:` do ta ghi.
@@ -233,6 +246,16 @@ if ($RemoveVenv) {
     $venv = Join-Path $Root ".venv"
     if (Test-Path $venv) { Remove-Item $venv -Recurse -Force; Ok "Đã xoá .venv" }
 }
+# Backup do install.ps1 dọi sang KHÔNG bị xóa — có thể là dữ liệu của user. Nhưng "gỡ cài
+# hoàn tất" mà để lại thư mục mang tên powerbi-agent không một lời nào thì user tưởng máy đã sạch.
+foreach ($skRoot in $hostSkillRoots) {
+    $bkParent = Split-Path $skRoot -Parent
+    if (-not (Test-Path $bkParent)) { continue }
+    foreach ($bk in @(Get-ChildItem $bkParent -Directory -Filter "powerbi-agent-backup-*" -ErrorAction SilentlyContinue)) {
+        Info "Còn bản backup cũ: $($bk.FullName) — xem lại rồi tự xoá nếu không cần."
+    }
+}
+
 if ($script:HadError) {
     Err "GỠ CHƯA SẠCH — xem các dòng [X] ở trên. Cấu hình gốc còn nguyên trong bản .bak.$Stamp."
     exit 1

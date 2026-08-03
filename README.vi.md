@@ -155,6 +155,12 @@ claude mcp add powerbi-modeling -s user -- npx -y "@microsoft/powerbi-modeling-m
 
 Gỡ cài: `.\uninstall.ps1` (giữ file) · `.\uninstall.ps1 -RemoveVenv`.
 
+**Đã có skill trùng tên?** Trình cài không bao giờ xoá skill không phải do nó tạo. Gặp skill có
+`name:` trùng nhưng thiếu dấu sở hữu của chúng tôi, nó **dời** bản đó ra cạnh thư mục skills
+(`powerbi-agent-backup-<dấu-thời-gian>\`) rồi cài bản của mình. Muốn giữ bản của bạn: đặt một file
+rỗng tên `.powerbi-agent-keep` trong thư mục đó — cả cài lẫn gỡ đều để yên, chạy bao nhiêu lần
+cũng vậy.
+
 ## Tác giả & ghi công
 
 **Quy trình phân tích KPIM, bộ công cụ, template và kỹ thuật** trong repo được xây dựng bởi

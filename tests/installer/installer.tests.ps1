@@ -324,11 +324,12 @@ $hasMarkerNow = Test-Path (Join-Path $legacySkill '.powerbi-agent-generated')
 # Bản cũ phải được GIỮ (không xoá mất dữ liệu) nhưng nằm NGOÀI skills/ — trong skills/ thì
 # host vẫn nạp nó như một skill xác sống, đúng cái bug đang muốn diệt.
 $bkOutside = @(Get-ChildItem (Join-Path $FakeHome '.codex') -Directory -Filter 'powerbi-agent-backup-*' -ErrorAction SilentlyContinue).Count
+$expectSkillDirs = @(Get-ChildItem (Join-Path $RepoRoot 'plugins\powerbi-agent\skills') -Directory).Count + $expectCmds
 $skillDirs = @(Get-ChildItem $skRootC -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') }).Count
 $null = Run-Uninstall 'codex'
 $goneNow = -not (Test-Path $legacySkill)
-Add-Result 'D-upgrade-repo-skill-no-marker' ($nowHasProv -and $hasMarkerNow -and $bkOutside -eq 1 -and $skillDirs -eq 12 -and $goneNow) `
-    "capNhat=$nowHasProv marker=$hasMarkerNow backupNgoaiSkills=$bkOutside skillTrongSkills=$skillDirs/12 goDuoc=$goneNow"
+Add-Result 'D-upgrade-repo-skill-no-marker' ($nowHasProv -and $hasMarkerNow -and $bkOutside -eq 1 -and $skillDirs -eq $expectSkillDirs -and $goneNow) `
+    "capNhat=$nowHasProv marker=$hasMarkerNow backupNgoaiSkills=$bkOutside skillTrongSkills=$skillDirs/$expectSkillDirs goDuoc=$goneNow"
 
 # Bước lỗi phải làm install exit 1. Trước đây 3 chỗ gọi Err rồi chạy tiếp -> vẫn in HOÀN TẤT + exit 0.
 Reset-Home
@@ -338,6 +339,56 @@ $installExit = $LASTEXITCODE
 $cfgUntouched = (Get-Content (Join-Path $FakeHome '.claude.json') -Raw) -match '\[\s*1'
 Add-Result 'D-install-exits-1-on-failure' ($installExit -eq 1 -and $cfgUntouched) `
     "exitCode=$installExit (phai=1) fileGocConNguyen=$cfgUntouched"
+
+# M1 vong 5: user đặt cờ .powerbi-agent-keep -> installer PHẢI để yên, chạy BAO NHIÊU LẦN cũng vậy.
+# Không có cờ này thì skill riêng trùng `name:` bị dời đi mỗi lần cài, không có trạng thái ổn định.
+Reset-Home
+$keepDir = Join-Path $FakeHome '.codex\skills\powerbi-knowledge'
+New-Item -ItemType Directory -Path $keepDir -Force | Out-Null
+Set-Content (Join-Path $keepDir 'SKILL.md') "---`nname: powerbi-knowledge`n---`nSKILL RIENG CUA TOI" -Encoding UTF8
+Set-Content (Join-Path $keepDir '.powerbi-agent-keep') '' -Encoding UTF8
+$null = Run-Install 'codex'
+$null = Run-Install 'codex'
+$keptBody = (Get-Content (Join-Path $keepDir 'SKILL.md') -Raw -Encoding UTF8) -match 'SKILL RIENG CUA TOI'
+$noBackup = @(Get-ChildItem (Join-Path $FakeHome '.codex') -Directory -Filter 'powerbi-agent-backup-*' -ErrorAction SilentlyContinue).Count
+$null = Run-Uninstall 'codex'
+$keptAfterUninstall = Test-Path (Join-Path $keepDir 'SKILL.md')
+Add-Result 'D-keep-flag-is-honoured' ($keptBody -and $noBackup -eq 0 -and $keptAfterUninstall) `
+    "conNguyenSau2LanCai=$keptBody soBackup=$noBackup (phai=0) conSauKhiGo=$keptAfterUninstall"
+
+# m2 vong 5: helper in thêm dòng noise ra stderr (PYTHONWARNINGS, sitecustomize...).
+# "$out" nối mảng bằng DẤU CÁCH nên neo (?m)^MERGE_OK$ không bao giờ khớp -> merge THÀNH CÔNG
+# mà installer báo thất bại (và từ vòng 3 là exit 1). Không có ca này thì bản vá join-LF không được khóa.
+Reset-Home
+$noisy = Join-Path $S "noisy-python-$PID.cmd"
+Set-Content $noisy "@echo off`r`necho canh bao gia lap 1>&2`r`n`"$venvPy`" %*" -Encoding ASCII
+$null = & powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    `$env:USERPROFILE='$FakeHome';
+    `$env:Path='C:\Windows\System32;C:\Windows'; `$env:POWERBI_INSTALL_PYTHON='$noisy';
+    & '$RepoRoot\install.ps1' -SkipVenv -Hosts claude" *>&1 | Out-String
+$noisyExit = $LASTEXITCODE
+$cfgJson = Join-Path $FakeHome '.claude.json'
+$registered = (Test-Path $cfgJson) -and ((Get-Content $cfgJson -Raw) -match 'powerbi-mcp-bridge')
+Remove-Item $noisy -Force -ErrorAction SilentlyContinue
+Add-Result 'D-merge-ok-despite-stderr-noise' ($noisyExit -eq 0 -and $registered) `
+    "exitCode=$noisyExit (phai=0) daDangKy=$registered"
+
+# Gate exit-1 của uninstall cũng phải có ca khóa (đối xứng với D-install-exits-1-on-failure).
+Reset-Home
+$null = Run-Install 'claude'
+# JSON HONG (khong parse duoc) — khac '[1,2,3]': mang o goc chi la "khong co entry nao"
+# nen ABSENT/exit 0 moi dung. Hong that thi khong biet entry con hay khong -> phai bao that bai.
+Set-Content (Join-Path $FakeHome '.claude.json') '{"mcpServers": {' -Encoding UTF8
+$null = Run-Uninstall 'claude'
+$unExit = $LASTEXITCODE
+Add-Result 'D-uninstall-exits-1-on-failure' ($unExit -eq 1) "exitCode=$unExit (phai=1)"
+
+# Config RỖNG là vô hại ("không có gì để gỡ"), KHÔNG được thành fail cứng.
+Reset-Home
+Set-Content (Join-Path $FakeHome '.claude.json') '' -Encoding ASCII -NoNewline
+$null = Run-Uninstall 'claude'
+$emptyExit = $LASTEXITCODE
+Add-Result 'D-uninstall-empty-config-ok' ($emptyExit -eq 0) "exitCode=$emptyExit (phai=0)"
 
 if (Test-Path $FakeHome) { Remove-Item $FakeHome -Recurse -Force }  # tự dọn residue
 Write-Host "`n===== TONG KET ====="
