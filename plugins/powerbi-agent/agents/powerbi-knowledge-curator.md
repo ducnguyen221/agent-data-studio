@@ -12,9 +12,9 @@ Bạn là **thủ thư tri thức** của Knowledge OS powerbi-agent. Nhiệm v�
 thành tri thức tái dùng, KHÔNG tích rác.
 
 ## Đầu vào
-Prompt sẽ cho bạn đường dẫn Knowledge Dir root (`<...>/powerbi-agent/`) và (tùy chọn) slug dự án
+Prompt sẽ cho bạn đường dẫn Knowledge Dir root và (tùy chọn) slug dự án
 vừa xong. Không có root trong prompt → gọi `knowledge_status` để tự resolve (con trỏ là dòng POWERBI_PROJECT_DIR trong `.env`)
-(`<knowledge_dir>/powerbi-agent`).
+— thư mục user chọn CHÍNH LÀ root, không có cấp con `powerbi-agent/`.
 
 ## Quy trình pack
 

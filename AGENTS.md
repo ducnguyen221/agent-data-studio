@@ -140,8 +140,9 @@ Mọi vai đều đọc được an toàn đồng thời — tool ĐỌC (list/d
 
 ## 4b. Knowledge OS — dự án, tri thức, timeline (luồng /powerbi-*)
 
-Tri thức làm việc sống ở **Knowledge Dir do USER chỉ định NGOÀI repo** (`knowledge.config.json`
-gitignored — mỗi máy tự khai báo). Cơ chế đầy đủ: skill `powerbi-knowledge`.
+Tri thức làm việc sống ở **Knowledge Dir do USER chỉ định NGOÀI repo** — con trỏ là MỘT dòng `POWERBI_PROJECT_DIR` trong `.env` (gitignored, mỗi máy tự khai).
+`knowledge.config.json` chỉ còn là legacy CHỈ-ĐỌC để migrate bản cũ. Thư mục user chỏn CHÍNH LÀ root
+— không đẻ thêm cấp con. Cơ chế đầy đủ: skill `powerbi-knowledge`.
 
 | Lệnh (Claude) / luồng (host khác) | Làm gì |
 |---|---|
@@ -169,7 +170,7 @@ Luật: (1) gọi `knowledge_status` TRƯỚC mọi quy trình tri thức — ch
   schema model khách (distill ghi ra NGOÀI repo), tham chiếu máy cá nhân.
 - Docs công khai (README/INSTALL/docs/) phải machine-agnostic — không đường dẫn/tên máy riêng, không tên khách hàng (dùng ví dụ generic như "KPIM Mart").
 - **Plugin manifest:** `plugin.json` CHỈ khai `skills` — KHÔNG khai `commands`/`agents` (Claude từ chối field `agents`; auto-discover theo convention `commands/` + `agents/`). marketplace.json dùng chung cho Claude + Codex.
-- **Song ngữ:** `README.md` = English (canonical). Sửa README.md thì **mirror sang `README.vi.md` TRONG CÙNG commit**. Các doc khác (AGENTS/ROADMAP/skills) English-canonical, KHÔNG tạo bản `-VN` (tránh drift). Website `docs/` mang đầy đủ EN+VI qua toggle ngôn ngữ (`docs/assets/site.js`).
+- **Song ngữ:** `README.md` = English (canonical). Sửa README.md thì **mirror sang `README.vi.md` TRONG CÙNG commit**. Các doc khác (AGENTS/ROADMAP/skills) hiện **chỉ có tiếng Việt** — KHÔNG tạo bản `-VN` song song (tránh drift). Website `docs/`: toggle ngôn ngữ mới phủ heading/hero/footer; thân bài và `docs/INSTALL.html` còn VI-only. Đừng hứa EN nhiều hơn thực tế trong docs công khai.
 
 ## 6. File nào host nào đọc
 

@@ -17,7 +17,7 @@ Khi kỹ năng này được kích hoạt thông qua cấu hình MCP Server, cá
 
 2. `execute_dax_local(port: str, model_id: str, dax_query: str, max_rows: int = 1000)`
    - **Mô tả:** Chạy truy vấn DAX trực tiếp lên file Power BI Desktop đang mở qua cổng kết nối cục bộ.
-   - **Cách dùng:** Truyền vào cổng kết nối và model_id lấy từ `list_local_reports`, cùng câu lệnh DAX (ví dụ: `EVALUATE TableName`).
+   - **Cách dùng:** Truyền vào cổng kết nối và model_id lấy từ `list_local_reports`, cùng câu lệnh DAX (ví dụ: `EVALUATE TOPN(10, SUMMARIZECOLUMNS(...))`).
    - **`max_rows`:** Mặc định cắt còn 1000 dòng để tránh tràn context. Đặt `0` chỉ khi user thực sự cần toàn bộ dữ liệu.
 
 3. `execute_dax_service(dataset_id: str, dax_query: str, max_rows: int = 1000)`
@@ -91,7 +91,7 @@ Hai server chạy song song, KHÔNG giẫm chân:
 |---|---|
 | Truy vấn/tổng hợp dữ liệu bằng DAX, khám phá schema, đọc báo cáo đang mở | **powerbi-mcp-bridge** (server này) |
 | Tạo/sửa measure, calculated column, relationship, table; bulk rename/refactor; TMDL/PBIP; validate DAX | **powerbi-modeling** (`npx @microsoft/powerbi-modeling-mcp`) |
-| Trang báo cáo / visual (PBIR) | Server này (roadmap M2) — modeling-mcp KHÔNG làm report layer |
+| Trang báo cáo / visual (PBIR) | Server này  — modeling-mcp KHÔNG làm report layer |
 
 Quy tắc: không interleave thao tác GHI từ 2 server cùng lúc lên 1 model; modeling ops xong (SaveChanges) rồi mới quay lại query.
 

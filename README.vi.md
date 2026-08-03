@@ -98,7 +98,7 @@ Chi tiết từng host: [`hosts/`](hosts/).
 | `/powerbi-pack [dự án]` | Đóng gói bài học theo 4 trục: tech-stack · industry · business-domain · powerbi |
 | `/powerbi-recall <từ khóa>` | "Đã từng làm gì tương tự chưa?" |
 
-### 16 tool, chia 5 nhóm
+### 16 tool, chia 6 nhóm
 
 | Nhóm | Tool |
 |---|---|

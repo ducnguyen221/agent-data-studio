@@ -39,7 +39,7 @@ Chi tiết từng thư mục & file: [`../INDEX.md`](../INDEX.md).
 | **Codex CLI** | `codex plugin list` (đọc CÙNG `marketplace.json`) | `codex plugin marketplace add ...` → `codex plugin add powerbi-agent@powerbi-agent` |
 | **Antigravity** | Không có store → skill nạp từ `~/.gemini/antigravity/skills/` (installer copy) | `install.ps1 -Hosts antigravity` |
 
-Từ v0.5.0 installer cấp **lệnh cho cả 3 host**: Claude → `~/.claude/commands/`,
+Từ v0.6.0 installer cấp **lệnh cho cả 3 host**: Claude → `~/.claude/commands/`,
 Codex → mỗi lệnh thành 1 skill trong `~/.codex/skills/`, Antigravity → trong skill `powerbi-knowledge/commands/`
 (host này không có cơ chế slash-command). Cập nhật riêng phần này: `install.ps1 -Only plugin`.
 

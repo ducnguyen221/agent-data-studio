@@ -492,7 +492,7 @@
       </div>
       <div class="layer">
         <span class="lnum">T2</span>
-        <div><h3>11 MCP tools (repo này)</h3><p>Query DAX · schema discovery · TOM write · PBIR template engine · distill — nối Desktop (ADOMD) + Service (REST) + file .pbip.</p></div>
+        <div><h3>16 MCP tools (repo này)</h3><p>Query DAX · schema discovery · TOM write · PBIR template engine · distill — nối Desktop (ADOMD) + Service (REST) + file .pbip.</p></div>
       </div>
       <div class="layer dele">
         <span class="lnum">T1</span>
@@ -528,7 +528,7 @@
           <li><b>Report layer mà chưa ai làm</b> — MCP chính chủ Microsoft tuyên bố không sửa trang báo cáo; powerbi-agent dựng/distill trang PBIR bằng clone-and-rebind đã chứng minh bằng sản phẩm thật.</li>
           <li><b>Policy enforce ở server</b> — các MCP Power BI khác trả dữ liệu thô tùy agent; ở đây chặn từ tầng code, có audit log làm bằng chứng.</li>
           <li><b>Cài 1 lệnh, chạy 3 host</b> — installer idempotent tự dò ADOMD/TOM mọi bản SSMS, đăng ký Claude Code + Codex + Antigravity cùng lúc.</li>
-          <li><b>Đã UAT trên dữ liệu thật</b> — 17 ca pass trên dashboard production; 5 defect tìm thấy và sửa ngay trong UAT (kể cả bug tồn tại từ code cũ chưa từng chạy live).</li>
+          <li><b>Đã UAT trên dữ liệu thật</b> — 17 ca pass trên dashboard production; 4 defect tìm thấy và sửa ngay trong UAT (kể cả bug tồn tại từ code cũ chưa từng chạy live).</li>
           <li><b>Vòng tri thức khép kín</b> — trang đẹp thành kit, model thành blueprint; agent giỏi dần theo từng dự án của chính bạn.</li>
         </ul>
       </div>
@@ -695,7 +695,7 @@ vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó
   // ===== i18n language toggle =====
   (function(){
     var KEY='powerbi-lang';
-  // Migration: nguoi dung cu luu duoi key 'pbi-lang' (truoc v0.5.0) — doc lai 1 lan
+  // Migration: nguoi dung cu luu duoi key 'pbi-lang' (truoc v0.6.0) — doc lai 1 lan
   // roi ghi sang key moi, de ho khong bi reset ve mac dinh.
   try{ if(!localStorage.getItem(KEY)){ var _o=localStorage.getItem('pbi-lang');
     if(_o){ localStorage.setItem(KEY,_o); localStorage.removeItem('pbi-lang'); } } }catch(e){}

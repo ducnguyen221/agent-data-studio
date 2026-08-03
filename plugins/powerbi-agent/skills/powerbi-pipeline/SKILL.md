@@ -99,4 +99,4 @@ Chưng cất tri thức:
 
 ## 🔗 Skill liên quan (cùng bộ, thư mục anh em)
 - Pha NGHIỆP VỤ trước pipeline này: [`../kpim-analysis/SKILL.md`](../kpim-analysis/SKILL.md) — khảo sát, tài liệu hóa, kế hoạch.
-- Hướng dẫn 11 tool + policy an toàn dữ liệu: [`../powerbi-mcp/SKILL.md`](../powerbi-mcp/SKILL.md).
+- Hướng dẫn 16 tool + policy an toàn dữ liệu: [`../powerbi-mcp/SKILL.md`](../powerbi-mcp/SKILL.md).

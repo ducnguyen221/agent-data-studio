@@ -41,13 +41,13 @@ env     = { PYTHONUNBUFFERED = "1" }
 ## Cách 2 — Cài dạng PLUGIN (hiện trong `codex plugin list` / app)
 
 Codex đọc **cùng một `.claude-plugin/marketplace.json`** với Claude — không cần manifest riêng.
-Cài để plugin xuất hiện trong trình quản lý plugin của Codex (4 skill + 8 lệnh `/powerbi-*` + agent
+Cài để plugin xuất hiện trong trình quản lý plugin của Codex (4 skill + 8 quy trình `powerbi-*` (gọi theo tên, Codex không có slash-command) + agent
 `powerbi-knowledge-curator` được nạp tự động):
 
 ```bash
 codex plugin marketplace add https://github.com/ducnguyen221/powerbi-agent
 codex plugin add powerbi-agent@powerbi-agent
-codex plugin list   # thấy: powerbi-agent@powerbi-agent  installed, enabled  0.5.0
+codex plugin list   # thấy: powerbi-agent@powerbi-agent  installed, enabled  0.6.0
 ```
 
 > Chỉ cài plugin = có skill/lệnh, CHƯA có 16 tool MCP. Muốn đủ tool → chạy install.ps1 (Cách 1).

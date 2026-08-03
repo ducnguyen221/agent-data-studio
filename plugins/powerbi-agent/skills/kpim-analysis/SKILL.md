@@ -13,7 +13,7 @@ license: MIT — process & templates by Duc Nguyen (ducnguyen221)
 
 # kpim-analysis — Quy trình phân tích KPIM (Research → Key Information → Planning → Implementation → Monitoring)
 
-Bộ quy trình + template biến AI Agent thành **chuyên gia phân tích dữ liệu KPIM**: nhận dữ liệu → tài liệu hóa nghiệp vụ → chuẩn hóa → tự động hóa việc xây báo cáo Power BI. Kết hợp với skill [`../powerbi-pipeline/SKILL.md`](../powerbi-pipeline/SKILL.md) (thực thi kỹ thuật 9 khâu) và hướng dẫn tool [`../powerbi-mcp/SKILL.md`](../powerbi-mcp/SKILL.md) (11 tool MCP + policy an toàn dữ liệu).
+Bộ quy trình + template biến AI Agent thành **chuyên gia phân tích dữ liệu KPIM**: nhận dữ liệu → tài liệu hóa nghiệp vụ → chuẩn hóa → tự động hóa việc xây báo cáo Power BI. Kết hợp với skill [`../powerbi-pipeline/SKILL.md`](../powerbi-pipeline/SKILL.md) (thực thi kỹ thuật 9 khâu) và hướng dẫn tool [`../powerbi-mcp/SKILL.md`](../powerbi-mcp/SKILL.md) (16 tool MCP + policy an toàn dữ liệu).
 
 ## 5 pha (làm theo THỨ TỰ, mỗi pha có cổng kiểm)
 

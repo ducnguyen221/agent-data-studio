@@ -34,7 +34,7 @@ chính user; không tri thức nào của ai bị đẩy lên git.
 ## Cấu trúc thư mục dự án (tool tự dựng)
 
 ```
-<KNOWLEDGE_DIR>/powerbi-agent/
+<KNOWLEDGE_DIR>/
   INDEX.md          # mục lục — agent đọc ĐẦU TIÊN
   TIMELINE.md       # lịch sử append-only: | ngày | dự án | sự kiện | bài học | link |
   projects/<slug>/  # 1 dự án 1 folder: tài liệu KPIM + artifacts/ + design/

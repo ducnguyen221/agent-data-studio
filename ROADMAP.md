@@ -4,7 +4,7 @@
 > Antigravity · mọi MCP client) làm việc **trực tiếp và đúng chuẩn** với Power BI — từ Power Query
 > đến trang báo cáo hoàn thiện — với chính sách an toàn dữ liệu enforce ở tầng server.
 >
-> Trạng thái: v0 (bridge read-only, đang chạy production) → v1.0 theo roadmap dưới đây.
+> Trạng thái: 0.6.0 — 16 tool (đọc + ghi model qua TOM + template engine), đang chạy production → v1.0 theo roadmap dưới đây.
 
 ---
 
@@ -114,7 +114,7 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 Cấu trúc thư mục dự án chuẩn (tool tự dựng):
 
 ```
-<KNOWLEDGE_DIR>/powerbi-agent/
+<KNOWLEDGE_DIR>/
   INDEX.md                    # mục lục toàn bộ (agent đọc đầu tiên)
   TIMELINE.md                 # dòng thời gian: dự án + bài học theo ngày (quy trình #4)
   projects/<slug>/            # MỖI dự án 1 folder (quy trình #2)

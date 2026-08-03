@@ -33,7 +33,7 @@ Installer làm 2 việc:
 3. Vì Antigravity **không có slash-command**, installer đặt 8 lệnh vào
    `~/.gemini/antigravity/skills/powerbi-knowledge/commands/` — agent đọc được quy trình và
    bạn gọi bằng lời: *"chạy quy trình powerbi-setup"*, *"chạy powerbi-help"*.
-   *(Từ v0.5.0.)*
+   *(Từ v0.6.0.)*
 
 **Restart Antigravity** sau cài để nhận tool + skill.
 
