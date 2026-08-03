@@ -103,7 +103,7 @@ Mọi vai đều đọc được an toàn đồng thời — tool ĐỌC (list/d
 - **Artifact files trong thư mục dự án** (nguồn sự thật, agent nào cũng đọc/ghi nối tiếp):
   `PLAN.md` → `CHANGESET.md` → `VERIFICATION.md` → `HANDOFF.md` (+ tài liệu kpim-analysis).
   Bàn giao giữa 2 agent = ghi rõ trạng thái vào artifact, KHÔNG dựa vào trí nhớ phiên chat.
-- **Audit log** `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` = sổ cái chung mọi truy vấn (agent nào, chặn gì)
+- **Audit log** `<thư mục dự án>/audit/*.jsonl` = sổ cái chung mọi truy vấn (agent nào, chặn gì)
   — Reviewer dùng làm bằng chứng kiểm tra.
 - **Blueprint từ `distill_model_schema`** = "bản đồ model" chung: Builder tạo sau mỗi đợt ghi
   model; các agent khác đọc thay vì tự query lại schema.

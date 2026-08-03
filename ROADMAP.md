@@ -62,14 +62,14 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 - [x] Test suite pytest (19 unit: util/adomd-probe/policy/back-compat) + GitHub Actions (windows runner, ruff + pytest, marker `integration` skip trên CI).
 - [x] Policy khung sẵn từ M0: `POWERBI_AGGREGATE_ONLY=1` bật chặn dump thô (mặc định tắt — M1 đảo mặc định + PII blocklist + audit).
 - [x] Cài `microsoft/powerbi-modeling-mcp` song song (✔ Connected); doc phân vai trong README + SKILL.md.
-- [x] Hợp nhất nhánh đóng góp single-file vào package: TOM loader + `add_measure_local` + `add_relationship_local` (`tools_tom.py`, fallback — bulk/TMDL vẫn delegate modeling-mcp) + `distill_model_schema` (`tools_distill.py`, đổi tên từ `distill_report_model`; đích ghi mặc định `%LOCALAPPDATA%/powerbi-agent/distilled/` NGOÀI repo, cấu hình qua `POWERBI_DISTILL_DIR`).
+- [x] Hợp nhất nhánh đóng góp single-file vào package: TOM loader + `add_measure_local` + `add_relationship_local` (`tools_tom.py`, fallback — bulk/TMDL vẫn delegate modeling-mcp) + `distill_model_schema` (`tools_distill.py`, đổi tên từ `distill_report_model`; đích ghi mặc định `<thư mục dự án>/distilled/` NGOÀI repo, cấu hình qua `POWERBI_DISTILL_DIR`).
 
 ### M1 — Policy + Discovery (an toàn dữ liệu) — ✅ XONG 2026-07-12
 
 - [x] `aggregate_only` mặc định BẬT (opt-out `POWERBI_AGGREGATE_ONLY=0`); chặn kèm hint viết lại.
 - [x] PII blocklist qua `policy.json` (gitignored; mẫu `policy.example.json`; env `POWERBI_POLICY_FILE`). Heuristic bảo thủ: chặn khi cột xuất hiện bất kỳ đâu trong DAX (tài liệu hóa rõ).
 - [x] Row cap dimension 200 (`POWERBI_DIMENSION_ROW_CAP`); thuần measure không siết.
-- [x] Audit log JSONL `%LOCALAPPDATA%/powerbi-agent/audit/YYYY-MM.jsonl` (ts·tool·verdict·rows·dax) — lỗi ghi audit không phá truy vấn.
+- [x] Audit log JSONL `<thư mục dự án>/audit/YYYY-MM.jsonl` (ts·tool·verdict·rows·dax) — lỗi ghi audit không phá truy vấn.
 - [x] `list_tables` / `describe_table` (DMV; đã sửa bug `[ExplicitDataType]` + lọc `RowNumber-*` + TOM enum map — phát hiện qua UAT live).
 - [x] Token cache MSAL (app singleton).
 
@@ -85,7 +85,7 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 
 ### M3 — Distill + Pipeline skill — ✅ XONG 2026-07-12
 
-- [x] `distill_model_schema` (đích ghi `POWERBI_DISTILL_DIR`/`%LOCALAPPDATA%/powerbi-agent/distilled/`) — live PASS trên model 10 bảng/174 measure + Mermaid ERD.
+- [x] `distill_model_schema` (đích ghi `POWERBI_DISTILL_DIR`/`<thư mục dự án>/distilled/`) — live PASS trên model 10 bảng/174 measure + Mermaid ERD.
 - [x] Skill **`powerbi-pipeline`** 9 khâu (điều phối 2 MCP, cổng kiểm mỗi khâu, 4 artifact, bookmark-để-tay, hỏi PII đầu dự án) — cài cả 3 host, install.ps1 copy mọi skill.
 - [x] Vòng tri thức: distill_model_schema (model→blueprint) + distill_template (trang đẹp→kit) + bài học→memory.
 
@@ -108,7 +108,7 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 | Tầng | Nằm đâu | Chứa gì | Git? |
 |---|---|---|---|
 | **Repo public** | repo này | code, skills, commands, agents, kit ĐÃ sanitize | ✅ |
-| **thư mục dự án** | user chỉ định NGOÀI repo (env `POWERBI_PROJECT_DIR` / con trỏ ở %LOCALAPPDATA%) | projects/ · knowledge/ · templates riêng · TIMELINE | ❌ (thuộc user; user tự quyết sync riêng) |
+| **thư mục dự án** | user chỉ định NGOÀI repo (con trỏ = 1 dòng `POWERBI_PROJECT_DIR` trong `.env` của repo, gitignored) | projects/ · knowledge/ · templates riêng · TIMELINE | ❌ (thuộc user; user tự quyết sync riêng) |
 
 
 Cấu trúc thư mục dự án chuẩn (tool tự dựng):
@@ -127,7 +127,7 @@ Cấu trúc thư mục dự án chuẩn (tool tự dựng):
 ```
 
 - **Setup bắt buộc lần đầu**: command `/powerbi-setup` hỏi user chỉ định folder (mặc định `~/powerbi-project`; hoặc knowledge
-  base có sẵn; không có thì đề xuất tạo `~/powerbi-project/`) → ghi `%LOCALAPPDATA%\powerbi-agent\config.json`
+  base có sẵn; không có thì đề xuất tạo `~/powerbi-project/`) → ghi 1 dòng `POWERBI_PROJECT_DIR` vào `.env`
   (gitignored) → dựng skeleton + INDEX. Chưa setup mà chạy quy trình tri thức → agent DỪNG và hỏi.
 - Mọi file agent tạo trong dự án mặc định lưu vào `projects/<slug>/` — user muốn chuyển đi đâu
   tùy ý, nhưng bản tri thức .md luôn giữ lại đây.
@@ -179,8 +179,8 @@ Hiện có: `distill_model_schema` (model) + `distill_template` (1 trang → kit
 
 #### 5.6 Riêng tư vs public (luật cứng)
 
-- `%LOCALAPPDATA%\powerbi-agent\config.json` + toàn bộ thư mục dự án: **KHÔNG BAO GIỜ commit** (gitignore + luật trong
-  AGENTS.md §5). Con trỏ thư mục là cấu hình của MÁY (%LOCALAPPDATA%), không phải của repo.
+- `.env` + toàn bộ thư mục dự án: **KHÔNG BAO GIỜ commit** (gitignore + luật trong
+  AGENTS.md §5). Con trỏ thư mục là cấu hình của MÁY (trong `.env` gitignored), không phải của repo.
 - Đường DUY NHẤT đưa tri thức riêng → repo public: user chủ động ra lệnh + `sanitize=True` + review.
 
 **Ước lượng:** 5.0+5.2 (nền + project) 1 buổi · 5.1 (scan design) 1 buổi · 5.3+5.4 (curator + timeline) 1 buổi · UAT trên dự án thật 1 buổi.

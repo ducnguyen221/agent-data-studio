@@ -1,54 +1,47 @@
 """Knowledge OS — nơi lưu tài liệu dự án, NẰM NGOÀI repo.
 
-Hai vùng tách bạch, không vùng nào nằm trong repo:
+MỘT nguyên tắc, không ngoại lệ:
+**repo giữ thứ đến từ GitHub; MỌI sản phẩm tạo ra nằm ở thư mục dữ liệu ngoài repo.**
 
-  MÁY   %LOCALAPPDATA%\\powerbi-agent\\     con trỏ + sổ ghi nhớ + audit + distill
-        config.json      địa chỉ thư mục dự án của máy này
-        projects.json    SỔ GHI NHỚ: dự án nào, tài liệu nằm ở đâu, lúc nào
+  REPO     ~/.mcp/powerbi-mcp/    code · skill · template public
+           .env                   (gitignored) POWERBI_PROJECT_DIR= + secret
   DỮ LIỆU  <project_dir>, mặc định ~/powerbi-project/
-        <slug>/ · knowledge/{4 trục}/ · templates/ · INDEX.md · TIMELINE.md
+           projects/<slug>/ · knowledge/{4 trục}/ · templates/ · INDEX.md · TIMELINE.md
+           projects.json   SỔ GHI NHỚ: dự án nào, tài liệu nằm ở đâu, lúc nào
+           policy.json     cột PII của khách
+           audit/          log truy vấn DAX
 
-Vì sao con trỏ KHÔNG để trong repo (trước đây là `knowledge.config.json` ở gốc repo):
-  - repo bị xoá / clone lại / đổi máy là mất sạch con trỏ, agent quên hết dự án cũ;
-  - file nằm trong working tree thì luôn cách một lệnh `git add -A` là bị commit.
-Đặt ở LOCALAPPDATA thì nó sống sót mọi thao tác với repo và không thể bị commit.
+Chỉ 2 thư mục. Con trỏ là MỘT DÒNG trong `.env` — không cần thư mục cấu hình thứ ba,
+và `.env` vốn đã được `app.py` nạp sẵn nên không thêm cơ chế mới nào.
+
+`audit/`, `policy.json`, `distilled/` nằm ở thư mục DỮ LIỆU chứ không phải repo: chúng nói
+VỀ dữ liệu khách hàng (câu DAX, tên cột PII, schema model). Để trong repo là lặp lại đúng
+lỗi đã làm lọt tên khách ra bản public.
 
 Thứ tự resolve:
-1. env `POWERBI_PROJECT_DIR`
-2. `config.json` trong thư mục máy
-3. `knowledge.config.json` cũ ở gốc repo — CHỈ ĐỌC, để bản cài cũ không gãy
-4. Chưa có → None (agent dừng, hỏi user chọn nơi lưu; gợi ý mặc định ~/powerbi-project)
+1. env `POWERBI_PROJECT_DIR` (đặt trong `.env` hoặc env thật của máy)
+2. `knowledge.config.json` cũ ở gốc repo — CHỈ ĐỌC, để bản cài cũ không gãy
+3. Chưa có → None (agent dừng, hỏi user chọn nơi lưu; gợi ý mặc định ~/powerbi-project)
 """
 
 import json
 import os
 import re
+import shutil
 import unicodedata
-from datetime import date
+from datetime import date, datetime
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ENV_FILE = os.path.join(_REPO_ROOT, ".env")
+ENV_KEY = "POWERBI_PROJECT_DIR"
 # Con trỏ đời cũ — chỉ đọc để migrate, không ghi mới vào đây nữa.
 LEGACY_CONFIG_FILE = os.path.join(_REPO_ROOT, "knowledge.config.json")
 
 DEFAULT_PROJECT_DIRNAME = "powerbi-project"
 
 
-def machine_dir() -> str:
-    """Thư mục cấu hình theo MÁY. Không có dấu chấm ở tên (yêu cầu của chủ repo).
-
-    Windows dùng %LOCALAPPDATA% — đúng chỗ quy ước cho state của ứng dụng.
-    Nền khác thì lùi về ~/powerbi-agent để code vẫn chạy được khi test.
-    """
-    base = os.getenv("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), ".local", "share")
-    return os.path.join(base, "powerbi-agent")
-
-
-CONFIG_FILE = os.path.join(machine_dir(), "config.json")
-REGISTRY_FILE = os.path.join(machine_dir(), "projects.json")
-
-
 def default_project_dir() -> str:
-    """Gợi ý mặc định để user chỉ cần bấm Enter."""
+    """Gợi ý mặc định để user chỉ cần bấm đồng ý."""
     return os.path.join(os.path.expanduser("~"), DEFAULT_PROJECT_DIRNAME)
 
 # 4 trục đóng gói tri thức (quy trình #3)
@@ -87,7 +80,7 @@ def resolve_root() -> str | None:
     Thư mục user chọn CHÍNH LÀ gốc — không tự đẻ thêm cấp con, để cái user thấy
     trong File Explorer đúng bằng cái agent ghi vào.
     """
-    base = os.getenv("POWERBI_PROJECT_DIR") or _read_json(CONFIG_FILE).get("project_dir")
+    base = os.getenv(ENV_KEY)
     if not base:
         # Bản cài cũ: con trỏ còn nằm trong repo. Chỉ đọc, không ghi lại vào đó.
         base = _read_json(LEGACY_CONFIG_FILE).get("knowledge_dir")
@@ -98,25 +91,62 @@ def resolve_root() -> str | None:
 
 
 def set_project_dir(path: str) -> str:
-    """Ghi con trỏ vào thư mục MÁY (ngoài repo) và trả về đường dẫn đã chuẩn hoá."""
+    """Ghi con trỏ thành MỘT DÒNG trong `.env` của repo, rồi trả về đường dẫn chuẩn hoá.
+
+    `.env` cũng chứa SECRET (service principal). Ghi ẩu là mất credential của user, nên
+    dùng đúng kỷ luật đã kiểm chứng ở install.ps1: backup trước → upsert đúng một dòng,
+    giữ nguyên mọi dòng khác → đọc lại verify. Không viết lại cả file từ đầu.
+    """
     full = os.path.abspath(os.path.expanduser(path))
-    cfg = _read_json(CONFIG_FILE)
-    cfg["project_dir"] = full
-    _write_json(CONFIG_FILE, cfg)
+    lines: list[str] = []
+    if os.path.exists(ENV_FILE):
+        shutil.copy2(ENV_FILE, f"{ENV_FILE}.bak.{datetime.now():%Y%m%d-%H%M%S}")
+        with open(ENV_FILE, encoding="utf-8") as f:
+            lines = f.read().splitlines()
+
+    entry = f"{ENV_KEY}={full}"
+    for i, ln in enumerate(lines):
+        # chỉ khớp dòng khai báo THẬT, bỏ qua dòng ví dụ đang bị comment
+        if ln.lstrip().startswith(f"{ENV_KEY}="):
+            lines[i] = entry
+            break
+    else:
+        if lines and lines[-1].strip():
+            lines.append("")
+        lines += ["# Thư mục dự án — mọi tài liệu agent tạo ra đi về đây (ngoài repo).", entry]
+
+    with open(ENV_FILE, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
+
+    with open(ENV_FILE, encoding="utf-8") as f:
+        if entry not in f.read().splitlines():
+            raise OSError(f"Ghi {ENV_FILE} xong nhưng đọc lại không thấy dòng {ENV_KEY} — khôi phục từ .bak")
+    os.environ[ENV_KEY] = full  # có hiệu lực ngay trong phiên này, khỏi restart host
     return full
 
 
 # ---- Sổ ghi nhớ dự án -------------------------------------------------------
 # Mục đích: 6 tháng sau vẫn truy vết được "tài liệu dự án X nằm ở đâu", kể cả khi
 # user cho agent ghi ra một thư mục hoàn toàn khác ngoài thư mục dự án mặc định.
+# Sổ nằm TRONG thư mục dữ liệu: backup dữ liệu là có luôn trí nhớ, và xoá repo
+# không làm agent quên gì cả.
+
+def registry_file() -> str | None:
+    root = resolve_root()
+    return os.path.join(root, "projects.json") if root else None
+
 
 def load_registry() -> list[dict]:
-    data = _read_json(REGISTRY_FILE)
+    path = registry_file()
+    data = _read_json(path) if path else {}
     return data.get("projects", []) if isinstance(data, dict) else []
 
 
 def register_project(slug: str, name: str, path: str, note: str = "") -> None:
     """Ghi/cập nhật một dự án vào sổ. Khoá theo slug — chạy lại không tạo bản trùng."""
+    reg = registry_file()
+    if not reg:
+        return
     items = load_registry()
     entry = {
         "slug": slug,
@@ -132,7 +162,7 @@ def register_project(slug: str, name: str, path: str, note: str = "") -> None:
             break
     else:
         items.append(entry)
-    _write_json(REGISTRY_FILE, {"projects": items})
+    _write_json(reg, {"projects": items})
 
 
 NOT_SETUP_MSG = (

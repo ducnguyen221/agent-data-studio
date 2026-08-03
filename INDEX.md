@@ -252,7 +252,7 @@ Clone it and these will be missing. That is intentional, not a broken checkout.
 
 | Missing | Where it lives | Why |
 |---|---|---|
-| **project dir** | A folder you designate, outside the repo | It holds real client data. `%LOCALAPPDATA%\powerbi-agent\config.json` is gitignored so nobody receives anyone else's knowledge through git |
+| **project dir** | A folder you designate, outside the repo | It holds real client data. the pointer is one line in the repo's gitignored `.env`, so nobody receives anyone else's knowledge through git |
 | `.env` | Your machine | Service-principal secrets. Created from `.env.example`, never committed |
 | `policy.json` | Your machine | Lists the actual PII column names of your data |
 | `.venv/` | Your machine | Built by `install.ps1` |

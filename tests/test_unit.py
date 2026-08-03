@@ -283,36 +283,87 @@ class TestKnowledge:
 
     def test_resolve_root_none_when_unset(self, monkeypatch):
         from powerbi_agent import knowledge as kn
-        monkeypatch.delenv("POWERBI_PROJECT_DIR", raising=False)
-        monkeypatch.setattr(kn, "CONFIG_FILE", "Z:/khong/ton/tai.json")
+        monkeypatch.delenv(kn.ENV_KEY, raising=False)
         monkeypatch.setattr(kn, "LEGACY_CONFIG_FILE", "Z:/khong/ton/tai-cu.json")
         assert kn.resolve_root() is None
 
-    def test_machine_dir_has_no_dot_prefix(self):
-        """Chủ repo yêu cầu KHÔNG dùng thư mục có dấu chấm."""
+    def test_set_project_dir_preserves_secrets_in_env(self, tmp_path, monkeypatch):
+        """Con trỏ ghi vào .env — mà .env CHỨA SECRET. Ghi ẩu = mất credential của user."""
         from powerbi_agent import knowledge as kn
-        assert os.path.basename(kn.machine_dir()) == "powerbi-agent"
-        assert not os.path.basename(kn.machine_dir()).startswith(".")
+        env = tmp_path / ".env"
+        env.write_text(
+            "\n".join([
+                "# Cấu hình Power BI Service",
+                "POWERBI_CLIENT_SECRET=sieu-bi-mat",
+                "POWERBI_TENANT_ID=abc-123",
+                "",
+            ]),
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(kn, "ENV_FILE", str(env))
+        monkeypatch.delenv(kn.ENV_KEY, raising=False)
+        target = tmp_path / "du-an"
+        out = kn.set_project_dir(str(target))
 
-    def test_machine_dir_is_outside_repo(self):
-        """Con trỏ phải sống sót khi repo bị xoá / clone lại, và không thể bị commit."""
-        from powerbi_agent import knowledge as kn
-        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
-        assert os.path.commonpath([os.path.abspath(kn.machine_dir()), repo]) != repo
+        txt = env.read_text(encoding="utf-8")
+        assert "POWERBI_CLIENT_SECRET=sieu-bi-mat" in txt, "SECRET BỊ MẤT"
+        assert "POWERBI_TENANT_ID=abc-123" in txt
+        assert "Cấu hình Power BI Service" in txt, "comment tiếng Việt bị mất"
+        assert f"{kn.ENV_KEY}={os.path.abspath(str(target))}" in txt
+        assert out == os.path.abspath(str(target))
+        # có bản backup trước khi ghi
+        assert list(tmp_path.glob(".env.bak.*")), "không tạo backup trước khi sửa .env"
 
-    def test_registry_records_where_docs_live(self, tmp_path, monkeypatch):
-        """Sổ ghi nhớ: 6 tháng sau vẫn truy vết được tài liệu dự án nằm ở đâu."""
+    def test_set_project_dir_is_idempotent(self, tmp_path, monkeypatch):
+        """Chạy lại phải THAY dòng cũ, không nối thêm dòng thứ hai."""
         from powerbi_agent import knowledge as kn
-        monkeypatch.setattr(kn, "REGISTRY_FILE", str(tmp_path / "projects.json"))
-        kn.register_project("bao-cao-a", "Báo cáo A", str(tmp_path / "noi-khac" / "bao-cao-a"))
+        env = tmp_path / ".env"
+        env.write_text("KEEP=1" + chr(10), encoding="utf-8")
+        monkeypatch.setattr(kn, "ENV_FILE", str(env))
+        monkeypatch.delenv(kn.ENV_KEY, raising=False)
+        kn.set_project_dir(str(tmp_path / "a"))
+        kn.set_project_dir(str(tmp_path / "b"))
+        lines = [ln for ln in env.read_text(encoding="utf-8").splitlines()
+                 if ln.startswith(kn.ENV_KEY + "=")]
+        assert len(lines) == 1 and lines[0].endswith("b")
+        assert "KEEP=1" in env.read_text(encoding="utf-8")
+
+    def test_registry_lives_in_data_dir_not_repo(self, tmp_path, monkeypatch):
+        """Sổ ghi nhớ đi cùng DỮ LIỆU: xoá repo không làm agent quên dự án."""
+        from powerbi_agent import knowledge as kn
+        monkeypatch.setenv(kn.ENV_KEY, str(tmp_path))
+        assert kn.registry_file() == os.path.join(str(tmp_path), "projects.json")
+        kn.register_project("bao-cao-a", "Báo cáo A", str(tmp_path / "noi-khac"))
         items = kn.load_registry()
-        assert len(items) == 1
-        assert items[0]["name"] == "Báo cáo A"
-        assert items[0]["path"].endswith(os.path.join("noi-khac", "bao-cao-a"))
+        assert len(items) == 1 and items[0]["name"] == "Báo cáo A"
         # ghi lại cùng slug -> cập nhật, KHÔNG tạo bản trùng
-        kn.register_project("bao-cao-a", "Báo cáo A (đổi tên)", str(tmp_path / "moi"))
+        kn.register_project("bao-cao-a", "Báo cáo A", str(tmp_path / "moi"))
         items = kn.load_registry()
         assert len(items) == 1 and items[0]["path"].endswith("moi")
+
+    def test_nothing_machine_specific_left_in_repo(self, tmp_path, monkeypatch):
+        """audit/ · policy.json · distilled/ đều nói VỀ dữ liệu khách -> không được ở repo."""
+        from powerbi_agent import policy
+        from powerbi_agent.tools_distill import _resolve_output_dir
+        from powerbi_agent import knowledge as kn
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        monkeypatch.setenv(kn.ENV_KEY, str(tmp_path))
+        monkeypatch.delenv("POWERBI_AUDIT_DIR", raising=False)
+        monkeypatch.delenv("POWERBI_POLICY_FILE", raising=False)
+        monkeypatch.delenv("POWERBI_DISTILL_DIR", raising=False)
+        for got in (policy._audit_dir(), policy._policy_file(), _resolve_output_dir(None)):
+            assert os.path.commonpath([os.path.abspath(got), repo]) != repo, got
+
+    def test_audit_falls_back_outside_repo_when_not_setup(self, monkeypatch):
+        """Chạy DAX trước khi setup vẫn phải ghi audit — nhưng KHÔNG vào repo."""
+        from powerbi_agent import policy
+        from powerbi_agent import knowledge as kn
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        monkeypatch.delenv("POWERBI_AUDIT_DIR", raising=False)
+        monkeypatch.delenv(kn.ENV_KEY, raising=False)
+        monkeypatch.setattr(kn, "LEGACY_CONFIG_FILE", "Z:/khong/ton/tai.json")
+        d = policy._audit_dir()
+        assert os.path.commonpath([os.path.abspath(d), repo]) != repo
 
     def test_skeleton_and_timeline_and_index(self, tmp_path):
         from powerbi_agent import knowledge as kn
@@ -347,4 +398,4 @@ class TestDistill:
         from powerbi_agent.tools_distill import _resolve_output_dir
         monkeypatch.delenv("POWERBI_DISTILL_DIR", raising=False)
         out = _resolve_output_dir(None)
-        assert "powerbi-agent" in out and ".powerbi-agent" not in out  # ngoài repo, không dấu chấm
+        assert ".powerbi-agent" not in out  # không dùng thư mục dấu chấm nữa

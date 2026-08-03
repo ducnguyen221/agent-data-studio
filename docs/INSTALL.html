@@ -147,7 +147,7 @@ TMDL, validate DAX giao cho MCP chính chủ Microsoft:</p>
   <tr><th>Lớp</th><th>Mặc định</th><th>Điều chỉnh</th></tr>
   <tr><td>Chặn dump thô (<code>EVALUATE 'Bảng'</code>, <code>ALL()</code>)</td><td class="ok">BẬT</td><td><code>POWERBI_AGGREGATE_ONLY=0</code> để tắt</td></tr>
   <tr><td>PII blocklist (cột cấm project)</td><td>Theo file</td><td>Copy <code>policy.example.json</code> → <code>policy.json</code>, liệt kê cột</td></tr>
-  <tr><td>Audit log JSONL</td><td class="ok">BẬT</td><td><code>%LOCALAPPDATA%/powerbi-agent/audit/</code> (đổi: <code>POWERBI_AUDIT_DIR</code>)</td></tr>
+  <tr><td>Audit log JSONL</td><td class="ok">BẬT</td><td><code><thư mục dự án>/audit/</code> (đổi: <code>POWERBI_AUDIT_DIR</code>)</td></tr>
   <tr><td>Trần 200 dòng cho kết quả có cột dimension</td><td class="ok">BẬT</td><td><code>POWERBI_DIMENSION_ROW_CAP</code></td></tr>
 </table>
 <div class="danger"><b>Trung thực về giới hạn:</b> đây là guard chống rò rỉ <i>sơ ý</i>. Bảo mật cứng =

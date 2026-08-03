@@ -122,7 +122,7 @@ thuật) · `powerbi-mcp` (sổ tay tra cứu tool) · `powerbi-knowledge` (Know
 - **aggregate-only, BẬT mặc định** — `EVALUATE '<table>'` và `EVALUATE ALL(...)` bị từ chối kèm gợi ý
   viết lại bằng `SUMMARIZECOLUMNS`/`TOPN`. Tắt bằng `POWERBI_AGGREGATE_ONLY=0`.
 - **Blocklist PII + nhật ký audit** — copy `policy.example.json` → `policy.json` rồi liệt kê cột cần
-  chặn; mọi truy vấn được ghi vào `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` kèm phán quyết và số dòng.
+  chặn; mọi truy vấn được ghi vào `<thư mục dự án>/audit/*.jsonl` kèm phán quyết và số dòng.
 - **Nói thật về giới hạn** — đây là lớp chắn rò rỉ do sơ suất. Bảo mật thật vẫn là RLS trên model +
   service principal quyền tối thiểu.
 

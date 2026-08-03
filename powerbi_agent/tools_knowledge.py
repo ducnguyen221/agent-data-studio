@@ -47,7 +47,7 @@ def register(mcp):
         Thiết lập THƯ MỤC DỰ ÁN tại `path` do USER CHỈ ĐỊNH — luôn NẰM NGOÀI repo.
         Agent phải HỎI user trước, gợi ý mặc định `~/powerbi-project`, không tự chọn.
 
-        Con trỏ ghi vào %LOCALAPPDATA%\\powerbi-agent\\config.json (ngoài repo, nên sống sót
+        Con trỏ ghi thành 1 dòng POWERBI_PROJECT_DIR trong `.env` (gitignored; có backup .bak
         khi repo bị xoá/clone lại và không thể bị commit nhầm). Dựng skeleton:
         projects/ · knowledge/ 4 trục · templates/ · INDEX.md · TIMELINE.md. Idempotent.
         """

@@ -4,11 +4,12 @@ Tên tool là `distill_model_schema` vì nó distill MODEL — distill report te
 là việc của tools_template.py.
 
 Đích ghi KHÔNG hardcode theo máy: tham số `output_dir` → env `POWERBI_DISTILL_DIR`
-→ mặc định `%LOCALAPPDATA%/powerbi-agent/distilled/` (NGOÀI repo — schema model khách hàng
+→ mặc định `<thư mục dự án>/distilled/` (NGOÀI repo — schema model khách hàng
 là dữ liệu nhạy cảm, không được commit).
 """
 
 import os
+import tempfile
 import re
 
 import pandas as pd
@@ -31,8 +32,10 @@ def _resolve_output_dir(output_dir: str | None) -> str:
     env_dir = os.getenv("POWERBI_DISTILL_DIR")
     if env_dir:
         return env_dir
-    from powerbi_agent.knowledge import machine_dir
-    return os.path.join(machine_dir(), "distilled")
+    from powerbi_agent.knowledge import resolve_root
+    root = resolve_root()
+    # Schema model là dữ liệu khách hàng -> đi cùng thư mục dữ liệu, không vào repo.
+    return os.path.join(root, "distilled") if root else os.path.join(tempfile.gettempdir(), "powerbi-agent-distilled")
 
 
 def _catalog_of(port: str) -> str:
@@ -59,7 +62,7 @@ def register(mcp):
         tham chiếu khi viết DAX / thiết kế báo cáo.
         - port / model_id: để trống sẽ tự dò (nếu chỉ có 1 báo cáo đang mở).
         - output_filename: tên file .md (mặc định 'distilled_model_<model_id>.md').
-        - output_dir: thư mục ghi; mặc định env POWERBI_DISTILL_DIR hoặc %LOCALAPPDATA%/powerbi-agent/distilled/.
+        - output_dir: thư mục ghi; mặc định env POWERBI_DISTILL_DIR hoặc <thư mục dự án>/distilled/.
           LƯU Ý: schema model có thể nhạy cảm (tên bảng/cột/công thức nghiệp vụ) — đừng ghi vào repo public.
         """
         try:

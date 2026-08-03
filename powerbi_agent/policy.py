@@ -3,10 +3,10 @@
 Nguyên tắc: dữ liệu thô ở lại trong engine Power BI; chỉ kết quả TỔNG HỢP đi vào context LLM.
 
 - `aggregate_only` (mặc định BẬT từ M1): chặn DAX dump bảng thô. Tắt: POWERBI_AGGREGATE_ONLY=0.
-- PII blocklist: file `policy.json` (repo root, hoặc env POWERBI_POLICY_FILE) — cột cấm xuất hiện
+- PII blocklist: file `policy.json` trong THƯ MỤC DỮ LIỆU (hoặc env POWERBI_POLICY_FILE) — cột cấm xuất hiện
   trong truy vấn. Heuristic BẢO THỦ: chặn khi tên cột xuất hiện bất kỳ đâu trong DAX (parser DAX
   đầy đủ ngoài scope; thà chặn nhầm hơn lộ nhầm — user tắt được per-cột bằng cách sửa policy.json).
-- Audit log JSONL: %LOCALAPPDATA%/powerbi-agent/audit/YYYY-MM.jsonl (đổi qua POWERBI_AUDIT_DIR).
+- Audit log JSONL: <thư mục dự án>/audit/YYYY-MM.jsonl (đổi qua POWERBI_AUDIT_DIR).
 
 TRUNG THỰC VỀ GIỚI HẠN: đây là guard chống rò rỉ do SƠ Ý (agent tiện tay dump bảng),
 KHÔNG phải bảo mật cứng. Bảo mật cứng = RLS trên model + service principal quyền tối thiểu.
@@ -14,6 +14,7 @@ KHÔNG phải bảo mật cứng. Bảo mật cứng = RLS trên model + service
 
 import json
 import os
+import tempfile
 import re
 from datetime import datetime, timezone
 
@@ -50,11 +51,29 @@ def aggregate_only_enabled() -> bool:
 # ---------------------------------------------------------------------------
 
 def _policy_file() -> str:
+    """Blocklist PII sống ở THƯ MỤC DỮ LIỆU, không phải trong repo.
+
+    File này liệt kê tên cột PII THẬT của khách hàng — để trong repo là lặp lại đúng
+    lỗi đã làm lọt tên khách ra bản public. Repo root chỉ còn là fallback cho bản cài cũ.
+    """
     env = os.getenv("POWERBI_POLICY_FILE")
     if env:
         return env
+    from powerbi_agent.knowledge import resolve_root
+    root = resolve_root()
+    if root:
+        p = os.path.join(root, "policy.json")
+        if os.path.exists(p):
+            return p
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(repo_root, "policy.json")
+    legacy = os.path.join(repo_root, "policy.json")
+    if os.path.exists(legacy):
+        log.warning(
+            "policy.json đang nằm TRONG repo (%s). Chuyển sang %s để tên cột PII không "
+            "nằm trong git working tree.", legacy, os.path.join(root or "<thư mục dự án>", "policy.json")
+        )
+        return legacy
+    return os.path.join(root, "policy.json") if root else legacy
 
 
 def load_blocklist() -> list[str]:
@@ -85,11 +104,19 @@ def _find_blocked(dax_query: str, blocklist: list[str]) -> str | None:
 # ---------------------------------------------------------------------------
 
 def _audit_dir() -> str:
+    """Log truy vấn đi cùng DỮ LIỆU — backup dữ liệu là có luôn bằng chứng ai đã hỏi gì.
+
+    Chưa setup thì vẫn có thể chạy DAX, mà câu DAX chứa tên bảng/cột khách hàng nên
+    KHÔNG được ghi vào repo. Lúc đó lùi về %TEMP% — tạm nhưng nằm ngoài git.
+    """
     env = os.getenv("POWERBI_AUDIT_DIR")
     if env:
         return env
-    from powerbi_agent.knowledge import machine_dir
-    return os.path.join(machine_dir(), "audit")
+    from powerbi_agent.knowledge import resolve_root
+    root = resolve_root()
+    if root:
+        return os.path.join(root, "audit")
+    return os.path.join(tempfile.gettempdir(), "powerbi-agent-audit")
 
 
 def audit(tool: str, dax_query: str, verdict: str, rows: int = -1) -> None:

@@ -43,9 +43,9 @@ chính user; không tri thức nào của ai bị đẩy lên git.
 
 ## Luật riêng tư (CỨNG)
 
-1. `%LOCALAPPDATA%\powerbi-agent\config.json` + toàn bộ thư mục dự án **KHÔNG BAO GIỜ commit** vào repo.
+1. `.env` (chứa con trỏ + secret) + toàn bộ thư mục dự án **KHÔNG BAO GIỜ commit** vào repo.
 2. Đường DUY NHẤT đưa tri thức riêng → repo public: user chủ động ra lệnh + `sanitize=True` + user review.
-3. Con trỏ thư mục nằm ở %LOCALAPPDATA% của TỪNG MÁY — user khác clone repo sẽ **không có** config đó
+3. Con trỏ thư mục nằm trong `.env` của TỪNG BẢN CLONE — user khác clone repo sẽ **không có** config đó
    và phải tự khai báo qua /powerbi-setup. Đừng bao giờ gợi ý commit config.
 
 ## Chuẩn 1 file tri thức trong knowledge/

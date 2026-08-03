@@ -1,5 +1,6 @@
-# Secrets — KHÔNG commit
+# Secrets — KHÔNG commit (.env giữ luôn con trỏ POWERBI_PROJECT_DIR)
 .env
+.env.bak.*
 
 # Virtual env
 .venv/
@@ -25,7 +26,7 @@ policy.json
 # Cache tool local
 .ruff_cache/
 
-# Con trỏ đời cũ (trước v0.6) — con trỏ mới nằm ngoài repo ở %LOCALAPPDATA%
+# Con trỏ đời cũ (trước v0.6) — con trỏ mới là 1 dòng POWERBI_PROJECT_DIR trong .env
 knowledge.config.json
 
 # Residue cua bo test installer (fake USERPROFILE)

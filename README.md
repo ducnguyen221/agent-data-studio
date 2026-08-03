@@ -122,7 +122,7 @@ Full table with descriptions: [INDEX.md](INDEX.md).
 - **aggregate-only, ON by default** — `EVALUATE '<table>'` and `EVALUATE ALL(...)` are refused with a
   rewrite hint toward `SUMMARIZECOLUMNS`/`TOPN`. Disable with `POWERBI_AGGREGATE_ONLY=0`.
 - **PII blocklist + audit log** — copy `policy.example.json` → `policy.json` and list the columns to
-  block; every query is recorded to `%LOCALAPPDATA%/powerbi-agent/audit/*.jsonl` with its verdict and row count.
+  block; every query is recorded to `<thư mục dự án>/audit/*.jsonl` with its verdict and row count.
 - **Honest about limits** — this guards against accidental leaks. Real security is still RLS on the
   model plus a least-privilege service principal.
 
