@@ -685,3 +685,14 @@ def test_env_data_dir_follows_ads_data(monkeypatch, tmp_path):
     assert _env.env_file() == str(tmp_path / ".env")
     monkeypatch.delenv("ADS_DATA")
     assert _env.data_dir() == _env._PKG_PARENT
+
+
+def test_env_secrets_file_default_and_override(monkeypatch, tmp_path):
+    """Secret tách khỏi .env: mặc định $ADS_DATA/secrets.env, đổi bằng ADS_SECRETS_FILE."""
+    from powerbi_agent import _env
+
+    monkeypatch.setenv("ADS_DATA", str(tmp_path))
+    monkeypatch.delenv("ADS_SECRETS_FILE", raising=False)
+    assert _env.secrets_file() == str(tmp_path / "secrets.env")
+    monkeypatch.setenv("ADS_SECRETS_FILE", str(tmp_path / "vault" / "s.env"))
+    assert _env.secrets_file() == str(tmp_path / "vault" / "s.env")

@@ -18,3 +18,9 @@ def data_dir() -> str:
 
 def env_file() -> str:
     return os.path.join(data_dir(), ".env")
+
+
+def secrets_file() -> str:
+    """Secret (Power BI Service) tách khỏi `.env`: `$ADS_SECRETS_FILE`, mặc định `$ADS_DATA/secrets.env`."""
+    env = os.getenv("ADS_SECRETS_FILE")
+    return os.path.abspath(os.path.expanduser(env)) if env else os.path.join(data_dir(), "secrets.env")

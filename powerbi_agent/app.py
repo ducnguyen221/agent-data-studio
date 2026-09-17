@@ -14,9 +14,10 @@ from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
 # Tải cấu hình từ `.env` ở thư mục dữ liệu máy ($ADS_DATA; chưa đặt = gốc repo như bản cài cũ)
-from powerbi_agent._env import env_file
+from powerbi_agent._env import env_file, secrets_file
 
 load_dotenv(env_file())
+load_dotenv(secrets_file())  # secret tách riêng; biến đã có không bị ghi đè
 
 # Khởi tạo MCP Server với tên gọi định danh (giữ nguyên tên từ v0 — host đã đăng ký)
 mcp = FastMCP("PowerBI-Bridge-Server")

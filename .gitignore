@@ -38,3 +38,4 @@ docs/plans/
 lab/
 out/
 audit/
+secrets.env
