@@ -12,7 +12,6 @@ Năm bộ dữ liệu đã dựng và đang dùng dạy học tại KPIM Academy
 | **Data KPIM Bank** | Ngân hàng — dư nợ & tiền gửi | [Data KPIM Bank.md](<Data KPIM Bank.md>) |
 | **Data KPIM HR** | Nhân sự | [Data KPIM HR.md](<Data KPIM HR.md>) |
 | **Data KPIM Marketing** | Marketing đa kênh + outreach | [Data KPIM Marketing.md](<Data KPIM Marketing.md>) |
-| **Data KPIM Telecom** | Telecom — thuê bao & doanh thu | [Data KPIM Telecom.md](<Data KPIM Telecom.md>) |
 
 ## Cách dùng
 

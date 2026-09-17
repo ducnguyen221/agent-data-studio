@@ -74,7 +74,7 @@ sheet Data Dictionary đầy đủ, generator tái lập y hệt khi yêu cầu 
 |---|---|
 | [mockup-design-playbook.md](references/kpim/mockup-design-playbook.md) | P1–P2: dẫn dắt phỏng vấn, 6 nhóm câu hỏi, chính sách thương hiệu, 3 lăng kính, 8 domain mẫu, 5 bộ KPIM |
 | [mockup-build-playbook.md](references/kpim/mockup-build-playbook.md) | P3–P5: 8 hình dạng câu chuyện, phân phối, cơ chế đặt tên, catalog rule verify, bẫy Excel |
-| [kpim-datasets/README.md](references/kpim/kpim-datasets/README.md) | Chọn bộ tham chiếu gần nhất (Mart · Bank · HR · Marketing · Telecom) trước khi thiết kế mới |
+| [kpim-datasets/README.md](references/kpim/kpim-datasets/README.md) | Chọn bộ tham chiếu gần nhất (Mart · Bank · HR · Marketing) trước khi thiết kế mới |
 
 Mẫu spec: `templates/documents/dataset/` ở gốc repo (`dataset.template.yaml`, `DATASET_SPEC.template.md`).
 

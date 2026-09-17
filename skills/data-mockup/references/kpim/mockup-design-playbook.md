@@ -23,7 +23,6 @@ Người dùng hầu như không bao giờ mô tả đủ. Nhiệm vụ của ag
 | "Data nhân sự" | ảnh chụp hay lịch sử, có nghỉ việc, có lương | "Cần theo dõi biến động (vào/ra, đổi phòng ban) hay chỉ danh sách hiện tại? Có gộp chấm công + lương không?" |
 | "Data ngân hàng" | dư nợ là số dư ngày hay cuối kỳ | "Dư nợ/tiền gửi lấy **số dư cuối ngày** (khuyến nghị — tính được bình quân) hay chỉ số cuối tháng? Có cần nhóm nợ để tính NPL không?" |
 | "Data marketing" | mass media hay outreach từng KH | "Đo hiệu quả **nội dung đăng** (post/campaign) hay **chiến dịch gửi tới từng khách** (email/SMS)? Hai hướng khác hẳn nhau về bảng." |
-| "Data telecom" | thuê bao hay doanh thu, cấp đơn vị | "Trọng tâm là **biến động thuê bao** (đầu kỳ/phát triển mới/rời mạng) hay **doanh thu theo kế hoạch**? Cắt tới cấp tỉnh hay cấp huyện/khu vực?" |
 | "Khoảng 1.000 dòng" | dòng của bảng nào | "1.000 dòng đó là giao dịch, hay khách hàng? Fact thường phải lớn hơn dim 10–100 lần mới ra biểu đồ đẹp." |
 | "Dữ liệu 3 năm" | mốc kết thúc | "Ba năm tới **hôm nay** (số liệu năm hiện tại còn dở) hay tới **hết năm trước** (năm nào cũng đủ 12 tháng)?" |
 | "Cho giống thật" | giống ở mức nào | "Giống về **hình dạng số** (mùa vụ, tăng trưởng, 80/20) là mặc định. Có cần giống cả **tên thương hiệu/địa bàn thật** không?" |
@@ -89,7 +88,7 @@ Người dùng hay nói "làm giống Vinamilk", "data cho Thế Giới Di Độ
 
 | Hướng | Khi nào dùng | Rủi ro |
 |---|---|---|
-| **Thương hiệu nhà KPIM** (khuyến nghị mặc định) | Lab đào tạo, demo, POC nội bộ | Không có. Dùng `KPIM Mart`, `KPIM Bank`, `KPIM Telecom`… — xem Phụ lục B |
+| **Thương hiệu nhà KPIM** (khuyến nghị mặc định) | Lab đào tạo, demo, POC nội bộ | Không có. Dùng `KPIM Mart`, `KPIM Bank`… — xem Phụ lục B |
 | **Thương hiệu hư cấu riêng** | User muốn không dính KPIM | Phải đặt tên nghe thật mà không đụng doanh nghiệp có thật — kiểm tra bằng một lượt tìm kiếm nhanh |
 | **Thương hiệu có thật** | Chỉ khi user là chính chủ, hoặc chỉ dùng nội bộ và user khẳng định chấp nhận | Số liệu bịa gắn tên hãng thật = có thể bị hiểu là dữ liệu thật của họ. Nếu buộc phải dùng, **bắt buộc** ghi cảnh báo ở `00_README` và đề nghị user không phát tán ra ngoài |
 
@@ -170,7 +169,6 @@ Năm bộ đã dựng và đang dùng dạy học, đã được **distill thàn
 | **Data KPIM Bank** | Ngân hàng — dư nợ & tiền gửi | Số dư semi-additive, snapshot hằng ngày, khối lượng lớn |
 | **Data KPIM HR** | Nhân sự | Vòng đời vào–ra, cây tổ chức tự trỏ, chấm công & lương |
 | **Data KPIM Marketing** | Marketing đa kênh & outreach | Phễu nhiều bước, nối kế hoạch ↔ kết quả nền tảng, consent |
-| **Data KPIM Telecom** | Telecom — thuê bao & doanh thu | Cân bằng đầu kỳ–cuối kỳ, cây đơn vị nhiều cấp, so kế hoạch/cùng kỳ, file phân mảnh theo tháng |
 
 **Cách dùng:** user chưa rõ yêu cầu → đưa 5 tên cho chọn ("gần giống bộ nào nhất?") → đọc **đúng một** hồ sơ → lấy khung bảng/grain/KPI làm điểm xuất phát → hỏi bù Nhóm 4–6.
 

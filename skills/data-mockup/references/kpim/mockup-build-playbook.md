@@ -171,12 +171,12 @@ Thêm bốn bẫy gặp trong dữ liệu thật của KPIM — **kiểm khi nh�
 |---|---|---|
 | Hình dạng | 1 dòng tiêu đề, 1 dòng = 1 bản ghi, không merge | Tiêu đề nhiều tầng, nhóm cột (Tháng / Luỹ kế / Năm), chú thích công thức `(4)=(2)/(1)` |
 | Dùng để | Nạp Power BI, pivot, phân tích | In ra họp, ký duyệt |
-| Ví dụ thật | `Data KPIM Mart` các sheet `fact_*`/`dim_*` | Các file `1.x_Doanh_thu_*.xlsx` của `Data KPIM Telecom`, `Kế hoạch doanh thu.xlsx` của Mart |
+| Ví dụ thật | `Data KPIM Mart` các sheet `fact_*`/`dim_*` | `Kế hoạch doanh thu.xlsx` của Mart |
 
 Luật: **luôn sinh bảng máy đọc trước** làm nguồn sự thật. Báo cáo người đọc chỉ là bản trình bày dựng thêm từ đó — và chỉ làm khi user yêu cầu rõ (thường là để dạy Power Query dọn dữ liệu thô). Không bao giờ để báo cáo người đọc làm nguồn dữ liệu duy nhất.
 
 ### Khi user muốn "giống hệ thống thật xuất ra"
-Hệ thống thật thường xuất **nhiều file cùng cấu trúc, phân mảnh theo kỳ** — như `Data KPIM Telecom`: thư mục `MM-DD-YYYY` × loại báo cáo × dòng sản phẩm (144 file). Nếu user cần đúng cảm giác đó: giữ một bảng nguồn duy nhất trong spec, rồi **cắt ra file theo kỳ ở bước cuối**, đặt tên theo khuôn cố định. Đừng sinh riêng từng file — sẽ lệch số giữa các mảnh.
+Hệ thống thật thường xuất **nhiều file cùng cấu trúc, phân mảnh theo kỳ** — ví dụ thư mục `MM-DD-YYYY` × loại báo cáo × dòng sản phẩm. Nếu user cần đúng cảm giác đó: giữ một bảng nguồn duy nhất trong spec, rồi **cắt ra file theo kỳ ở bước cuối**, đặt tên theo khuôn cố định. Đừng sinh riêng từng file — sẽ lệch số giữa các mảnh.
 
 ### Cổng P5
 Mở file: mọi sheet dữ liệu có số cột khớp Data Dictionary; chạy lại `verify` trên chính file `.xlsx` vẫn PASS (kiểm tra khâu ghi không làm hỏng kiểu dữ liệu).
