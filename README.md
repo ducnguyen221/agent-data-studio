@@ -29,9 +29,9 @@ workflows and templates here are **distilled by many KPIM experts** from real en
 | | Pillar | What it means in practice |
 |---|---|---|
 | **1** | **MCP Server** | 16 tools so the agent queries DAX, edits the model and writes report pages itself — every query passing a **server-side data-safety policy**, not a prompt hint. |
-| **2** | **Digitized expertise** | 4 skills · 8 commands · 1 curator agent · a Knowledge OS. The agent follows a real consultant's process instead of improvising. |
+| **2** | **Digitized expertise** | 9 skills · 8 commands · 1 curator agent · a Knowledge OS. The agent follows a real consultant's process instead of improvising. |
 | **3** | **Report design kits** | Clone a proven page and rebind the fields — style preserved 100%. Layouts an AI draws from scratch always look off; this fixes that. |
-| **4** | **Document templates** | 7 markdown deliverables + a 6-sheet Excel + a Power BI theme + 6 mindmaps, ready to fill in for a new project. |
+| **4** | **Document templates** | 7 markdown deliverables + a 6-sheet Excel + a Power BI theme + 6 mindmaps in [`templates/documents/`](templates/documents/), ready to fill in for a new project. |
 
 **→ Where everything lives, folder by folder: [INDEX.md](INDEX.md).**
 
@@ -52,9 +52,9 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
 The installer builds a `.venv`, probes for ADOMD.NET/TOM, registers the MCP server on all three
-hosts, then installs the 4 skills + 8 commands on each host (the curator agent only lands in Claude Code's `agents/` folder — other hosts
-get the same capability through the `powerbi-knowledge` skill). It is
-idempotent — safe to re-run. To refresh only the workflows: `.\install.ps1 -Only plugin`.
+hosts, then installs the 9 skills + 8 commands from the repo's `skills/` and `commands/` on each host (the curator agent from `agents/` only lands in Claude Code's `agents/` folder — other hosts
+get the same capability through the `pbi-knowledge` skill). It is
+idempotent — safe to re-run — and removes old-named skills/commands it generated in earlier versions. To refresh only the workflows: `.\install.ps1 -Only plugin`.
 
 **Requirements:** Windows · Python 3.11+ · ADOMD.NET (bundled with SSMS, or the
 [Analysis Services client libraries](https://learn.microsoft.com/en-us/analysis-services/client-libraries)).
@@ -75,13 +75,13 @@ Per-host details: [`hosts/`](hosts/).
 
 ```
 1.  restart your AI host          →  it picks up the MCP server
-2.  /powerbi-help                 →  the agent lists what it can do and routes your request
-3.  /powerbi-setup                →  designate a project dir (a folder OUTSIDE the repo). Once.
-4.  /powerbi-new "Revenue report" →  it reads past lessons, surveys the data, documents, then builds
+2.  /pbi-help                     →  the agent lists what it can do and routes your request
+3.  /pbi-setup                    →  designate a project dir (a folder OUTSIDE the repo). Once.
+4.  /pbi-new "Revenue report"     →  it reads past lessons, surveys the data, documents, then builds
 ```
 
-Already have a `.pbip` you like? `/powerbi-scan <path>` explains its design;
-`/powerbi-kit <path>` turns it into reusable kits.
+Already have a `.pbip` you like? `/pbi-scan <path>` explains its design;
+`/pbi-kit <path>` turns it into reusable kits.
 
 ## Main features
 
@@ -89,14 +89,14 @@ Already have a `.pbip` you like? `/powerbi-scan <path>` explains its design;
 
 | Command | What it does |
 |---|---|
-| `/powerbi-help` | List every capability + route your request to the right process |
-| `/powerbi-setup` | Declare the project dir — where all knowledge lives, outside the repo (once) |
-| `/powerbi-new <name>` | Open a project: its own folder + prior lessons + the analysis process |
-| `/powerbi-scan <path.pbip>` | Scan a report's design: every page + theme + DESIGN.md + catalog |
-| `/powerbi-kit <path.pbip>` | Distill a report into a **set** of reusable report-page kits |
-| `/powerbi-done` | Close a project: handoff checklist + distill + timeline + knowledge packaging |
-| `/powerbi-pack [project]` | Package lessons on 4 axes: tech-stack · industry · business-domain · powerbi |
-| `/powerbi-recall <keyword>` | "Have we done something like this before?" |
+| `/pbi-help` | List every capability + route your request to the right process |
+| `/pbi-setup` | Declare the project dir — where all knowledge lives, outside the repo (once) |
+| `/pbi-new <name>` | Open a project: its own folder + prior lessons + the analysis process |
+| `/pbi-scan <path.pbip>` | Scan a report's design: every page + theme + DESIGN.md + catalog |
+| `/pbi-kit <path.pbip>` | Distill a report into a **set** of reusable report-page kits |
+| `/pbi-done` | Close a project: handoff checklist + distill + timeline + knowledge packaging |
+| `/pbi-pack [project]` | Package lessons on 4 axes: tech-stack · industry · business-domain · powerbi |
+| `/pbi-recall <keyword>` | "Have we done something like this before?" |
 
 ### 16 tools, in 6 groups
 
@@ -111,10 +111,14 @@ Already have a `.pbip` you like? `/powerbi-scan <path>` explains its design;
 
 Full table with descriptions: [INDEX.md](INDEX.md).
 
-### 4 skills
+### 9 skills
 
-`kpim-analysis` (business phase: survey → document → plan) · `powerbi-pipeline` (9 technical steps) ·
-`powerbi-mcp` (tool reference) · `powerbi-knowledge` (Knowledge OS).
+All in [`skills/`](skills/):
+`data-discovery` (business phase: survey → document → plan) · `data-mockup` (mockup/sample data) ·
+`pbi-model` (Power Query/M, star schema, DAX measures in TMDL) · `pbi-analysis` (tool reference) ·
+`pbi-design` (design report pages / Design Brief before PBIR) · `pbi-build` (9 technical steps) ·
+`pbi-review` (review SQL, DAX, model, report pages) · `pbi-publish` (publish to Fabric / Power BI Service) ·
+`pbi-knowledge` (Knowledge OS).
 
 ## 🛡️ Data safety
 

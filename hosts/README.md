@@ -2,8 +2,8 @@
 
 > "Host" = thuật ngữ chuẩn MCP chỉ ứng dụng agent chạy bên trong (Claude Code, Codex CLI,
 > Antigravity). Folder này KHÔNG chứa skill — skill (nguồn duy nhất) nằm ở
-> [`../plugins/powerbi-agent/skills/`](../plugins/powerbi-agent/skills/), installer copy
-> sang thư mục skill của từng host khi cài.
+> [`../skills/`](../skills/) (lệnh ở [`../commands/`](../commands/), agent ở
+> [`../agents/`](../agents/)), installer copy sang thư mục skill của từng host khi cài.
 
 Mỗi thư mục = 1 host, chứa cách cài trọn bộ + snippet cấu hình tay + vai gợi ý trong tổ đa-agent:
 

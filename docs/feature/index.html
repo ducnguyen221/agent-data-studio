@@ -136,8 +136,8 @@
       qua git): <code class="inline">projects/&lt;dự án&gt;/</code> lưu tài liệu + hồ sơ thiết kế ·
       <code class="inline">knowledge/</code> bài học đóng gói theo <b>4 trục</b> (tech-stack, industry,
       business-domain, powerbi) chuẩn Why/How-to-apply, dedup · <code class="inline">TIMELINE.md</code>
-      append-only. Agent <b>powerbi-knowledge-curator</b> lo việc đóng gói. 8 lệnh:
-      /powerbi-help · setup · new · scan · kit · done · pack · recall — xem <a href="../instruction/" style="color:var(--accent)"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>.</div>
+      append-only. Agent <b>pbi-knowledge-curator</b> lo việc đóng gói. 8 lệnh:
+      /pbi-help · setup · new · scan · kit · done · pack · recall — xem <a href="../instruction/" style="color:var(--accent)"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>.</div>
     </div>
     <div class="mod-visual" aria-hidden="true">
       <p class="mono" style="color:var(--faint);margin-bottom:8px">📁 Knowledge Dir (của BẠN, ngoài repo)</p>
@@ -161,17 +161,17 @@
       phân tích giỏi: <b>hiểu bài toán → hỏi lại cho rõ → tài liệu hóa → lập kế hoạch → mới bắt tay dựng</b>.
       Mỗi bước có kiểm tra trước khi sang bước sau.</p>
       <div class="aud"><span class="a2">2 lớp quy trình</span></div>
-      <div class="deep"><b>kpim-analysis</b> (nghiệp vụ): Research → Key Information (6 mindmap +
+      <div class="deep"><b>data-discovery</b> (nghiệp vụ): Research → Key Information (6 mindmap +
       DATA_DICTIONARY, METRICS_CALCULATION, DOMAIN_DIMENSION, REPORTS, DESIGN) → Planning (Excel 2 cấp)
-      → bàn giao. <b>powerbi-pipeline</b> (kỹ thuật, 9 khâu): Power Query → transform M → star schema →
+      → bàn giao. <b>pbi-build</b> (kỹ thuật, 9 khâu): Power Query → transform M → star schema →
       DAX (verify từng measure) → truy vấn qua policy → trang báo cáo từ template → tính năng nâng cao
       → artifact bàn giao. Kèm tài liệu DAX/M/SQL best-practices từ Microsoft Learn.</div>
     </div>
     <div class="mod-visual" aria-hidden="true">
       <div class="flow-mini">
-        <div class="fstep"><span>1️⃣</span><b>kpim-analysis</b><span style="color:var(--faint);font-size:12px">— khảo sát · tài liệu · kế hoạch</span></div>
+        <div class="fstep"><span>1️⃣</span><b>data-discovery</b><span style="color:var(--faint);font-size:12px">— khảo sát · tài liệu · kế hoạch</span></div>
         <div class="arr">▼</div>
-        <div class="fstep"><span>2️⃣</span><b>powerbi-pipeline (9 khâu)</b><span style="color:var(--faint);font-size:12px">— model · DAX · báo cáo</span></div>
+        <div class="fstep"><span>2️⃣</span><b>pbi-build (9 khâu)</b><span style="color:var(--faint);font-size:12px">— model · DAX · báo cáo</span></div>
         <div class="arr">▼</div>
         <div class="fstep"><span>3️⃣</span><b>Đóng gói tri thức</b><span style="color:var(--faint);font-size:12px">— bài học cho dự án sau</span></div>
       </div>

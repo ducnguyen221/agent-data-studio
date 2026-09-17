@@ -29,9 +29,9 @@ trình cùng mẫu báo cáo ở đây được **nhiều chuyên gia KPIM phố
 | | Trụ cột | Nghĩa là gì trong thực tế |
 |---|---|---|
 | **1** | **MCP Server** | 16 tool để agent tự truy vấn DAX, sửa model, ghi trang báo cáo — mọi câu truy vấn đều đi qua **policy an toàn dữ liệu ở phía server**, không phải lời nhắc trong prompt. |
-| **2** | **Chuyên môn đã số hóa** | 4 skill · 8 lệnh · 1 agent curator · Knowledge OS. Agent làm theo quy trình thật của chuyên gia thay vì tự ứng biến. |
+| **2** | **Chuyên môn đã số hóa** | 9 skill · 8 lệnh · 1 agent curator · Knowledge OS. Agent làm theo quy trình thật của chuyên gia thay vì tự ứng biến. |
 | **3** | **Kho mẫu thiết kế báo cáo** | Nhân bản trang đã đẹp rồi bind field mới — style giữ nguyên 100%. Layout AI tự vẽ luôn nhìn sai lệch; đây là cách chữa. |
-| **4** | **Bộ mẫu tài liệu** | 7 file markdown bàn giao + Excel 6 sheet + theme Power BI + 6 mindmap, điền là dùng được cho dự án mới. |
+| **4** | **Bộ mẫu tài liệu** | 7 file markdown bàn giao + Excel 6 sheet + theme Power BI + 6 mindmap trong [`templates/documents/`](templates/documents/), điền là dùng được cho dự án mới. |
 
 **→ Từng thư mục nằm đâu, chứa gì: [INDEX.md](INDEX.md).**
 
@@ -51,9 +51,9 @@ cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-Installer dựng `.venv`, dò ADOMD.NET/TOM, đăng ký MCP server vào cả 3 host, rồi cài 4 skill + 8 lệnh
-cho từng host (agent curator chỉ Claude Code có thư mục `agents/` chuẩn — host khác
-vẫn có năng lực đó qua skill `powerbi-knowledge`). Idempotent — chạy lại nhiều lần an toàn. Chỉ muốn cập nhật phần
+Installer dựng `.venv`, dò ADOMD.NET/TOM, đăng ký MCP server vào cả 3 host, rồi cài 9 skill + 8 lệnh từ `skills/` và `commands/` của repo
+cho từng host (agent curator lấy từ `agents/`, chỉ Claude Code có thư mục `agents/` chuẩn — host khác
+vẫn có năng lực đó qua skill `pbi-knowledge`). Idempotent — chạy lại nhiều lần an toàn — và tự dọn skill/lệnh tên cũ do các bản trước sinh ra. Chỉ muốn cập nhật phần
 quy trình: `.\install.ps1 -Only plugin`.
 
 **Yêu cầu:** Windows · Python 3.11+ · ADOMD.NET (có sẵn khi cài SSMS, hoặc
@@ -75,13 +75,13 @@ Chi tiết từng host: [`hosts/`](hosts/).
 
 ```
 1.  restart AI host của bạn        →  host nạp MCP server
-2.  /powerbi-help                  →  agent tự liệt kê năng lực và định tuyến yêu cầu của bạn
-3.  /powerbi-setup                 →  chỉ định thư mục dự án (folder NGOÀI repo). Làm 1 lần.
-4.  /powerbi-new "Báo cáo doanh thu" →  agent đọc kinh nghiệm cũ, khảo sát, tài liệu hóa, rồi dựng
+2.  /pbi-help                      →  agent tự liệt kê năng lực và định tuyến yêu cầu của bạn
+3.  /pbi-setup                     →  chỉ định thư mục dự án (folder NGOÀI repo). Làm 1 lần.
+4.  /pbi-new "Báo cáo doanh thu"   →  agent đọc kinh nghiệm cũ, khảo sát, tài liệu hóa, rồi dựng
 ```
 
-Đã có sẵn file `.pbip` ưng ý? `/powerbi-scan <path>` giải thích thiết kế của nó;
-`/powerbi-kit <path>` biến nó thành bộ kit tái dùng.
+Đã có sẵn file `.pbip` ưng ý? `/pbi-scan <path>` giải thích thiết kế của nó;
+`/pbi-kit <path>` biến nó thành bộ kit tái dùng.
 
 ## Tính năng chính
 
@@ -89,14 +89,14 @@ Chi tiết từng host: [`hosts/`](hosts/).
 
 | Lệnh | Làm gì |
 |---|---|
-| `/powerbi-help` | Liệt kê mọi năng lực + định tuyến yêu cầu của bạn tới đúng quy trình |
-| `/powerbi-setup` | Khai báo thư mục dự án — nơi lưu toàn bộ tri thức, ngoài repo (làm 1 lần) |
-| `/powerbi-new <tên>` | Mở dự án: folder riêng + đọc kinh nghiệm cũ + chạy quy trình phân tích |
-| `/powerbi-scan <path.pbip>` | Quét thiết kế 1 báo cáo: mọi trang + theme + DESIGN.md + catalog |
-| `/powerbi-kit <path.pbip>` | Chưng cất báo cáo thành **bộ** kit trang báo cáo tái dùng |
-| `/powerbi-done` | Đóng dự án: checklist bàn giao + distill + timeline + đóng gói tri thức |
-| `/powerbi-pack [dự án]` | Đóng gói bài học theo 4 trục: tech-stack · industry · business-domain · powerbi |
-| `/powerbi-recall <từ khóa>` | "Đã từng làm gì tương tự chưa?" |
+| `/pbi-help` | Liệt kê mọi năng lực + định tuyến yêu cầu của bạn tới đúng quy trình |
+| `/pbi-setup` | Khai báo thư mục dự án — nơi lưu toàn bộ tri thức, ngoài repo (làm 1 lần) |
+| `/pbi-new <tên>` | Mở dự án: folder riêng + đọc kinh nghiệm cũ + chạy quy trình phân tích |
+| `/pbi-scan <path.pbip>` | Quét thiết kế 1 báo cáo: mọi trang + theme + DESIGN.md + catalog |
+| `/pbi-kit <path.pbip>` | Chưng cất báo cáo thành **bộ** kit trang báo cáo tái dùng |
+| `/pbi-done` | Đóng dự án: checklist bàn giao + distill + timeline + đóng gói tri thức |
+| `/pbi-pack [dự án]` | Đóng gói bài học theo 4 trục: tech-stack · industry · business-domain · powerbi |
+| `/pbi-recall <từ khóa>` | "Đã từng làm gì tương tự chưa?" |
 
 ### 16 tool, chia 6 nhóm
 
@@ -111,10 +111,14 @@ Chi tiết từng host: [`hosts/`](hosts/).
 
 Bảng đầy đủ kèm mô tả: [INDEX.md](INDEX.md).
 
-### 4 skill
+### 9 skill
 
-`kpim-analysis` (pha nghiệp vụ: khảo sát → tài liệu hóa → kế hoạch) · `powerbi-pipeline` (9 khâu kỹ
-thuật) · `powerbi-mcp` (sổ tay tra cứu tool) · `powerbi-knowledge` (Knowledge OS).
+Tất cả nằm trong [`skills/`](skills/):
+`data-discovery` (pha nghiệp vụ: khảo sát → tài liệu hóa → kế hoạch) · `data-mockup` (dữ liệu mẫu/mockup) ·
+`pbi-model` (Power Query/M, star schema, measure DAX trong TMDL) · `pbi-analysis` (sổ tay tra cứu tool) ·
+`pbi-design` (thiết kế trang báo cáo / Design Brief trước PBIR) · `pbi-build` (9 khâu kỹ thuật) ·
+`pbi-review` (review SQL, DAX, model, trang báo cáo) · `pbi-publish` (publish lên Fabric / Power BI Service) ·
+`pbi-knowledge` (Knowledge OS).
 
 ## 🛡️ An toàn dữ liệu
 

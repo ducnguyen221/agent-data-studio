@@ -12,13 +12,14 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex
 
 Installer làm 3 việc:
 1. Thêm block `[mcp_servers.powerbi-mcp-bridge]` vào `~/.codex/config.toml` (backup `.bak`).
-2. Copy 4 skill vào `~/.codex/skills/`.
-3. **Cài 8 quy trình thành SKILL** trong `~/.codex/skills/` — gọi bằng tên:
-   *"chạy powerbi-help"*, *"chạy powerbi-setup"*…
+2. Copy 9 skill từ [`skills/`](../../skills/) vào `~/.codex/skills/`.
+3. **Cài 8 quy trình thành SKILL** (từ [`commands/`](../../commands/)) trong `~/.codex/skills/` — mỗi lệnh
+   thành skill `pbi-<lệnh>`, gọi bằng tên: *"chạy pbi-help"*, *"chạy pbi-setup"*…
    *(Từ v0.6 — trước đó đặt nhầm vào `~/.codex/prompts/`, mà file ở đó phải gọi bằng
    `/prompts:<tên>` chứ không phải `/<tên>` — nên tên lệnh lệch hẳn so với Claude.)*
 
-Sau cài, Codex có **12 skill**: 4 quy trình chuyên môn + 8 quy trình lệnh.
+Sau cài, Codex có **17 skill**: 9 quy trình chuyên môn + 8 quy trình lệnh. Installer tự dọn các
+skill tên cũ (`powerbi-*`…) do bản trước sinh ra.
 
 **Restart phiên Codex** sau cài.
 
@@ -41,8 +42,8 @@ env     = { PYTHONUNBUFFERED = "1" }
 ## Cách 2 — Cài dạng PLUGIN (hiện trong `codex plugin list` / app)
 
 Codex đọc **cùng một `.claude-plugin/marketplace.json`** với Claude — không cần manifest riêng.
-Cài để plugin xuất hiện trong trình quản lý plugin của Codex (4 skill + 8 quy trình `powerbi-*` (gọi theo tên, Codex không có slash-command) + agent
-`powerbi-knowledge-curator` được nạp tự động):
+Cài để plugin xuất hiện trong trình quản lý plugin của Codex (9 skill + 8 quy trình `pbi-*` (gọi theo tên, Codex không có slash-command) + agent
+`pbi-knowledge-curator` được nạp tự động):
 
 ```bash
 codex plugin marketplace add https://github.com/ducnguyen221/powerbi-agent

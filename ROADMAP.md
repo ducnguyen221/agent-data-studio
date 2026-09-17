@@ -156,7 +156,7 @@ Hiện có: `distill_model_schema` (model) + `distill_template` (1 trang → kit
 
 #### 5.3 Quy trình #3 — Đóng gói tri thức theo 4 trục
 
-- [x] Agent **`powerbi-knowledge-curator`** (định nghĩa trong `plugins/powerbi-agent/agents/`):
+- [x] Agent **`powerbi-knowledge-curator`** (định nghĩa khi đó ở thư mục agents của plugin cũ; từ v0.7 là `agents/pbi-knowledge-curator.md`):
   đọc projects/ mới hoàn thành hoặc theo chu kỳ → rút bài học TÁI DÙNG → phân loại vào
   `knowledge/{tech-stack, industry, business-domain, powerbi}/` — dedup (cập nhật file cũ
   thay vì tạo trùng), mỗi bài học có **Why + How to apply**, cập nhật INDEX.
