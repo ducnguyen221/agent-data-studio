@@ -4,17 +4,17 @@ description: Quét 1 file Power BI (.pbip) → chưng cất thành BỘ template
 
 Dựng bộ template kit từ báo cáo Power BI: $ARGUMENTS
 
-> Khác `/powerbi-scan` (chỉ **ghi hồ sơ thiết kế** để đọc) — lệnh này **tạo ra tài sản tái dùng**:
-> từ 1 file .pbip ra một **bộ kit** mà `apply_template` dùng lại được cho dự án sau.
+> Khác `/pbi-scan` (chỉ **ghi hồ sơ thiết kế** để đọc) — lệnh này **tạo ra tài sản tái dùng**:
+> từ 1 file .pbip ra một **bộ kit** mà `apply_template` (skill `pbi-build`) dùng lại được cho dự án sau.
 > Khác `distill_template` (tool, làm **1 trang → 1 kit**) — lệnh này điều phối cho **cả báo cáo**.
 
 ## Luồng
 
-1. `knowledge_status` — chưa setup thì chạy luồng `/powerbi-setup` trước rồi quay lại.
+1. `knowledge_status` — chưa setup thì chạy luồng `/pbi-setup` trước rồi quay lại.
 
 2. Xác định `report_path` từ tham số: file `.pbip` hoặc folder `*.Report`.
    File `.pbix` → **KHÔNG** quét được: bảo user `Save As` sang `.pbip` (Power BI Desktop →
-   File → Save as → Power BI project). Xem skill `powerbi-pipeline`.
+   File → Save as → Power BI project). Xem skill `pbi-model`, mục PBIP-first.
 
 3. `distill_report_design(report_path, project=<tên dự án hoặc tên báo cáo>)`
    → `REPORT_CATALOG.md` + `DESIGN.md` + theme. Đây là **bản đồ** để biết có bao nhiêu trang
@@ -24,7 +24,8 @@ Dựng bộ template kit từ báo cáo Power BI: $ARGUMENTS
    và đề xuất giữ lại trang nào, theo tiêu chí:
    - trang có **hệ thiết kế rõ** (layout nhất quán, dùng theme, nhiều loại visual khác nhau)
    - trang **lặp lại được** ở dự án khác (tổng quan KPI, phân tích theo chiều, chi tiết giao dịch)
-   - **bỏ** trang nháp, trang chỉ có 1–2 visual, trang phụ thuộc dữ liệu quá đặc thù
+   - **bỏ** trang nháp, trang chỉ có 1–2 visual, trang phụ thuộc dữ liệu quá đặc thù,
+     và trang **mồ côi** (có thư mục nhưng không có trong `pages.json`)
    Chờ user chốt danh sách trước khi chạy bước 5.
 
 5. Với **mỗi** trang đã chốt → `distill_template(report_path, page=<tên trang>,
@@ -50,12 +51,13 @@ Dựng bộ template kit từ báo cáo Power BI: $ARGUMENTS
 
 6. **Gom thành bộ** — viết `README.md` ở thư mục cha của các kit, mô tả:
    - bộ này chưng cất từ báo cáo nào, ngày nào, gồm mấy kit
-   - **hệ thiết kế chung**: palette, font, canvas size, quy ước đặt visual (lấy từ `DESIGN.md` bước 3)
+   - **hệ thiết kế chung**: palette, font, canvas size, quy ước đặt visual (lấy từ `DESIGN.md` bước 3;
+     đối chiếu chuẩn trang KPIM ở skill `pbi-design`)
    - bảng: kit | vai trò | loại block | dùng khi nào
    - `theme.json` dùng chung (copy từ output bước 3) để dự án sau import thẳng vào Power BI
 
 7. **Nơi ghi** — mặc định `templates/` trong **Knowledge Dir** (kho riêng, chưa công khai).
-   Muốn đưa vào repo public `report-templates/`: phải đủ 3 điều kiện, thiếu 1 thì DỪNG và hỏi:
+   Muốn đưa vào repo công khai (`report-templates/` của studio): phải đủ 3 điều kiện, thiếu 1 thì DỪNG và hỏi:
    - đã `sanitize=True`
    - user **duyệt rõ ràng** từng kit
    - agent tự đọc lại `kit.json` + `blocks/*.json` xác nhận không còn tên bảng/cột/khách hàng thật
