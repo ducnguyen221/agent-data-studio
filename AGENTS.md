@@ -58,12 +58,11 @@ powerbi-agent/
 ├─ agents/                       ▸2  pbi-knowledge-curator (đóng gói tri thức)
 ├─ templates/documents/          ▸4  mẫu tài liệu: md + xlsx + theme.json + mindmaps
 ├─ upstream/ · LICENSES/ · THIRD_PARTY_NOTICES.md   vendored upstream · giấy phép bên thứ ba
-├─ plugins/                          tạm giữ manifest cũ powerbi-agent/.claude-plugin/plugin.json (+ README.md)
 │
 ├─ report-templates/             ▸3  kit VISUAL trang báo cáo (PBIR) cho apply_template
 │  └─ kpim-business-light/           kit mẫu, 12 block đã sanitize
 │
-├─ .claude-plugin/marketplace.json    DANH MỤC chợ plugin (khai báo repo phân phối plugin nào)
+├─ .claude-plugin/                   marketplace.json + plugin.json (plugin agent-data-studio, source "./" = cả repo) · .codex-plugin/plugin.json
 ├─ install.ps1 · uninstall.ps1       cài/gỡ in-place: venv + ADOMD/TOM + 3 host + skill/lệnh/agent
 ├─ scripts/                          tiện ích dev: cli.py (debug DAX không cần MCP) · test_mcp_local.py
 ├─ tests/ · .github/workflows/       pytest + ruff, CI windows-latest

@@ -47,8 +47,8 @@ Cài để plugin xuất hiện trong trình quản lý plugin của Codex (9 sk
 
 ```bash
 codex plugin marketplace add https://github.com/ducnguyen221/powerbi-agent
-codex plugin add powerbi-agent@powerbi-agent
-codex plugin list   # thấy: powerbi-agent@powerbi-agent  installed, enabled  0.6.0
+codex plugin add agent-data-studio@agent-data-studio
+codex plugin list   # thấy: agent-data-studio@agent-data-studio  installed, enabled  0.7.0
 ```
 
 > Chỉ cài plugin = có skill/lệnh, CHƯA có 16 tool MCP. Muốn đủ tool → chạy install.ps1 (Cách 1).

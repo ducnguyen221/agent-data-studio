@@ -65,8 +65,8 @@ The same `.claude-plugin/marketplace.json` works for **both Claude Code and Code
 skills, commands and agent, but **not** the 16 MCP tools (run `install.ps1` for those).
 
 ```bash
-claude plugin marketplace add ducnguyen221/powerbi-agent && claude plugin install powerbi-agent@powerbi-agent
-codex  plugin marketplace add https://github.com/ducnguyen221/powerbi-agent && codex plugin add powerbi-agent@powerbi-agent
+claude plugin marketplace add ducnguyen221/powerbi-agent && claude plugin install agent-data-studio@agent-data-studio
+codex  plugin marketplace add https://github.com/ducnguyen221/powerbi-agent && codex plugin add agent-data-studio@agent-data-studio
 ```
 
 Per-host details: [`hosts/`](hosts/).

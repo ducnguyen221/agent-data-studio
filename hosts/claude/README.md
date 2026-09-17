@@ -18,7 +18,7 @@ Verify: `claude mcp list` → `powerbi-mcp-bridge … ✔ Connected`.
 
 ```bash
 claude plugin marketplace add ducnguyen221/powerbi-agent
-claude plugin install powerbi-agent@powerbi-agent
+claude plugin install agent-data-studio@agent-data-studio
 ```
 
 Plugin `powerbi-agent` xuất hiện trong danh sách plugin của app; nạp **9 skill + 8 lệnh /pbi-* +

@@ -158,7 +158,6 @@ powerbi-agent/
 ├─ agents/                 ▸ PILLAR 2   pbi-knowledge-curator
 ├─ templates/documents/    ▸ PILLAR 4   doc templates + xlsx + theme + mindmaps
 ├─ upstream/ · LICENSES/ · THIRD_PARTY_NOTICES.md   vendored upstream · third-party licences
-├─ plugins/                             temporary: old manifest powerbi-agent/.claude-plugin/plugin.json
 │
 ├─ report-templates/       ▸ PILLAR 3   report-page kits for apply_template
 │  └─ kpim-business-light/                12 sanitized blocks
@@ -172,7 +171,6 @@ powerbi-agent/
 |---|---|---|---|---|
 | [`powerbi_agent/`](powerbi_agent/) | The MCP server: 14 Python modules providing 16 tools | `app.py` · `policy.py` · `tools_query.py` | 1 | Developers |
 | [`hosts/`](hosts/) | How to register the server in each AI host | `claude/` · `codex/` · `antigravity/` | 1 | Installers |
-| [`plugins/`](plugins/README.md) | Temporarily holds only the old plugin manifest, until the plugin-packaging step | `README.md` · `powerbi-agent/.claude-plugin/plugin.json` | 2 | Everyone |
 | [`skills/`](skills/) | The 9 expert processes, single source; installer copies them to hosts | 9 × `SKILL.md` | 2 | Agents |
 | [`commands/`](commands/) | 8 slash commands that trigger those processes | `pbi-help.md` · `pbi-setup.md` | 2 | Users |
 | [`agents/`](agents/) | Sub-agent that packages lessons at project close | `pbi-knowledge-curator.md` | 2 | Agents |
@@ -181,7 +179,7 @@ powerbi-agent/
 | [`scripts/`](scripts/) | Dev-only utilities, never shipped to users | `cli.py` · `build_template_gallery.py` | — | Developers |
 | [`tests/`](tests/) | Unit tests + a fake-profile installer harness | `test_unit.py` · `installer/installer.tests.ps1` | — | Developers |
 | [`docs/`](docs/) | The public website + internal plans | `index.html` · `INSTALL.html` · `plans/` | — | Anyone |
-| [`.claude-plugin/`](.claude-plugin/marketplace.json) | Marketplace catalog so hosts can install this as a plugin | `marketplace.json` | 2 | Hosts |
+| [`.claude-plugin/`](.claude-plugin/plugin.json) | Plugin `agent-data-studio` (source = whole repo) + marketplace catalog; Codex manifest in `.codex-plugin/` | `marketplace.json` · `plugin.json` | 2 | Hosts |
 
 ---
 

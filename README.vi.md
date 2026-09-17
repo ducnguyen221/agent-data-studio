@@ -65,8 +65,8 @@ Cùng một `.claude-plugin/marketplace.json` chạy cho **cả Claude Code lẫ
 agent, **chưa gồm** 16 tool MCP (muốn đủ tool thì chạy `install.ps1`).
 
 ```bash
-claude plugin marketplace add ducnguyen221/powerbi-agent && claude plugin install powerbi-agent@powerbi-agent
-codex  plugin marketplace add https://github.com/ducnguyen221/powerbi-agent && codex plugin add powerbi-agent@powerbi-agent
+claude plugin marketplace add ducnguyen221/powerbi-agent && claude plugin install agent-data-studio@agent-data-studio
+codex  plugin marketplace add https://github.com/ducnguyen221/powerbi-agent && codex plugin add agent-data-studio@agent-data-studio
 ```
 
 Chi tiết từng host: [`hosts/`](hosts/).
