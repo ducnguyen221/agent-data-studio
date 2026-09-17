@@ -4,8 +4,6 @@ THỨ TỰ QUAN TRỌNG: load_adomd() phải chạy TRƯỚC import pyadomd (too
 vì pyadomd resolve assembly AdomdClient ngay lúc import.
 """
 
-import os
-
 from powerbi_agent.adomd import load_adomd, load_tabular
 from powerbi_agent.util import log  # noqa: F401 — khởi tạo logging stderr sớm
 
@@ -15,9 +13,10 @@ TABULAR_LOADED = load_tabular()
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-# Tải cấu hình bảo mật từ file .env (nằm ở thư mục gốc repo — cha của package này)
-_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(_REPO_ROOT, ".env"))
+# Tải cấu hình từ `.env` ở thư mục dữ liệu máy ($ADS_DATA; chưa đặt = gốc repo như bản cài cũ)
+from powerbi_agent._env import env_file
+
+load_dotenv(env_file())
 
 # Khởi tạo MCP Server với tên gọi định danh (giữ nguyên tên từ v0 — host đã đăng ký)
 mcp = FastMCP("PowerBI-Bridge-Server")

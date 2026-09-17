@@ -674,3 +674,14 @@ class TestPublicKitFolderNeedsSanitize:
                 f"sanitize={sanitize} nhưng guard nhận allow_public_kits={seen.get('allow')} "
                 "— dây nối đứt, distill chưa sanitize sẽ ghi được vào report-templates/"
             )
+
+
+def test_env_data_dir_follows_ads_data(monkeypatch, tmp_path):
+    """Bản cài pip (không -e) đặt package trong site-packages → .env phải theo $ADS_DATA."""
+    from powerbi_agent import _env
+
+    monkeypatch.setenv("ADS_DATA", str(tmp_path))
+    assert _env.data_dir() == str(tmp_path)
+    assert _env.env_file() == str(tmp_path / ".env")
+    monkeypatch.delenv("ADS_DATA")
+    assert _env.data_dir() == _env._PKG_PARENT
