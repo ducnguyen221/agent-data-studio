@@ -33,21 +33,21 @@ Hai file fact **có sẵn sheet `Từ điển dữ liệu`** (Trường / Mô t�
 | Cột | Bảng | Ghi chú thiết kế |
 |---|---|---|
 | `TB đầu kỳ`, `TB PTM mới`, `TB hủy/rời mạng`, `TB kết thúc HĐ`, `TB tạm ngưng`, `TB cuối kỳ (active)` | Thuê Bao | **Cân bằng dòng vào–ra**: cuối kỳ = đầu kỳ + PTM − hủy − kết thúc − tạm ngưng, và cuối kỳ tháng N = đầu kỳ tháng N+1. Ràng buộc quan trọng nhất của bộ này |
-| `Tỷ lệ rời mạng %`, `Tỷ lệ PTM %`, `Tăng trưởng thuần %` | Thuê Bao | Tỉ lệ tính sẵn — non-additive, tuyệt đối không SUM |
+| `Tỷ lệ rời bỏ %`, `Tỷ lệ PTM %`, `Tăng trưởng thuần %` | Thuê Bao | Tỉ lệ tính sẵn — non-additive, tuyệt đối không SUM |
 | `TB PTM lũy kế`, `TB hủy lũy kế` | Thuê Bao | Luỹ kế từ đầu năm theo đơn vị × sản phẩm |
-| `ARPU (đồng/TB)`, `Doanh thu tháng (triệu)` | Thuê Bao | Doanh thu lấy từ báo cáo kế hoạch để định cỡ, ARPU dẫn xuất — **hai nguồn phải khớp nhau** |
+| `Doanh thu bình quân/TB (đồng)`, `Doanh thu tháng (triệu)` | Thuê Bao | Doanh thu lấy từ báo cáo kế hoạch để định cỡ, doanh thu bình quân/thuê bao dẫn xuất — **hai nguồn phải khớp nhau** |
 | `Chỉ số cảnh báo sớm churn`, `Nhóm cảnh báo sớm` | Thuê Bao | Điểm 0–100 + nhóm Xanh/Vàng/Đỏ |
-| `BRCĐ`, `IPTV`, `Mesh`, `Camera`, `Di_Dong` (0/1) + `Số dịch vụ` | KH Hợp Nhất | **Cờ sở hữu từng dịch vụ + tổng cờ** → độ sâu bán chéo. Ràng buộc: `Số dịch vụ` = tổng 5 cờ |
+| `Internet_Co_Dinh`, `IPTV`, `Mesh`, `Camera`, `Di_Dong` (0/1) + `Số dịch vụ` | KH Hợp Nhất | **Cờ sở hữu từng dịch vụ + tổng cờ** → độ sâu bán chéo. Ràng buộc: `Số dịch vụ` = tổng 5 cờ |
 | `Tháng kích hoạt` / `Tháng rời mạng` / `Thâm niên (tháng)` | KH Hợp Nhất | Vòng đời thuê bao; rỗng ở cột rời mạng = còn hoạt động |
 | `Loại rời mạng`, `Lý do rời mạng` | KH Hợp Nhất | Chủ động / bị động / chuyển mạng + mã lý do |
-| `Thay đổi sử dụng 3T %`, `Thay đổi ARPU 3T %`, `Số sự cố 3T`, `Số khiếu nại 3T` | KH Hợp Nhất | **Tín hiệu hành vi cửa sổ 3 tháng** — đầu vào cho mô hình cảnh báo sớm |
+| `Thay đổi sử dụng 3T %`, `Thay đổi doanh thu bình quân/thuê bao 3T %`, `Sự cố 3T`, `Khiếu nại 3T` | KH Hợp Nhất | **Tín hiệu hành vi cửa sổ 3 tháng** — đầu vào cho mô hình cảnh báo sớm |
 | `Sản phẩm gợi ý`, `Lý do gợi ý`, `Điểm cơ hội`, `Hành động khuyến nghị` | KH Hợp Nhất | Lớp next-best-offer nằm ngay trong dữ liệu |
-| `Cấp`, `Tên cấp`, `Là dòng chi tiết` | Danh Mục Đơn Vị | Cây 4 cấp Tập đoàn → Khối → Tỉnh/TP → Khu vực; **cờ dòng chi tiết để tổng không cộng trùng** |
+| `Cấp`, `Tên cấp`, `Là dòng chi tiết` | Danh Mục Đơn Vị | Cây 4 cấp Công ty mẹ → Khối → Tỉnh/TP → Khu vực; **cờ dòng chi tiết để tổng không cộng trùng** |
 | `DT KH tháng (1)`, `DT TH tháng (2)`, `So T-1 (3)`, `TL tháng % (4)=(2)/(1)` | báo cáo | Header có **chú thích công thức bằng số thứ tự** — đặc trưng báo cáo quản trị |
 
 ## 4. KPI tiêu biểu
 
-Thuê bao cuối kỳ · Phát triển mới, rời mạng, tăng trưởng thuần · Tỉ lệ rời mạng · ARPU · Doanh thu thực hiện so kế hoạch (tháng, luỹ kế, năm) · So tháng trước và cùng kỳ năm trước · Độ sâu bán chéo · Điểm rủi ro churn theo nhóm cảnh báo · Chất lượng dịch vụ (báo hỏng, khiếu nại trên 1.000 thuê bao) · Tỉ lệ thanh toán trễ, SLA quá hạn.
+Thuê bao cuối kỳ · Phát triển mới, rời mạng, tăng trưởng thuần · Tỉ lệ rời mạng · doanh thu bình quân/thuê bao · Doanh thu thực hiện so kế hoạch (tháng, luỹ kế, năm) · So tháng trước và cùng kỳ năm trước · Độ sâu bán chéo · Điểm rủi ro churn theo nhóm cảnh báo · Chất lượng dịch vụ (báo hỏng, khiếu nại trên 1.000 thuê bao) · Tỉ lệ thanh toán trễ, SLA quá hạn.
 
 ## 5. Hình mẫu đáng tái dùng
 
@@ -65,13 +65,13 @@ Thuê bao cuối kỳ · Phát triển mới, rời mạng, tăng trưởng thu�
 - Phân cấp đơn vị ở cột `Đơn vị gốc` mã hoá bằng **thụt đầu dòng** (`"            - KV TP Cao Bằng"`). Không dùng khoảng trắng làm dữ liệu.
 - Báo cáo có **header hai tầng** nên `pandas`/Power Query đọc thẳng sẽ ra `Unnamed: 2`… Phải bỏ qua số dòng đầu và tự đặt tên cột.
 - Tên file gốc có lỗi chính tả (`Báo cáo KH Hợp Nhát`) — sửa ở bộ mới.
-- Đơn vị tính lẫn lộn: doanh thu tính bằng **triệu đồng**, ARPU bằng **đồng**. Bắt buộc ghi `unit` trong dictionary.
+- Đơn vị tính lẫn lộn: doanh thu tính bằng **triệu đồng**, doanh thu bình quân/thuê bao bằng **đồng**. Bắt buộc ghi `unit` trong dictionary.
 
 ## 7. Khi user nói "giống bộ này nhưng…"
 
 | Yêu cầu | Đổi gì |
 |---|---|
-| Ngành khác có thuê bao (truyền hình, SaaS, phòng gym) | Giữ nguyên khung cân bằng đầu kỳ–cuối kỳ và bộ chỉ số churn/ARPU; chỉ đổi danh mục sản phẩm |
+| Ngành khác có thuê bao (truyền hình, SaaS, phòng gym) | Giữ nguyên khung cân bằng đầu kỳ–cuối kỳ và bộ chỉ số churn/doanh thu bình quân/thuê bao; chỉ đổi danh mục sản phẩm |
 | Không cần phân mảnh file | Giữ một bảng phẳng duy nhất grain kỳ × đơn vị × sản phẩm — đơn giản hơn nhiều |
 | Cần cấp huyện/xã | Thêm cấp vào `Danh Mục Đơn Vị`, giữ nguyên cờ dòng chi tiết để không cộng trùng |
 | Cần dữ liệu ngày thay vì tháng | Đổi grain sang ngày; cân bằng dòng vào–ra vẫn giữ nguyên nhưng khối lượng ×30 |

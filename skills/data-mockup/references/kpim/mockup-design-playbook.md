@@ -152,7 +152,7 @@ Dùng khi user chưa có yêu cầu rõ: đưa danh sách này cho chọn, rồi
 | 3 | **Nhân sự (HR)** | dim_nhan_vien, dim_phong_ban, dim_chuc_danh, fact_cham_cong, fact_luong, fact_tuyen_dung | 1 dòng / nhân viên × tháng | Headcount, turnover, chi phí/đầu người, time-to-hire | SCD2 khi đổi phòng ban/chức danh |
 | 4 | **Kho vận / chuỗi cung ứng** | dim_kho, dim_hang_hoa, dim_ncc, fact_nhap, fact_xuat, fact_ton_kho | 1 dòng / phiếu × mặt hàng | Vòng quay tồn, tỉ lệ hết hàng, OTIF | Tồn kho là semi-additive |
 | 5 | **F&B / nhà hàng** | dim_mon, dim_chi_nhanh, dim_ca_lam, fact_hoa_don, fact_chi_tiet_hoa_don | 1 dòng / món trong hoá đơn | Doanh thu/giờ, món bán chạy, tỉ lệ huỷ món | Mùa vụ theo giờ và ngày trong tuần |
-| 6 | **SaaS / thuê bao** | dim_khach_hang, dim_goi_cuoc, fact_dang_ky, fact_thanh_toan, fact_su_dung | 1 dòng / thuê bao × kỳ | MRR, churn, LTV, ARPU | Cohort, churn theo tháng gia nhập |
+| 6 | **SaaS / thuê bao** | dim_khach_hang, dim_goi_cuoc, fact_dang_ky, fact_thanh_toan, fact_su_dung | 1 dòng / thuê bao × kỳ | MRR, churn, LTV, doanh thu bình quân/thuê bao | Cohort, churn theo tháng gia nhập |
 | 7 | **Đào tạo / LMS** | dim_hoc_vien, dim_khoa_hoc, dim_giang_vien, fact_ghi_danh, fact_diem, fact_tuong_tac | 1 dòng / học viên × khoá | Tỉ lệ hoàn thành, điểm TB, drop-off theo bài | Phễu tiến độ học, tương quan tương tác ↔ điểm |
 | 8 | **Phòng khám / y tế** | dim_benh_nhan, dim_bac_si, dim_dich_vu, fact_lich_hen, fact_kham, fact_thanh_toan | 1 dòng / lượt khám | Lượt khám/ngày, no-show rate, doanh thu/bác sĩ | PII nặng → bắt buộc masked, no-show theo khung giờ |
 
