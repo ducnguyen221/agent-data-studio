@@ -1,0 +1,128 @@
+{
+  "upstream": "microsoft/skills-for-fabric",
+  "tag": "v0.3.16",
+  "commit": "24cc0d296e5e8523cc6a92e1342bc1791d7deb85",
+  "license": "MIT",
+  "files": [
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/accessibility.md",
+      "path": "accessibility.md",
+      "sha256": "93ca5305f8d8746d4de99bc7236e5d137a4d7f5ac63a4e2e973a181db43537d4",
+      "bytes": 10581
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/anti-patterns.md",
+      "path": "anti-patterns.md",
+      "sha256": "4624cb78c5d59a66d6f50dda710c2f667f5b0164f39d0482e3d665aa361810eb",
+      "bytes": 18112
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/archetype-composition.md",
+      "path": "archetype-composition.md",
+      "sha256": "2e706249acb0e3678f400e2c22f988d01dfd509aad394d0b4c8fc3c59df2bf62",
+      "bytes": 3460
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/analytical-canvas.md",
+      "path": "archetypes/analytical-canvas.md",
+      "sha256": "383fbb7b74c5fda9e507b94c29673e69275e4bb373be52b08f014118f275553e",
+      "bytes": 16678
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/comparative-benchmark.md",
+      "path": "archetypes/comparative-benchmark.md",
+      "sha256": "72c275ea1ffba334f4c6cbcc009de8fc02ad8c87ec3a7ad432d2a11b0460ba38",
+      "bytes": 20049
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/executive-summary.md",
+      "path": "archetypes/executive-summary.md",
+      "sha256": "ac267b8691312a66ced7c058450d38cf5b350c9fbd879cb3f44a4c9660fc7bd6",
+      "bytes": 13945
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/narrative-story.md",
+      "path": "archetypes/narrative-story.md",
+      "sha256": "c49d4fc4bcf8f75a777a838e80886c13d20e76867788687130dcf93237e21246",
+      "bytes": 17216
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/operational-monitor.md",
+      "path": "archetypes/operational-monitor.md",
+      "sha256": "86603fc4bc4982139ed5aed3d1ca1dbc430bc54a5fbaa20fdc0ce1dc68baa24e",
+      "bytes": 16285
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/assets/base.json",
+      "path": "assets/base.json",
+      "sha256": "fd2408d47741419157d699b819a049f692398174bbd9ab95173cb765c2076c0a",
+      "bytes": 7716
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/brownfield.md",
+      "path": "brownfield.md",
+      "sha256": "ae8b3d49f864871e9acb4eee6b9456eb0feb2d51b73b7b1c794629acebcfbfb3",
+      "bytes": 5417
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/chart-selection.md",
+      "path": "chart-selection.md",
+      "sha256": "a374bc637d94a7dc23ce5c914e3243dbd7a02a196e8851df9bc3d27df6a30bb0",
+      "bytes": 9371
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/color.md",
+      "path": "color.md",
+      "sha256": "c7ee2bf0f2d8a50db4b4c8f8d09ac220241d4f30cae6b878d193f112fb4c2748",
+      "bytes": 9838
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/design-brief.md",
+      "path": "design-brief.md",
+      "sha256": "406182954d5e5e03bb83e0a8353ae5176d4f30a02a95bcd0e2eef98cde9e689c",
+      "bytes": 21187
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/interactivity.md",
+      "path": "interactivity.md",
+      "sha256": "dd627c50a0bc904084dc7ea2137a6e7748a3351c72a041a44204d2c2cfc2a248",
+      "bytes": 6650
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/layout.md",
+      "path": "layout.md",
+      "sha256": "5a250bd0e3be42436787d23e107900ebf058d95709df7d9694db345448ad1d66",
+      "bytes": 10802
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/pre-flight-checklist.md",
+      "path": "pre-flight-checklist.md",
+      "sha256": "f5b8ff3c1a97b3ba90effe9fd409d0a87b52e7d481c968bfc9f46e9094509394",
+      "bytes": 10659
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/signatures.md",
+      "path": "signatures.md",
+      "sha256": "79feedb3d465d577a82b3c1c254d0328a16ef59d28a0dda4ff6ec249f043b75d",
+      "bytes": 11125
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/tone-catalog.md",
+      "path": "tone-catalog.md",
+      "sha256": "c3e85224eac790af855047ba68bb6b278afe3941acc8ceb54088ddfdb3e4f7d5",
+      "bytes": 14033
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/typography.md",
+      "path": "typography.md",
+      "sha256": "916e262bdea68130450180900b47424a5fb2dd0f5570d37b0b541c47e2861c8d",
+      "bytes": 8867
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-design/references/visual-cookbook.md",
+      "path": "visual-cookbook.md",
+      "sha256": "93604e45fb1ff91eee9d826242dba0df962d538104e34cdf45c24cd577fd62c4",
+      "bytes": 27242
+    }
+  ]
+}

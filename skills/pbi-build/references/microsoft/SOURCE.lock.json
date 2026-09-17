@@ -1,0 +1,146 @@
+{
+  "upstream": "microsoft/skills-for-fabric",
+  "tag": "v0.3.16",
+  "commit": "24cc0d296e5e8523cc6a92e1342bc1791d7deb85",
+  "license": "MIT",
+  "files": [
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/authoring.md",
+      "path": "authoring.md",
+      "sha256": "3cb76d98b2cc0f579289088906e598b13d5641acd6391bdfb6c31fa61266b55b",
+      "bytes": 9309
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/card.md",
+      "path": "card.md",
+      "sha256": "6d2bdf885eea31b614149210b3c654e94eaef0eecc96d2da8bb4ff63c317c1df",
+      "bytes": 21087
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/cartesian.md",
+      "path": "cartesian.md",
+      "sha256": "c96b2329137dcf6d7550ab4d46d06e6511dba8d83ff7c0c84e878451f0f19501",
+      "bytes": 56235
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/color-strategy.md",
+      "path": "color-strategy.md",
+      "sha256": "5bca881aeea6dbd13fd3e9d06a0d4d50a22ae53c0c2cb3733628e08148801e56",
+      "bytes": 8597
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/conditional-formatting.md",
+      "path": "conditional-formatting.md",
+      "sha256": "465632d358e93e12846e857f4b2843e7998f2ef00d3e7c2884ede74f656051dc",
+      "bytes": 23955
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/expressions.md",
+      "path": "expressions.md",
+      "sha256": "25eb4e30bc631b5c0644e975d17903dd2c23099e70153967e30a24d0448a0e22",
+      "bytes": 8015
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/filter-pane.md",
+      "path": "filter-pane.md",
+      "sha256": "fc4a60f3a881daf74e611b5ab3ce656e9a05a1edf32df6b219d0974928b3f05e",
+      "bytes": 5028
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/filters.md",
+      "path": "filters.md",
+      "sha256": "2b84e6d4065112857584800fedb38b77547e05ae55090dd6b1fb714041f1a53f",
+      "bytes": 9018
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/formatting-overview.md",
+      "path": "formatting-overview.md",
+      "sha256": "56a729e42b95e0432f2b1249fdb0d38bab25424508f84f1fb89588a61d2b1244",
+      "bytes": 5296
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/formatting.md",
+      "path": "formatting.md",
+      "sha256": "7d6d3e882cd78b666719f25b57dafe85bf09fc1c1e5fabe30579106da1dbc04f",
+      "bytes": 19672
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/image.md",
+      "path": "image.md",
+      "sha256": "4ca4e7804191ae801ee28f846d58a9590fc26858d12a143f669c4507a92b6ce3",
+      "bytes": 12637
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/map.md",
+      "path": "map.md",
+      "sha256": "6a4c56e052dd2c4f1b6d83e19b8d588cb9c7f068342f1e46c4297a35f2bc23da",
+      "bytes": 3535
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/page-formatting.md",
+      "path": "page-formatting.md",
+      "sha256": "341c9843339d7c5f7c54c184fd0ca4bd901916a11b1bc68c18964613f2692b65",
+      "bytes": 3740
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/powerbi-desktop.md",
+      "path": "powerbi-desktop.md",
+      "sha256": "5dcbfb7400b1a4937e5450c8c49e15008124d1c32d74e33c97831b09d837f6c6",
+      "bytes": 9432
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/powerbi-report-author-cli.md",
+      "path": "powerbi-report-author-cli.md",
+      "sha256": "e891e970bf7b391d455be22078829a03877f080d0b253ee988f3760ad43b0146",
+      "bytes": 3129
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/re-theming.md",
+      "path": "re-theming.md",
+      "sha256": "c8c2b522ca067ea2010670cf8f0ca10698a6b562dd4377c9937023db5930a4fa",
+      "bytes": 23025
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/screenshot-review.md",
+      "path": "screenshot-review.md",
+      "sha256": "52d71403947cb7e99f729c9409cace22191d04c030ff649ae4e94d2bc837c418",
+      "bytes": 4742
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/shape.md",
+      "path": "shape.md",
+      "sha256": "f44321da79093285cb3c3b3193abd9c703d415194dd67cea4edfad335a0a65c5",
+      "bytes": 12823
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/slicers.md",
+      "path": "slicers.md",
+      "sha256": "b761af7a4a092566c339c8f539a174adf7978b923d9112183f184f4319975de1",
+      "bytes": 24089
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/table.md",
+      "path": "table.md",
+      "sha256": "cc3d7b329dffec330bf8b2da0b5d10541d2e7e9b151174baa9e3ea9ccadcd5e9",
+      "bytes": 12560
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/textbox.md",
+      "path": "textbox.md",
+      "sha256": "3961ecad46ffde382499ec2dc6ab038ecf07c5c69987f3ada93a598602fcf9b9",
+      "bytes": 5559
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/theming.md",
+      "path": "theming.md",
+      "sha256": "3574de30a77bcf923b18c2f64b979984032fec527a262b5b91c2648e6b73f6ed",
+      "bytes": 22871
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/powerbi-report-authoring/references/version-control.md",
+      "path": "version-control.md",
+      "sha256": "7da4a617b152a2cf4b533b177d37e1435cd6655e6a1622f5ed689ab3131a0248",
+      "bytes": 5563
+    }
+  ]
+}
