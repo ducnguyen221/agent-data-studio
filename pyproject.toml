@@ -50,6 +50,9 @@ select = ["E4", "E7", "E9", "F"]
 ignore = ["E402"]
 
 [tool.pytest.ini_options]
+# Chỉ thu test trong tests/ — script tự kiểm đi kèm skill (vd skills/data-mockup/scripts/test_mockpack.py)
+# không phải pytest và không được chạy vô tình.
+testpaths = ["tests"]
 markers = [
     "integration: cần Power BI Desktop đang mở (bỏ qua trên CI)",
 ]

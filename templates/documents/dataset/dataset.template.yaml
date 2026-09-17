@@ -1,0 +1,179 @@
+# =============================================================================
+# dataset.yaml — NGUỒN SỰ THẬT (máy đọc) của một bộ dữ liệu mockup
+# Cặp với: DATASET_SPEC.md  (người đọc — brief viết tay + cấu trúc sinh từ file này)
+#
+#   python mockpack.py dict   dataset.yaml -o DATASET_SPEC.md   # đồng bộ MD từ YAML
+#   python mockpack.py verify dataset.yaml data/                # kiểm tra dữ liệu
+#   python mockpack.py pack   dataset.yaml data/ -o Ten.xlsx    # đóng gói Excel
+#
+# File mẫu dưới đây là một bộ BÁN LẺ thu nhỏ, chạy được ngay với gen_skeleton.py.
+# Chép đi và sửa: đổi dataset/brief/tables/metrics/rules cho đúng nghiệp vụ của bạn.
+# =============================================================================
+
+dataset:
+  id: ban-le-demo
+  name: "Bán lẻ KPIM — bộ dữ liệu mẫu"
+  version: "1.0"
+  spec_doc: DATASET_SPEC.md      # file MD người đọc, trỏ ngược lại file này
+  seed: 2026                     # BẮT BUỘC — đổi seed = đổi cả bộ dữ liệu
+  as_of_date: 2026-09-30         # mốc "hiện tại": không dữ liệu nào vượt ngày này
+  period_start: 2025-01-01
+  currency: VND
+  locale: vi-VN
+  layer: business                # business (mặc định) | database | both
+
+brief:                           # tóm tắt; bản đầy đủ viết tay trong DATASET_SPEC.md §1
+  domain: "Bán lẻ — chuỗi cửa hàng tiêu dùng nhanh"
+  purpose: "Practice lab: học viên dựng dashboard doanh thu — lợi nhuận từ dữ liệu thô"
+  audience: "Học viên khoá phân tích dữ liệu; giảng viên chấm bài"
+  source_systems: ["POS", "CRM"]
+  questions:                     # bộ data PHẢI trả lời được các câu này
+    - "Doanh thu và biên lợi nhuận gộp theo tháng, khu vực, ngành hàng?"
+    - "Top sản phẩm đóng góp 80% doanh thu là những mã nào?"
+    - "Phân khúc khách hàng nào có giá trị đơn trung bình cao nhất?"
+    - "Cửa hàng nào có tỉ lệ huỷ đơn bất thường?"
+    - "Kênh bán online và offline khác nhau thế nào về AOV?"
+
+# -----------------------------------------------------------------------------
+# BẢNG & CỘT — mỗi cột khai đủ để vừa sinh dictionary vừa suy ra rule kiểm tra
+#   type      : text | int | decimal | date | timestamp | bool | enum
+#   key       : PK | FK->bang.cot   (bỏ trống nếu không phải khoá)
+#   additive  : additive | semi_additive | non_additive   (chỉ cho số đo)
+#   pii       : true nếu là dữ liệu định danh cá nhân (phải đã che/giả lập)
+# -----------------------------------------------------------------------------
+tables:
+
+  - name: dim_khach_hang
+    label: "Khách hàng"
+    type: dim
+    grain: "1 dòng / khách hàng"
+    sheet: "KhachHang"
+    rows: 400
+    source_system: CRM
+    layer: both
+    columns:
+      - {name: ma_kh,        label: "Mã khách hàng",  type: text, key: PK, nullable: false, format: "KH-000000", definition: "Mã định danh khách hàng trên CRM", example: "KH-000123"}
+      - {name: ho_ten,       label: "Họ tên",         type: text, nullable: false, pii: true, definition: "Họ tên khách hàng (dữ liệu giả lập, không phải người thật)"}
+      - {name: nhom_tuoi,    label: "Nhóm tuổi",      type: enum, values: ["18-24","25-34","35-44","45-54","55+"], definition: "Nhóm tuổi tại thời điểm đăng ký"}
+      - {name: gioi_tinh,    label: "Giới tính",      type: enum, values: ["Nam","Nữ","Khác"], definition: "Giới tính khách hàng khai báo"}
+      - {name: tinh_thanh,   label: "Tỉnh/Thành",     type: enum, values: ["Hà Nội","TP HCM","Đà Nẵng","Hải Phòng","Cần Thơ"], definition: "Tỉnh/thành nơi khách hàng cư trú"}
+      - {name: phan_khuc,    label: "Phân khúc",      type: enum, values: ["Pho thong","Than thiet","VIP"], definition: "Phân khúc giá trị khách hàng theo chi tiêu 12 tháng"}
+      - {name: ngay_dang_ky, label: "Ngày đăng ký",   type: date, nullable: false, definition: "Ngày khách hàng gia nhập chương trình thành viên"}
+      - {name: email_masked, label: "Email (đã che)", type: text, definition: "Email đã che ký tự giữa, chỉ để đối chiếu định dạng", example: "ng***@gm***.com"}
+      - {name: sdt_masked,   label: "SĐT (đã che)",   type: text, definition: "Số điện thoại đã che 5 chữ số giữa", example: "09*****678"}
+
+  - name: dim_san_pham
+    label: "Sản phẩm"
+    type: dim
+    grain: "1 dòng / mã sản phẩm (SKU)"
+    sheet: "SanPham"
+    rows: 60
+    source_system: POS
+    layer: both
+    columns:
+      - {name: ma_sp,      label: "Mã sản phẩm", type: text, key: PK, nullable: false, format: "SP-0000", definition: "Mã SKU trên hệ thống POS"}
+      - {name: ten_sp,     label: "Tên sản phẩm", type: text, nullable: false, definition: "Tên thương mại của sản phẩm"}
+      - {name: nganh_hang, label: "Ngành hàng",  type: enum, values: ["Thực phẩm","Đồ uống","Hoá mỹ phẩm","Gia dụng","Điện tử"], definition: "Ngành hàng cấp 1"}
+      - {name: don_gia,    label: "Đơn giá niêm yết", type: decimal, unit: VND, min: 1000, additive: non_additive, definition: "Giá bán niêm yết cho 1 đơn vị sản phẩm"}
+      - {name: gia_von,    label: "Giá vốn",     type: decimal, unit: VND, min: 500, additive: non_additive, definition: "Giá vốn nhập hàng cho 1 đơn vị sản phẩm"}
+
+  - name: dim_cua_hang
+    label: "Cửa hàng"
+    type: dim
+    grain: "1 dòng / cửa hàng"
+    sheet: "CuaHang"
+    rows: 8
+    source_system: POS
+    layer: both
+    columns:
+      - {name: ma_ch,          label: "Mã cửa hàng",   type: text, key: PK, nullable: false, format: "CH-00", definition: "Mã cửa hàng trong hệ thống"}
+      - {name: ten_ch,         label: "Tên cửa hàng",  type: text, nullable: false, definition: "Tên hiển thị của cửa hàng"}
+      - {name: khu_vuc,        label: "Khu vực",       type: enum, values: ["Bắc","Trung","Nam"], definition: "Khu vực địa lý quản lý cửa hàng"}
+      - {name: ngay_khai_truong, label: "Ngày khai trương", type: date, definition: "Ngày cửa hàng bắt đầu hoạt động"}
+
+  - name: fact_don_hang
+    label: "Đơn hàng bán"
+    type: fact
+    grain: "1 dòng / dòng hàng trong đơn (1 đơn × 1 sản phẩm)"
+    sheet: "DonHang"
+    rows: 6000
+    rows_tolerance: 0.10
+    source_system: POS
+    layer: both
+    columns:
+      - {name: ma_dong,     label: "Mã dòng đơn",  type: text, key: PK, nullable: false, format: "DH-000000-00", definition: "Khoá kỹ thuật của dòng hàng trong đơn"}
+      - {name: ma_don,      label: "Mã đơn hàng",  type: text, nullable: false, definition: "Mã đơn hàng — một đơn có thể gồm nhiều dòng hàng"}
+      - {name: ngay_dat,    label: "Ngày đặt",     type: date, nullable: false, definition: "Ngày phát sinh đơn hàng tại điểm bán"}
+      - {name: ma_kh,       label: "Mã khách hàng", type: text, key: "FK->dim_khach_hang.ma_kh", nullable: false, definition: "Khách hàng đứng tên đơn"}
+      - {name: ma_sp,       label: "Mã sản phẩm",  type: text, key: "FK->dim_san_pham.ma_sp", nullable: false, definition: "Sản phẩm được mua trong dòng hàng này"}
+      - {name: ma_ch,       label: "Mã cửa hàng",  type: text, key: "FK->dim_cua_hang.ma_ch", nullable: false, definition: "Cửa hàng phát sinh giao dịch"}
+      - {name: kenh_ban,    label: "Kênh bán",     type: enum, values: ["Offline","Online","App"], definition: "Kênh khách hàng đặt mua"}
+      - {name: so_luong,    label: "Số lượng",     type: int, min: 1, max: 20, additive: additive, definition: "Số đơn vị sản phẩm trong dòng hàng"}
+      - {name: don_gia,     label: "Đơn giá bán",  type: decimal, unit: VND, additive: non_additive, definition: "Giá bán thực tế cho 1 đơn vị (có thể khác giá niêm yết)"}
+      - {name: giam_gia,    label: "Giảm giá",     type: decimal, unit: VND, min: 0, additive: additive, definition: "Số tiền giảm giá áp cho dòng hàng"}
+      - {name: doanh_thu,   label: "Doanh thu",    type: decimal, unit: VND, additive: additive, calc_rule: "so_luong * don_gia - giam_gia", definition: "Doanh thu thuần của dòng hàng sau giảm giá, chưa gồm VAT"}
+      - {name: gia_von,     label: "Giá vốn hàng bán", type: decimal, unit: VND, additive: additive, calc_rule: "so_luong * dim_san_pham.gia_von", definition: "Tổng giá vốn của dòng hàng"}
+      - {name: loi_nhuan_gop, label: "Lợi nhuận gộp", type: decimal, unit: VND, additive: additive, calc_rule: "doanh_thu - gia_von", definition: "Doanh thu thuần trừ giá vốn hàng bán"}
+      - {name: trang_thai,  label: "Trạng thái đơn", type: enum, values: ["Hoan thanh","Huy","Doi tra"], definition: "Trạng thái cuối cùng của dòng hàng"}
+      - {name: load_ts,     label: "Thời điểm nạp", type: timestamp, definition: "Thời điểm bản ghi được nạp vào kho dữ liệu"}
+
+# -----------------------------------------------------------------------------
+relationships:
+  - {from: "fact_don_hang.ma_kh", to: "dim_khach_hang.ma_kh", cardinality: many_to_one, note: "Mỗi dòng đơn thuộc về đúng 1 khách hàng"}
+  - {from: "fact_don_hang.ma_sp", to: "dim_san_pham.ma_sp",   cardinality: many_to_one, note: "Mỗi dòng đơn ứng với đúng 1 SKU"}
+  - {from: "fact_don_hang.ma_ch", to: "dim_cua_hang.ma_ch",   cardinality: many_to_one, note: "Mỗi dòng đơn phát sinh tại đúng 1 cửa hàng"}
+
+# -----------------------------------------------------------------------------
+metrics:
+  - {name: "Doanh thu",            formula: "SUM(fact_don_hang.doanh_thu) WHERE trang_thai = 'Hoan thanh'", unit: VND, table: fact_don_hang, definition: "Tổng doanh thu thuần từ các dòng hàng hoàn thành"}
+  - {name: "Lợi nhuận gộp",        formula: "SUM(fact_don_hang.loi_nhuan_gop)", unit: VND, table: fact_don_hang, definition: "Doanh thu thuần trừ giá vốn"}
+  - {name: "Biên lợi nhuận gộp",   formula: "Lợi nhuận gộp / Doanh thu", unit: "%", table: fact_don_hang, definition: "Tỉ lệ lợi nhuận gộp trên doanh thu"}
+  - {name: "Số đơn hàng",          formula: "DISTINCTCOUNT(fact_don_hang.ma_don)", unit: "đơn", table: fact_don_hang, definition: "Số đơn hàng riêng biệt"}
+  - {name: "Giá trị đơn TB (AOV)", formula: "Doanh thu / Số đơn hàng", unit: VND, table: fact_don_hang, definition: "Doanh thu trung bình trên mỗi đơn hàng"}
+  - {name: "Tỉ lệ huỷ",            formula: "COUNT(trang_thai='Huy') / COUNT(*)", unit: "%", table: fact_don_hang, definition: "Tỉ lệ dòng hàng bị huỷ trên tổng số dòng"}
+
+# -----------------------------------------------------------------------------
+# RULE NGHIỆP VỤ — rule cơ bản (PK/FK/null/kiểu/enum/khoảng/as_of/PII) tự suy từ tables
+# -----------------------------------------------------------------------------
+rules:
+  - id: BR-01
+    name: "Doanh thu = số lượng × đơn giá − giảm giá"
+    kind: expression
+    table: fact_don_hang
+    expr: "abs(doanh_thu - (so_luong * don_gia - giam_gia)) < 1"
+
+  - id: BR-02
+    name: "Lợi nhuận gộp = doanh thu − giá vốn"
+    kind: expression
+    table: fact_don_hang
+    expr: "abs(loi_nhuan_gop - (doanh_thu - gia_von)) < 1"
+
+  - id: BR-03
+    name: "Giảm giá không vượt quá giá trị hàng"
+    kind: expression
+    table: fact_don_hang
+    expr: "giam_gia <= so_luong * don_gia"
+
+  - id: BR-04
+    name: "Tỉ lệ huỷ đơn trong khoảng thực tế 2%–12%"
+    kind: ratio
+    table: fact_don_hang
+    numerator: "trang_thai == 'Huy'"
+    denominator: rows
+    min: 0.02
+    max: 0.12
+
+  - id: BR-05
+    name: "Một đơn không lặp lại cùng một sản phẩm"
+    kind: unique
+    table: fact_don_hang
+    columns: [ma_don, ma_sp]
+
+# -----------------------------------------------------------------------------
+# LỖI CÀI CẮM CÓ CHỦ ĐÍCH — khai TRƯỚC, nếu không sẽ bị coi là lỗi thật
+#   waives: id của rule tự suy được phép FAIL, dạng "<rule>:<bảng>.<cột>"
+# -----------------------------------------------------------------------------
+intentional_issues:
+  - id: DQ-01
+    description: "Cột tinh_thanh có biến thể chính tả ('Ha Noi' thay vì 'Hà Nội') ở ~2% dòng — dạy chuẩn hoá danh mục"
+    waives: ["enum_values:dim_khach_hang.tinh_thanh"]
