@@ -32,7 +32,7 @@
       <a href="../template/"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a>
       <a href="./" class="active" aria-current="page"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
     </nav>
-    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/powerbi-agent" target="_blank" rel="noopener">
+    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
       <span>GitHub</span>
     </a>
@@ -88,7 +88,7 @@
       <div class="code-card">
         <div class="code-top"><span class="fn">dán vào AI</span>
           <button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbl">Sao chép</span></button></div>
-        <div class="code-scroll"><pre><code>Clone https://github.com/ducnguyen221/powerbi-agent
+        <div class="code-scroll"><pre><code>Clone https://github.com/ducnguyen221/agent-data-studio
 vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó
 (đọc script trước khi chạy), sau đó restart MCP host.</code></pre></div>
       </div>
@@ -104,7 +104,7 @@ vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó
         <div class="code-top"><span class="fn">PowerShell</span>
           <button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbl">Sao chép</span></button></div>
         <div class="code-scroll"><pre><code><span class="cm"># 1. Lấy mã nguồn về đúng chỗ khuyến nghị</span>
-<span class="pr">git</span> clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+<span class="pr">git</span> clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 <span class="pr">cd</span> "$env:USERPROFILE\.mcp\powerbi-mcp"
 <span class="cm"># 2. Cài in-place: venv + dò ADOMD/TOM + đăng ký 3 host + skills + lệnh</span>
 <span class="pr">powershell</span> -ExecutionPolicy Bypass -File .\install.ps1
@@ -125,7 +125,7 @@ vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó
       <div class="code-card">
         <div class="code-top"><span class="fn">Claude Code / Codex</span>
           <button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbl">Sao chép</span></button></div>
-        <div class="code-scroll"><pre><code>claude plugin marketplace add ducnguyen221/powerbi-agent
+        <div class="code-scroll"><pre><code>claude plugin marketplace add ducnguyen221/agent-data-studio
 claude plugin install powerbi-agent@powerbi-agent</code></pre></div>
       </div>
       <p style="color:var(--muted);font-size:14px">Muốn đủ 16 công cụ (truy vấn, dựng báo cáo…) → quay lại Cách 1/2.</p>
@@ -163,7 +163,7 @@ claude plugin install powerbi-agent@powerbi-agent</code></pre></div>
       </table>
     </div>
     <p class="reveal" style="margin-top:16px;color:var(--muted);font-size:14px">Không tự xử được? Mở
-    <a href="https://github.com/ducnguyen221/powerbi-agent/issues" style="color:var(--accent);font-weight:600">GitHub Issues</a>
+    <a href="https://github.com/ducnguyen221/agent-data-studio/issues" style="color:var(--accent);font-weight:600">GitHub Issues</a>
     — kèm thông báo lỗi và bước tái hiện.</p>
   </section>
 
@@ -176,7 +176,7 @@ claude plugin install powerbi-agent@powerbi-agent</code></pre></div>
     <div class="foot-links">
       <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a><a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
       <a href="../template/"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a><a href="./"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
-      <a href="https://github.com/ducnguyen221/powerbi-agent" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
     </div>
     <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
   </div>

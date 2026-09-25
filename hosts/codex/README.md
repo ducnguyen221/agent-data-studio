@@ -5,7 +5,7 @@ Codex đọc **`AGENTS.md`** ở gốc repo một cách native — mọi luật 
 ## Cách 1 — Trọn bộ (MCP + venv + skills) — khuyến nghị
 
 ```powershell
-git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex
 ```
@@ -46,7 +46,7 @@ Cài để plugin xuất hiện trong trình quản lý plugin của Codex (9 sk
 `pbi-knowledge-curator` được nạp tự động):
 
 ```bash
-codex plugin marketplace add https://github.com/ducnguyen221/powerbi-agent
+codex plugin marketplace add https://github.com/ducnguyen221/agent-data-studio
 codex plugin add agent-data-studio@agent-data-studio
 codex plugin list   # thấy: agent-data-studio@agent-data-studio  installed, enabled  0.7.0
 ```

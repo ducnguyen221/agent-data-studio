@@ -151,7 +151,7 @@ class TestRepoIsNotAWorkspace:
         "install.ps1", "uninstall.ps1", "pack.ps1", "mcp_server_powerbi.py",
     }
     ALLOWED_ROOT_DIRS = {
-        ".claude-plugin", ".github", "docs", "hosts", "plugins", "powerbi_agent",
+        ".claude-plugin", ".codex-plugin", ".github", "docs", "hosts", "plugins", "powerbi_agent",
         "report-templates", "scripts", "tests",
         "skills", "commands", "agents", "templates", "workflows", "upstream", "LICENSES",
     }

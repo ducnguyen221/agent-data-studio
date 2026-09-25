@@ -69,7 +69,7 @@ def main() -> int:
             "blocks": [b.get("visualType", "?") for b in blocks],
             "n_blocks": len(blocks),
             "previews": previews,
-            "readme_url": f"https://github.com/ducnguyen221/powerbi-agent/tree/main/report-templates/{name}",
+            "readme_url": f"https://github.com/ducnguyen221/agent-data-studio/tree/main/report-templates/{name}",
         })
     out = os.path.join(OUT_DIR, "templates.json")
     os.makedirs(OUT_DIR, exist_ok=True)

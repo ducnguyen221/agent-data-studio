@@ -12,7 +12,7 @@ design kits that a senior consultant would bring to the job.
 Supports **Power BI Desktop (local)** · **Power BI Service (cloud)** · **PBIP/PBIR project files**.
 Hosts: **Claude Code · Codex CLI · Google Antigravity** and any stdio MCP client.
 
-> 🌐 [ducnguyen.vn/powerbi-agent](https://ducnguyen.vn/powerbi-agent/) · 📘 [Full install guide](docs/INSTALL.html) ·
+> 🌐 [ducnguyen.vn/agent-data-studio](https://ducnguyen.vn/agent-data-studio/) · 📘 [Full install guide](docs/INSTALL.html) ·
 > 🗺️ [**INDEX.md** — the complete repo map](INDEX.md) · 🤖 [AGENTS.md](AGENTS.md) · [Roadmap](ROADMAP.md) · [UAT results](docs/UAT-REPORT.md)
 
 ## 🏛️ Built by KPIM — shared free with the community
@@ -40,13 +40,13 @@ workflows and templates here are **distilled by many KPIM experts** from real en
 Paste this into your agent (Claude Code / Codex / Antigravity):
 
 ```
-Clone https://github.com/ducnguyen221/powerbi-agent into ~/.mcp/powerbi-mcp, then run install.ps1 there (read the script first), and restart the MCP host.
+Clone https://github.com/ducnguyen221/agent-data-studio into ~/.mcp/powerbi-mcp, then run install.ps1 there (read the script first), and restart the MCP host.
 ```
 
 Or run it yourself:
 
 ```powershell
-git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
@@ -65,8 +65,8 @@ The same `.claude-plugin/marketplace.json` works for **both Claude Code and Code
 skills, commands and agent, but **not** the 16 MCP tools (run `install.ps1` for those).
 
 ```bash
-claude plugin marketplace add ducnguyen221/powerbi-agent && claude plugin install agent-data-studio@agent-data-studio
-codex  plugin marketplace add https://github.com/ducnguyen221/powerbi-agent && codex plugin add agent-data-studio@agent-data-studio
+claude plugin marketplace add ducnguyen221/agent-data-studio && claude plugin install agent-data-studio@agent-data-studio
+codex  plugin marketplace add https://github.com/ducnguyen221/agent-data-studio && codex plugin add agent-data-studio@agent-data-studio
 ```
 
 Per-host details: [`hosts/`](hosts/).

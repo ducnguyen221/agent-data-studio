@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "powerbi-agent"
-version = "0.6.0"
+version = "0.7.0"
 description = "MCP server + skills for AI agents to work directly with Power BI — DAX query with data-safety policy, PBIR report templates, end-to-end analysis pipeline"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -31,7 +31,7 @@ dev = ["pytest>=8", "ruff==0.16.1"]
 powerbi-agent = "powerbi_agent.app:main"
 
 [project.urls]
-Repository = "https://github.com/ducnguyen221/powerbi-agent"
+Repository = "https://github.com/ducnguyen221/agent-data-studio"
 
 [tool.setuptools]
 packages = ["powerbi_agent"]

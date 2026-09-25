@@ -9,7 +9,7 @@ Antigravity đọc **`GEMINI.md`** (trỏ về `AGENTS.md`) — mọi luật là
 ## Cài (Antigravity không có plugin store — dùng installer)
 
 ```powershell
-git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts antigravity
 ```

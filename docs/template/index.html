@@ -59,7 +59,7 @@
       <a href="./" class="active" aria-current="page"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a>
       <a href="../install/"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
     </nav>
-    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/powerbi-agent" target="_blank" rel="noopener">
+    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
       <span>GitHub</span>
     </a>
@@ -99,7 +99,7 @@
     <div class="foot-links">
       <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a><a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
       <a href="./"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a><a href="../install/"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
-      <a href="https://github.com/ducnguyen221/powerbi-agent" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
     </div>
     <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
   </div>
@@ -112,7 +112,7 @@
   function esc(s){var d=document.createElement('span');d.textContent=s||'';return d.innerHTML;}
   // templates.json do build script của repo sinh (trusted), nhưng vẫn guard defense-in-depth:
   function safeRel(u){u=String(u||'');return (/^assets\//.test(u)&&!/[<>"']/.test(u))?u:'';}
-  function safeGh(u){u=String(u||'');return /^https:\/\/github\.com\//.test(u)?u:'https://github.com/ducnguyen221/powerbi-agent';}
+  function safeGh(u){u=String(u||'');return /^https:\/\/github\.com\//.test(u)?u:'https://github.com/ducnguyen221/agent-data-studio';}
   function thumb(k){
     var p0=safeRel(k.previews&&k.previews[0]);
     if(p0) return '<img src="'+p0+'" alt="Ảnh xem trước template '+esc(k.name)+'" loading="lazy">';

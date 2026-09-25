@@ -74,13 +74,13 @@ powerbi-agent/
 ## 2. Cài đặt (agent thực hiện được toàn bộ)
 
 ```powershell
-git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1   # venv + ADOMD + đăng ký 3 host + skill
 ```
 
 - Sau cài: **restart MCP host** rồi verify (`claude mcp list` → `powerbi-mcp-bridge ✔ Connected`).
-- Chỉ cần SKILLS (không MCP): `claude plugin marketplace add ducnguyen221/powerbi-agent`
+- Chỉ cần SKILLS (không MCP): `claude plugin marketplace add ducnguyen221/agent-data-studio`
   → `claude plugin install powerbi-agent@powerbi-agent` (Codex tương tự). Lưu ý: plugin
   KHÔNG dựng venv/MCP — đầy đủ phải chạy `install.ps1`.
 - Khuyến nghị cài kèm modeling chính chủ Microsoft:

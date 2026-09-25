@@ -3,7 +3,7 @@
 ## Cách 1 — Trọn bộ (MCP + venv + skills) — khuyến nghị
 
 ```powershell
-git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts claude
 ```
@@ -17,7 +17,7 @@ Verify: `claude mcp list` → `powerbi-mcp-bridge … ✔ Connected`.
 ## Cách 2 — Cài dạng PLUGIN (hiện trong trình quản lý plugin của Claude Desktop)
 
 ```bash
-claude plugin marketplace add ducnguyen221/powerbi-agent
+claude plugin marketplace add ducnguyen221/agent-data-studio
 claude plugin install agent-data-studio@agent-data-studio
 ```
 
