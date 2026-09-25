@@ -12,7 +12,7 @@ báo cáo mà một chuyên gia lâu năm sẽ mang theo khi vào dự án.
 Hỗ trợ **Power BI Desktop (local)** · **Power BI Service (cloud)** · **file dự án PBIP/PBIR**.
 Host: **Claude Code · Codex CLI · Google Antigravity** và mọi MCP client stdio.
 
-> 🌐 [ducnguyen.vn/powerbi-agent](https://ducnguyen.vn/powerbi-agent/) · 📘 [Cài đặt chi tiết](docs/INSTALL.html) ·
+> 🌐 [ducnguyen.vn/agent-data-studio](https://ducnguyen.vn/agent-data-studio/) · 📘 [Cài đặt chi tiết](docs/INSTALL.html) ·
 > 🗺️ [**INDEX.md** — bản đồ toàn repo](INDEX.md) · 🤖 [AGENTS.md](AGENTS.md) · [Lộ trình](ROADMAP.md) · [Kết quả UAT](docs/UAT-REPORT.md)
 
 ## 🏛️ Do KPIM xây dựng — chia sẻ miễn phí cho cộng đồng
@@ -40,13 +40,13 @@ trình cùng mẫu báo cáo ở đây được **nhiều chuyên gia KPIM phố
 Dán câu này vào agent của bạn (Claude Code / Codex / Antigravity):
 
 ```
-Clone https://github.com/ducnguyen221/powerbi-agent vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó (đọc script trước khi chạy), sau đó restart MCP host.
+Clone https://github.com/ducnguyen221/agent-data-studio vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó (đọc script trước khi chạy), sau đó restart MCP host.
 ```
 
 Hoặc tự chạy:
 
 ```powershell
-git clone https://github.com/ducnguyen221/powerbi-agent "$env:USERPROFILE\.mcp\powerbi-mcp"
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
 cd "$env:USERPROFILE\.mcp\powerbi-mcp"
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
@@ -65,8 +65,8 @@ Cùng một `.claude-plugin/marketplace.json` chạy cho **cả Claude Code lẫ
 agent, **chưa gồm** 16 tool MCP (muốn đủ tool thì chạy `install.ps1`).
 
 ```bash
-claude plugin marketplace add ducnguyen221/powerbi-agent && claude plugin install agent-data-studio@agent-data-studio
-codex  plugin marketplace add https://github.com/ducnguyen221/powerbi-agent && codex plugin add agent-data-studio@agent-data-studio
+claude plugin marketplace add ducnguyen221/agent-data-studio && claude plugin install agent-data-studio@agent-data-studio
+codex  plugin marketplace add https://github.com/ducnguyen221/agent-data-studio && codex plugin add agent-data-studio@agent-data-studio
 ```
 
 Chi tiết từng host: [`hosts/`](hosts/).
