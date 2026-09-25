@@ -31,3 +31,11 @@ knowledge.config.json
 
 # Residue cua bo test installer (fake USERPROFILE)
 tests/installer/fakehome*/
+
+# Plans live in the OpcOS workshop ledger, never in this public repo
+docs/plans/
+# Station/runtime data lives in $ADS_DATA (default ~/.data), never here
+lab/
+out/
+audit/
+secrets.env

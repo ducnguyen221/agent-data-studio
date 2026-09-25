@@ -1,0 +1,26 @@
+{
+  "upstream": "microsoft/skills-for-fabric",
+  "tag": "v0.3.16",
+  "commit": "24cc0d296e5e8523cc6a92e1342bc1791d7deb85",
+  "license": "MIT",
+  "files": [
+    {
+      "upstream_path": "plugins/powerbi-authoring/common/COMMON-CLI.md",
+      "path": "common/COMMON-CLI.md",
+      "sha256": "caa1a973eaab386f7dcec6f913df5786dac03ebbf87839385cc10f2aec3f5e98",
+      "bytes": 36342
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/common/COMMON-CORE.md",
+      "path": "common/COMMON-CORE.md",
+      "sha256": "62794fc1defb12c62170524143527d94801ad2f53f60134f47864627dc115ab5",
+      "bytes": 19584
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/common/ITEM-DEFINITIONS-CORE.md",
+      "path": "common/ITEM-DEFINITIONS-CORE.md",
+      "sha256": "4fd9ed6d0935bccff56bbade0932e4f1e5cdaeb96cae473f0c71a7acdc8f92d0",
+      "bytes": 21009
+    }
+  ]
+}

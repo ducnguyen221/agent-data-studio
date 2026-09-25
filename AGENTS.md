@@ -30,7 +30,7 @@ không được tiện tay ghi vào repo.
 
 ## 1. Repo này là gì
 
-**powerbi-agent** = MCP server (16 tool) + 4 skill + 8 lệnh /powerbi-* giúp AI Agent làm phân tích dữ liệu
+**powerbi-agent** = MCP server (16 tool) + 9 skill + 8 lệnh /pbi-* giúp AI Agent làm phân tích dữ liệu
 **end-to-end trên Power BI**: truy vấn DAX qua chính sách an toàn dữ liệu, khám phá/ghi model,
 dựng trang báo cáo theo template kit, quy trình dự án chuẩn hóa, và Knowledge OS (§4b).
 
@@ -43,23 +43,26 @@ powerbi-agent/
 ├─ hosts/{claude,codex,antigravity}/ ▸1  hướng dẫn đăng ký RIÊNG từng host
 ├─ policy.example.json           ▸1  mẫu blocklist PII → copy thành policy.json
 │
-├─ plugins/                      ▸2  chuyên môn đã số hóa (cửa vào: plugins/README.md)
-│  └─ powerbi-agent/
-│     ├─ .claude-plugin/plugin.json   manifest plugin (≠ marketplace.json ở gốc — 2 tầng chuẩn)
-│     ├─ skills/                      4 skill dùng chung mọi host (nguồn DUY NHẤT — sửa ở đây)
-│     │  ├─ kpim-analysis/            pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch
-│     │  │  ├─ document-templates/ ▸4    mẫu tài liệu: md + xlsx + theme.json + mindmaps
-│     │  │  └─ scripts/                  generator mindmap / xlsx
-│     │  ├─ powerbi-pipeline/         pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
-│     │  ├─ powerbi-mcp/              hướng dẫn dùng 16 tool + luật an toàn dữ liệu
-│     │  └─ powerbi-knowledge/        Knowledge OS: dự án · tri thức 4 trục · timeline
-│     ├─ commands/                    8 lệnh /powerbi-* (installer copy sang CẢ 3 host)
-│     └─ agents/                      powerbi-knowledge-curator (đóng gói tri thức)
+├─ skills/                       ▸2  9 skill dùng chung mọi host (nguồn DUY NHẤT — sửa ở đây)
+│  ├─ data-discovery/                pha NGHIỆP VỤ: khảo sát → tài liệu hóa → kế hoạch
+│  │  └─ scripts/                       generator mindmap / xlsx (đọc mẫu từ templates/documents/)
+│  ├─ data-mockup/                   dữ liệu mẫu (mockup/sample data)
+│  ├─ pbi-model/                     Power Query/M · star schema · relationship · DAX measure (TMDL) (+references/kpim/)
+│  ├─ pbi-analysis/                  hướng dẫn dùng 16 tool + luật an toàn dữ liệu
+│  ├─ pbi-design/                    thiết kế trang báo cáo / Design Brief trước khi ghi PBIR
+│  ├─ pbi-build/                     pha KỸ THUẬT: 9 khâu Power Query → model → DAX → report (+references/)
+│  ├─ pbi-review/                    review độc lập SQL · DAX · model · trang báo cáo
+│  ├─ pbi-publish/                   publish lên Fabric / Power BI Service
+│  └─ pbi-knowledge/                 Knowledge OS: dự án · tri thức 4 trục · timeline
+├─ commands/                     ▸2  8 lệnh /pbi-* (installer copy sang CẢ 3 host)
+├─ agents/                       ▸2  pbi-knowledge-curator (đóng gói tri thức)
+├─ templates/documents/          ▸4  mẫu tài liệu: md + xlsx + theme.json + mindmaps
+├─ upstream/ · LICENSES/ · THIRD_PARTY_NOTICES.md   vendored upstream · giấy phép bên thứ ba
 │
 ├─ report-templates/             ▸3  kit VISUAL trang báo cáo (PBIR) cho apply_template
 │  └─ kpim-business-light/           kit mẫu, 12 block đã sanitize
 │
-├─ .claude-plugin/marketplace.json    DANH MỤC chợ plugin (khai báo repo phân phối plugin nào)
+├─ .claude-plugin/                   marketplace.json + plugin.json (plugin agent-data-studio, source "./" = cả repo) · .codex-plugin/plugin.json
 ├─ install.ps1 · uninstall.ps1       cài/gỡ in-place: venv + ADOMD/TOM + 3 host + skill/lệnh/agent
 ├─ scripts/                          tiện ích dev: cli.py (debug DAX không cần MCP) · test_mcp_local.py
 ├─ tests/ · .github/workflows/       pytest + ruff, CI windows-latest
@@ -86,8 +89,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1   # venv + ADOMD + đăng
 
 ## 3. Cách agent làm việc với Power BI (luật CỨNG)
 
-1. **Thứ tự skill:** dự án mới → `kpim-analysis` (nghiệp vụ) → `powerbi-pipeline` (9 khâu kỹ thuật);
-   câu hỏi lẻ → tool trực tiếp theo `powerbi-mcp`.
+1. **Thứ tự skill:** dự án mới → `data-discovery` (nghiệp vụ) → `pbi-build` (9 khâu kỹ thuật);
+   câu hỏi lẻ → tool trực tiếp theo `pbi-analysis`.
 2. **Dữ liệu thô ở lại engine** — policy aggregate-only đang enforce ở server: viết DAX tổng hợp
    (SUMMARIZECOLUMNS/TOPN/measure), KHÔNG `EVALUATE 'Bảng'`. Đầu dự án hỏi user cột PII → ghi
    `policy.json`.
@@ -118,15 +121,15 @@ Power BI**. Luật phối hợp:
 ### 4.2 Phân vai gợi ý (điều chỉnh theo dự án)
 | Vai | Agent gợi ý | Làm gì |
 |---|---|---|
-| **Orchestrator / Builder** | Claude Code | Chạy kpim-analysis + powerbi-pipeline, GHI model & report, giữ lock |
+| **Orchestrator / Builder** | Claude Code | Chạy data-discovery + pbi-build, GHI model & report, giữ lock |
 | **Reviewer / Second-opinion** | Codex | CHỈ ĐỌC: verify measure (`execute_dax_local` đối chiếu số), soi ERD từ `distill_model_schema`, review DAX/page_spec trước khi Builder ghi |
-| **Analyst / Documenter** | Antigravity | Pha kpim-analysis (tài liệu nghiệp vụ, mindmap, kế hoạch), soạn `page_spec` JSON, viết artifact bàn giao |
+| **Analyst / Documenter** | Antigravity | Pha data-discovery (tài liệu nghiệp vụ, mindmap, kế hoạch), soạn `page_spec` JSON, viết artifact bàn giao |
 
 Mọi vai đều đọc được an toàn đồng thời — tool ĐỌC (list/describe/execute_dax/distill) không cần lock.
 
 ### 4.3 Kênh giao tiếp chung giữa các agent
 - **Artifact files trong thư mục dự án** (nguồn sự thật, agent nào cũng đọc/ghi nối tiếp):
-  `PLAN.md` → `CHANGESET.md` → `VERIFICATION.md` → `HANDOFF.md` (+ tài liệu kpim-analysis).
+  `PLAN.md` → `CHANGESET.md` → `VERIFICATION.md` → `HANDOFF.md` (+ tài liệu data-discovery).
   Bàn giao giữa 2 agent = ghi rõ trạng thái vào artifact, KHÔNG dựa vào trí nhớ phiên chat.
 - **Audit log** `<thư mục dự án>/audit/*.jsonl` = sổ cái chung mọi truy vấn (agent nào, chặn gì)
   — Reviewer dùng làm bằng chứng kiểm tra.
@@ -138,22 +141,22 @@ Mọi vai đều đọc được an toàn đồng thời — tool ĐỌC (list/d
 2. `list_local_reports` xác nhận trạng thái Desktop; kiểm tra `.powerbi-write-lock`.
 3. Làm phần việc của vai mình; cập nhật artifact; xóa lock nếu mình tạo.
 
-## 4b. Knowledge OS — dự án, tri thức, timeline (luồng /powerbi-*)
+## 4b. Knowledge OS — dự án, tri thức, timeline (luồng /pbi-*)
 
 Tri thức làm việc sống ở **Knowledge Dir do USER chỉ định NGOÀI repo** — con trỏ là MỘT dòng `POWERBI_PROJECT_DIR` trong `.env` (gitignored, mỗi máy tự khai).
 `knowledge.config.json` chỉ còn là legacy CHỈ-ĐỌC để migrate bản cũ. Thư mục user chỏn CHÍNH LÀ root
-— không đẻ thêm cấp con. Cơ chế đầy đủ: skill `powerbi-knowledge`.
+— không đẻ thêm cấp con. Cơ chế đầy đủ: skill `pbi-knowledge`.
 
 | Lệnh (Claude) / luồng (host khác) | Làm gì |
 |---|---|
-| `/powerbi-help` | Liệt kê lệnh/skill/16 tool + **bảng định tuyến** "user nói gì thì chạy gì" |
-| `/powerbi-setup` | Hỏi user chọn nơi lưu tài liệu dự án (mặc định ~/powerbi-project) → `setup_knowledge` |
-| `/powerbi-new <tên>` | `init_project` + đọc kinh nghiệm cũ + chạy kpim-analysis → powerbi-pipeline |
-| `/powerbi-scan <path>` | `distill_report_design` — hồ sơ thiết kế trọn báo cáo vào projects/<slug>/design/ |
-| `/powerbi-kit <path>` | Chưng cất 1 file .pbip thành **BỘ** kit tái dùng (nhiều trang + theme chung) |
-| `/powerbi-done` | Checklist đóng dự án + distill + `log_timeline` + pack |
-| `/powerbi-pack` | Agent `powerbi-knowledge-curator` đóng gói bài học 4 trục (dedup, Why/How-to-apply) |
-| `/powerbi-recall <từ khóa>` | Tra INDEX/TIMELINE/knowledge — "đã từng làm gì tương tự" |
+| `/pbi-help` | Liệt kê lệnh/skill/16 tool + **bảng định tuyến** "user nói gì thì chạy gì" |
+| `/pbi-setup` | Hỏi user chọn nơi lưu tài liệu dự án (mặc định ~/powerbi-project) → `setup_knowledge` |
+| `/pbi-new <tên>` | `init_project` + đọc kinh nghiệm cũ + chạy data-discovery → pbi-build |
+| `/pbi-scan <path>` | `distill_report_design` — hồ sơ thiết kế trọn báo cáo vào projects/<slug>/design/ |
+| `/pbi-kit <path>` | Chưng cất 1 file .pbip thành **BỘ** kit tái dùng (nhiều trang + theme chung) |
+| `/pbi-done` | Checklist đóng dự án + distill + `log_timeline` + pack |
+| `/pbi-pack` | Agent `pbi-knowledge-curator` đóng gói bài học 4 trục (dedup, Why/How-to-apply) |
+| `/pbi-recall <từ khóa>` | Tra INDEX/TIMELINE/knowledge — "đã từng làm gì tương tự" |
 
 Luật: (1) gọi `knowledge_status` TRƯỚC mọi quy trình tri thức — chưa setup thì DỪNG hỏi user;
 (2) mọi file dự án ghi vào `projects/<slug>/`; (3) Knowledge Dir KHÔNG BAO GIỜ commit;
@@ -163,7 +166,7 @@ Luật: (1) gọi `knowledge_status` TRƯỚC mọi quy trình tri thức — ch
 
 - Python 3.11+, ruff (line 120), pytest — chạy `pytest tests -m "not integration"` + ruff trước commit.
 - `mcp_server_powerbi.py` là shim back-compat: host đăng ký file này — GIỮ bề mặt import.
-- Skill là nguồn duy nhất ở `plugins/powerbi-agent/skills/` — installer copy đi các host,
+- Skill là nguồn duy nhất ở `skills/` — installer copy đi các host,
   ĐỪNG sửa bản copy trong `~/.claude/skills/...`.
 - `.ps1` phải UTF-8 **có BOM** (PowerShell 5.1 + tiếng Việt); JSON PBIR ghi UTF-8 **không BOM**.
 - KHÔNG commit: `.env`, `policy.json`, `.venv/`, kit chứa binding nghiệp vụ thật (sanitize trước),

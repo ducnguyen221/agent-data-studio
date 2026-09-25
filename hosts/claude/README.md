@@ -9,8 +9,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts claude
 ```
 
 Installer merge server `powerbi-mcp-bridge` vào `~/.claude.json` (user scope, backup `.bak`,
-không đụng server khác), copy 4 skill vào `~/.claude/skills/` và 8 lệnh `/powerbi-*` vào
-`~/.claude/commands/`. **Restart Claude Code** sau cài.
+không đụng server khác), copy 9 skill từ [`skills/`](../../skills/) vào `~/.claude/skills/`, 8 lệnh `/pbi-*` từ
+[`commands/`](../../commands/) vào `~/.claude/commands/` và agent từ [`agents/`](../../agents/) vào `~/.claude/agents/`. **Restart Claude Code** sau cài.
 
 Verify: `claude mcp list` → `powerbi-mcp-bridge … ✔ Connected`.
 
@@ -18,11 +18,11 @@ Verify: `claude mcp list` → `powerbi-mcp-bridge … ✔ Connected`.
 
 ```bash
 claude plugin marketplace add ducnguyen221/powerbi-agent
-claude plugin install powerbi-agent@powerbi-agent
+claude plugin install agent-data-studio@agent-data-studio
 ```
 
-Plugin `powerbi-agent` xuất hiện trong danh sách plugin của app; nạp **4 skill + 8 lệnh /powerbi-* +
-agent `powerbi-knowledge-curator`** (Claude tự auto-discover `commands/` + `agents/`). Dùng khi chỉ cần
+Plugin `powerbi-agent` xuất hiện trong danh sách plugin của app; nạp **9 skill + 8 lệnh /pbi-* +
+agent `pbi-knowledge-curator`** (Claude tự auto-discover `commands/` + `agents/`). Dùng khi chỉ cần
 quy trình/kiến thức mà chưa cần 16 tool DAX.
 
 > Chỉ cài plugin = CHƯA có MCP server (16 tool). Muốn đủ tool → Cách 1.

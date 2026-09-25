@@ -343,23 +343,34 @@ function Move-SkillAside([string]$Path, [string]$SkillRoot, [string]$Why) {
 }
 
 function Install-Skill([string]$SkillRoot) {
-    # Copy MỌI skill (powerbi-mcp, powerbi-pipeline, kpim-analysis, ...) — nguồn duy nhất:
-    # plugins\powerbi-agent\skills\ (fallback layout cũ skill\ cho bản clone cũ).
-    # Copy CẢ thư mục: SKILL.md + references\ + document-templates\ + scripts\ + assets\
-    $skillBase = Join-Path $Root "plugins\powerbi-agent\skills"
+    # Copy MỌI skill (data-discovery, pbi-model, pbi-build, ...) — nguồn duy nhất:
+    # skills\ ở gốc repo (fallback layout cũ skill\ cho bản clone cũ).
+    # Copy CẢ thư mục: SKILL.md + references\ + scripts\ + assets\
+    $skillBase = Join-Path $Root "skills"
     if (-not (Test-Path $skillBase)) { $skillBase = Join-Path $Root "skill" }
     if (-not (Test-Path $skillBase)) { return }
-    # Skill ĐỔI TÊN ở v0.5.0: mirror chỉ xử lý skill CÓ trong nguồn, nên bản cũ nằm lại thành
-    # xác sống. Tệ hơn nhiều so với rác thường: pbi-knowledge/SKILL.md chứa nguyên bảng định tuyến
-    # bảo agent chạy /pbi-setup, /pbi-new... — đúng những lệnh mà chính installer vừa xoá.
-    # DỜI SANG BÊN, không Remove-Item: "pbi-pipeline" là cái tên bất kỳ ai trong hệ sinh thái
-    # Power BI cũng có thể đã đặt cho skill riêng của họ. Xoá thẳng ở đây thì user mất dữ liệu
-    # không hoàn tác được — và mâu thuẫn với chính luật two-signal áp cho các skill khác dưới đây.
-    foreach ($old in @("pbi-pipeline", "pbi-knowledge")) {
+    # Skill ĐỔI TÊN (v0.5.0, rồi v0.7): mirror chỉ xử lý skill CÓ trong nguồn, nên bản cũ nằm lại
+    # thành xác sống. Tệ hơn nhiều so với rác thường: skill cũ chứa nguyên bảng định tuyến trỏ tới
+    # những lệnh/skill mà chính installer vừa đổi tên.
+    # Danh sách chỉ gồm tên ĐÃ BỎ. Tên đang có trong skills\ (vd pbi-knowledge — skill THẬT từ v0.7)
+    # tuyệt đối không được dọn: dọn mù mỗi lần cài thì lần cài thứ hai dời mất bản vừa cài.
+    $currentNames = @(Get-ChildItem -Path $skillBase -Directory |
+        Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } | ForEach-Object { $_.Name })
+    foreach ($old in @("pbi-pipeline", "kpim-analysis", "powerbi-pipeline", "powerbi-mcp", "powerbi-knowledge")) {
+        if ($currentNames -contains $old) { continue }
         $p = Join-Path $SkillRoot $old
         if (Test-Path $p) {
             if (Test-Path (Join-Path $p $KeepFile)) { Info "Giữ nguyên '$old' (có $KeepFile)."; continue }
-            Move-SkillAside $p $SkillRoot "Skill cũ (<0.5.0) '$old'" | Out-Null
+            # Mang marker do CHÍNH ta ghi -> đó là bản của ta, chỉ là đã đổi tên: xoá hẳn.
+            if (Test-Path (Join-Path $p ".powerbi-agent-generated")) {
+                Remove-Item $p -Recurse -Force
+                Info "Xoá skill tên cũ (đã đổi tên): $old"
+                continue
+            }
+            # DỜI SANG BÊN, không Remove-Item: "pbi-pipeline" là cái tên bất kỳ ai trong hệ sinh thái
+            # Power BI cũng có thể đã đặt cho skill riêng của họ. Xoá thẳng ở đây thì user mất dữ liệu
+            # không hoàn tác được — và mâu thuẫn với chính luật two-signal áp cho các skill khác dưới đây.
+            Move-SkillAside $p $SkillRoot "Skill tên cũ '$old'" | Out-Null
             Warn "  Là skill CỦA BẠN? -> chuyển về '$p' rồi đặt file rỗng '$KeepFile' vào trong."
         }
     }
@@ -385,9 +396,9 @@ function Install-Skill([string]$SkillRoot) {
             # Dấu hiệu sở hữu HẠNG NHẤT: file marker ta tự ghi (dòng ngay dưới). Không phụ
             # thuộc nội dung SKILL.md nên không vỡ khi mô tả skill đổi qua các phiên bản.
             Write-Utf8NoBom (Join-Path $stage ".powerbi-agent-generated") `
-                "powerbi-agent sinh tu plugins/powerbi-agent/skills/$($_.Name)`n"
+                "powerbi-agent sinh tu skills/$($_.Name)`n"
             # Skill goc cua repo cung phai ton trong so huu: user co the co skill rieng
-            # trung ten (vd powerbi-knowledge). Nhan dien ban CUA TA bang frontmatter name:.
+            # trung ten (vd pbi-knowledge). Nhan dien ban CUA TA bang frontmatter name:.
             if (Test-Path $dst) {
                 # Cờ user đặt thắng MỌI suy đoán khác — kể cả `name:` trùng.
                 if (Test-Path (Join-Path $dst $KeepFile)) {
@@ -437,13 +448,13 @@ function Install-Skill([string]$SkillRoot) {
 
 }
 
-# Mirror thư mục lệnh: dọn CẢ họ tên cũ "pbi-*" (trước v0.5.0) lẫn họ mới "powerbi-*" rồi copy lại.
-# Nếu chỉ dọn họ mới thì người nâng cấp giữ 6 lệnh cũ mồ côi -> thấy 12 lệnh, gọi nhầm bản cũ.
+# Mirror thư mục lệnh: dọn CẢ họ tên cũ "powerbi-*" (v0.5–v0.6) lẫn họ hiện hành "pbi-*" rồi copy lại.
+# Nếu chỉ dọn họ hiện hành thì người nâng cấp giữ 8 lệnh cũ mồ côi -> thấy 16 lệnh, gọi nhầm bản cũ.
 # -Filter "pbi-*.md" KHÔNG khớp "powerbi-*.md" (wildcard khớp từ ĐẦU tên) nên phải duyệt cả hai.
 # Lệnh khác của user trong cùng thư mục KHÔNG bị đụng.
 # Xoá MỘT mục theo sổ ghi, an toàn trước sổ ghi rác.
 # Sổ ghi là file text nằm trong thư mục user ghi được, nên phải coi nội dung là KHÔNG tin cậy:
-#  - "powerbi-*.md" đi qua Join-Path vẫn là wildcard hợp lệ -> Remove-Item xoá luôn lệnh riêng
+#  - "pbi-*.md" đi qua Join-Path vẫn là wildcard hợp lệ -> Remove-Item xoá luôn lệnh riêng
 #    của user, tái tạo đúng cái bug mà sổ ghi sinh ra để chống;
 #  - "..\..\x.md" resolve ra NGOÀI thư mục đích;
 #  - ký tự lạ (tab, "<") làm Test-Path NÉM lỗi, mà $ErrorActionPreference='Stop' -> chết installer.
@@ -459,24 +470,26 @@ function Remove-LedgerEntry([string]$Dir, [string]$Name) {
 }
 
 function Install-Commands([string]$CmdDst, [string]$Label) {
-    $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+    $cmdSrc = Join-Path $Root "commands"
     if (-not (Test-Path $cmdSrc)) { return }
     if (-not (Test-Path $CmdDst)) { New-Item -ItemType Directory -Path $CmdDst -Force | Out-Null }
     # Xoá theo SỔ GHI những gì LẦN TRƯỚC ta đã cài, không dùng wildcard.
-    #  - wildcard "powerbi-*.md" sẽ nuốt cả lệnh riêng của user (vd powerbi-cua-toi.md)
+    #  - wildcard "pbi-*.md" sẽ nuốt cả lệnh riêng của user (vd pbi-cua-toi.md)
     #    và chiếm namespace mà repo không sở hữu;
     #  - chỉ suy từ manifest hiện tại thì lệnh ĐÃ BỊ BỎ khỏi repo sẽ thành xác sống ở host.
     # Sổ ghi giải quyết cả hai: xoá đúng thứ ta từng đặt vào, không hơn không kém.
     $ownNames    = @(Get-ChildItem $cmdSrc -Filter "*.md" | ForEach-Object { $_.Name })
     $ledger      = Join-Path $CmdDst ".powerbi-agent-installed.txt"
     $prev        = if (Test-Path $ledger) { @(Get-Content $ledger | Where-Object { $_ -match '\S' }) } else { @() }
-    $legacyNames = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
+    # Họ tên CŨ (trước v0.7). KHÔNG được chứa tên pbi-*.md: đó là tên lệnh hiện hành.
+    $legacyNames = @("powerbi-help.md","powerbi-setup.md","powerbi-new.md","powerbi-scan.md",
+                     "powerbi-kit.md","powerbi-done.md","powerbi-pack.md","powerbi-recall.md")
     foreach ($nm in ($prev + $ownNames + $legacyNames | Sort-Object -Unique)) {
         Remove-LedgerEntry $CmdDst $nm
     }
     Copy-Item (Join-Path $cmdSrc "*.md") $CmdDst -Force
     Set-Content -Path $ledger -Value $ownNames -Encoding UTF8
-    Info "$($ownNames.Count) lệnh /powerbi-* -> $CmdDst ($Label)"
+    Info "$($ownNames.Count) lệnh /pbi-* -> $CmdDst ($Label)"
 }
 
 # Codex KHÔNG có slash-command tự do như Claude: file trong ~/.codex/prompts/ được gọi bằng
@@ -485,7 +498,7 @@ function Install-Commands([string]$CmdDst, [string]$Label) {
 # Cách đúng theo hướng hiện tại của Codex: mỗi lệnh thành MỘT SKILL, agent gọi theo tên.
 # Nguồn vẫn là commands/ — không nhân bản nội dung, chỉ bọc thêm frontmatter skill.
 function Install-CommandsAsSkills([string]$SkillRoot) {
-    $cmdSrc = Join-Path $Root "plugins\powerbi-agent\commands"
+    $cmdSrc = Join-Path $Root "commands"
     if (-not (Test-Path $cmdSrc)) { return }
     $n = 0
     $generated = @()
@@ -505,7 +518,7 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
         $body = $body -replace '\$ARGUMENTS', '(tham số user đưa vào khi gọi quy trình này)'
 
         $dst = Join-Path $SkillRoot $name
-        # KHONG xoa bua thu muc trung ten: nguoi dung co the co skill rieng ten powerbi-help.
+        # KHONG xoa bua thu muc trung ten: nguoi dung co the co skill rieng ten pbi-help.
         # Chi ghi de thu MINH TUNG TAO (co file danh dau). Trung ten ma khong phai cua minh
         # thi BAO va bo qua, khong pha do cua ho.
         $marker = Join-Path $dst ".powerbi-agent-generated"
@@ -522,7 +535,7 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
                 # thi nguoi nang cap vua khong cap nhat duoc, vua khong go duoc — ket vinh vien.
                 # Nhan dien theo DAU VET SINH RA: frontmatter `name: <ten lenh>` do chinh ta ghi.
                 # HAI dau hieu, phai co ca hai. Chi doi 'name:' la chua du: user dat skill
-                # rieng dung ten powerbi-help thi cung khop -> ta xoa mat do cua ho.
+                # rieng dung ten pbi-help thi cung khop -> ta xoa mat do cua ho.
                 # Dau hieu 2: truong provenance ASCII (v0.6+), hoac cau mo ta dac trung do
                 # chinh template cu sinh ra (v0.5.x). Doc UTF8 tuong minh — Get-Content mac
                 # dinh ANSI tren PS 5.1 nen tieng Viet se lech va so khop luon truot.
@@ -545,7 +558,7 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
         $head = "---`nname: $name`nx-generated-by: powerbi-agent`ndescription: >`n  $desc`n  Gọi khi user nói `"chạy $name`" hoặc mô tả việc khớp mô tả trên.`n---`n`n"
         Write-Utf8NoBom (Join-Path $dst "SKILL.md") ($head + $body)
         # Marker ghi SAU CUNG: SKILL.md loi thi khong de lai thu muc co marker ma rong.
-        Write-Utf8NoBom $marker "powerbi-agent sinh tu plugins/powerbi-agent/commands/$name.md`n"
+        Write-Utf8NoBom $marker "powerbi-agent sinh tu commands/$name.md`n"
         $generated += $name
         $n++
     }
@@ -569,21 +582,33 @@ function Install-CommandsAsSkills([string]$SkillRoot) {
             }
         }
     }
+    # Họ tên lệnh CŨ (powerbi-*, trước v0.7). Sổ ghi ở trên đã dọn được nếu bản cũ có sổ; vòng
+    # này lo bản cài chưa có sổ ghi. Chỉ xoá thứ mang marker của ta; cờ keep vẫn thắng.
+    foreach ($old in @("powerbi-help","powerbi-setup","powerbi-new","powerbi-scan",
+                       "powerbi-kit","powerbi-done","powerbi-pack","powerbi-recall")) {
+        $p = Join-Path $SkillRoot $old
+        if (-not (Test-Path $p)) { continue }
+        if (Test-Path (Join-Path $p $KeepFile)) { continue }
+        if (Test-Path (Join-Path $p ".powerbi-agent-generated")) {
+            Remove-Item $p -Recurse -Force; Info "Xoa skill-lenh ten cu: $old"
+        }
+    }
     Set-Content -Path $ledger -Value $generated -Encoding UTF8
-    Info "$n lệnh -> skill Codex tại $SkillRoot (gọi theo tên, vd `"chạy powerbi-help`")"
+    Info "$n lệnh -> skill Codex tại $SkillRoot (gọi theo tên, vd `"chạy pbi-help`")"
 }
 
-# Agent phụ (powerbi-knowledge-curator). Chỉ Claude Code có thư mục agents/ chuẩn;
-# host khác vẫn có nội dung đó qua skill powerbi-knowledge nên không mất năng lực.
+# Agent phụ (pbi-knowledge-curator, ...). Chỉ Claude Code có thư mục agents/ chuẩn;
+# host khác vẫn có nội dung đó qua skill pbi-knowledge nên không mất năng lực.
 function Install-Agents([string]$AgentDst) {
-    $src = Join-Path $Root "plugins\powerbi-agent\agents"
+    $src = Join-Path $Root "agents"
     if (-not (Test-Path $src)) { return }
     if (-not (Test-Path $AgentDst)) { New-Item -ItemType Directory -Path $AgentDst -Force | Out-Null }
-    foreach ($nm in (@(Get-ChildItem $src -Filter "*.md" | ForEach-Object { $_.Name }) + @("pbi-knowledge-curator.md"))) {
+    # Tên cũ trước v0.7 (powerbi-knowledge-curator.md) phải biến mất, không thì host có 2 agent trùng việc.
+    foreach ($nm in (@(Get-ChildItem $src -Filter "*.md" | ForEach-Object { $_.Name }) + @("powerbi-knowledge-curator.md"))) {
         Remove-LedgerEntry $AgentDst $nm
     }
     Copy-Item (Join-Path $src "*.md") $AgentDst -Force
-    Info "Agent powerbi-knowledge-curator -> $AgentDst"
+    Info "Agent pbi-* -> $AgentDst"
 }
 
 Step "3/4 Đăng ký MCP vào host"
@@ -616,8 +641,8 @@ if ($Hosts -contains "antigravity") {
     $h = Join-Path $env:USERPROFILE ".gemini\antigravity"
     Install-Skill (Join-Path $h "skills")
     # Antigravity KHÔNG có cơ chế slash-command (xem hosts/antigravity/README.md). Đặt bộ lệnh
-    # ngay trong skill powerbi-knowledge để agent vẫn đọc được quy trình và gọi theo tên.
-    $kn = Join-Path $h "skills\powerbi-knowledge"
+    # ngay trong skill pbi-knowledge để agent vẫn đọc được quy trình và gọi theo tên.
+    $kn = Join-Path $h "skills\pbi-knowledge"
     if (Test-Path (Join-Path $kn $KeepFile)) {
         # "Để yên hoàn toàn" phải là hoàn toàn: giữ thân skill mà vẫn nhét 8 file lệnh + sổ ghi
         # vào trong nó thì vẫn có thể đè file cùng tên của user.
@@ -627,7 +652,7 @@ if ($Hosts -contains "antigravity") {
     else {
         # Im lặng ở đây là tệ nhất: Antigravity không có slash-command nên user không có cách
         # nào tự phát hiện mình đang thiếu TOÀN BỘ bộ lệnh.
-        Warn "Không thấy skill powerbi-knowledge -> Antigravity KHÔNG nhận được bộ lệnh."
+        Warn "Không thấy skill pbi-knowledge ->Antigravity KHÔNG nhận được bộ lệnh."
         Warn "  Chạy lại install.ps1 đầy đủ (không -Only) từ thư mục repo còn nguyên vẹn."
     }
 }
@@ -671,13 +696,13 @@ if ($script:HadError) {
     exit 1
 }
 Ok "HOÀN TẤT."
-$nextSetup = if ($knowledgeReady) { "(đã xong — bỏ qua)" } else { "/powerbi-setup   -> chỉ định Knowledge Dir (làm 1 lần)" }
+$nextSetup = if ($knowledgeReady) { "(đã xong — bỏ qua)" } else { "/pbi-setup   -> chỉ định Knowledge Dir (làm 1 lần)" }
 Write-Host @"
 
 VIỆC CẦN LÀM TIẾP — 3 bước:
   1. KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm).
   2. $nextSetup
-  3. /powerbi-help    -> agent tự liệt kê năng lực và định tuyến việc của bạn.
+  3. /pbi-help    -> agent tự liệt kê năng lực và định tuyến việc của bạn.
 
 Server tại : $Root
 Cập nhật riêng phần quy trình (không đụng venv/MCP): .\install.ps1 -Only plugin

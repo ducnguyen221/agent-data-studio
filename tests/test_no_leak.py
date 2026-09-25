@@ -145,13 +145,15 @@ class TestRepoIsNotAWorkspace:
     # Danh sách file gốc repo được phép — mọi thứ khác là ứng viên "lỡ tay".
     ALLOWED_ROOT_FILES = {
         "README.md", "README.vi.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
-        "ROADMAP.md", "LICENSE", ".gitignore", ".env.example", "policy.example.json",
+        "ROADMAP.md", "LICENSE", ".gitignore", ".gitattributes", ".env.example",
+        "policy.example.json", "THIRD_PARTY_NOTICES.md",
         "pyproject.toml", "requirements.txt", "requirements.loose.txt",
         "install.ps1", "uninstall.ps1", "pack.ps1", "mcp_server_powerbi.py",
     }
     ALLOWED_ROOT_DIRS = {
         ".claude-plugin", ".github", "docs", "hosts", "plugins", "powerbi_agent",
         "report-templates", "scripts", "tests",
+        "skills", "commands", "agents", "templates", "workflows", "upstream", "LICENSES",
     }
 
     def test_no_stray_files_at_repo_root(self):
@@ -167,12 +169,12 @@ class TestRepoIsNotAWorkspace:
         )
 
     def test_no_project_deliverables_committed(self):
-        """Tên file bàn giao dự án (theo bộ mẫu KPIM) không được nằm ngoài document-templates/."""
+        """Tên file bàn giao dự án (theo bộ mẫu KPIM) không được nằm ngoài templates/documents/."""
         deliverables = {
             "PROJECT.md", "RESEARCH_NOTES.md", "DATA_DICTIONARY.md",
             "METRICS_CALCULATION.md", "DOMAIN_DIMENSION.md", "REPORTS.md", "DESIGN.md",
         }
-        allowed_prefix = "plugins/powerbi-agent/skills/kpim-analysis/document-templates/"
+        allowed_prefix = "templates/documents/"
         bad = [
             f for f in tracked_files()
             if os.path.basename(f) in deliverables and not f.startswith(allowed_prefix)
@@ -304,8 +306,8 @@ class TestMindmapsStayInSync:
         import shutil
         import subprocess
         import sys
-        skill = os.path.join(REPO, "plugins", "powerbi-agent", "skills", "kpim-analysis")
-        out = os.path.join(skill, "document-templates", "mindmaps")
+        skill = os.path.join(REPO, "skills", "data-discovery")
+        out = os.path.join(REPO, "templates", "documents", "mindmaps")
         before = {f: open(os.path.join(out, f), encoding="utf-8").read()
                   for f in os.listdir(out) if f.endswith(".html")}
         assert before, "không có mindmap HTML nào"

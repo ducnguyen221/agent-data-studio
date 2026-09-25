@@ -1,16 +1,22 @@
 {
-  "name": "powerbi-agent",
-  "description": "AI × Power BI — the KPIM analysis process, 9-step pipeline, report template kits and a data-safety tool guide, packaged as skills + slash commands + a curator agent. Works in Claude Code and Codex (same manifest). Built by KPIM (kpim.vn), shared free.",
+  "name": "agent-data-studio",
+  "description": "Agent skills for data work: business discovery, mock data, and a Power BI chain from model to publish, following Microsoft PBIR/TMDL standards with KPIM expert practice.",
   "owner": {
-    "name": "KPIM",
-    "email": "ducnguyen.ams@gmail.com",
-    "url": "https://kpim.vn"
-  },
-  "metadata": {
-    "homepage": "https://ducnguyen.vn/powerbi-agent/",
-    "repository": "https://github.com/ducnguyen221/powerbi-agent"
+    "name": "Duc Nguyen",
+    "url": "https://ducnguyen.vn"
   },
   "plugins": [
-    { "name": "powerbi-agent", "source": "./plugins/powerbi-agent", "version": "0.6.0" }
+    {
+      "name": "agent-data-studio",
+      "description": "Agent skills for data work: business discovery, mock data, and a Power BI chain from model to publish, following Microsoft PBIR/TMDL standards with KPIM expert practice.",
+      "version": "0.7.0",
+      "source": "./",
+      "license": "MIT",
+      "author": {
+        "name": "Duc Nguyen",
+        "email": "ducnguyen.ams@gmail.com",
+        "url": "https://ducnguyen.vn"
+      }
+    }
   ]
 }

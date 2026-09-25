@@ -1,0 +1,5 @@
+# Phụ thuộc của mockpack/mockverify/gen_skeleton — pandas >= 2.0 vì dùng to_datetime(format="ISO8601"/"mixed")
+pandas>=2.0
+numpy>=1.24
+PyYAML>=6.0
+openpyxl>=3.1

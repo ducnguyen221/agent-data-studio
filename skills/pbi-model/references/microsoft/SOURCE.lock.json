@@ -1,0 +1,80 @@
+{
+  "upstream": "microsoft/skills-for-fabric",
+  "tag": "v0.3.16",
+  "commit": "24cc0d296e5e8523cc6a92e1342bc1791d7deb85",
+  "license": "MIT",
+  "files": [
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/connection-binding.md",
+      "path": "connection-binding.md",
+      "sha256": "f46fdda2ff62da2efe2835a840474328c2a3a107d50db1d58fa966c628cde1b7",
+      "bytes": 10825
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/dax-guidelines.md",
+      "path": "dax-guidelines.md",
+      "sha256": "9c1645f1b2aaf6088b239c5015ca2b6c5133d01914035dbe83fcf784012dd5de",
+      "bytes": 11372
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/dax-perf-decision-guide.md",
+      "path": "dax-perf-decision-guide.md",
+      "sha256": "13a23d4cf4b3083b80502e15f6a8b589dddcdc30d8ca05a6d23421d7c1af4042",
+      "bytes": 32964
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/dax-perf-patterns.md",
+      "path": "dax-perf-patterns.md",
+      "sha256": "270d87a24e375d117679c32535a05e75ea887f1f15377648b816659909503451",
+      "bytes": 30751
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/direct-lake-guidelines.md",
+      "path": "direct-lake-guidelines.md",
+      "sha256": "022d51a2dac429e50e6359ca6ab73b625c0bf1fae0b34c4d92cd2a7c75568885",
+      "bytes": 3258
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/metadata-discovery.md",
+      "path": "metadata-discovery.md",
+      "sha256": "cf57d3073f6624c5f18342cac44a61ee65be473b3e3f38a46db4bf6aed894f87",
+      "bytes": 7229
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/modeling-guidelines.md",
+      "path": "modeling-guidelines.md",
+      "sha256": "798aadc21662fde470713019868e345b39f838b4cf8f9ba5ada854e228b2a45c",
+      "bytes": 16663
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/naming-conventions.md",
+      "path": "naming-conventions.md",
+      "sha256": "b64c4e5abf90e03257926c8350952e9fda36a854ff13903e70ebf397dcebe019",
+      "bytes": 4373
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/pbip.md",
+      "path": "pbip.md",
+      "sha256": "005d5feab1864ac4fed3f2a92c2fbf5f45f7549d612b0793d8ec90be9df1c740",
+      "bytes": 4010
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/semantic-model-ai-readiness.md",
+      "path": "semantic-model-ai-readiness.md",
+      "sha256": "f1d654f29e305f8db8384a322cc868d772145e184b8a41dc99ee8288f7f98cb5",
+      "bytes": 13778
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/semantic-model-rest-api.md",
+      "path": "semantic-model-rest-api.md",
+      "sha256": "f5d34e3e137be9ba694d7474e0dc5dd37762ce5655bc8f4a5ac8db3e3b35df7a",
+      "bytes": 20322
+    },
+    {
+      "upstream_path": "plugins/powerbi-authoring/skills/semantic-model-authoring/references/tmdl-guidelines.md",
+      "path": "tmdl-guidelines.md",
+      "sha256": "7303a612ba9f2ba977fa6784f19ce51f78693a15f6edfec1dd411e3017f5e46b",
+      "bytes": 16399
+    }
+  ]
+}

@@ -29,10 +29,10 @@ Installer làm 2 việc:
 }
 ```
 
-2. Copy 4 skill (kèm `references/` + `document-templates/` + `scripts/`) vào `~/.gemini/antigravity/skills/`.
-3. Vì Antigravity **không có slash-command**, installer đặt 8 lệnh vào
-   `~/.gemini/antigravity/skills/powerbi-knowledge/commands/` — agent đọc được quy trình và
-   bạn gọi bằng lời: *"chạy quy trình powerbi-setup"*, *"chạy powerbi-help"*.
+2. Copy 9 skill từ [`skills/`](../../skills/) (kèm `references/` + `scripts/`) vào `~/.gemini/antigravity/skills/`.
+3. Vì Antigravity **không có slash-command**, installer đặt 8 lệnh (từ [`commands/`](../../commands/)) vào
+   `~/.gemini/antigravity/skills/pbi-knowledge/commands/` — agent đọc được quy trình và
+   bạn gọi bằng lời: *"chạy quy trình pbi-setup"*, *"chạy pbi-help"*.
    *(Từ v0.6.0.)*
 
 **Restart Antigravity** sau cài để nhận tool + skill.
@@ -43,5 +43,5 @@ Chỉ cập nhật phần quy trình, không đụng venv/MCP:
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts antigravity -Only plugin
 ```
 
-Vai gợi ý cho Antigravity trong tổ đa-agent: **Analyst/Documenter** (pha kpim-analysis,
+Vai gợi ý cho Antigravity trong tổ đa-agent: **Analyst/Documenter** (pha data-discovery,
 soạn page_spec, artifact bàn giao) — xem `AGENTS.md` §4.2.

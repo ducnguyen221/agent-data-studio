@@ -138,7 +138,7 @@ if ($Hosts -contains "codex") {
 }
 
 # Gỡ MỌI skill + lệnh mà installer đã copy (đối xứng với Install-Skill — lấy danh sách từ nguồn)
-$skillBase = Join-Path $Root "plugins\powerbi-agent\skills"
+$skillBase = Join-Path $Root "skills"
 if (-not (Test-Path $skillBase)) { $skillBase = Join-Path $Root "skill" }
 $skillNames = @()
 if (Test-Path $skillBase) { $skillNames = (Get-ChildItem $skillBase -Directory).Name }
@@ -149,14 +149,19 @@ if ($Hosts -contains "antigravity") { $hostSkillRoots += (Join-Path $env:USERPRO
 # KHÔNG đặt tên biến lặp là $root: PowerShell không phân biệt hoa/thường nên nó GHI ĐÈ $Root
 # (thư mục repo) và mọi Join-Path $Root phía dưới sẽ trỏ vào ...\.gemini\antigravity\skills\...
 $RepoDir = $PSScriptRoot
-$skillNames += @("pbi-pipeline", "pbi-knowledge")   # tên trước v0.5.0 — gỡ cả bản cũ
+# Tên cũ đã đổi (v0.5.0 và v0.7) — gỡ cả bản cũ. Vẫn qua cùng luật sở hữu bên dưới.
+$skillNames += @("pbi-pipeline", "kpim-analysis", "powerbi-pipeline", "powerbi-mcp", "powerbi-knowledge")
 # Codex nhận MỖI LỆNH là MỘT SKILL (xem Install-CommandsAsSkills). Không gỡ chúng thì
 # sau khi user gỡ cài, Codex vẫn còn 8 skill sống nhăn gọi tool đã biến mất.
-$cmdDirForSkills = Join-Path $RepoDir "plugins\powerbi-agent\commands"
+$cmdDirForSkills = Join-Path $RepoDir "commands"
 if (Test-Path $cmdDirForSkills) {
     $skillNames += @(Get-ChildItem $cmdDirForSkills -Filter "*.md" |
         ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_.Name) })
 }
+# Skill-lệnh họ tên cũ (powerbi-*, trước v0.7).
+$skillNames += @("powerbi-help","powerbi-setup","powerbi-new","powerbi-scan",
+                 "powerbi-kit","powerbi-done","powerbi-pack","powerbi-recall")
+$skillNames = @($skillNames | Sort-Object -Unique)
 foreach ($skRoot in $hostSkillRoots) {
     foreach ($n in $skillNames) {
         $p = Join-Path $skRoot $n
@@ -231,10 +236,12 @@ function Remove-InstalledFrom([string]$Dir, [string]$SrcDir, [string[]]$Legacy, 
 # $Root (PowerShell không phân biệt hoa/thường với tên biến), và lỗi đó im lặng — $own rỗng thì
 # hàm gỡ vẫn chạy, chỉ là không xoá gì.
 $RepoDir     = $PSScriptRoot
-$cmdSrcDir   = Join-Path $RepoDir "plugins\powerbi-agent\commands"
-$agentSrcDir = Join-Path $RepoDir "plugins\powerbi-agent\agents"
+$cmdSrcDir   = Join-Path $RepoDir "commands"
+$agentSrcDir = Join-Path $RepoDir "agents"
 if (-not (Test-Path $agentSrcDir)) { Warn "Không thấy $agentSrcDir — bỏ qua gỡ agent." }
-$legacyCmds = @("pbi-setup.md","pbi-new.md","pbi-scan.md","pbi-done.md","pbi-pack.md","pbi-recall.md")
+# Họ tên lệnh CŨ (trước v0.7); họ hiện hành pbi-* đã lấy từ commands\ và sổ ghi.
+$legacyCmds = @("powerbi-help.md","powerbi-setup.md","powerbi-new.md","powerbi-scan.md",
+                "powerbi-kit.md","powerbi-done.md","powerbi-pack.md","powerbi-recall.md")
 
 if ($Hosts -contains "codex") {
     # Sổ ghi skill-lệnh do Install-CommandsAsSkills tạo. Không xoá thì gỡ xong vẫn còn file
@@ -244,11 +251,14 @@ if ($Hosts -contains "codex") {
     Remove-InstalledFrom (Join-Path $env:USERPROFILE ".codex\prompts") $cmdSrcDir $legacyCmds "lệnh"
 }
 if ($Hosts -contains "claude") {
-    # Gỡ agent bằng danh sách tên tường minh — chỉ có đúng 1 agent, và cách này không phụ thuộc
-    # vào việc suy tên từ thư mục repo (đã có lần hỏng im lặng vì biến gốc repo bị ghi đè).
+    # Gỡ agent bằng danh sách tên tường minh (tên cũ + tên hiện hành) — không phụ thuộc vào việc
+    # suy tên từ thư mục repo (đã có lần hỏng im lặng vì biến gốc repo bị ghi đè). Agent mới thêm
+    # vào agents\ thì cộng thêm từ nguồn khi đọc được.
     $agentDst = Join-Path $env:USERPROFILE ".claude\agents"
     if (Test-Path $agentDst) {
-        foreach ($nm in @("powerbi-knowledge-curator.md", "pbi-knowledge-curator.md")) {
+        $agentNames = @("powerbi-knowledge-curator.md", "pbi-knowledge-curator.md")
+        if (Test-Path $agentSrcDir) { $agentNames += @(Get-ChildItem $agentSrcDir -Filter "*.md" | ForEach-Object { $_.Name }) }
+        foreach ($nm in @($agentNames | Sort-Object -Unique)) {
             $p = Join-Path $agentDst $nm
             if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force; Info "Xoá agent: $nm" }
         }

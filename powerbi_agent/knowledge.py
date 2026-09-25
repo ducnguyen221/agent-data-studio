@@ -31,11 +31,14 @@ import shutil
 import unicodedata
 from datetime import date, datetime
 
+from powerbi_agent._env import data_dir, env_file
+
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENV_FILE = os.path.join(_REPO_ROOT, ".env")
+# `.env` sống ở thư mục dữ liệu máy ($ADS_DATA); chưa đặt thì lùi về gốc repo (bản cài cũ).
+ENV_FILE = env_file()
 ENV_KEY = "POWERBI_PROJECT_DIR"
 # Con trỏ đời cũ — chỉ đọc để migrate, không ghi mới vào đây nữa.
-LEGACY_CONFIG_FILE = os.path.join(_REPO_ROOT, "knowledge.config.json")
+LEGACY_CONFIG_FILE = os.path.join(data_dir(), "knowledge.config.json")
 
 DEFAULT_PROJECT_DIRNAME = "powerbi-project"
 

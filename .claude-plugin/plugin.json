@@ -1,0 +1,25 @@
+{
+  "name": "agent-data-studio",
+  "version": "0.7.0",
+  "description": "Turn an AI agent into a data analyst that works directly in the tools. 9 skills in one chain — data-discovery, data-mockup, pbi-model, pbi-analysis, pbi-design, pbi-build, pbi-review, pbi-publish, pbi-knowledge — plus 8 /pbi-* commands and 2 agents. Microsoft skills-for-fabric references (MIT) ship verbatim inside the skills; data-safety policy keeps raw rows out of context. Engine (CLI + MCP) installs separately into $ADS_DATA. Built by KPIM (kpim.vn), shared free.",
+  "author": {
+    "name": "Duc Nguyen",
+    "email": "ducnguyen.ams@gmail.com",
+    "url": "https://ducnguyen.vn"
+  },
+  "homepage": "https://github.com/ducnguyen221/powerbi-agent",
+  "repository": "https://github.com/ducnguyen221/powerbi-agent",
+  "license": "MIT",
+  "keywords": [
+    "data",
+    "powerbi",
+    "pbir",
+    "tmdl",
+    "dax",
+    "semantic-model",
+    "report-design",
+    "mcp",
+    "kpim"
+  ],
+  "skills": "./skills/"
+}

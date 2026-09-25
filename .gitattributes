@@ -1,0 +1,4 @@
+# Microsoft references are verbatim copies locked by sha256 (SOURCE.lock.json).
+# -text: never convert line endings, otherwise checkout on Windows changes bytes and the lock breaks.
+skills/*/references/microsoft/** -text
+LICENSES/** -text

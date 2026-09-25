@@ -226,13 +226,14 @@ class TestReportTemplates:
         with open(kit, encoding="utf-8") as fh:
             assert json.load(fh)
 
-    def test_document_templates_folder_shipped_with_skill(self):
-        """Mẫu tài liệu (trụ 4) phải nằm TRONG folder skill — installer copy cả thư mục."""
+    def test_document_templates_at_repo_root_and_discovery_script_present(self):
+        """Mẫu tài liệu (trụ 4) nằm ở templates/documents/ gốc repo, không còn đi theo skill;
+        skill data-discovery giữ script sinh mindmap (đọc mẫu từ gốc repo)."""
         repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        skill = os.path.join(repo, "plugins", "powerbi-agent", "skills", "kpim-analysis")
-        assert os.path.isdir(os.path.join(skill, "document-templates"))
-        assert not os.path.isdir(os.path.join(skill, "templates"))
-        assert os.path.isfile(os.path.join(skill, "document-templates", "PROJECT.md"))
+        assert os.path.isfile(os.path.join(repo, "templates", "documents", "PROJECT.md"))
+        skill = os.path.join(repo, "skills", "data-discovery")
+        assert os.path.isfile(os.path.join(skill, "scripts", "generate_mindmap_html.py"))
+        assert not os.path.isdir(os.path.join(skill, "document-templates"))
 
 
 class TestKnowledgeIndexMigration:
@@ -674,3 +675,25 @@ class TestPublicKitFolderNeedsSanitize:
                 f"sanitize={sanitize} nhưng guard nhận allow_public_kits={seen.get('allow')} "
                 "— dây nối đứt, distill chưa sanitize sẽ ghi được vào report-templates/"
             )
+
+
+def test_env_data_dir_follows_ads_data(monkeypatch, tmp_path):
+    """Bản cài pip (không -e) đặt package trong site-packages → .env phải theo $ADS_DATA."""
+    from powerbi_agent import _env
+
+    monkeypatch.setenv("ADS_DATA", str(tmp_path))
+    assert _env.data_dir() == str(tmp_path)
+    assert _env.env_file() == str(tmp_path / ".env")
+    monkeypatch.delenv("ADS_DATA")
+    assert _env.data_dir() == _env._PKG_PARENT
+
+
+def test_env_secrets_file_default_and_override(monkeypatch, tmp_path):
+    """Secret tách khỏi .env: mặc định $ADS_DATA/secrets.env, đổi bằng ADS_SECRETS_FILE."""
+    from powerbi_agent import _env
+
+    monkeypatch.setenv("ADS_DATA", str(tmp_path))
+    monkeypatch.delenv("ADS_SECRETS_FILE", raising=False)
+    assert _env.secrets_file() == str(tmp_path / "secrets.env")
+    monkeypatch.setenv("ADS_SECRETS_FILE", str(tmp_path / "vault" / "s.env"))
+    assert _env.secrets_file() == str(tmp_path / "vault" / "s.env")

@@ -1,0 +1,182 @@
+# Upstream map: microsoft/skills-for-fabric -> agent-data-studio
+upstream: microsoft/skills-for-fabric
+tag: v0.3.16
+commit: 24cc0d296e5e8523cc6a92e1342bc1791d7deb85
+license: MIT
+license_file: LICENSES/microsoft-skills-for-fabric.txt
+rule: verbatim copy, never edit bytes; sha256 locked per skill in references/microsoft/SOURCE.lock.json
+files:
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/connection-binding.md
+    path: skills/pbi-model/references/microsoft/connection-binding.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/dax-guidelines.md
+    path: skills/pbi-model/references/microsoft/dax-guidelines.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/dax-perf-decision-guide.md
+    path: skills/pbi-model/references/microsoft/dax-perf-decision-guide.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/dax-perf-patterns.md
+    path: skills/pbi-model/references/microsoft/dax-perf-patterns.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/direct-lake-guidelines.md
+    path: skills/pbi-model/references/microsoft/direct-lake-guidelines.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/metadata-discovery.md
+    path: skills/pbi-model/references/microsoft/metadata-discovery.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/modeling-guidelines.md
+    path: skills/pbi-model/references/microsoft/modeling-guidelines.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/naming-conventions.md
+    path: skills/pbi-model/references/microsoft/naming-conventions.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/pbip.md
+    path: skills/pbi-model/references/microsoft/pbip.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/semantic-model-ai-readiness.md
+    path: skills/pbi-model/references/microsoft/semantic-model-ai-readiness.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/semantic-model-rest-api.md
+    path: skills/pbi-model/references/microsoft/semantic-model-rest-api.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/semantic-model-authoring/references/tmdl-guidelines.md
+    path: skills/pbi-model/references/microsoft/tmdl-guidelines.md
+    skill: pbi-model
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/accessibility.md
+    path: skills/pbi-design/references/microsoft/accessibility.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/anti-patterns.md
+    path: skills/pbi-design/references/microsoft/anti-patterns.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/archetype-composition.md
+    path: skills/pbi-design/references/microsoft/archetype-composition.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/analytical-canvas.md
+    path: skills/pbi-design/references/microsoft/archetypes/analytical-canvas.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/comparative-benchmark.md
+    path: skills/pbi-design/references/microsoft/archetypes/comparative-benchmark.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/executive-summary.md
+    path: skills/pbi-design/references/microsoft/archetypes/executive-summary.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/narrative-story.md
+    path: skills/pbi-design/references/microsoft/archetypes/narrative-story.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/archetypes/operational-monitor.md
+    path: skills/pbi-design/references/microsoft/archetypes/operational-monitor.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/assets/base.json
+    path: skills/pbi-design/references/microsoft/assets/base.json
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/brownfield.md
+    path: skills/pbi-design/references/microsoft/brownfield.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/chart-selection.md
+    path: skills/pbi-design/references/microsoft/chart-selection.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/color.md
+    path: skills/pbi-design/references/microsoft/color.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/design-brief.md
+    path: skills/pbi-design/references/microsoft/design-brief.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/interactivity.md
+    path: skills/pbi-design/references/microsoft/interactivity.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/layout.md
+    path: skills/pbi-design/references/microsoft/layout.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/pre-flight-checklist.md
+    path: skills/pbi-design/references/microsoft/pre-flight-checklist.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/signatures.md
+    path: skills/pbi-design/references/microsoft/signatures.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/tone-catalog.md
+    path: skills/pbi-design/references/microsoft/tone-catalog.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/typography.md
+    path: skills/pbi-design/references/microsoft/typography.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-design/references/visual-cookbook.md
+    path: skills/pbi-design/references/microsoft/visual-cookbook.md
+    skill: pbi-design
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/authoring.md
+    path: skills/pbi-build/references/microsoft/authoring.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/card.md
+    path: skills/pbi-build/references/microsoft/card.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/cartesian.md
+    path: skills/pbi-build/references/microsoft/cartesian.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/color-strategy.md
+    path: skills/pbi-build/references/microsoft/color-strategy.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/conditional-formatting.md
+    path: skills/pbi-build/references/microsoft/conditional-formatting.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/expressions.md
+    path: skills/pbi-build/references/microsoft/expressions.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/filter-pane.md
+    path: skills/pbi-build/references/microsoft/filter-pane.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/filters.md
+    path: skills/pbi-build/references/microsoft/filters.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/formatting-overview.md
+    path: skills/pbi-build/references/microsoft/formatting-overview.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/formatting.md
+    path: skills/pbi-build/references/microsoft/formatting.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/image.md
+    path: skills/pbi-build/references/microsoft/image.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/map.md
+    path: skills/pbi-build/references/microsoft/map.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/page-formatting.md
+    path: skills/pbi-build/references/microsoft/page-formatting.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/powerbi-desktop.md
+    path: skills/pbi-build/references/microsoft/powerbi-desktop.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/powerbi-report-author-cli.md
+    path: skills/pbi-build/references/microsoft/powerbi-report-author-cli.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/re-theming.md
+    path: skills/pbi-build/references/microsoft/re-theming.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/screenshot-review.md
+    path: skills/pbi-build/references/microsoft/screenshot-review.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/shape.md
+    path: skills/pbi-build/references/microsoft/shape.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/slicers.md
+    path: skills/pbi-build/references/microsoft/slicers.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/table.md
+    path: skills/pbi-build/references/microsoft/table.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/textbox.md
+    path: skills/pbi-build/references/microsoft/textbox.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/theming.md
+    path: skills/pbi-build/references/microsoft/theming.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/version-control.md
+    path: skills/pbi-build/references/microsoft/version-control.md
+    skill: pbi-build
+  - upstream_path: plugins/powerbi-authoring/common/COMMON-CLI.md
+    path: skills/pbi-publish/references/microsoft/common/COMMON-CLI.md
+    skill: pbi-publish
+  - upstream_path: plugins/powerbi-authoring/common/COMMON-CORE.md
+    path: skills/pbi-publish/references/microsoft/common/COMMON-CORE.md
+    skill: pbi-publish
+  - upstream_path: plugins/powerbi-authoring/common/ITEM-DEFINITIONS-CORE.md
+    path: skills/pbi-publish/references/microsoft/common/ITEM-DEFINITIONS-CORE.md
+    skill: pbi-publish

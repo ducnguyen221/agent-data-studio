@@ -17,9 +17,9 @@ Two views of the same repo. **§1 answers "I want to do X — where do I go?"**
 | # | Pillar | What you get | Lives in | Commands & tools |
 |---|---|---|---|---|
 | **1** | **MCP Server** — the agent works directly on Power BI | 16 tools behind a server-side data-safety policy | [`powerbi_agent/`](powerbi_agent/) · [`hosts/`](hosts/) · `install.ps1` · `policy.example.json` | all 16 tools |
-| **2** | **Digitized expertise** — your workflow, skills, knowledge | 4 skills · 8 commands · 1 agent · Knowledge OS | [`plugins/powerbi-agent/`](plugins/README.md) | `/powerbi-*` |
-| **3** | **Report design kits** — build reports like a designer | Clone-and-rebind kits; style preserved 100% | [`report-templates/`](report-templates/README.md) | `list_templates` · `apply_template` · `distill_template` · `/powerbi-kit` |
-| **4** | **Document templates** — create & manage analysis docs | 7 markdown docs + Excel (6 sheets) + theme + 6 mindmaps | [`plugins/powerbi-agent/skills/kpim-analysis/document-templates/`](plugins/powerbi-agent/skills/kpim-analysis/document-templates/) | skill `kpim-analysis` |
+| **2** | **Digitized expertise** — your workflow, skills, knowledge | 9 skills · 8 commands · 1 agent · Knowledge OS | [`skills/`](skills/) · [`commands/`](commands/) · [`agents/`](agents/) | `/pbi-*` |
+| **3** | **Report design kits** — build reports like a designer | Clone-and-rebind kits; style preserved 100% | [`report-templates/`](report-templates/README.md) | `list_templates` · `apply_template` · `distill_template` · `/pbi-kit` |
+| **4** | **Document templates** — create & manage analysis docs | 7 markdown docs + Excel (6 sheets) + theme + 6 mindmaps | [`templates/documents/`](templates/documents/) | skill `data-discovery` |
 
 ### 1.1 Pillar 1 — MCP Server
 
@@ -34,7 +34,7 @@ The bridge. Everything else is worthless without it.
 | [`install.ps1`](install.ps1) | One command: venv → probe → register 3 hosts → install workflows |
 | [`policy.example.json`](policy.example.json) | Copy to `policy.json` and list the columns to block |
 
-**Flow:** `install.ps1` → restart host → `/powerbi-help` → the agent sees the tools.
+**Flow:** `install.ps1` → restart host → `/pbi-help` → the agent sees the tools.
 
 #### The 16 tools
 
@@ -67,27 +67,32 @@ someone who works the way an experienced Power BI consultant works.
 
 | Skill | Use it when | Key contents |
 |---|---|---|
-| [`kpim-analysis`](plugins/powerbi-agent/skills/kpim-analysis/SKILL.md) | Project start — data in, before touching the model | `document-templates/` (pillar 4) · `scripts/` (generators) |
-| [`powerbi-pipeline`](plugins/powerbi-agent/skills/powerbi-pipeline/SKILL.md) | Building — the 9 technical steps | `references/` — DAX · Power Query M · SQL best practices · gotchas · knowledge map |
-| [`powerbi-mcp`](plugins/powerbi-agent/skills/powerbi-mcp/SKILL.md) | Unsure which tool to call | Tool reference + policy rules + split with `powerbi-modeling` |
-| [`powerbi-knowledge`](plugins/powerbi-agent/skills/powerbi-knowledge/SKILL.md) | Handling project knowledge | Knowledge OS mechanics, 4-axis packaging, privacy rules |
+| [`data-discovery`](skills/data-discovery/SKILL.md) | Project start — data in, before touching the model | `scripts/` (generators, read [`templates/documents/`](templates/documents/) — pillar 4) |
+| [`data-mockup`](skills/data-mockup/SKILL.md) | You need mockup / sample data | `references/` · `scripts/` |
+| [`pbi-model`](skills/pbi-model/SKILL.md) | Modelling — Power Query/M, star schema, relationships, DAX measures in TMDL | `references/kpim/` — DAX · Power Query M · SQL best practices · gotchas |
+| [`pbi-analysis`](skills/pbi-analysis/SKILL.md) | Unsure which tool to call | Tool reference + policy rules + split with `powerbi-modeling` |
+| [`pbi-design`](skills/pbi-design/SKILL.md) | Designing report pages — the Design Brief before PBIR is written | `references/` |
+| [`pbi-build`](skills/pbi-build/SKILL.md) | Building — the 9 technical steps | `references/kpim/` — knowledge map |
+| [`pbi-review`](skills/pbi-review/SKILL.md) | Independent review of SQL, DAX, model, report pages | `references/` |
+| [`pbi-publish`](skills/pbi-publish/SKILL.md) | Publishing to Fabric / Power BI Service | `references/` |
+| [`pbi-knowledge`](skills/pbi-knowledge/SKILL.md) | Handling project knowledge | Knowledge OS mechanics, 4-axis packaging, privacy rules |
 
-**The KPIM analysis process (skill `kpim-analysis`), 5 phases:** Research (read the data, ask back) →
+**The KPIM analysis process (skill `data-discovery`), 5 phases:** Research (read the data, ask back) →
 Key Information (Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery)
-→ Planning (2-level Excel tasks) → Implementation (hand off to `powerbi-pipeline`) → Monitoring.
+→ Planning (2-level Excel tasks) → Implementation (hand off to `pbi-build`) → Monitoring.
 
-**The 9-step pipeline (skill `powerbi-pipeline`):** 1 Connect data (Power Query, M parameters) →
+**The 9-step pipeline (skill `pbi-build`):** 1 Connect data (Power Query, M parameters) →
 2 Transform M (explicit data types) → 3 Star-schema modelling + relationships → 4 DAX measures
 (verify each) → 5 Aggregated queries (policy-guarded) → 6+7 Visuals & report pages from kits →
 8 Advanced (tooltips, drill-through, parameters) → 9 Artifacts + knowledge distillation.
 
-**8 commands** in [`plugins/powerbi-agent/commands/`](plugins/powerbi-agent/commands/):
-`/powerbi-help` · `/powerbi-setup` · `/powerbi-new` · `/powerbi-scan` · `/powerbi-kit` ·
-`/powerbi-done` · `/powerbi-pack` · `/powerbi-recall`.
-**1 agent**: [`powerbi-knowledge-curator`](plugins/powerbi-agent/agents/powerbi-knowledge-curator.md) — packages lessons at project close.
+**8 commands** in [`commands/`](commands/):
+`/pbi-help` · `/pbi-setup` · `/pbi-new` · `/pbi-scan` · `/pbi-kit` ·
+`/pbi-done` · `/pbi-pack` · `/pbi-recall`.
+**1 agent**: [`pbi-knowledge-curator`](agents/pbi-knowledge-curator.md) — packages lessons at project close.
 
 > Installed to all three hosts. Antigravity has no slash-command mechanism, so its copy of the
-> commands lands inside the `powerbi-knowledge` skill — call them by name instead.
+> commands lands inside the `pbi-knowledge` skill — call them by name instead.
 
 ### 1.3 Pillar 3 — Report design kits
 
@@ -105,14 +110,14 @@ report-templates/kpim-business-light/
   _page.json        # page settings + background
 ```
 
-**Loop:** a page you like → `/powerbi-kit` or `distill_template` → later projects `apply_template` it back.
+**Loop:** a page you like → `/pbi-kit` or `distill_template` → later projects `apply_template` it back.
 Kits carrying real business bindings stay on your machine (`POWERBI_TEMPLATES_DIR`); to publish → `sanitize=True`.
 
 ### 1.4 Pillar 4 — Document templates
 
 Fill-in-ready deliverables so the agent documents a project the way a consultant would,
-**before** any report gets built. Ships inside the `kpim-analysis` skill, so the installer
-carries it to every host.
+**before** any report gets built. Lives at [`templates/documents/`](templates/documents/) in the
+repo root; the `data-discovery` skill uses it.
 
 | File | Contents |
 |---|---|
@@ -125,7 +130,7 @@ carries it to every host.
 | `DESIGN.md` + `theme.json` | Design rationale + an importable Power BI theme |
 | `Project_Management.xlsx` | 6 sheets incl. 2-level task planning |
 | `mindmaps/*.html` | Objectives · Questions · Data dictionary · Measures · Dimensions · Reports |
-| `../scripts/` | Generators for the mindmaps and the xlsx |
+| `skills/data-discovery/scripts/` | Generators for the mindmaps and the xlsx |
 
 ---
 
@@ -144,15 +149,15 @@ powerbi-agent/
 ├─ powerbi_agent/          ▸ PILLAR 1   14 modules — the MCP server itself
 ├─ hosts/                  ▸ PILLAR 1   per-host setup: claude · codex · antigravity
 │
-├─ plugins/                ▸ PILLAR 2   the digitized expertise
-│  └─ powerbi-agent/
-│     ├─ skills/                         kpim-analysis · powerbi-pipeline
-│     │  │                               powerbi-mcp · powerbi-knowledge
-│     │  └─ kpim-analysis/
-│     │     ├─ document-templates/  ▸ PILLAR 4   doc templates + xlsx + theme + mindmaps
-│     │     └─ scripts/                          generators
-│     ├─ commands/                       8 × /powerbi-*
-│     └─ agents/                         powerbi-knowledge-curator
+├─ skills/                 ▸ PILLAR 2   the digitized expertise — 9 skills
+│  │                                    data-discovery · data-mockup · pbi-model
+│  │                                    pbi-analysis · pbi-design · pbi-build
+│  │                                    pbi-review · pbi-publish · pbi-knowledge
+│  └─ data-discovery/scripts/           generators
+├─ commands/               ▸ PILLAR 2   8 × /pbi-*
+├─ agents/                 ▸ PILLAR 2   pbi-knowledge-curator
+├─ templates/documents/    ▸ PILLAR 4   doc templates + xlsx + theme + mindmaps
+├─ upstream/ · LICENSES/ · THIRD_PARTY_NOTICES.md   vendored upstream · third-party licences
 │
 ├─ report-templates/       ▸ PILLAR 3   report-page kits for apply_template
 │  └─ kpim-business-light/                12 sanitized blocks
@@ -166,16 +171,15 @@ powerbi-agent/
 |---|---|---|---|---|
 | [`powerbi_agent/`](powerbi_agent/) | The MCP server: 14 Python modules providing 16 tools | `app.py` · `policy.py` · `tools_query.py` | 1 | Developers |
 | [`hosts/`](hosts/) | How to register the server in each AI host | `claude/` · `codex/` · `antigravity/` | 1 | Installers |
-| [`plugins/`](plugins/README.md) | Packaging shell for the expertise — the doorway to pillar 2 | `README.md` · `powerbi-agent/.claude-plugin/plugin.json` | 2 | Everyone |
-| `plugins/…/skills/` | The 4 expert processes, single source; installer copies them to hosts | 4 × `SKILL.md` | 2 | Agents |
-| `plugins/…/commands/` | 8 slash commands that trigger those processes | `powerbi-help.md` · `powerbi-setup.md` | 2 | Users |
-| `plugins/…/agents/` | Sub-agent that packages lessons at project close | `powerbi-knowledge-curator.md` | 2 | Agents |
-| `…/kpim-analysis/document-templates/` | Fill-in-ready analysis deliverables | `PROJECT.md` · `Project_Management.xlsx` | 4 | Users |
+| [`skills/`](skills/) | The 9 expert processes, single source; installer copies them to hosts | 9 × `SKILL.md` | 2 | Agents |
+| [`commands/`](commands/) | 8 slash commands that trigger those processes | `pbi-help.md` · `pbi-setup.md` | 2 | Users |
+| [`agents/`](agents/) | Sub-agent that packages lessons at project close | `pbi-knowledge-curator.md` | 2 | Agents |
+| [`templates/documents/`](templates/documents/) | Fill-in-ready analysis deliverables | `PROJECT.md` · `Project_Management.xlsx` | 4 | Users |
 | [`report-templates/`](report-templates/README.md) | Report-page kits, sanitized and public | `kpim-business-light/kit.json` | 3 | Users |
 | [`scripts/`](scripts/) | Dev-only utilities, never shipped to users | `cli.py` · `build_template_gallery.py` | — | Developers |
 | [`tests/`](tests/) | Unit tests + a fake-profile installer harness | `test_unit.py` · `installer/installer.tests.ps1` | — | Developers |
 | [`docs/`](docs/) | The public website + internal plans | `index.html` · `INSTALL.html` · `plans/` | — | Anyone |
-| [`.claude-plugin/`](.claude-plugin/marketplace.json) | Marketplace catalog so hosts can install this as a plugin | `marketplace.json` | 2 | Hosts |
+| [`.claude-plugin/`](.claude-plugin/plugin.json) | Plugin `agent-data-studio` (source = whole repo) + marketplace catalog; Codex manifest in `.codex-plugin/` | `marketplace.json` · `plugin.json` | 2 | Hosts |
 
 ---
 
@@ -190,7 +194,7 @@ carry a qualifier instead.
 | Path | Contains | Owner | Public? |
 |---|---|---|---|
 | `report-templates/` | Report-**page** kits (PBIR), sanitized | Repo | ✅ |
-| `…/kpim-analysis/document-templates/` | **Document** templates (md/xlsx/theme/mindmaps) | Repo, ships with the skill | ✅ |
+| `templates/documents/` | **Document** templates (md/xlsx/theme/mindmaps) | Repo, used by skill `data-discovery` | ✅ |
 | `docs/template/` | The website gallery **route** | Repo (stable URL) | ✅ |
 | `<project dir>/templates/` | Your **private** kits, not sanitized | **You**, outside the repo | ❌ never |
 
@@ -212,7 +216,7 @@ approximately zero benefit.
 |---|---|
 | **kit** | One report page distilled into text, replayable by `apply_template` |
 | **skill** | A process the agent reads and follows (`SKILL.md` + supporting files) |
-| **command** | A `/powerbi-*` shortcut that kicks off a process |
+| **command** | A `/pbi-*` shortcut that kicks off a process |
 | **tool** | An MCP function the agent calls (16 of them) |
 | **project dir** | A folder **you** designate outside the repo, where all project knowledge lives |
 | **host** | The AI app running the agent: Claude Code, Codex CLI, Antigravity |
@@ -227,21 +231,21 @@ approximately zero benefit.
   data + docs                                                       reusable assets
        │                                                                    ▲
        ▼                                                                    │
- /powerbi-new ──▶ skill kpim-analysis ──▶ skill powerbi-pipeline ──▶ /powerbi-done
-                  BUSINESS phase          TECHNICAL phase              close-out
-                  survey · ask back       9 steps: Power Query →       handoff checklist
-                  document · plan         model → DAX → pages          distill · timeline
+ /pbi-new ──▶ skill data-discovery ──▶ skill pbi-build ──────────▶ /pbi-done
+              BUSINESS phase           TECHNICAL phase                 close-out
+              survey · ask back        9 steps: Power Query →          handoff checklist
+              document · plan          model → DAX → pages             distill · timeline
                        ▲                        │                            │
                        │                        ▼                            ▼
-                       │                 16 MCP tools               agent powerbi-knowledge-curator
+                       │                 16 MCP tools               agent pbi-knowledge-curator
                        │                 + policy 🛡️                packages lessons on 4 axes
                        │                 + kits 🎨                          │
-                       └──── /powerbi-recall ◀── INDEX + TIMELINE ◀─────────┘
+                       └──── /pbi-recall ◀───── INDEX + TIMELINE ◀─────────┘
                                                  (in YOUR project dir)
 
-  Side paths:  /powerbi-scan <.pbip>  understand an existing report
-               /powerbi-kit  <.pbip>  turn it into reusable kits
-               /powerbi-help          "what can this thing do?"
+  Side paths:  /pbi-scan <.pbip>  understand an existing report
+               /pbi-kit  <.pbip>  turn it into reusable kits
+               /pbi-help          "what can this thing do?"
 ```
 
 ---
