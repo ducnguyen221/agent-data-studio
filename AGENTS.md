@@ -78,6 +78,10 @@ agent-data-studio/
 
 ## 2. Cài đặt và làm việc đầu tiên
 
+**Cài đặt do AI agent thực hiện:** làm đúng và đủ theo [`INSTALL.md`](INSTALL.md) — hỏi người
+dùng trước khi cài phần mềm hoặc cần quyền admin, chạy script bằng `-ExecutionPolicy Bypass` theo
+tiến trình, không đổi chính sách máy.
+
 Theo [`START-HERE.md`](START-HERE.md) và [`README.vi.md`](README.vi.md). Bộ cài chạy tại
 checkout, tạo trạm basic `workspace/` và đăng ký **host được chọn**; mặc định chỉ Codex.
 Trạm riêng phải chọn tường minh qua `ADS_DATA` trước cài. Đọc skill từ `skills/` qua adapter

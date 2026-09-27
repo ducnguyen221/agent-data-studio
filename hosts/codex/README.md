@@ -1,14 +1,14 @@
 # Cài Agent Data Studio cho Codex
 
-Đây là lựa chọn mặc định của bộ cài. Cần Git, Python 3.11 trở lên và Windows cho các tính năng Power BI Desktop.
+Codex là giá trị mặc định của bộ cài. Muốn agent cài giúp: dán prompt trong [INSTALL.md](../../INSTALL.md#prompt-copy-dán) vào Codex. Tự cài thì cần Git, Python 3.11–3.14 và Windows cho các tính năng Power BI Desktop.
 
 ```powershell
 git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\agent-data-studio"
 cd "$env:USERPROFILE\agent-data-studio"
-.\install.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex
 ```
 
-Script tạo `.venv/`, `workspace/`, kiểm adapter skill trong repo và đăng ký `powerbi-mcp-bridge` vào cấu hình người dùng của Codex (`~/.codex/config.toml`, CLI và desktop cùng đọc file này). Nó sao lưu file cấu hình trước khi thay đổi và giữ các server khác. Mọi thư mục mở trong Codex dùng chung server của checkout này; mỗi máy chỉ trỏ một checkout — xem [giới hạn](../README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng). Mở lại Codex tại folder repo sau khi cài; kiểm tra MCP trong danh sách công cụ của Codex hoặc hỏi agent gọi `knowledge_status`.
+`-ExecutionPolicy Bypass` chỉ áp cho lệnh đó, không đổi chính sách của máy. Script tạo `.venv/`, `workspace/`, kiểm adapter skill trong repo và đăng ký `powerbi-mcp-bridge` vào cấu hình người dùng của Codex (`~/.codex/config.toml`, CLI và desktop cùng đọc file này). Nó sao lưu file cấu hình trước khi thay đổi và giữ các server khác. Mọi thư mục mở trong Codex dùng chung server của checkout này; mỗi máy chỉ trỏ một checkout — xem [giới hạn](../README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng). Mở lại Codex tại folder repo sau khi cài (Codex desktop: mở repo làm project và tin cậy thư mục); nếu sandbox của Codex chặn `winget` hay ghi ra ngoài thư mục, tự chạy lệnh trong PowerShell; kiểm tra MCP trong danh sách công cụ của Codex hoặc hỏi agent gọi `knowledge_status`.
 
 Codex tìm skill ở [`.agents/skills/`](../../.agents/skills/). Mỗi adapter yêu cầu đọc bản gốc tại [`skills/`](../../skills/); script và tài liệu hỗ trợ cũng lấy tại repo. Không cần copy skill vào `~/.codex/skills/` hay cài plugin để dùng checkout này. Cần đọc một quy trình `pbi-*` thì yêu cầu agent mở file tương ứng trong [`commands/`](../../commands/).
 

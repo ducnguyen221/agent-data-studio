@@ -2,8 +2,9 @@
 
 | Tôi muốn… | Bắt đầu tại |
 |---|---|
-| Cài và thử với dữ liệu mẫu | [START-HERE.md](START-HERE.md) |
-| Chọn Codex, Claude Code hoặc Antigravity | [hosts/README.md](hosts/README.md) |
+| Nhờ AI agent cài giúp (một prompt copy-dán) | [INSTALL.md](INSTALL.md) |
+| Tự cài và thử với dữ liệu mẫu | [START-HERE.md](START-HERE.md) |
+| Chọn Codex, Claude Code, Claude Desktop hoặc Antigravity | [hosts/README.md](hosts/README.md) |
 | Hiểu quy trình phân tích | [skills/README.md](skills/README.md) và [commands/](commands/) |
 | Làm việc với Power BI | [skills/pbi-analysis/SKILL.md](skills/pbi-analysis/SKILL.md) |
 | Tìm bộ mẫu báo cáo | [report-templates/README.md](report-templates/README.md) |
@@ -17,6 +18,7 @@
 | [`skills/`](skills/) · [`commands/`](commands/) · [`agents/`](agents/) | Nguồn gốc của skill, quy trình và agent | Có |
 | [`.agents/skills/`](.agents/skills/) · [`.claude/skills/`](.claude/skills/) | Adapter mỏng để host tìm skill trong repo | Có |
 | [`scripts/`](scripts/) · [`install.ps1`](install.ps1) | Script thực thi, cập nhật adapter và bộ cài | Có |
+| [`INSTALL.md`](INSTALL.md) | Hướng dẫn cài dành cho AI agent và bản gốc của prompt copy-dán | Có |
 | [`hosts/`](hosts/) | Hướng dẫn đăng ký MCP cho từng ứng dụng AI | Có |
 | [`samples/`](samples/) | Dữ liệu tổng hợp cho bài thử đầu tiên | Có |
 | `workspace/` | Dự án, tri thức, kết quả và cấu hình cá nhân của bản cài cơ bản | **Không** — Git bỏ qua cả thư mục |

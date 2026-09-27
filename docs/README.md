@@ -5,7 +5,7 @@ Thư mục này là source của website GitHub Pages tại [ducnguyen.vn/agent-
 | Đường dẫn | Vai trò |
 |---|---|
 | `index.html` | Trang chủ và lối vào cài đặt |
-| `install/index.html` | Hướng dẫn cài từng bước cho người mới |
+| `install/index.html` | Hướng dẫn cài cho người mới: prompt chung cho mọi AI agent (chép từ `INSTALL.md` ở gốc repo, có test đồng bộ) và phần cài tay |
 | `feature/index.html` | Giới thiệu Power Agent theo quy trình làm việc |
 | `instruction/index.html` | Hướng dẫn sử dụng sau cài |
 | `template/index.html` | Giải thích quy trình thiết kế báo cáo; hiện không trưng bày bộ mẫu công khai |
