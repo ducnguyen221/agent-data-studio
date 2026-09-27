@@ -354,7 +354,7 @@
         <span data-i18n="vi">Mã nguồn mở &nbsp;·&nbsp; <b>Truy vấn DAX qua policy của repo</b></span><span data-i18n="en">Open source &nbsp;·&nbsp; <b>DAX queries checked by repo policy</b></span>
       </span>
       <h1><span data-i18n="vi">Bắt đầu với AI và dữ liệu.<br><span class="hl">Đi từng bước tới Power BI.</span></span><span data-i18n="en">Start with AI and data.<br><span class="hl">Take clear steps to Power BI.</span></span></h1>
-      <p class="lead"><span data-i18n="vi">Một repo chứa engine, kỹ năng và hướng dẫn. Cài bằng Codex, thử ngay với dữ liệu mẫu, rồi nối báo cáo Power BI khi bạn sẵn sàng. Công việc cá nhân ở <b>workspace/</b> và được Git bỏ qua.</span><span data-i18n="en">One repo contains the engine, skills, and guide. Install with Codex, try the sample data, then connect Power BI when ready. Your work stays in the Git-ignored <b>workspace/</b>.</span></p>
+      <p class="lead"><span data-i18n="vi">Một repo chứa engine, kỹ năng và hướng dẫn. Cài bằng ứng dụng AI bạn đang dùng, thử ngay với dữ liệu mẫu, rồi nối báo cáo Power BI khi bạn sẵn sàng. Công việc cá nhân ở <b>workspace/</b> và được Git bỏ qua.</span><span data-i18n="en">One repo contains the engine, skills, and guide. Install with the AI app you already use, try the sample data, then connect Power BI when ready. Your work stays in the Git-ignored <b>workspace/</b>.</span></p>
       <p style="margin-top:14px;font-size:14px;color:var(--muted)"><span data-i18n="vi">Mã nguồn mở · Cài đặt và Power BI Desktop trên Windows.</span><span data-i18n="en">Open source · Windows setup and Power BI Desktop.</span></p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="install/">
@@ -369,7 +369,7 @@
       <div class="tech-badges">
         <span class="tb"><span class="g"></span>MCP · stdio</span>
         <span class="tb gold"><span class="g"></span>DAX · TOM · PBIR</span>
-        <span class="tb"><span class="g"></span>Claude · Codex · Antigravity</span>
+        <span class="tb"><span class="g"></span>Claude Code · Claude Desktop · Codex · Antigravity</span>
         <span class="tb local"><span class="g"></span><span data-i18n="vi">Chạy local · Windows</span><span data-i18n="en">Runs local · Windows</span></span>
       </div>
     </div>
@@ -524,7 +524,7 @@
     <div class="sec-head reveal">
       <span class="eyebrow"><span class="dot"></span><span data-i18n="vi">Đánh giá thẳng</span><span data-i18n="en">Straight talk</span></span>
       <h2><span data-i18n="vi">Điểm mạnh — và giới hạn nói thật</span><span data-i18n="en">Strengths — and honest limits</span></h2>
-      <p><a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" style="color:var(--accent)">Báo cáo UAT lưu trữ</a> ghi lại phép thử của phiên bản trước. Nó không xác nhận trạng thái cài đặt và ba host của bản hiện tại.</p>
+      <p><a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" style="color:var(--accent)">Báo cáo UAT lưu trữ</a> ghi lại phép thử của phiên bản trước. Nó không xác nhận trạng thái cài đặt và bốn host của bản hiện tại.</p>
     </div>
     <div class="sw-grid">
       <div class="sw plus reveal">
@@ -532,7 +532,7 @@
         <ul>
           <li><b>Công cụ cho trang PBIR</b> — có thể áp dụng bố cục và gắn field khi đầu vào phù hợp; người dùng nghiệm thu bản render trong Power BI Desktop.</li>
           <li><b>Policy ở server</b> — truy vấn qua công cụ DAX của repo được kiểm tra và ghi nhật ký; vẫn cần quyền truy cập phù hợp ở nguồn dữ liệu.</li>
-          <li><b>Một source cho ba host</b> — repo có adapter cho Codex, Claude Code và Antigravity. Cần kiểm tra việc nạp skill và MCP trên từng host sau cài đặt.</li>
+          <li><b>Một source cho bốn host</b> — repo có adapter skill cho Codex, Claude Code và Antigravity; tab chat của Claude Desktop chỉ nhận công cụ MCP. Cần kiểm tra việc nạp skill và MCP trên từng host sau cài đặt.</li>
           <li><b>Có dữ liệu mẫu để thử</b> — bắt đầu từ CSV đi kèm trước khi kết nối với báo cáo Power BI của bạn.</li>
           <li><b>Tài liệu dự án cùng trạm</b> — ghi chú, quyết định và kết quả được lưu để bạn và AI tra lại khi cần.</li>
         </ul>
@@ -560,8 +560,8 @@
       <p>Người mới chỉ cần mở folder repo trong AI host. Skill và công cụ lấy từ source; kết quả cá nhân được lưu trong <code class="inline">workspace/</code> và Git bỏ qua folder này.</p>
     </div>
     <div class="layers reveal">
-      <div class="layer"><span class="lnum">SOURCE</span><div><h3>skills/ · powerbi_agent/ · scripts/</h3><p>Kỹ năng, engine, công cụ cài và kiểm tra. Ba host cùng dùng source này.</p></div></div>
-      <div class="layer"><span class="lnum">HOST</span><div><h3>.agents/skills/ · .claude/skills/</h3><p>Adapter cho Codex, Antigravity và Claude Code; xác nhận khả năng nạp trong từng host sau cài.</p></div></div>
+      <div class="layer"><span class="lnum">SOURCE</span><div><h3>skills/ · powerbi_agent/ · scripts/</h3><p>Kỹ năng, engine, công cụ cài và kiểm tra. Bốn host cùng dùng source này; Claude Desktop (tab chat) chỉ dùng phần MCP.</p></div></div>
+      <div class="layer"><span class="lnum">HOST</span><div><h3>.agents/skills/ · .claude/skills/</h3><p>Adapter cho Codex, Antigravity và Claude Code; Claude Desktop không nạp skill. Xác nhận khả năng nạp trong từng host sau cài.</p></div></div>
       <div class="layer"><span class="lnum">WORK</span><div><h3>workspace/projects/ · knowledge/ · outputs/</h3><p>Nơi lưu dữ liệu công việc mặc định. Trạm riêng ngoài repo được hỗ trợ qua <code class="inline">ADS_DATA</code>.</p></div></div>
     </div>
   </div>
@@ -573,13 +573,13 @@
     <div class="install-copy reveal">
       <span class="eyebrow"><span class="dot"></span>Bắt đầu</span>
       <h2 style="margin-top:14px">Một đường đi rõ ràng cho người mới</h2>
-      <p>Chọn folder cho repo trên Windows. Nhờ Codex cài và kiểm tra. Mở lại AI trong repo, rồi thử một yêu cầu với dữ liệu mẫu. Installer có tùy chọn cho Claude Code và Antigravity; mỗi host cần kiểm tra riêng sau cài.</p>
+      <p>Dán một yêu cầu vào Codex, Claude Code, Claude Desktop hoặc Google Antigravity. Agent hỏi bạn trước khi cài thêm phần mềm, rồi cài, kiểm tra và báo lại. Mở lại AI trong repo, rồi thử một yêu cầu với dữ liệu mẫu.</p>
       <div class="req"><ul>
         <li><span class="ic">1</span><span><b>Source:</b> engine, scripts và skills đều nằm trong repo.</span></li>
         <li><span class="ic">2</span><span><b>Trạm mặc định:</b> <code class="inline">workspace/</code> trong repo, bị Git bỏ qua.</span></li>
         <li><span class="ic">3</span><span><b>Việc đầu tiên:</b> mở <code class="inline">samples/sales-demo.csv</code> cùng AI.</span></li>
       </ul></div>
-      <p style="margin-top:22px"><a class="btn btn-primary" href="install/">Xem hướng dẫn 4 bước</a> <a class="btn btn-ghost" href="feature/">Tìm hiểu Power Agent</a></p>
+      <p style="margin-top:22px"><a class="btn btn-primary" href="install/">Lấy yêu cầu cài đặt</a> <a class="btn btn-ghost" href="feature/">Tìm hiểu Power Agent</a></p>
     </div>
     <div class="reveal" style="align-self:center">
       <div class="preview" style="padding:24px">
