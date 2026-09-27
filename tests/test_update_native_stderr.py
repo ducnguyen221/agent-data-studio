@@ -5,6 +5,7 @@ khi stderr bị chuyển hướng (`2>$null` trong script, hoặc người gọi
 luôn ghi "From …" ra stderr. Repo git tạm + bare remote, không đụng mạng.
 """
 
+import os
 import shutil
 import subprocess
 import sys
@@ -147,3 +148,28 @@ def test_update_reports_path_forms_overflow(checkout):
     result = _update(deep, "")
     assert result.returncode == 1, result.stdout + result.stderr
     assert "[FAIL] PATH_FORMS_OVERFLOW:" in result.stdout
+
+
+@pytest.mark.skipif(not POWERSHELL or not GIT or sys.platform != "win32", reason="Windows PowerShell and Git required")
+def test_update_preview_uses_checkout_venv_when_python_not_in_path(checkout):
+    """Máy cài Python không tick "Add to PATH" chỉ có `py`: preview phải dùng `.venv` của checkout."""
+    venv = checkout / ".venv"
+    created = run(sys.executable, "-m", "venv", "--without-pip", str(venv))
+    assert created.returncode == 0, created.stderr
+    # .venv nằm ngoài Git như checkout thật (.gitignore của repo); ở đây dùng info/exclude cho gọn.
+    with open(checkout / ".git" / "info" / "exclude", "a", encoding="utf-8") as handle:
+        handle.write("/.venv/\n")
+    # Env đầy đủ trừ PSModulePath (PS 5.1 mở từ pwsh 7 không được nạp module của pwsh).
+    env = {k: v for k, v in os.environ.items() if k.upper() not in ("PATH", "PSMODULEPATH")}
+    # Giữ PATH của máy (git cần các thư mục phụ trợ), chỉ bỏ thư mục nào có `python`.
+    env["PATH"] = os.pathsep.join(
+        entry for entry in os.environ["PATH"].split(os.pathsep)
+        if entry and shutil.which("python", path=entry) is None
+    )
+    assert shutil.which("python", path=env["PATH"]) is None  # đúng ca: PATH không có python
+    result = subprocess.run(
+        [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(checkout / "update.ps1")],
+        cwd=checkout, env=env, text=True, capture_output=True, check=False, timeout=120,
+    )
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "READY_FOR_REVIEW" in result.stdout

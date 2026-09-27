@@ -16,7 +16,8 @@
   .\install.ps1
 
 .PARAMETER Hosts
-  Host cần đăng ký: claude, codex, antigravity. Mặc định chỉ Codex.
+  Host cần đăng ký: claude, codex, antigravity, claude-desktop. Mặc định chỉ Codex.
+  claude-desktop (tab chat của Claude Desktop) chỉ nhận MCP, không có skill/lệnh pbi-*; -Hosts claude không kéo theo nó.
 .PARAMETER SkipVenv
   Bỏ qua tạo venv / cài pip (chỉ cập nhật cấu hình host).
 .PARAMETER SkipHosts
@@ -40,6 +41,15 @@ $SkipMcp    = $SkipHosts
 if ($Only -eq "plugin") { $SkipVenv = $true; $SkipMcp = $true }
 
 $ErrorActionPreference = "Stop"
+# `powershell -File install.ps1 -Hosts claude,codex` truyền MỘT chuỗi "claude,codex" (khác gọi trong PowerShell):
+# trước đây không khớp host nào, installer vẫn báo HOÀN TẤT mà không đăng ký gì. Tách dấu phẩy, từ chối tên lạ.
+$KnownHosts = @("claude", "codex", "antigravity", "claude-desktop")
+$Hosts = @($Hosts | ForEach-Object { "$_" -split ',' } | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ })
+$unknownHosts = @($Hosts | Where-Object { $KnownHosts -notcontains $_ })
+if ($unknownHosts.Count -gt 0) {
+    Write-Host "[X] Host không hỗ trợ: $($unknownHosts -join ', '). Chọn trong: $($KnownHosts -join ', ')." -ForegroundColor Red
+    exit 1
+}
 $Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 
@@ -53,7 +63,9 @@ function Err($m)   { $script:HadError = $true; Write-Host "[X] $m" -ForegroundCo
 function Step($m)  { Write-Host "`n=== $m ===" -ForegroundColor Magenta }
 # PS 5.1 + Stop biến stderr của lệnh native thành lỗi dừng khi stderr bị chuyển hướng (2>&1 ở đây,
 # hoặc người gọi gom *>&1/2>&1 vào biến) -> installer chết trước nhánh báo lỗi. Đánh giá bằng $LASTEXITCODE.
-function Invoke-Native { $ErrorActionPreference = 'Continue'; $command, $rest = $args; & $command @rest }
+# `$command, $rest = $args` làm $rest thành CHUỖI khi chỉ có một đối số -> splat tách từng ký tự:
+# `Invoke-Native $venvPy --version` chạy `python - - v e r ...` = đọc script từ stdin, treo ở console. Giữ mảng.
+function Invoke-Native { $ErrorActionPreference = 'Continue'; $command = $args[0]; $rest = @($args | Select-Object -Skip 1); & $command @rest }
 
 # Ghi file UTF-8 KHÔNG BOM (an toàn cho JSON/TOML)
 function Write-Utf8NoBom([string]$Path, [string]$Text) {
@@ -300,15 +312,22 @@ if ($SkipVenv) {
 } else {
     Step "1/3 Python venv + dependencies"
 
+    # Khoảng hỗ trợ 3.11–3.14: sàn theo engine, trần theo pythonnet 3.1.0 (Requires-Python <3.15).
+    # Phải khớp pyproject requires-python và doctor.ps1 (tests/test_installer.py giữ ba nơi khớp nhau).
+    # Ưu tiên bản đã kiểm với Power BI Desktop (3.13, 3.12, 3.11), rồi 3.14, rồi bản mặc định của máy.
+    $PyMinMinor = 11; $PyMaxMinor = 14
+    $script:PythonRejected = @()
     function Get-Python {
-        foreach ($c in @(@("py",@("-3.12")),@("py",@("-3.11")),@("py",@("-3")),@("python",@()),@("python3",@()))) {
+        foreach ($c in @(@("py",@("-3.13")),@("py",@("-3.12")),@("py",@("-3.11")),@("py",@("-3.14")),@("py",@("-3")),@("python",@()),@("python3",@()))) {
             $exe=$c[0]; $pre=$c[1]
             if (-not (Get-Command $exe -ErrorAction SilentlyContinue)) { continue }
             try {
                 $ver = & $exe @pre -c "import sys;print('%d.%d'%sys.version_info[:2])" 2>$null
-                if ($ver -match '^(\d+)\.(\d+)$' -and [int]$Matches[1] -eq 3 -and [int]$Matches[2] -ge 11) {
+                if ($ver -match '^(\d+)\.(\d+)$' -and [int]$Matches[1] -eq 3 -and
+                    [int]$Matches[2] -ge $PyMinMinor -and [int]$Matches[2] -le $PyMaxMinor) {
                     return ,@($exe,$pre,$ver)
                 }
+                if ($ver -match '^\d+\.\d+$' -and $script:PythonRejected -notcontains $ver) { $script:PythonRejected += $ver }
             } catch {}
         }
         return $null
@@ -340,7 +359,16 @@ if ($SkipVenv) {
 
     if ($needBuild) {
         $py = Get-Python
-        if (-not $py) { Err "Không thấy Python >= 3.11. Cài từ https://www.python.org/downloads/ (tick 'Add to PATH') rồi chạy lại."; exit 1 }
+        if (-not $py) {
+            $range = "3.$PyMinMinor–3.$PyMaxMinor"
+            if ($script:PythonRejected.Count -gt 0) {
+                Err "Máy có Python $($script:PythonRejected -join ', ') nhưng Agent Data Studio cần Python $range (khuyên dùng 3.12 hoặc 3.13). Bản ngoài khoảng này chưa cài được thư viện Power BI."
+            } else {
+                Err "Không thấy Python $range (đã thử lệnh py và python)."
+            }
+            Err "Cài Python 3.12: 'winget install --id Python.Python.3.12 -e' hoặc tải từ https://www.python.org/downloads/ (tick 'Add to PATH'), rồi chạy lại install.ps1."
+            exit 1
+        }
         Ok "Dùng Python $($py[2])"
         Invoke-Native $py[0] @($py[1]) -m venv $venvRoot
         if ($LASTEXITCODE -ne 0) { Err "Tạo venv thất bại."; exit 1 }
@@ -364,23 +392,68 @@ if ($SkipVenv) {
 # ============================================================
 Step "2/3 Kiểm tra ADOMD.NET"
 $adomdDll = "Microsoft.AnalysisServices.AdomdClient.dll"
-$pf = ${env:ProgramFiles}; if (-not $pf) { $pf="C:\Program Files" }
-$pf86 = ${env:ProgramFiles(x86)}; if (-not $pf86) { $pf86="C:\Program Files (x86)" }
-$globs = @(
-    (Join-Path $pf   "Microsoft SQL Server Management Studio*\*\Common7\IDE"),
-    (Join-Path $pf   "Microsoft SQL Server Management Studio*\Common7\IDE"),
-    (Join-Path $pf86 "Microsoft SQL Server Management Studio*\Common7\IDE"),
-    (Join-Path $pf   "Microsoft.NET\ADOMD.NET\*"),
-    (Join-Path $pf86 "Microsoft.NET\ADOMD.NET\*"),
-    (Join-Path $pf   "Microsoft SQL Server\*\SDK\Assemblies")
-)
 $found = $null
-foreach ($g in $globs) {
-    $hit = Get-ChildItem -Path $g -Filter $adomdDll -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($hit) { $found = $hit.FullName; break }
+$adomdOverride = $null
+$tabularMissing = $false
+# Một nguồn với engine: hỏi powerbi_agent.adomd.find_adomd_dlls() (chỉ dò đĩa, không nạp pythonnet) —
+# cùng thứ tự thư mục, cùng luật ADOMD_LIB_DIR (biến môi trường thắng config.env, override độc quyền).
+# Không nháy kép trong mã Python: PS 5.1 làm hỏng dấu " khi truyền đối số cho lệnh native.
+$adomdProbe = @'
+import json, sys
+sys.path.insert(0, sys.argv[1])
+from powerbi_agent.adomd import find_adomd_dlls
+print('ADOMD_JSON ' + json.dumps(find_adomd_dlls(sys.argv[2])))
+'@
+$adomdInfo = $null
+if (Test-Path $venvPy) {
+    $adomdOut = @(Invoke-Native $venvPy -c $adomdProbe $Root $envFile 2>$null)
+    $adomdLine = @($adomdOut | ForEach-Object { "$_" } | Where-Object { $_.StartsWith('ADOMD_JSON ') } | Select-Object -Last 1)
+    if ($LASTEXITCODE -eq 0 -and $adomdLine.Count -eq 1) {
+        try { $adomdInfo = $adomdLine[0].Substring(11) | ConvertFrom-Json } catch { $adomdInfo = $null }
+    }
 }
-if ($found) { Ok "Tìm thấy ADOMD.NET: $found" }
-else {
+if ($adomdInfo) {
+    $adomdOverride = $adomdInfo.override
+    $hitAdomd = @($adomdInfo.dirs | Where-Object { $_.adomd } | Select-Object -First 1)
+    if ($hitAdomd.Count -gt 0) { $found = Join-Path $hitAdomd[0].dir $adomdDll }
+    elseif (-not $adomdOverride -and $adomdInfo.gac.adomd) { $found = "GAC (Microsoft.AnalysisServices.AdomdClient)" }
+    $tabularMissing = -not (@($adomdInfo.dirs | Where-Object { $_.tabular }).Count -gt 0 -or
+                            (-not $adomdOverride -and $adomdInfo.gac.tabular))
+} else {
+    # Đường lùi khi không chạy được Python: glob PowerShell chép đúng thứ tự candidate_adomd_dirs().
+    Info "Không hỏi được engine; dò ADOMD.NET bằng danh sách thư mục dự phòng."
+    $pf = ${env:ProgramFiles}; if (-not $pf) { $pf="C:\Program Files" }
+    $pf86 = ${env:ProgramFiles(x86)}; if (-not $pf86) { $pf86="C:\Program Files (x86)" }
+    if ($env:ADOMD_LIB_DIR) {
+        # Override độc quyền, đúng thư mục đó (không đệ quy, không wildcard) như engine.
+        $adomdOverride = $env:ADOMD_LIB_DIR
+        $globs = @()
+        $candidate = Join-Path $env:ADOMD_LIB_DIR $adomdDll
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) { $found = $candidate }
+    } else {
+        $globs = @(
+            (Join-Path $pf   "Microsoft SQL Server Management Studio*\*\Common7\IDE"),
+            (Join-Path $pf   "Microsoft SQL Server Management Studio*\Common7\IDE"),
+            (Join-Path $pf86 "Microsoft SQL Server Management Studio*\*\Common7\IDE"),
+            (Join-Path $pf86 "Microsoft SQL Server Management Studio*\Common7\IDE"),
+            (Join-Path $pf   "Microsoft.NET\ADOMD.NET\*"),
+            (Join-Path $pf86 "Microsoft.NET\ADOMD.NET\*"),
+            (Join-Path $pf   "Microsoft SQL Server\*\SDK\Assemblies"),
+            (Join-Path $pf86 "Microsoft SQL Server\*\SDK\Assemblies"),
+            (Join-Path $pf   "Microsoft Power BI Desktop\bin")
+        )
+    }
+    foreach ($g in $globs) {
+        $hit = Get-ChildItem -Path $g -Filter $adomdDll -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($hit) { $found = $hit.FullName; break }
+    }
+}
+if ($found) {
+    if ($adomdOverride) { Ok "Tìm thấy ADOMD.NET (ADOMD_LIB_DIR): $found" } else { Ok "Tìm thấy ADOMD.NET: $found" }
+    if ($tabularMissing) { Warn "Thiếu Microsoft.AnalysisServices.Tabular.dll: tool GHI model (TOM) sẽ báo lỗi; truy vấn vẫn chạy." }
+} elseif ($adomdOverride) {
+    Warn "ADOMD_LIB_DIR=$adomdOverride không chứa $adomdDll. Override là độc quyền: tool LOCAL sẽ lỗi tới khi sửa (không dò SSMS/GAC)."
+} else {
     Warn "KHÔNG thấy ADOMD.NET. Tool Cloud vẫn chạy; tool LOCAL sẽ lỗi tới khi cài."
     Warn "  Cài 'Analysis Services client libraries': https://learn.microsoft.com/analysis-services/client-libraries"
     Warn "  Hoặc đặt ADOMD_LIB_DIR trong $envFile tới thư mục chứa $adomdDll."
@@ -392,7 +465,8 @@ else {
 $pyJson  = $venvPy.Replace('\','/')
 $srvJson = $serverPath.Replace('\','/')
 
-function Merge-McpJson([string]$Path) {
+# -NoType: Claude Desktop dùng đúng lược đồ tài liệu {command,args,env} (không có khoá type).
+function Merge-McpJson([string]$Path, [switch]$NoType) {
     # BẪY ĐÃ TÁI HIỆN (audit 2026-07-15): KHÔNG round-trip JSON của host bằng PS 5.1.
     #   (1) ~/.claude.json thật chứa key rỗng "" -> ConvertFrom-Json PS 5.1 CRASH luôn
     #       ("value of argument name is not valid") -> nhánh fallback này chưa bao giờ chạy nổi.
@@ -409,6 +483,7 @@ function Merge-McpJson([string]$Path) {
     $mergePy = @'
 import json, os, pathlib, sys, tempfile
 path, py, srv = sys.argv[1], sys.argv[2], sys.argv[3]
+with_type = sys.argv[4:5] != ["no-type"]
 target = pathlib.Path(path)
 original = target.read_bytes() if target.exists() else None
 try:
@@ -436,10 +511,8 @@ if "powerbi-mcp-bridge" in servers:
     # Giữ nguyên mọi tuỳ chỉnh người dùng đã thêm vào entry đang trỏ đúng checkout.
     print("MERGE_OK")
     sys.exit(0)
-servers["powerbi-mcp-bridge"] = {
-    "type": "stdio", "command": py, "args": ["-u", srv],
-    "env": {"PYTHONUNBUFFERED": "1"},
-}
+entry = {"command": py, "args": ["-u", srv], "env": {"PYTHONUNBUFFERED": "1"}}
+servers["powerbi-mcp-bridge"] = {"type": "stdio", **entry} if with_type else entry
 out = (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 json.loads(out.decode("utf-8"))
 if original == out:
@@ -489,7 +562,8 @@ print("MERGE_OK")
     $prevEap = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
     $helperExit = 1
-    try     { $out = & $venvPy $tmpPy $Path $pyJson $srvJson 2>&1; $helperExit = $LASTEXITCODE }
+    $typeArg = if ($NoType) { 'no-type' } else { 'stdio' }
+    try     { $out = & $venvPy $tmpPy $Path $pyJson $srvJson $typeArg 2>&1; $helperExit = $LASTEXITCODE }
     finally { $ErrorActionPreference = $prevEap
               # Dọn trong finally: ném giữa chừng mà dọn ở ngoài thì mỗi lần chạy để lại
               # một file tạm TÊN DUY NHẤT -> rác tích tụ trong %TEMP% thay vì bị ghi đè.
@@ -511,6 +585,11 @@ function Register-Claude {
     Merge-McpJson (Join-Path $env:USERPROFILE ".claude.json")
 }
 function Register-Antigravity { Info "Antigravity..."; Merge-McpJson (Join-Path $env:USERPROFILE ".gemini\antigravity\mcp_config.json") }
+function Register-ClaudeDesktop {
+    Info "Claude Desktop (chỉ MCP, không có skill)..."
+    if (-not $env:APPDATA) { Err "Không xác định được %APPDATA%; giữ nguyên cấu hình Claude Desktop."; return }
+    Merge-McpJson (Join-Path $env:APPDATA "Claude\claude_desktop_config.json") -NoType
+}
 function Register-Codex {
     Info "Codex..."
     $cfg = Join-Path $env:USERPROFILE ".codex\config.toml"
@@ -643,6 +722,7 @@ if ($SkipMcp) {
     if ($Hosts -contains "claude")      { Register-Claude }
     if ($Hosts -contains "codex")       { Register-Codex }
     if ($Hosts -contains "antigravity") { Register-Antigravity }
+    if ($Hosts -contains "claude-desktop") { Register-ClaudeDesktop }
 }
 
 # ---- Bước 4: host đọc adapter trong repo; nội dung gốc chỉ ở skills/ ----
@@ -690,11 +770,12 @@ if ($script:HadError) {
     exit 1
 }
 Ok "HOÀN TẤT."
+$desktopNote = if ($Hosts -contains 'claude-desktop') { '; Claude Desktop: thoát hẳn từ khay hệ thống rồi mở lại — chỉ có công cụ MCP, không có lệnh /pbi-*' } else { '' }
 $nextSetup = if ($knowledgeReady) { "(đã xong — bỏ qua)" } else { "/pbi-setup   -> chỉ định Knowledge Dir (làm 1 lần)" }
 Write-Host @"
 
 VIỆC CẦN LÀM TIẾP — 3 bước:
-  1. KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm).
+  1. KHỞI ĐỘNG LẠI host để nạp MCP (Claude: 'claude mcp list' để kiểm$desktopNote).
   2. $nextSetup
   3. /pbi-help    -> agent tự liệt kê năng lực và định tuyến việc của bạn.
 

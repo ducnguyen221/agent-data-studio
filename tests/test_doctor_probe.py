@@ -5,6 +5,7 @@ nên doctor không bao giờ dò hay kết nối phiên Desktop thật đang m�
 instance (EVALUATE ROW) cố ý không chạy trong test.
 """
 
+import json
 import os
 import re
 import shutil
@@ -24,8 +25,11 @@ NO_INSTANCE_DISCOVERY = (
     "    Path(__file__).with_name('discovery-called.txt').write_text('1', encoding='utf-8')\n"
     "    return []\n"
 )
-DEFAULT_AREAS = ["source", "adapter", "station", "python", "import", "driver", "syntax",
-                 "startup", "connection", "mcp", "host"]
+# v0.7.1 WP-C: 7 dòng `prereq` (PowerShell, ExecutionPolicy, Git, Python, ADOMD.NET, Node, az) đứng TRƯỚC
+# các dòng cũ; thứ tự/nhãn các dòng cũ giữ nguyên.
+PREREQ_AREAS = ["prereq"] * 7
+DEFAULT_AREAS = PREREQ_AREAS + ["source", "adapter", "station", "python", "import", "driver", "syntax",
+                                "startup", "connection", "mcp", "host"]
 
 
 @pytest.fixture
@@ -48,11 +52,11 @@ def doctor_checkout(tmp_path):
     return source, env
 
 
-def _doctor(source, env, *extra):
+def _doctor(source, env, *extra, hosts="codex"):
     # Ép UTF-8 cho stdout của PowerShell 5.1 để đọc đúng dòng tiếng Việt khi bị chuyển hướng.
     command = (
         "[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false); "
-        f"& '{source / 'doctor.ps1'}' -Hosts codex {' '.join(extra)}; exit $LASTEXITCODE"
+        f"& '{source / 'doctor.ps1'}' -Hosts {hosts} {' '.join(extra)}; exit $LASTEXITCODE"
     )
     result = subprocess.run(
         [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
@@ -193,3 +197,113 @@ def test_doctor_accepts_agy_command_for_antigravity(doctor_checkout, tmp_path):
     result = subprocess.run([POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
                             env=env, capture_output=True, timeout=180)
     assert "[WARN] host: antigravity command unavailable in PATH." in result.stdout.decode("utf-8", "replace")
+
+
+# ---- v0.7.1 WP-C — nhóm `prereq` + cờ -Preflight ----
+def _lines(stdout, area):
+    return [line for line in stdout.splitlines() if re.match(rf"^\[(PASS|WARN|FAIL|NOT_CHECKED)\] {area}:", line)]
+
+
+@pytest.mark.skipif(not POWERSHELL or sys.platform != "win32", reason="Windows PowerShell required")
+def test_preflight_runs_only_prereq_without_venv_or_install(tmp_path):
+    """Ngay sau clone: chưa có .venv, chưa chạy install -> -Preflight vẫn chạy và chỉ in nhóm prereq."""
+    source = tmp_path / "vừa clone"
+    source.mkdir()
+    shutil.copy2(REPO / "doctor.ps1", source / "doctor.ps1")
+    shutil.copytree(REPO / "powerbi_agent", source / "powerbi_agent",
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    env = {k: v for k, v in os.environ.items() if k.upper() not in ("PSMODULEPATH", "POWERBI_INSTALL_PYTHON")}
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    code, stdout, stderr = _doctor(source, env, "-Preflight")
+
+    assert _areas(stdout) == PREREQ_AREAS, stdout + stderr
+    assert code == 0, stdout + stderr  # máy chạy test có Git + Python trong khoảng
+    assert re.search(r"^\[PASS\] prereq: Python 3\.1[1-4] \(.+\) within supported range 3\.11-3\.14\.$", stdout, re.M), stdout
+    assert re.search(r"^\[PASS\] prereq: Git: git version ", stdout, re.M), stdout
+    assert "ExecutionPolicy" in stdout and "MachinePolicy=" in stdout
+    assert not (source / "workspace").exists()
+
+
+@pytest.mark.skipif(not POWERSHELL or sys.platform != "win32", reason="Windows PowerShell required")
+def test_preflight_reports_missing_git_and_python_outside_range(tmp_path):
+    source = tmp_path / "checkout"
+    source.mkdir()
+    shutil.copy2(REPO / "doctor.ps1", source / "doctor.ps1")
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    for name in ("py.cmd", "python.cmd", "python3.cmd"):
+        (fake_bin / name).write_text("@echo 3.15\r\n", encoding="ascii")
+    env = {k: v for k, v in os.environ.items() if k.upper() not in ("PATH", "PSMODULEPATH", "POWERBI_INSTALL_PYTHON")}
+    env["PATH"] = os.pathsep.join([str(fake_bin), str(Path(POWERSHELL).parent),
+                                   str(Path(os.environ["SystemRoot"]) / "System32")])
+    code, stdout, stderr = _doctor(source, env, "-Preflight")
+
+    assert code == 1, stdout + stderr
+    assert _areas(stdout) == PREREQ_AREAS, stdout + stderr
+    assert ("[FAIL] prereq: Git not found in PATH; needed to clone and update. Install: winget install --id Git.Git -e"
+            in stdout), stdout
+    assert ("[FAIL] prereq: Python 3.15 found but outside supported range 3.11-3.14. "
+            "Install Python 3.12: winget install --id Python.Python.3.12 -e" in stdout), stdout
+    assert "[NOT_CHECKED] prereq: ADOMD.NET DLL not checked: powerbi_agent\\adomd.py missing in checkout." in stdout
+    assert "[WARN] prereq: Node.js not found" in stdout
+    assert "[NOT_CHECKED] prereq: Azure CLI not found" in stdout
+
+
+# ---- v0.7.1 WP-B — dòng prereq ADOMD và dòng driver dùng cùng find_adomd_dlls() với engine ----
+@pytest.mark.skipif(not POWERSHELL or sys.platform != "win32", reason="Windows PowerShell required")
+def test_adomd_lines_follow_engine_override(doctor_checkout, tmp_path):
+    source, env = doctor_checkout
+    empty = tmp_path / "ADOMD rỗng"
+    empty.mkdir()
+    env["ADOMD_LIB_DIR"] = str(empty)
+    _code, stdout, stderr = _doctor(source, env)
+    missing = f"ADOMD_LIB_DIR={empty} has no AdomdClient.dll (override is exclusive; SSMS/GAC not searched)."
+    assert f"[WARN] prereq: ADOMD.NET: {missing}" in stdout, stdout + stderr
+    driver = _lines(stdout, "driver")
+    assert len(driver) == 1 and driver[0].startswith("[WARN] driver:") and driver[0].endswith(missing), stdout
+    assert _areas(stdout) == DEFAULT_AREAS
+
+    chosen = tmp_path / "ADOMD đã chọn"
+    chosen.mkdir()
+    for dll in ("Microsoft.AnalysisServices.AdomdClient.dll", "Microsoft.AnalysisServices.Tabular.dll"):
+        (chosen / dll).write_bytes(b"fixture")
+    env["ADOMD_LIB_DIR"] = str(chosen)
+    _code, stdout, stderr = _doctor(source, env)
+    found = f"AdomdClient.dll on disk (ADOMD_LIB_DIR): {chosen}."
+    assert f"[PASS] prereq: ADOMD.NET: {found}" in stdout, stdout + stderr
+    driver = _lines(stdout, "driver")
+    assert len(driver) == 1 and driver[0].endswith(found), stdout
+    assert _areas(stdout) == DEFAULT_AREAS
+
+
+# ---- v0.7.1 WP-D — Claude Desktop (MCP-only) ----
+@pytest.mark.skipif(not POWERSHELL or sys.platform != "win32", reason="Windows PowerShell required")
+def test_doctor_claude_desktop_reads_appdata_config_and_install_path(doctor_checkout, tmp_path):
+    source, env = doctor_checkout
+    appdata = tmp_path / "AppData giả" / "Roaming"
+    local = tmp_path / "AppData giả" / "Local"
+    config = appdata / "Claude" / "claude_desktop_config.json"
+    config.parent.mkdir(parents=True)
+    config.write_text(json.dumps({"mcpServers": {"powerbi-mcp-bridge": {
+        "command": sys.executable, "args": ["-u", str(source / "mcp_server_powerbi.py")]}}}), encoding="utf-8")
+    (local / "AnthropicClaude").mkdir(parents=True)
+    env["APPDATA"] = str(appdata)
+    env["LOCALAPPDATA"] = str(local)
+    _code, stdout, stderr = _doctor(source, env, hosts="claude-desktop")
+
+    assert "[PASS] mcp: claude-desktop points to this checkout." in stdout, stdout + stderr
+    assert "[PASS] host: claude-desktop app installed (claude.ai installer)" in stdout, stdout
+    assert not _lines(stdout, "adapter")  # MCP-only: không có adapter skill cho Claude Desktop
+    assert "[PASS] startup:" in stdout
+
+    shutil.rmtree(local / "AnthropicClaude")
+    virtual = local / "Packages" / "Claude_test" / "LocalCache" / "Roaming" / "Claude"
+    virtual.mkdir(parents=True)
+    (virtual / "claude_desktop_config.json").write_text("{}", encoding="utf-8")
+    _code, stdout, stderr = _doctor(source, env, hosts="claude-desktop")
+    assert "[WARN] host: claude-desktop Store package has its own config copy" in stdout, stdout + stderr
+    shutil.rmtree(local / "Packages")
+    config.unlink()
+    _code, stdout, stderr = _doctor(source, env, hosts="claude-desktop")
+    assert "[WARN] mcp: claude-desktop has no registration for this checkout." in stdout, stdout + stderr
+    assert "[WARN] host: claude-desktop app not found" in stdout

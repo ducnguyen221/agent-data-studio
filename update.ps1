@@ -64,7 +64,11 @@ if ($LASTEXITCODE -ne 0 -or $target -notmatch '^[0-9a-f]{40,64}$') { Fail 'Fetch
 if ($target -eq $old) { Write-Host ('[PASS] UP_TO_DATE source={0}' -f $old); exit 0 }
 Invoke-Native git -C $repoRoot merge-base --is-ancestor $old $target
 if ($LASTEXITCODE -ne 0) { Fail 'Upstream diverged. No update was applied.' }
-$pythonCommand = Get-Command python -ErrorAction SilentlyContinue
+# Ưu tiên Python của venv checkout: máy cài Python không tick "Add to PATH" chỉ có `py`, install.ps1
+# vẫn tạo được .venv nhưng `python` không có trong PATH. Kiểm tĩnh ứng viên chỉ cần stdlib + git.
+$checkoutPython = Join-Path $repoRoot '.venv\Scripts\python.exe'
+$pythonCommand = if (Test-Path -LiteralPath $checkoutPython -PathType Leaf) { Get-Command $checkoutPython -ErrorAction SilentlyContinue }
+if (-not $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction SilentlyContinue }
 if (-not $pythonCommand) { Fail 'Python is required for candidate validation.' }
 $check = @'
 import subprocess

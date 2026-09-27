@@ -1,6 +1,6 @@
 {
   "name": "agent-data-studio",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Agent Data Studio provides nine data and Power BI skills, eight commands, and a repository-owned CLI/MCP engine. Microsoft skills-for-fabric references (MIT) ship verbatim. The engine and skills run from this repository; private project data stays in the ignored workspace/ or an external ADS_DATA station.",
   "author": {
     "name": "Duc Nguyen",

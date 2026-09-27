@@ -4,18 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "powerbi-agent"
-version = "0.7.0"
+version = "0.7.1"
 description = "MCP server + skills for AI agents to work directly with Power BI — DAX query with data-safety policy, PBIR report templates, end-to-end analysis pipeline"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Duc Nguyen (ducnguyen221)" }]
-requires-python = ">=3.11"
+# Tran <3.15 theo pythonnet 3.1.0 (Requires-Python <3.15; 3.0.5 chi toi <3.14). install.ps1 va
+# doctor.ps1 kiem cung khoang 3.11-3.14 (test_python_range_in_sync giu ba noi khop nhau).
+requires-python = ">=3.11,<3.15"
 dependencies = [
     # <2: mcp 2.0 BO module `mcp.server.fastmcp` ma powerbi_agent/app.py import.
     # Khong phai pin cho gon — la gioi han tuong thich API. CI cai 2.0.0 va server chet.
     "mcp>=1.27,<2",
     "pyadomd>=0.1.1",
-    "pythonnet>=3.0",
+    "pythonnet>=3.1",
     "pandas>=2.2",
     "msal>=1.31",
     "python-dotenv>=1.0",

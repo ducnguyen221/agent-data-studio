@@ -12,6 +12,8 @@ import pytest
 
 from test_installer import source_fixture  # noqa: F401 (shared synthetic source fixture)
 
+REPO = Path(__file__).resolve().parents[1]
+
 
 def _install(source: Path, home: Path, *hosts: str) -> subprocess.CompletedProcess[str]:
     home.mkdir(exist_ok=True)
@@ -22,6 +24,8 @@ def _install(source: Path, home: Path, *hosts: str) -> subprocess.CompletedProce
     ):
         env.pop(name, None)
     env["USERPROFILE"] = str(home)
+    # Claude Desktop ghi vào %APPDATA%: luôn trỏ hồ sơ giả, không bao giờ chạm APPDATA thật.
+    env["APPDATA"] = str(home / "AppData" / "Roaming")
     env["POWERBI_INSTALL_PYTHON"] = sys.executable
     # Force the Claude JSON fallback without invoking a real CLI or touching its profile.
     powershell = shutil.which("powershell")
@@ -249,3 +253,122 @@ def test_failed_dependency_install_can_retry_owned_venv(source_fixture):
     assert second.returncode != 0
     assert "chưa có dấu sở hữu" not in second.stdout
     assert marker.read_text(encoding="utf-8").strip() == str(source)
+
+
+# ---- v0.7.1 WP-D — Claude Desktop (tab chat): chỉ MCP, cấu hình %APPDATA%\Claude\claude_desktop_config.json ----
+def _desktop_config(home: Path) -> Path:
+    return home / "AppData" / "Roaming" / "Claude" / "claude_desktop_config.json"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="installer chạy trên Windows")
+def test_claude_desktop_registration_uses_documented_schema_and_keeps_others(source_fixture):
+    source = source_fixture
+    home = source.parent / "fakehome"
+    config = _desktop_config(home)
+    config.parent.mkdir(parents=True)
+    original = {
+        "mcpServers": {"foreign": {"command": "other", "args": ["x"], "env": {"KEEP": "yes"}}},
+        "globalShortcut": "Ctrl+Space",
+    }
+    config.write_text(json.dumps(original, ensure_ascii=False), encoding="utf-8")
+    _assert_ok(_install(source, home, "claude-desktop"))
+    first = json.loads(config.read_text(encoding="utf-8"))
+    assert first["globalShortcut"] == "Ctrl+Space"
+    assert first["mcpServers"]["foreign"] == original["mcpServers"]["foreign"]
+    # Lược đồ tài liệu Claude Desktop: command/args/env — không thêm khoá "type".
+    assert first["mcpServers"]["powerbi-mcp-bridge"] == {
+        "command": sys.executable.replace("\\", "/"),
+        "args": ["-u", str(source / "mcp_server_powerbi.py").replace("\\", "/")],
+        "env": {"PYTHONUNBUFFERED": "1"},
+    }
+    before = config.read_bytes()
+    _assert_ok(_install(source, home, "claude-desktop"))
+    assert config.read_bytes() == before
+    assert not (home / ".claude.json").exists()
+    assert not (home / ".codex" / "config.toml").exists()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="installer chạy trên Windows")
+def test_claude_code_host_does_not_register_claude_desktop(source_fixture):
+    source = source_fixture
+    home = source.parent / "fakehome"
+    _assert_ok(_install(source, home, "claude"))
+    assert (home / ".claude.json").exists()
+    assert not _desktop_config(home).exists()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="installer chạy trên Windows")
+def test_claude_desktop_foreign_same_name_is_refused(source_fixture):
+    source = source_fixture
+    home = source.parent / "fakehome"
+    config = _desktop_config(home)
+    config.parent.mkdir(parents=True)
+    original = json.dumps({"mcpServers": {"powerbi-mcp-bridge": {
+        "command": "foreign-tool", "args": ["--user-owned"]}}}, indent=2).encode("utf-8")
+    config.write_bytes(original)
+    result = _install(source, home, "claude-desktop")
+    assert result.returncode != 0, result.stdout[-1800:] + result.stderr[-1800:]
+    assert config.read_bytes() == original
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="uninstaller chạy trên Windows")
+def test_uninstall_claude_desktop_removes_owned_entry_and_guards_venv(source_fixture):
+    source = source_fixture
+    home = source.parent / "fakehome"
+    shutil.copy2(REPO / "uninstall.ps1", source / "uninstall.ps1")
+    _assert_ok(_install(source, home, "claude-desktop"))
+    config = _desktop_config(home)
+    data = json.loads(config.read_text(encoding="utf-8"))
+    data["mcpServers"]["foreign"] = {"command": "other"}
+    config.write_text(json.dumps(data), encoding="utf-8")
+    venv = source / ".venv"
+    venv.mkdir()
+    (venv / "pyvenv.cfg").write_text("home = fixture\n", encoding="utf-8")
+    (venv / ".ads-venv-owned").write_text(str(source), encoding="utf-8")
+    env = {k: v for k, v in os.environ.items() if k.upper() != "PSMODULEPATH"}
+    env["USERPROFILE"] = str(home)
+    env["APPDATA"] = str(home / "AppData" / "Roaming")
+    env["POWERBI_INSTALL_PYTHON"] = sys.executable
+
+    def uninstall(*hosts):
+        return subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(source / "uninstall.ps1"),
+             "-Hosts", *hosts, "-RemoveVenv"],
+            cwd=source, env=env, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120,
+        )
+
+    # Gỡ host khác: venv vẫn bị Claude Desktop tham chiếu (args trỏ checkout) -> giữ nguyên.
+    kept = uninstall("codex")
+    assert kept.returncode == 1, kept.stdout + kept.stderr
+    assert "another host still uses it" in kept.stdout
+    assert venv.exists()
+    removed = uninstall("claude-desktop")
+    assert removed.returncode == 0, removed.stdout + removed.stderr
+    assert "claude-desktop: removed repository-owned MCP entry." in removed.stdout
+    after = json.loads(config.read_text(encoding="utf-8"))
+    assert "powerbi-mcp-bridge" not in after["mcpServers"]
+    assert after["mcpServers"]["foreign"] == {"command": "other"}
+    assert not venv.exists()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="installer chạy trên Windows")
+def test_comma_host_list_via_file_registers_each_host(source_fixture):
+    """`powershell -File install.ps1 -Hosts codex,claude-desktop` nhận MỘT chuỗi; phải tách thành hai host."""
+    source = source_fixture
+    home = source.parent / "fakehome"
+    _assert_ok(_install(source, home, "codex,claude-desktop"))
+    assert "powerbi-mcp-bridge" in (home / ".codex" / "config.toml").read_text(encoding="utf-8")
+    assert "powerbi-mcp-bridge" in _desktop_config(home).read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="installer chạy trên Windows")
+def test_unknown_host_is_refused_before_any_write(source_fixture):
+    source = source_fixture
+    home = source.parent / "fakehome"
+    result = _install(source, home, "claude-dekstop")
+    assert result.returncode == 1, result.stdout[-1800:] + result.stderr[-1800:]
+    assert "claude-dekstop" in result.stdout
+    assert not (source / "workspace").exists()
+    # PowerShell tự tạo thư mục hồ sơ của chính nó dưới hồ sơ giả; chỉ kiểm cấu hình host.
+    assert not (home / ".codex").exists() and not (home / ".claude.json").exists()
+    assert not _desktop_config(home).exists()

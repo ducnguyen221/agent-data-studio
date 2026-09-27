@@ -6,6 +6,7 @@ engine dưới đường có dấu, trạm giả trong thư mục tạm. Không 
 """
 
 import json
+import os
 import queue
 import shutil
 import subprocess
@@ -258,3 +259,103 @@ def test_cli_query_and_tables_report_missing_adomd(checkout, tmp_path, command):
     assert out["status"] == "error", out
     assert out["message"].startswith("Thiếu ADOMD.NET") and str(empty) in out["message"], out
     assert "NameError" not in result.stdout + result.stderr
+
+
+# WP-B (v0.7.1) — find_adomd_dlls(): một nguồn dò DLL trên đĩa cho install.ps1 / doctor.ps1 / engine.
+# Cây Program Files / Windows giả trong tmp_path (có dấu), không đụng thư mục thật của máy.
+@pytest.fixture
+def fake_machine(tmp_path, monkeypatch):
+    pf = tmp_path / "Chương trình"
+    pf86 = tmp_path / "Chương trình x86"
+    windir = tmp_path / "Windows giả"
+    for path in (pf, pf86, windir):
+        path.mkdir()
+    monkeypatch.setenv("ProgramFiles", str(pf))
+    monkeypatch.setenv("ProgramFiles(x86)", str(pf86))
+    monkeypatch.setenv("WINDIR", str(windir))
+    monkeypatch.delenv("ADOMD_LIB_DIR", raising=False)
+    return pf, pf86, windir
+
+
+def _dlls(folder, *names):
+    folder.mkdir(parents=True, exist_ok=True)
+    for name in names:
+        (folder / name).write_bytes(b"fixture")
+    return folder
+
+
+def test_find_adomd_dlls_follows_engine_order_and_flags_tabular(fake_machine):
+    from powerbi_agent import adomd
+
+    pf, pf86, windir = fake_machine
+    ssms = _dlls(pf / "Microsoft SQL Server Management Studio 21" / "Release" / "Common7" / "IDE", ADOMD_DLL)
+    ssms86 = _dlls(pf86 / "Microsoft SQL Server Management Studio 18" / "Common7" / "IDE", ADOMD_DLL, TABULAR_DLL)
+    desktop = _dlls(pf / "Microsoft Power BI Desktop" / "bin", ADOMD_DLL, TABULAR_DLL)
+    result = adomd.find_adomd_dlls()
+
+    assert result["override"] is None
+    assert [Path(d["dir"]) for d in result["dirs"]] == [Path(d) for d in adomd.candidate_adomd_dirs()]
+    assert [Path(d["dir"]) for d in result["dirs"]] == [ssms, ssms86, desktop]
+    assert [(d["adomd"], d["tabular"]) for d in result["dirs"]] == [(True, False), (True, True), (True, True)]
+    assert result["gac"] == {"adomd": False, "tabular": False}
+    _dlls(windir / "Microsoft.NET" / "assembly" / "GAC_MSIL" / "Microsoft.AnalysisServices.AdomdClient"
+          / "v4.0_15.0.0.0__89845dcd8080cc91", ADOMD_DLL)
+    assert adomd.find_adomd_dlls()["gac"] == {"adomd": True, "tabular": False}
+    json.dumps(result)  # installer/doctor đọc qua JSON
+
+
+def test_find_adomd_dlls_override_is_exclusive_and_env_beats_config(fake_machine, tmp_path, monkeypatch):
+    from powerbi_agent import adomd
+
+    pf, _pf86, windir = fake_machine
+    _dlls(pf / "Microsoft SQL Server Management Studio 21" / "Release" / "Common7" / "IDE", ADOMD_DLL, TABULAR_DLL)
+    _dlls(windir / "Microsoft.NET" / "assembly" / "GAC_MSIL" / "Microsoft.AnalysisServices.AdomdClient" / "v4", ADOMD_DLL)
+    empty = tmp_path / "ADOMD override rỗng"
+    empty.mkdir()
+    chosen = _dlls(tmp_path / "ADOMD đã chọn", ADOMD_DLL)
+    config = tmp_path / "config.env"
+    # Không bọc nháy kép: dotenv (như load_dotenv của engine) xử lý escape gạch ngược trong nháy kép.
+    config.write_text(f"OTHER=khong-doc\nADOMD_LIB_DIR={empty}  # từ trạm\n", encoding="utf-8")
+
+    from_config = adomd.find_adomd_dlls(str(config))
+    assert from_config["override"] == str(empty)
+    assert from_config["dirs"] == [{"dir": str(empty), "adomd": False, "tabular": False}]  # không dò SSMS
+    assert from_config["gac"] == {"adomd": False, "tabular": False}  # không dò GAC
+    assert "OTHER" not in os.environ
+
+    monkeypatch.setenv("ADOMD_LIB_DIR", str(chosen))
+    from_env = adomd.find_adomd_dlls(str(config))
+    assert from_env["override"] == str(chosen)
+    assert from_env["dirs"] == [{"dir": str(chosen), "adomd": True, "tabular": False}]
+
+    # Biến đặt nhưng rỗng: load_dotenv(override=False) KHÔNG áp config.env -> engine không override.
+    monkeypatch.setenv("ADOMD_LIB_DIR", "")
+    assert adomd.find_adomd_dlls(str(config))["override"] is None
+    monkeypatch.delenv("ADOMD_LIB_DIR")
+    missing = adomd.find_adomd_dlls(str(tmp_path / "không có.env"))
+    assert missing["override"] is None and missing["dirs"][0]["tabular"] is True
+
+
+def test_find_adomd_dlls_never_loads_clr(checkout, tmp_path):
+    code = (
+        "import json, sys\n"
+        "from powerbi_agent.adomd import find_adomd_dlls\n"
+        "find_adomd_dlls()\n"
+        "print(json.dumps({'clr': 'clr' in sys.modules, 'pythonnet': 'pythonnet' in sys.modules}))\n"
+    )
+    result = _run(checkout, code, tmp_path)
+    assert result.returncode == 0, result.stderr[-1500:]
+    assert json.loads(result.stdout.strip().splitlines()[-1]) == {"clr": False, "pythonnet": False}
+
+
+def test_config_adomd_lib_dir_without_dotenv_reads_only_that_key(tmp_path, monkeypatch):
+    """Python hệ thống lúc `doctor.ps1 -Preflight` có thể chưa có python-dotenv: vẫn đọc đúng khoá."""
+    from powerbi_agent import adomd
+
+    monkeypatch.setitem(sys.modules, "dotenv", None)  # import dotenv -> ImportError
+    config = tmp_path / "config.env"
+    config.write_text("OTHER=x\nADOMD_LIB_DIR=C:/thư mục/ADOMD  # ghi chú\n", encoding="utf-8")
+    assert adomd.config_adomd_lib_dir(str(config)) == "C:/thư mục/ADOMD"
+    config.write_text("ADOMD_LIB_DIR=C:/cũ\nexport ADOMD_LIB_DIR='C:/mới có dấu'\n", encoding="utf-8")
+    assert adomd.config_adomd_lib_dir(str(config)) == "C:/mới có dấu"  # dòng sau thắng như dotenv
+    assert adomd.config_adomd_lib_dir(str(tmp_path / "không có.env")) is None

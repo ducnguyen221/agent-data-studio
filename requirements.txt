@@ -1,6 +1,6 @@
 mcp==1.27.1
 pyadomd==0.1.1
-pythonnet==3.0.5
+pythonnet==3.1.0
 pandas==3.0.3
 msal==1.36.0
 python-dotenv==1.2.2

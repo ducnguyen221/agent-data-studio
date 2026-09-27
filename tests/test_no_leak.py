@@ -107,7 +107,7 @@ class TestSourceBoundary:
 
     # Danh sách file gốc repo được phép — mọi thứ khác là ứng viên "lỡ tay".
     ALLOWED_ROOT_FILES = {
-        "README.md", "README.vi.md", "START-HERE.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
+        "README.md", "README.vi.md", "START-HERE.md", "INSTALL.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
         "ROADMAP.md", "LICENSE", ".gitignore", ".gitattributes", ".env.example",
         "policy.example.json", "THIRD_PARTY_NOTICES.md", "NOTICE.md",
         "pyproject.toml", "requirements.txt", "requirements.loose.txt",

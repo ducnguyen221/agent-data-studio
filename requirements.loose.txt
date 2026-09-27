@@ -1,5 +1,5 @@
 # Fallback "loose" — chỉ dùng khi requirements.txt (bản pin) cài lỗi trên máy mới.
-# Yêu cầu Python >= 3.11. Máy chỉ có 3.10: đổi pandas thành "pandas>=2.0,<3".
+# Yêu cầu Python 3.11–3.14 (pythonnet 3.1 chưa hỗ trợ 3.15). Máy chỉ có 3.10: đổi pandas thành "pandas>=2.0,<3".
 mcp>=1.20
 pyadomd>=0.1.1
 pandas>=2.2
@@ -7,4 +7,4 @@ requests>=2.31
 msal>=1.31
 python-dotenv>=1.0
 tabulate>=0.9
-pythonnet>=3.0
+pythonnet>=3.1
