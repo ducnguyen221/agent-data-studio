@@ -1,7 +1,7 @@
 ---
 title: "METRICS_CALCULATION — KPIM Mart (DAX Measures)"
 type: metrics_calculation
-category: "30_PROJECTS/35_TEMPLATES/PBI_Project_Delivery_Kit"
+category: "agent-data-studio/sample-retail"
 created: 2026-07-13
 updated: 2026-07-13
 status: active

@@ -1,4 +1,4 @@
-# Build playbook — P3 SINH SỐ · P4 VERIFY · P5 ĐÓNG GÓI
+# Hướng dẫn tạo dữ liệu — P3 SINH SỐ · P4 KIỂM ĐỊNH · P5 ĐÓNG GÓI
 
 Đọc file này khi đã có spec và bắt đầu **sinh dữ liệu**. Phần hỏi nghiệp vụ & thiết kế ở `mockup-design-playbook.md`.
 
@@ -11,7 +11,7 @@
 
 Sinh ngược thứ tự này là tự tạo FK mồ côi.
 
-### Seed
+### Hạt giống ngẫu nhiên (seed)
 Một seed cho cả bộ, khai trong `dataset.yaml`. Trong generator dùng đúng một đối tượng random khởi tạo từ seed đó (`rng = mockpack.rng(SEED)`), không gọi `random.*` toàn cục xen kẽ — trộn hai nguồn ngẫu nhiên là mất tính tái lập.
 
 Kiểm tra seed hoạt động: chạy generator 2 lần, `diff` hai lần xuất phải rỗng.
@@ -76,10 +76,10 @@ Tên là thứ người xem nhìn thấy đầu tiên. `Sản phẩm 001`, `Khá
 
 | Loại đối tượng | Công thức đặt tên | Ví dụ thật đang dùng |
 |---|---|---|
-| **Điểm bán / chi nhánh** | `<Thương hiệu> <địa danh thật>` — lấy tên đường/khu/toà nhà có thật trong quận đó | `KPIM Mart Lĩnh Nam`, `KPIM Mart CT1A Hateco Apolo`, `Chi nhánh Hải Phòng`, `Phòng Giao dịch Đắk Lắk` |
+| **Điểm bán / chi nhánh** | `<Thương hiệu hư cấu> <địa danh>`; kiểm tên không trùng đơn vị thật | `Cửa hàng Minh An Hà Nội`, `Chi nhánh mẫu Hải Phòng` |
 | **Địa bàn** | Danh mục hành chính THẬT, **kèm thuộc tính nền**: diện tích, dân số, toạ độ | `Quận Phú Nhuận` (4,18 km², 203.767 dân, lat/long) — nhờ có dân số mới tính được mật độ, thị phần, doanh thu/đầu người |
 | **Hàng hoá tiêu dùng** | Tên hàng thông dụng theo ngành hàng, không đánh số | `Tiêu xay`, `Ngũ vị hương`, `Bột nếp` trong `Gia vị – nguyên liệu nấu ăn` |
-| **Sản phẩm dịch vụ** | Tên đầy đủ mô tả đúng nghiệp vụ **+ tên viết gọn không dấu** để hiển thị | `Tiền gửi thanh toán KHCN gói KPIM-Super (VND)` ↔ `TG TT KHCN KPIM-Super VND` |
+| **Sản phẩm dịch vụ** | Tên đầy đủ mô tả đúng nghiệp vụ **+ tên viết gọn không dấu** để hiển thị | `Gói thanh toán mẫu (VND)` ↔ `Goi TT mau VND` |
 | **Người** | Họ + đệm + tên ghép từ danh sách phổ biến, giữ phân bố họ gần thực tế | `Nguyễn Quang Đức`, `Phan Tuấn Yến` |
 | **Mã định danh** | Prefix + số thứ tự zero-pad, hoặc dải số bắt đầu từ mốc nhận diện được | `KH-000123`, `NV0001`, `CUS-000001`, CIF bắt đầu từ `3000000001` |
 | **Danh mục nội bộ** | Mã ngắn viết hoa không dấu + tên đầy đủ có dấu | `KHCN` / "Khách hàng Cá nhân"; `QLRR` / "Quản lý rủi ro"; `KHCN HANG GOLD` |
@@ -94,9 +94,9 @@ Bốn luật kèm theo:
 
 ---
 
-## PHẦN 2 — Catalog rule verify (P4)
+## PHẦN 2 — Danh mục quy tắc kiểm định (P4)
 
-### Rule cơ bản — TỰ SUY từ spec, không cần khai
+### Quy tắc cơ bản — TỰ SUY từ spec, không cần khai
 `mockpack.py verify` tự sinh các rule sau từ `tables:` trong YAML:
 
 | Rule | Nội dung |
@@ -113,7 +113,7 @@ Bốn luật kèm theo:
 
 Ngoài PASS/FAIL/WAIVED còn mức **WARN** — nhắc nhở, không chặn exit code: cột khai `pii: true` luôn ra WARN `pii_declared` để nhắc "phải là dữ liệu giả lập/đã che, không lấy từ người thật".
 
-### Rule nghiệp vụ — PHẢI khai trong `rules:`
+### Quy tắc nghiệp vụ — PHẢI khai trong `rules:`
 
 | `kind` | Dùng cho | Tham số |
 |---|---|---|
@@ -156,7 +156,7 @@ Sinh tự động từ YAML — không viết tay, không sửa tay trong Excel.
 | Số quá lớn (> 15 chữ số) | Mất độ chính xác | Để dạng text nếu là mã, không phải số đo |
 | Ô bắt đầu bằng `=`, `+`, `-`, `@` | Excel hiểu là công thức / rủi ro CSV injection | Prefix `'` khi ghi |
 
-Thêm bốn bẫy gặp trong dữ liệu thật của KPIM — **kiểm khi nhận file mẫu từ user**, đừng bê nguyên vào bộ mới:
+Thêm bốn bẫy dữ liệu thường gặp — **kiểm khi nhận file mẫu từ user**, đừng bê nguyên vào bộ mới:
 
 | Bẫy | Dấu hiệu ngoài đời | Xử lý |
 |---|---|---|
@@ -171,7 +171,7 @@ Thêm bốn bẫy gặp trong dữ liệu thật của KPIM — **kiểm khi nh�
 |---|---|---|
 | Hình dạng | 1 dòng tiêu đề, 1 dòng = 1 bản ghi, không merge | Tiêu đề nhiều tầng, nhóm cột (Tháng / Luỹ kế / Năm), chú thích công thức `(4)=(2)/(1)` |
 | Dùng để | Nạp Power BI, pivot, phân tích | In ra họp, ký duyệt |
-| Ví dụ thật | `Data KPIM Mart` các sheet `fact_*`/`dim_*` | `Kế hoạch doanh thu.xlsx` của Mart |
+| Ví dụ | Các sheet giả lập `fact_*`/`dim_*` | Bản trình bày kế hoạch giả lập |
 
 Luật: **luôn sinh bảng máy đọc trước** làm nguồn sự thật. Báo cáo người đọc chỉ là bản trình bày dựng thêm từ đó — và chỉ làm khi user yêu cầu rõ (thường là để dạy Power Query dọn dữ liệu thô). Không bao giờ để báo cáo người đọc làm nguồn dữ liệu duy nhất.
 

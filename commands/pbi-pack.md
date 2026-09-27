@@ -1,9 +1,10 @@
 ---
-description: Đóng gói tri thức từ dự án vào knowledge/ 4 trục (tech-stack · industry · business-domain · powerbi)
+description: Đúc kết bài học tái dùng từ dự án vào tri thức của trạm
 ---
 
-Đóng gói tri thức: $ARGUMENTS (để trống = quét các dự án chưa pack)
+Đóng gói tri thức: $ARGUMENTS (để trống: xét các dự án chưa đóng gói)
 
-1. `knowledge_status` → lấy đường dẫn Knowledge Dir root.
-2. Giao agent **`pbi-knowledge-curator`** (subagent) với prompt: đường dẫn root + slug dự án (nếu có). Host không hỗ trợ subagent → tự thực hiện đúng quy trình trong định nghĩa agent (`agents/pbi-knowledge-curator.md` của studio): đọc INDEX/TIMELINE/knowledge hiện có → đọc dự án → rút bài học TÁI DÙNG (ngưỡng cao) → DEDUP (cập nhật file cũ) → ghi theo chuẩn Why/How-to-apply → cập nhật INDEX + TIMELINE.
-3. Trình user danh sách bài học mới/cập nhật để xác nhận chất lượng.
+1. Gọi `knowledge_status` để xác định trạm dữ liệu và dự án nguồn.
+2. Đọc `agents/pbi-knowledge-curator.md` và skill `pbi-knowledge` từ repo. Nếu host hỗ trợ giao việc cho agent, có thể dùng agent đó; nếu không, tự thực hiện cùng quy trình.
+3. Đối chiếu tri thức hiện có trước khi ghi; chỉ giữ bài học tái dùng, kèm lý do, cách áp dụng và link về dự án nguồn. Tất cả đầu ra nằm trong trạm (`workspace/` hoặc `ADS_DATA`).
+4. Báo bài học mới, bài học cập nhật và điều đã loại khỏi bản đóng gói.

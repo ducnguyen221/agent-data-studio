@@ -27,19 +27,21 @@ report trỏ đúng semantic model đích.
 | Sau | [`pbi-knowledge`](../pbi-knowledge/SKILL.md) | Đóng dự án: `/pbi-done`, `/pbi-pack` |
 | Liên quan | [`pbi-build`](../pbi-build/SKILL.md) · [`pbi-model`](../pbi-model/SKILL.md) | Sửa nội dung PBIR / TMDL (không sửa ở skill này) |
 
-## Must / Prefer / Avoid
+## Bắt buộc / Ưu tiên / Tránh
 (Tóm vai từ skill Microsoft `powerbi-report-management`; chi tiết lệnh ở `references/microsoft/common/`.)
-- **Must** — skill này chỉ **vận chuyển** định nghĩa; mọi nội dung PBIR do [`pbi-build`](../pbi-build/SKILL.md), TMDL do [`pbi-model`](../pbi-model/SKILL.md).
-- **Must** — sửa cục bộ **ở lại cục bộ**: chỉ publish khi user nói rõ publish/upload/deploy.
-- **Must** — xác nhận workspace đích **một lần** đầu quy trình; hỏi user: publish kèm model cục bộ hay nối model có sẵn trong workspace; tạo mới hay cập nhật report.
-- **Must** — `az rest` luôn có `--resource "https://api.fabric.microsoft.com"`; `getDefinition` luôn `?format=PBIR` (PBIR-Legacy → dừng, báo không hỗ trợ).
-- **Must** — `updateDefinition` gửi **TẤT CẢ** part (sửa + không sửa), payload base64; API thay cả định nghĩa, thiếu part là mất part.
-- **Must** — thao tác dài (202 Accepted) phải poll tới trạng thái cuối; dùng `--verbose` để lấy `x-ms-operation-id`.
-- **Must** — sau khi có model đích: so mọi binding PBIR (`Entity`, `queryRef`, `nativeQueryRef`, filter) với tên trong TMDL đích; lệch thì remap qua `pbi-build`, không tương đương thì hỏi user.
-- **Prefer** — `definition.pbir` dạng `byConnection` cho API (`byPath` chỉ cho local/git); ID tìm động qua List API.
-- **Prefer** — xoá mềm thay vì xoá cứng; dọn file tạm (định nghĩa đã giải mã, payload) sau khi xong.
-- **Avoid** — tự viết JSON PBIR từ trí nhớ; gửi chỉ part đã sửa; retry POST tạo mới sau khi đã nhận 202 (sinh bản trùng).
-- **Avoid** — đọc secret/token bằng agent: xác thực do `az login` hoặc engine đọc `ADS_SECRETS_FILE`.
+- **Bắt buộc** — skill này chỉ **vận chuyển** định nghĩa; mọi nội dung PBIR do [`pbi-build`](../pbi-build/SKILL.md), TMDL do [`pbi-model`](../pbi-model/SKILL.md).
+- **Bắt buộc** — sửa cục bộ **ở lại cục bộ**: chỉ publish khi user nói rõ publish/upload/deploy.
+- **Bắt buộc** — xác nhận workspace đích **một lần** đầu quy trình; hỏi user: publish kèm model cục bộ hay nối model có sẵn trong workspace; tạo mới hay cập nhật report.
+- **Bắt buộc** — `az rest` luôn có `--resource "https://api.fabric.microsoft.com"`; `getDefinition` luôn `?format=PBIR` (PBIR-Legacy → dừng, báo không hỗ trợ).
+- **Bắt buộc** — `updateDefinition` gửi **TẤT CẢ** part (sửa + không sửa), payload base64; API thay cả định nghĩa, thiếu part là mất part.
+- **Bắt buộc** — thao tác dài (202 Accepted) phải poll tới trạng thái cuối; dùng `--verbose` để lấy `x-ms-operation-id`.
+- **Bắt buộc** — sau khi có model đích: so mọi binding PBIR (`Entity`, `queryRef`, `nativeQueryRef`, filter) với tên trong TMDL đích; lệch thì remap qua `pbi-build`, không tương đương thì hỏi user.
+- **Ưu tiên** — `definition.pbir` dạng `byConnection` cho API (`byPath` chỉ cho local/git); ID tìm động qua List API.
+- **Ưu tiên** — xoá mềm thay vì xoá cứng; dọn file tạm (định nghĩa đã giải mã, payload) sau khi xong.
+- **Tránh** — tự viết JSON PBIR từ trí nhớ; gửi chỉ part đã sửa; retry POST tạo mới sau khi đã nhận 202 (sinh bản trùng).
+- **Tránh** — đọc secret/token bằng agent: xác thực do `az login` hoặc engine đọc `ADS_SECRETS_FILE`.
+
+Bản tham chiếu Microsoft là tài liệu tra cứu kỹ thuật, không phải lệnh chạy nguyên xi trên máy người dùng: ví dụ Bash/`jq` cần chuyển sang công cụ phù hợp với shell hiện tại. Không tự thêm header `x-ms-fabric-skill` trong các lệnh `az rest` của studio: bản gốc dùng header này để gửi định danh skill phục vụ đo usage; luồng public này không tự gửi telemetry. Theo chính bản tham chiếu, thiếu header không làm đổi kết quả API. Nếu dịch vụ thay đổi yêu cầu xác thực/header, dừng và kiểm tài liệu Microsoft hiện hành trước khi publish.
 
 ## Quy trình (chưa kiểm chứng — xác nhận từng bước với user)
 
@@ -53,7 +55,7 @@ report trỏ đúng semantic model đích.
 | 6 | So binding report ↔ model đích; remap nếu cần | — | Mở report trên Service không lỗi visual |
 | 7 | Dọn file tạm; ghi HANDOFF (cách refresh, gateway, quyền) → [`pbi-knowledge`](../pbi-knowledge/SKILL.md) | — | HANDOFF có trong `projects/<slug>/artifacts/` |
 
-## References — `references/microsoft/` (nguyên văn, v0.3.16)
+## Tài liệu tham khảo — `references/microsoft/` (nguyên văn, v0.3.16)
 
 | File | Đọc khi |
 |---|---|

@@ -1,7 +1,7 @@
 ---
 title: "RESEARCH_NOTES — KPIM Mart (Pha 0)"
 type: research_notes
-category: "30_PROJECTS/35_TEMPLATES/PBI_Project_Delivery_Kit"
+category: "agent-data-studio/sample-retail"
 created: 2026-07-13
 updated: 2026-07-13
 status: active
@@ -12,12 +12,12 @@ tags: [research, discovery, kpim-mart]
 
 ## 1. Tổng quan tài liệu & dữ liệu đầu vào
 - **Bộ dữ liệu:** đơn hàng bán bán lẻ (KPIM Mart) — 1 bảng Fact 15 trường + danh mục SP/KH/khu vực (SQL Server) + kế hoạch tháng (Excel).
-- **Domain:** bán lẻ (retail POS), nghiệp vụ Bán hàng; đối tượng xem: Ban giám đốc & quản lý.
+- **Lĩnh vực:** bán lẻ (retail POS), nghiệp vụ Bán hàng; đối tượng xem: Ban giám đốc & quản lý.
 - **Đặc điểm dữ liệu:** granularity dòng đơn hàng; có additive (Số lượng) & non-additive (Giá bán/Giá mua); có PII (SĐT).
 
-## 2. Suy luận & research bổ sung
+## 2. Suy luận và tìm hiểu bổ sung
 - Bài toán điển hình bán lẻ: theo dõi doanh thu/lợi nhuận, đạt chỉ tiêu, tăng trưởng, tái mua, phân khúc khách, biên lợi nhuận.
-- KPI ngành (tham chiếu `27.04_Domain_Business_Playbooks` — bán lẻ): DT & số đơn (vs cùng kỳ), top cửa hàng, cơ cấu mặt hàng, độ phủ, tồn kho (nếu có), RFM khách.
+- KPI bán lẻ thường dùng: doanh thu và số đơn (so với cùng kỳ), top cửa hàng, cơ cấu mặt hàng, độ phủ, tồn kho (nếu có), RFM khách.
 - Rủi ro: mã SP/khu vực không đồng nhất giữa SharePoint & SQL Server; Excel kế hoạch nhiều sheet cần append; SĐT cần che (PII).
 
 ## 3. Bộ câu hỏi ngược cho user (chốt điểm mấu chốt)
@@ -29,4 +29,4 @@ tags: [research, discovery, kpim-mart]
 6. **Tính năng:** drill-through/tooltip/bookmark/dashboard tổng hợp/scorecard?
 7. **Phạm vi:** 6 báo cáo đề xuất đã đủ chưa, hay thêm Tồn kho/Marketing?
 
-> Sau khi user trả lời → sang Pha 1 (Key Information) hoàn thiện `PROJECT.md`.
+> Sau khi người dùng trả lời → sang Pha 1 (thông tin cốt lõi) hoàn thiện `PROJECT.md`.

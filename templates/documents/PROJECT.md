@@ -1,7 +1,7 @@
 ---
 title: "PROJECT — KPIM Mart | Báo Cáo Bán Hàng (Key Information)"
 type: project_key_information
-category: "30_PROJECTS/35_TEMPLATES/PBI_Project_Delivery_Kit"
+category: "agent-data-studio/sample-retail"
 created: 2026-07-13
 updated: 2026-07-13
 status: active
@@ -113,5 +113,5 @@ Bảng Fact chính (Đơn hàng bán) có **15 trường** — xem `DATA_DICTION
 ## Điều hướng
 - Kế hoạch triển khai: `Project_Management.xlsx` (sheet PLANNING)
 - Thiết kế: `DESIGN.md` + `theme.json`
-- Quy trình đầy đủ: `00_REFERRAL_WORKFLOW.md`
-- Chuẩn dựng báo cáo Power BI: `20_KNOWLEDGE/27_FRAMEWORKS/27.06_PowerBI_Report_Design_Standard`
+- Quy trình thực hiện: [`workflows/data-to-report.md`](../../workflows/data-to-report.md)
+- Thiết kế báo cáo: [`skills/pbi-design/SKILL.md`](../../skills/pbi-design/SKILL.md)

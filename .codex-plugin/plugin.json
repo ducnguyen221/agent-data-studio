@@ -1,7 +1,7 @@
 {
   "name": "agent-data-studio",
   "version": "0.7.0",
-  "description": "Turn an AI agent into a data analyst that works directly in the tools. 9 skills in one chain — data-discovery, data-mockup, pbi-model, pbi-analysis, pbi-design, pbi-build, pbi-review, pbi-publish, pbi-knowledge — plus 8 /pbi-* commands and 2 agents. Microsoft skills-for-fabric references (MIT) ship verbatim inside the skills; data-safety policy keeps raw rows out of context. Engine (CLI + MCP) installs separately into $ADS_DATA. Built by KPIM (kpim.vn), shared free.",
+  "description": "Agent Data Studio provides nine data and Power BI skills, eight commands, and a repository-owned CLI/MCP engine. Microsoft skills-for-fabric references (MIT) ship verbatim. The engine and skills run from this repository; private project data stays in the ignored workspace/ or an external ADS_DATA station.",
   "author": {
     "name": "Duc Nguyen",
     "email": "ducnguyen.ams@gmail.com",
@@ -18,8 +18,7 @@
     "dax",
     "semantic-model",
     "report-design",
-    "mcp",
-    "kpim"
+    "mcp"
   ],
   "skills": "./skills/",
   "interface": {

@@ -1,6 +1,8 @@
 # Thư viện bộ dữ liệu mẫu KPIM — bản distill
 
-Năm bộ dữ liệu đã dựng và đang dùng dạy học tại KPIM Academy, được **rút gọn thành hồ sơ tham chiếu** để dùng làm điểm xuất phát khi thiết kế bộ mockup mới.
+Bốn bộ dữ liệu đã dựng và đang dùng dạy học tại KPIM Academy, được **rút gọn thành hồ sơ tham chiếu** để dùng làm điểm xuất phát khi thiết kế bộ mockup mới.
+
+> Asset của KPIM (kpim.vn), chia sẻ để cộng đồng tham khảo; khi dùng lại vui lòng ghi nguồn KPIM. Nguồn gốc và giấy phép: [PROVENANCE.md](PROVENANCE.md).
 
 ## Quy ước tên chuẩn
 
@@ -15,7 +17,7 @@ Năm bộ dữ liệu đã dựng và đang dùng dạy học tại KPIM Academy
 
 ## Cách dùng
 
-1. **User chưa rõ yêu cầu** → đưa 5 tên trên cho chọn: "bộ bạn cần gần giống bộ nào nhất?".
+1. **User chưa rõ yêu cầu** → đưa 4 tên trên cho chọn: "bộ bạn cần gần giống bộ nào nhất?".
 2. **Chọn xong** → đọc đúng một hồ sơ, lấy cấu trúc bảng + grain + KPI làm khung, rồi hỏi bù Nhóm 4–6 của `../mockup-design-playbook.md`.
 3. **User nói "giống bộ X nhưng ngành khác"** → giữ nguyên khung bảng/grain/KPI, chỉ thay danh mục và tên gọi. Mục 7 của mỗi hồ sơ ghi sẵn cách biến thể.
 4. **Viết spec mới** → theo `templates/documents/dataset/dataset.template.yaml` (gốc repo), **không** sao chép nguyên quy ước đặt tên của bộ cũ.

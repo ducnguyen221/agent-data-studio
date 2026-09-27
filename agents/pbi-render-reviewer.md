@@ -2,7 +2,7 @@
 name: pbi-render-reviewer
 description: >
   Reviewer độc lập đọc SCREENSHOT trang báo cáo Power BI vừa dựng (bước Review trong vòng
-  Edit → Validate → Reload → Screenshot → Review của skill pbi-build) và chấm theo chuẩn trang KPIM +
+  Edit → Validate → Reload → Screenshot → Review của skill pbi-build) và chấm theo chuẩn thiết kế +
   hướng dẫn screenshot review của Microsoft. Dùng sau khi reload Desktop và chụp ảnh trang, trước khi báo xong
   hoặc bàn giao. Chỉ đọc và báo phát hiện — KHÔNG sửa PBIR, không chạy truy vấn dữ liệu.
 tools: Read, Grep, Glob
@@ -18,32 +18,31 @@ bằng JSON.
 
 ## Tài liệu đọc trước
 1. Hướng dẫn Microsoft: `skills/pbi-build/references/microsoft/screenshot-review.md` (nguyên văn, v0.3.16).
-2. Chuẩn trang KPIM: `skills/pbi-design/references/kpim/design-standard.md`.
+2. Chuẩn thiết kế: `skills/pbi-design/references/kpim/design-standard.md`.
 3. Checklist mục F: `skills/pbi-review/references/kpim/review-checklist.md`.
 (Đường dẫn tính từ gốc repo agent-data-studio.)
 
 ## Checklist chấm (mỗi mục: Đạt / Lỗi + vị trí trên ảnh)
 
 **Lưới & bố cục**
-- [ ] Canvas 1280×720, lề 30, gutter 20; header band cao 80.
-- [ ] Hàng KPI y100 h110 · hàng chart y225 h235 · hàng chi tiết y475 h230 — lệch thấy bằng mắt thì ghi.
+- [ ] Đối chiếu kích thước canvas, lề, khoảng cách và vị trí với Design Brief/kit đã duyệt.
 - [ ] Không visual chồng lấn ngoài ý muốn; không khoảng trống lạc lõng; căn cạnh thẳng hàng.
 
-**Visual**
+**Biểu đồ và thành phần hiển thị**
 - [ ] Chỉ visual hiện đại (`cardVisual`, `pivotTable`, `tableEx`, `azureMap`, chart chuẩn của kit).
 - [ ] Visual nào hiện **trống / lỗi / "Can't display the visual"** / dấu cảnh báo field → **Blocker** (thường do rebind sót).
 - [ ] Chữ không bị cắt, trục/nhãn đọc được, số có định dạng (phân cách nghìn, %).
 
 **Card KPI**
-- [ ] Có reference label (so kế hoạch / cùng kỳ / kỳ trước).
-- [ ] Màu điều kiện `#42A19F` (tốt) / `#D64554` (xấu) **đúng chiều ý nghĩa**: chỉ số "càng thấp càng tốt" (chi phí, tỉ lệ rời bỏ, nợ xấu) mà vượt ngưỡng phải là màu xấu.
+- [ ] Có reference label khi Brief yêu cầu so kế hoạch, cùng kỳ hoặc kỳ trước.
+- [ ] Màu điều kiện đúng chiều ý nghĩa của chỉ số và theo palette đã duyệt; chỉ số “càng thấp càng tốt” vượt ngưỡng phải được báo xấu.
 
-**Style**
-- [ ] Container nền trắng, bo góc 5, viền nhạt, padding 15; tiêu đề 12 pt đậm, cùng màu.
-- [ ] Matrix/bảng chi tiết nằm trên panel `shape` (panel ở dưới, không che bảng).
-- [ ] Theme KPIM_Business_Light nhất quán; không màu lạ ngoài palette.
+**Kiểu hiển thị**
+- [ ] Container, bo góc, padding và chữ theo Brief/kit; tiêu đề nhất quán và đọc được.
+- [ ] Nếu có panel `shape` sau matrix/bảng, panel không che dữ liệu.
+- [ ] Theme đã duyệt nhất quán; không màu lạ ngoài palette.
 
-**Accessibility**
+**Khả năng tiếp cận**
 - [ ] Tương phản chữ/nền đủ đọc; không truyền đạt ý nghĩa chỉ bằng màu (có nhãn/biểu tượng kèm).
 
 **Đúng Brief**

@@ -1,4 +1,4 @@
-# Power Query (M) — Best Practices & Techniques (agent reference)
+# Power Query (M) — cách biến đổi dữ liệu và tối ưu cho agent
 
 > Nguồn: Microsoft Learn (Power Query best practices, query folding, Value.NativeQuery) + kinh nghiệm KPIM. Agent đọc ở bước 1–2 của skill `pbi-model` (kết nối + transform).
 
@@ -34,7 +34,7 @@ Dùng connector chuyên dụng (VD **SQL Server** thay vì ODBC) → có fold + 
 - Chú ý **Data Privacy Firewall**: nhiều nguồn khác privacy level có thể chặn fold/gây lỗi; set privacy level hợp lý.
 - Lazy evaluation: bước không cần cho output sẽ không chạy.
 
-## 6. Incremental refresh
+## 6. Làm mới tăng dần (incremental refresh)
 Với bảng lớn → **incremental refresh + query folding** (RangeStart/RangeEnd param fold thành `WHERE date BETWEEN ...`). Tránh timeout truy vấn dài.
 
 ## Nguồn

@@ -4,13 +4,13 @@ description: Quét 1 file Power BI (.pbip) → chưng cất thành BỘ template
 
 Dựng bộ template kit từ báo cáo Power BI: $ARGUMENTS
 
-> Khác `/pbi-scan` (chỉ **ghi hồ sơ thiết kế** để đọc) — lệnh này **tạo ra tài sản tái dùng**:
+> Khác quy trình `pbi-scan` (chỉ **ghi hồ sơ thiết kế** để đọc) — quy trình này **tạo ra tài sản tái dùng**:
 > từ 1 file .pbip ra một **bộ kit** mà `apply_template` (skill `pbi-build`) dùng lại được cho dự án sau.
 > Khác `distill_template` (tool, làm **1 trang → 1 kit**) — lệnh này điều phối cho **cả báo cáo**.
 
 ## Luồng
 
-1. `knowledge_status` — chưa setup thì chạy luồng `/pbi-setup` trước rồi quay lại.
+1. `knowledge_status` — chưa thiết lập thì theo `commands/pbi-setup.md` trong repo. Trạm đang dùng là `workspace/` hoặc `ADS_DATA`.
 
 2. Xác định `report_path` từ tham số: file `.pbip` hoặc folder `*.Report`.
    File `.pbix` → **KHÔNG** quét được: bảo user `Save As` sang `.pbip` (Power BI Desktop →
@@ -50,18 +50,19 @@ Dựng bộ template kit từ báo cáo Power BI: $ARGUMENTS
    phát hiện ngay nếu lỡ ghi đè, thay vì đến cuối mới thấy thiếu kit.
 
 6. **Gom thành bộ** — viết `README.md` ở thư mục cha của các kit, mô tả:
-   - bộ này chưng cất từ báo cáo nào, ngày nào, gồm mấy kit
+   - nguồn chưng cất đã khử thông tin riêng, ngày tạo và số kit
    - **hệ thiết kế chung**: palette, font, canvas size, quy ước đặt visual (lấy từ `DESIGN.md` bước 3;
-     đối chiếu chuẩn trang KPIM ở skill `pbi-design`)
+     đối chiếu skill `pbi-design`)
    - bảng: kit | vai trò | loại block | dùng khi nào
    - `theme.json` dùng chung (copy từ output bước 3) để dự án sau import thẳng vào Power BI
 
-7. **Nơi ghi** — mặc định `templates/` trong **Knowledge Dir** (kho riêng, chưa công khai).
-   Muốn đưa vào repo công khai (`report-templates/` của studio): phải đủ 3 điều kiện, thiếu 1 thì DỪNG và hỏi:
+7. **Nơi ghi** — mặc định `templates/` trong trạm dữ liệu đang dùng (kho riêng, chưa công khai).
+   Muốn đưa vào repo công khai (`report-templates/` của studio): phải đủ 4 điều kiện, thiếu 1 thì DỪNG và hỏi:
    - đã `sanitize=True`
    - user **duyệt rõ ràng** từng kit
    - agent tự đọc lại `kit.json` + `blocks/*.json` xác nhận không còn tên bảng/cột/khách hàng thật
-   Sau khi thêm vào repo → chạy `scripts/build_template_gallery.py` để trang web tự có thẻ mới.
+   - có quyền phân phối công khai cho từng tài sản của kit (kể cả ảnh, font, theme và thành phần lấy từ báo cáo nguồn); khử thông tin riêng không thay thế quyền này
+   Sau khi thêm vào repo, cập nhật chỉ mục mẫu theo quy trình hiện có và kiểm lại nội dung công khai.
 
 8. `log_timeline(project, event="Chưng cất bộ kit từ <báo cáo>", link=<đường dẫn kho kit>)`.
 

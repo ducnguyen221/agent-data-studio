@@ -1,11 +1,11 @@
 ---
-description: Bắt đầu dự án Power BI / dữ liệu mới — tạo folder dự án trong Knowledge Dir + khởi động chuỗi skill
+description: Mở dự án dữ liệu và chọn bước phù hợp với nguồn hiện có
 ---
 
-Bắt đầu dự án mới tên: $ARGUMENTS
+Bắt đầu dự án: $ARGUMENTS
 
-1. `knowledge_status` — chưa setup thì chạy luồng `/pbi-setup` trước.
-2. `init_project("$ARGUMENTS")` → ghi nhớ đường dẫn `projects/<slug>/` — MỌI file của dự án (tài liệu, artifact, distill) lưu vào đó, không bao giờ vào repo.
-3. **Đọc kinh nghiệm cũ trước khi hỏi user**: `INDEX.md` + `TIMELINE.md` + grep `knowledge/` theo domain/từ khoá của dự án — tóm tắt những gì đã biết.
-4. Kích hoạt skill `data-discovery` (Research → Key Information → Planning), output ghi vào folder dự án. Chưa có dữ liệu → skill `data-mockup`.
-5. Thực thi theo chuỗi `workflows/data-to-report.md` của studio: `pbi-model` → `pbi-analysis` → `pbi-design` → `pbi-build` → `pbi-review` → `pbi-publish`; artifact vào `projects/<slug>/artifacts/`. Kết thúc bằng `/pbi-done`.
+1. Gọi `knowledge_status`; nếu chưa thiết lập, làm theo `commands/pbi-setup.md` trong repo.
+2. Gọi `init_project("$ARGUMENTS")`; ghi mọi tài liệu và artifact dự án vào `projects/<slug>/` của trạm đang dùng (`workspace/` hoặc `ADS_DATA`). Không ghi dữ liệu dự án vào phần source được Git theo dõi.
+3. Đọc `INDEX.md`, `TIMELINE.md` và tri thức liên quan trong trạm; tóm tắt kinh nghiệm có thể dùng lại.
+4. Dùng skill `data-discovery` từ repo để khảo sát. Nếu chỉ có CSV, bắt đầu kiểm cấu trúc và chất lượng dữ liệu từ CSV; chưa cần Power BI Desktop hoặc MCP. Nếu chưa có dữ liệu, cân nhắc `data-mockup`.
+5. Khi đã có mục tiêu và dữ liệu phù hợp, đi tiếp theo `workflows/data-to-report.md` trong repo. Chỉ dùng bước model, báo cáo hoặc publish khi người dùng cần và công cụ thực sự có sẵn.

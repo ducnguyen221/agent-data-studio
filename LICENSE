@@ -1,10 +1,14 @@
-powerbi-agent — MCP server + KPIM analysis process, tools, templates & techniques
+Agent Data Studio — MCP server + KPIM analysis process, tools, templates & techniques
 for AI Agents to work with Power BI as a data analyst expert.
 
 Process, tools and techniques built by KPIM (kpim.vn); technical lead & development by
 Duc Nguyen (Nguyễn Quang Đức, ducnguyen221). Shared free with the community and students.
 Licensed under the MIT License. Please keep attribution/credit to Duc Nguyen when reusing
 the KPIM process, templates or tooling.
+KPIM assets shared for community reference are listed in NOTICE.md. Those assets are owned
+by KPIM (kpim.vn); KPIM permits their use and distribution with this repository under the
+MIT License below. When reusing them, please credit KPIM (and Duc Nguyen for the code and
+process, as above).
 
 ------------------------------------------------------------------------------
 

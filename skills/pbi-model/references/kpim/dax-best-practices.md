@@ -1,4 +1,4 @@
-# DAX — Best Practices & Techniques (agent reference)
+# DAX — cách viết và tối ưu cho agent
 
 > Nguồn: Microsoft Learn (DAX best practices, Analysis Services, Power BI transform-model) + kinh nghiệm KPIM. Agent đọc file này ở bước 4–5 của skill `pbi-model` (measure + truy vấn thử).
 
@@ -36,10 +36,10 @@ SELECTEDMEASURE() - CALCULATE(SELECTEDMEASURE(), 'Time Intelligence'[Time Calc]=
 ```
 Sửa qua Tabular Editor hoặc **Modeling MCP của Microsoft** (bước bulk, xem `pbi-model`). (MS: Analysis Services "Calculation groups".)
 
-## 5. Measure family pattern (KPIM)
+## 5. Mẫu nhóm measure (KPIM)
 1 KPI gốc → viết 1 **base measure**, các biến thể là `CALCULATE(base, <time filter>)`. Không lặp logic. Bộ phái sinh chuẩn: base → MTD → YTD → SPLY → %YoY → chênh lệch → đánh giá (đèn giao thông) → phân loại → format.
 
-## 6. Aggregation & filter context
+## 6. Tổng hợp và ngữ cảnh lọc
 - Cột STOCK/tồn kho/số dư cuối kỳ **KHÔNG SUM qua tháng** → dùng `CLOSINGBALANCEMONTH`/`LASTNONBLANKVALUE`.
 - Tránh `FILTER('Bảng lớn', ...)` khi có thể dùng điều kiện cột trực tiếp trong `CALCULATE`.
 - Ưu tiên `SUMMARIZECOLUMNS` (không `SUMMARIZE` + `ADDCOLUMNS` kiểu cũ) để truy vấn tổng hợp.

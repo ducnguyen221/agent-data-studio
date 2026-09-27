@@ -11,7 +11,7 @@
 | Khoảng thời gian | 2020-01-01 → 2022-12-31 (đúng 3 năm, 1.096 ngày) |
 | Ngôn ngữ cột | Tiếng Anh, snake_case |
 | Kiểu | Star schema kinh điển, 1 file Excel nhiều sheet |
-| Điểm mạnh để tái dùng | Mẫu chuẩn nhất trong 5 bộ — học star schema, plan vs actual, RFM |
+| Điểm mạnh để tái dùng | Mẫu chuẩn nhất trong 4 bộ — học star schema, plan vs actual, RFM |
 
 ## 2. Cấu trúc bảng
 
@@ -53,7 +53,7 @@ Doanh thu · Giá vốn · Lợi nhuận gộp và biên gộp · AOV · Số đ
 
 ## 6. Cạm bẫy — KHÔNG chép sang bộ mới
 
-- `first_name` / `last_name` **tách sai**: một cột giữ gần như cả họ tên (`'Đăng'` + `'Đặng Bá Trần Hải'`). Tiếng Việt nên để một cột `ho_ten`.
+- `first_name` / `last_name` **tách sai**: một cột giữ gần như cả họ tên (`'<tên>'` + `'<họ và tên đệm>'`). Tiếng Việt nên để một cột `ho_ten`.
 - Tên cột lỗi: `'country '` (thừa khoảng trắng cuối), `heigth`, `uom_volumn`, `suplier_name`.
 - `dim_promotion` có `start_date`/`end_date` rơi vào 2010–2014, **nằm ngoài hẳn khoảng fact 2020–2022** → khuyến mãi không khớp giao dịch nào. Bộ mới phải cho hiệu lực khuyến mãi nằm trong kỳ dữ liệu.
 - Tên nhãn hàng/nhà cung cấp có dùng **thương hiệu FMCG có thật** — cân nhắc lại theo chính sách thương hiệu ở `design-playbook.md` Nhóm 6.

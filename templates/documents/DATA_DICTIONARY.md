@@ -1,7 +1,7 @@
 ---
 title: "DATA_DICTIONARY — KPIM Mart"
 type: data_dictionary
-category: "30_PROJECTS/35_TEMPLATES/PBI_Project_Delivery_Kit"
+category: "agent-data-studio/sample-retail"
 created: 2026-07-13
 updated: 2026-07-13
 status: active
@@ -64,7 +64,7 @@ mindmap
 | 14 | Giá vốn hàng bán | Decimal Number | Số lượng × Giá mua |
 | 15 | Lợi nhuận gộp | Decimal Number | Tổng doanh thu − Giá vốn hàng bán |
 
-> **Lưu ý mô hình hóa:** cột 11–15 nên tính ở tầng dữ liệu (calculated column/Power Query) hoặc để measure; số 7 (SĐT) là **PII** → khai báo vào `policy.json` của MCP `powerbi-agent` (aggregate-only). Additive vs Non-additive quyết định cách tổng hợp (Giá bán/Giá mua KHÔNG SUM).
+> **Lưu ý mô hình hóa:** cột 11–15 nên tính ở tầng dữ liệu (calculated column/Power Query) hoặc để measure; số 7 (SĐT) là **PII** → khai báo vào `policy.json` của Agent Data Studio (aggregate-only). Additive vs Non-additive quyết định cách tổng hợp (Giá bán/Giá mua KHÔNG SUM).
 
 ## 3. Quan hệ (relationships)
 ```

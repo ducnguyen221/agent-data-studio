@@ -24,13 +24,13 @@ Trước khi viết một `visual.json`, bạn phải đang **chép một visual
 ## Nguồn clone (theo thứ tự ưu tiên)
 1. **Trang đã được user duyệt** trong chính báo cáo/dự án (tốt nhất: cùng theme, cùng model).
 2. **Kit** trong Knowledge Dir của user (`templates/` — kit riêng chưa sanitize).
-3. **Kit công khai** `report-templates/kpim-business-light/` ở gốc repo (đã sanitize, placeholder `TEMPLATE_*`).
-4. Không có mẫu nào → archetype Microsoft + chuẩn KPIM → **Design Brief** trước, dựng sau (skill `pbi-design` bước 3).
+3. **Kit đã xác nhận quyền sử dụng và phân phối**; kit nằm trong repo chưa tự động đồng nghĩa với quyền dùng cho mọi dự án. `sanitize=True` chỉ xử lý dữ liệu riêng, không chứng minh quyền tài sản.
+4. Không có mẫu phù hợp → archetype Microsoft + lưới/theme đề xuất trong **Design Brief** để người dùng duyệt trước khi dựng.
 
 Clone-source là **text kit** (`blueprint.md` + `blocks/*.json` verbatim) — không cần file `.pbip` mẫu.
 
 ## Được đổi gì khi clone một block
-Chỉ **4 thứ**: `name` (GUID mới) · `position` (x/y/z/w/h theo blueprint hoặc chuẩn KPIM) ·
+Chỉ **4 thứ**: `name` (GUID mới) · `position` (x/y/z/w/h theo blueprint hoặc lưới đã duyệt) ·
 binding field (`query.queryState.<role>` **và mọi vị trí binding khác** — danh sách đầy đủ ở skill `pbi-build`
 → `references/kpim/rebind-and-pitfalls.md`) · `visualType` nếu đổi loại chart.
 **Giữ nguyên** `visualContainerObjects` và `objects` — đó là thứ làm trang đẹp.

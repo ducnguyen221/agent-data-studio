@@ -40,3 +40,4 @@ Agent (Antigravity, Claude, Codex) phải tự động áp dụng kỹ năng nà
 
 - **Lỗi `System.IO.FileNotFoundException` (Không tìm thấy DLL ADOMD.NET):**
   - Bản MCP Server portable tự động dò ADOMD.NET ở nhiều vị trí (mọi phiên bản SSMS, ADOMD.NET standalone, GAC). Nếu vẫn lỗi, hướng dẫn user trỏ thủ công bằng biến môi trường `ADOMD_LIB_DIR` tới thư mục chứa `Microsoft.AnalysisServices.AdomdClient.dll`, hoặc cài "Analysis Services client libraries" từ trang Microsoft.
+  - `ADOMD_LIB_DIR` là override **độc quyền**: đã đặt thì engine chỉ nạp DLL trong đúng thư mục đó, không dò SSMS/GAC. Thư mục thiếu DLL → tool Desktop trả `Thiếu ADOMD.NET (ADOMD_LIB_DIR=<thư mục> không chứa …)`; sửa đường dẫn hoặc bỏ biến để engine tự dò lại. Cần TOM (ghi measure) thì thư mục `ADOMD_LIB_DIR` phải có cả `Microsoft.AnalysisServices.Tabular.dll`.
