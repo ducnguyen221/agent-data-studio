@@ -1,6 +1,6 @@
 {
   "name": "agent-data-studio",
-  "description": "Agent skills for data work: business discovery, mock data, and a Power BI chain from model to publish, following Microsoft PBIR/TMDL standards with KPIM expert practice.",
+  "description": "Agent skills for data discovery and Power BI from model to publish, with repository-owned engine and external or ignored project data.",
   "owner": {
     "name": "Duc Nguyen",
     "url": "https://ducnguyen.vn"
@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "agent-data-studio",
-      "description": "Agent skills for data work: business discovery, mock data, and a Power BI chain from model to publish, following Microsoft PBIR/TMDL standards with KPIM expert practice.",
+      "description": "Agent skills for data discovery and Power BI from model to publish, with repository-owned engine and external or ignored project data.",
       "version": "0.7.0",
       "source": "./",
       "license": "MIT",

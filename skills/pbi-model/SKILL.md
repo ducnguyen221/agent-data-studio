@@ -6,8 +6,7 @@ metadata:
   chain_position: 2
   status: stable
   sources:
-    - "kpim: pbi-project-delivery references (dax, m, sql, gotchas) + pipeline steps 1-4"
-    - "kpim: measure-writing practice (TOM vs TMDL), measured 2026-09-16"
+    - "agent-data-studio: model design and measure-writing practice"
     - "microsoft: plugins/powerbi-authoring/skills/semantic-model-authoring/references/*@v0.3.16 (verbatim, not yet distilled)"
 ---
 
@@ -28,18 +27,18 @@ measure DAX có tên, định dạng, thư mục. Ghi measure sao cho **không m
 
 Chuỗi đầy đủ: `workflows/data-to-report.md` ở gốc repo.
 
-## Must / Prefer / Avoid
-- **Must** — PBIP-first: đầu dự án bảo user *Save As* `.pbip` (bật preview PBIP + PBIR) để model là TMDL text.
-- **Must** — thứ tự: kết nối → transform → model → measure. Không viết measure khi model chưa chốt.
-- **Must** — mỗi bước một cổng kiểm **chạy được** (bảng dưới); không có bằng chứng = chưa xong.
-- **Must** — lưu measure bền bằng **TMDL khi file đóng**; TOM không làm file dirty → Ctrl+S không cứu.
-- **Must** — đường dẫn nguồn là **M parameter**; credential không bao giờ nằm trong M.
-- **Prefer** — fold tối đa về nguồn; biến đổi nặng ở Power Query/SQL, tính theo ngữ cảnh báo cáo ở DAX.
-- **Prefer** — measure gom một bảng riêng (vd `Công Thức`), `displayFolder` theo trang báo cáo, `formatString` tường minh.
-- **Prefer** — `VAR`, `DIVIDE`, time-intelligence lọc qua date table.
-- **Avoid** — auto date/time; quan hệ hai chiều không lý do; `SUM` cột tồn/số dư qua nhiều kỳ.
-- **Avoid** — interleave ghi từ hai MCP (bridge studio + Modeling MCP Microsoft) lên cùng model.
-- **Avoid** — TMSL `createOrReplace` mức từng measure qua ADOMD (Desktop từ chối).
+## Bắt buộc / Ưu tiên / Tránh
+- **Bắt buộc** — PBIP-first: đầu dự án bảo user *Save As* `.pbip` (bật preview PBIP + PBIR) để model là TMDL text.
+- **Bắt buộc** — thứ tự: kết nối → transform → model → measure. Không viết measure khi model chưa chốt.
+- **Bắt buộc** — mỗi bước một cổng kiểm **chạy được** (bảng dưới); không có bằng chứng = chưa xong.
+- **Bắt buộc** — lưu measure bền bằng **TMDL khi file đóng**; TOM không làm file dirty → Ctrl+S không cứu.
+- **Bắt buộc** — đường dẫn nguồn là **M parameter**; credential không bao giờ nằm trong M.
+- **Ưu tiên** — fold tối đa về nguồn; biến đổi nặng ở Power Query/SQL, tính theo ngữ cảnh báo cáo ở DAX.
+- **Ưu tiên** — measure gom một bảng riêng (vd `Công Thức`), `displayFolder` theo trang báo cáo, `formatString` tường minh.
+- **Ưu tiên** — `VAR`, `DIVIDE`, time-intelligence lọc qua date table.
+- **Tránh** — auto date/time; quan hệ hai chiều không lý do; `SUM` cột tồn/số dư qua nhiều kỳ.
+- **Tránh** — interleave ghi từ hai MCP (bridge studio + Modeling MCP Microsoft) lên cùng model.
+- **Tránh** — TMSL `createOrReplace` mức từng measure qua ADOMD (Desktop từ chối).
 
 ## Quy trình (mỗi bước có cổng)
 
@@ -54,7 +53,7 @@ Chuỗi đầy đủ: `workflows/data-to-report.md` ở gốc repo.
 
 Ghi TMDL: tab-indent, CRLF, UTF-8 không BOM, `lineageTag` UUID mới, chèn trước `partition`.
 
-## References
+## Tài liệu tham khảo
 
 ### KPIM — `references/kpim/`
 | File | Đọc khi |
@@ -81,7 +80,7 @@ Ghi TMDL: tab-indent, CRLF, UTF-8 không BOM, `lineageTag` UUID mới, chèn tr�
 | [SOURCE.lock.json](references/microsoft/SOURCE.lock.json) | Kiểm file nguyên văn chưa bị sửa (sha256) |
 
 Reference Microsoft **không sửa byte nào**; muốn nói khác thì ghi vào `references/kpim/`.
-Khi KPIM ↔ Microsoft mâu thuẫn: Microsoft thắng về cơ chế TMDL/PBIR, KPIM thắng về quy trình nghiệp vụ.
+Khi tài liệu xung đột: Microsoft quyết định cơ chế TMDL/PBIR; định nghĩa nghiệp vụ của dự án đã được người dùng duyệt quyết định cách tính.
 
 ## Đổi tên skill Microsoft → studio
 Reference nguyên văn nhắc tên skill gốc; đọc theo bảng này.

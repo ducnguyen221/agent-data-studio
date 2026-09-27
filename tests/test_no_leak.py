@@ -1,19 +1,13 @@
-"""Quét rò rỉ dữ liệu — repo này là PUBLIC.
-
-Lý do tồn tại: kit `kpim-business-light` từng lọt 2 tên measure thật trong `blueprint.md`
-suốt nhiều tháng, trong khi các file `blocks/*.json` đã sạch. Không ai soi ra bằng mắt.
-Từ nay việc đó do máy kiểm, mỗi lần chạy test.
-
-Luật của repo (xem AGENTS.md §0):
-  - repo = hướng dẫn + hệ điều hành agent + MCP/skill. KHÔNG phải nơi làm việc.
-  - tài liệu/báo cáo dự án luôn nằm ở Knowledge Dir NGOÀI repo.
-  - chỉ template đã sanitize và tri thức NỀN TẢNG mới được đưa vào đây.
-"""
+"""Kiểm ranh giới source public và dữ liệu trạm basic/external."""
 
 import json
+import importlib.util
 import os
 import re
 import subprocess
+import sys
+
+import pytest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -71,51 +65,25 @@ class TestKitsAreSanitized:
                     bad.append(f"{rel}: TEMPLATE_TABLE.{m.group(1)}")
         assert not bad, "Tên field THẬT còn trong blueprint kit:\n  " + "\n  ".join(bad)
 
-    def test_no_business_labels_in_kit_data(self):
-        """Chữ có dấu tiếng Việt trong DỮ LIỆU kit = tên nghiệp vụ thật sót lại.
-
-        Đây là ca đã bắt được rò rỉ thật: `nativeQueryRef`/`displayName`/`metadata` và
-        `Literal.Value` mang NHÃN HIỂN THỊ do user đặt, khác hoàn toàn tên kỹ thuật ở
-        Entity/Property — nên sanitize đời đầu không đụng tới chúng.
-
-        Chỉ soi phần DỮ LIỆU: mọi giá trị chuỗi trong JSON, và các dòng bảng của
-        blueprint. Văn xuôi tài liệu (tiêu đề, mục "Cách dùng", README) được miễn.
-        """
-        viet = re.compile(
-            r"[àáâãèéêìíòóôõùúăđĩũơưạảấầẩẫậắằẳẵặẹẻẽếềểễệốồổỗộớờởỡợụủứừửữựỳỵỷỹý]",
-            re.IGNORECASE,
-        )
+    def test_no_contact_details_in_kit_data(self):
+        """Nhãn tiếng Việt hợp lệ; chặn thông tin liên hệ trong giá trị kit."""
+        email = re.compile(r"\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b")
         bad = []
         for rel in self._kit_files(".json"):
             obj = json.loads(read(rel))
 
-            def walk(node, _rel=rel):
+            def walk(node):
                 if isinstance(node, dict):
-                    for k, v in node.items():
-                        if isinstance(v, str):
-                            if viet.search(v):
-                                bad.append(f"{_rel}: {k} = {v!r}")
-                        else:
-                            walk(v)
+                    for value in node.values():
+                        walk(value)
                 elif isinstance(node, list):
-                    for it in node:
-                        if isinstance(it, str):
-                            if viet.search(it):
-                                bad.append(f"{_rel}: [] = {it!r}")
-                        else:
-                            walk(it)
+                    for value in node:
+                        walk(value)
+                elif isinstance(node, str) and email.search(node):
+                    bad.append(rel)
 
             walk(obj)
-
-        for rel in self._kit_files(".md"):
-            if rel.endswith("README.md"):
-                continue
-            for i, line in enumerate(read(rel).splitlines(), 1):
-                # chỉ dòng bảng (| … |) mới chứa binding; còn lại là văn xuôi hướng dẫn
-                if line.lstrip().startswith("|") and "Visual ID" not in line and viet.search(line):
-                    bad.append(f"{rel}:{i}: {line.strip()[:90]}")
-
-        assert not bad, "Tên nghiệp vụ THẬT còn trong dữ liệu kit:\n  " + "\n  ".join(bad)
+        assert not bad, "Kit chứa thông tin liên hệ; kiểm các file: " + ", ".join(sorted(set(bad)))
 
 
 class TestNoPrivateArtifactsTracked:
@@ -134,25 +102,20 @@ class TestNoPrivateArtifactsTracked:
         assert not hit, f"docs/internal/ là tài liệu nội bộ, không được track: {hit}"
 
 
-class TestRepoIsNotAWorkspace:
-    """AGENTS.md §0 — repo giữ thứ đến từ GitHub, sản phẩm tạo ra đi ra ngoài.
-
-    Luật này phải do MÁY kiểm. Một file `BAO_CAO_KHACH_A.md` lỡ tay commit vào gốc repo
-    trông vô hại trong `git status` giữa hàng chục thay đổi khác — nhưng nó là dữ liệu
-    khách hàng nằm trên repo public.
-    """
+class TestSourceBoundary:
+    """Chỉ source được theo dõi; đầu ra nằm ở workspace/ bị ignore hoặc trạm ngoài."""
 
     # Danh sách file gốc repo được phép — mọi thứ khác là ứng viên "lỡ tay".
     ALLOWED_ROOT_FILES = {
-        "README.md", "README.vi.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
+        "README.md", "README.vi.md", "START-HERE.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
         "ROADMAP.md", "LICENSE", ".gitignore", ".gitattributes", ".env.example",
-        "policy.example.json", "THIRD_PARTY_NOTICES.md",
+        "policy.example.json", "THIRD_PARTY_NOTICES.md", "NOTICE.md",
         "pyproject.toml", "requirements.txt", "requirements.loose.txt",
-        "install.ps1", "uninstall.ps1", "pack.ps1", "mcp_server_powerbi.py",
+        "install.ps1", "uninstall.ps1", "doctor.ps1", "update.ps1", "pack.ps1", "mcp_server_powerbi.py",
     }
     ALLOWED_ROOT_DIRS = {
-        ".claude-plugin", ".codex-plugin", ".github", "docs", "hosts", "plugins", "powerbi_agent",
-        "report-templates", "scripts", "tests",
+        ".claude-plugin", ".codex-plugin", ".claude", ".agents", ".github", "docs", "hosts", "plugins", "powerbi_agent",
+        "report-templates", "samples", "scripts", "tests",
         "skills", "commands", "agents", "templates", "workflows", "upstream", "LICENSES",
     }
 
@@ -205,48 +168,8 @@ class TestNoPersonalPaths:
         assert not bad, "Đường dẫn home THẬT trong file công khai:\n  " + "\n  ".join(bad)
 
 
-class TestLeakedTokensNeverReturn:
-    """Deny-list các chuỗi ĐÃ TỪNG lọt ra kit công khai.
-
-    Lý do tồn tại: chính commit sửa rò rỉ lại chép nguyên các tên đó vào comment source
-    để giải thích. Sửa lỗi mà tái xuất bản đúng dữ liệu vừa gỡ — và không test nào thấy,
-    vì bộ quét cũ chỉ soi `report-templates/`.
-
-    Cũng chặn phần ASCII: heuristic "chữ có dấu tiếng Việt" mù hoàn toàn với tên
-    tiếng Anh / viết tắt, mà đó lại là loại dễ nhận dạng khách hàng nhất.
-    """
-
-    # Mã hoá base64 CÓ CHỦ ĐÍCH: nếu viết thẳng, chính file này lại là một chỗ tái xuất bản
-    # các chuỗi đã rò rỉ — và test sẽ tự bắt chính nó. Giải mã lúc chạy.
-    _DENY_B64 = [
-        "QVJQVQ==", "TXlUVg==", "QlJDxJA=", "VOG7tyBs4buHIHLhu51pIG3huqFuZw==",
-        "VOG7lW5nIHThuq1wIMSRb8Ogbg==", "U+G7kSBraGnhur91IG7huqFp",
-        "U+G7kSBz4buxIGPhu5E=", "S0hEVA==", "TG9nb19LUElN",
-    ]
-
-    @property
-    def DENY(self) -> tuple:
-        import base64
-        return tuple(base64.b64decode(x).decode("utf-8") for x in self._DENY_B64)
-    SCAN_EXT = (".py", ".ps1", ".md", ".json", ".html", ".js", ".yml", ".toml", ".example")
-
-    def test_no_known_leaked_token_anywhere(self):
-        bad = []
-        for rel in tracked_files():
-            if not rel.endswith(self.SCAN_EXT):
-                continue
-            try:
-                txt = read(rel)
-            except (UnicodeDecodeError, FileNotFoundError):
-                continue
-            for i, line in enumerate(txt.splitlines(), 1):
-                for tok in self.DENY:
-                    if tok in line:
-                        bad.append(f"{rel}:{i}: chứa {tok!r}")
-        assert not bad, (
-            "Chuỗi đã từng lọt ra bản public xuất hiện trở lại (kể cả trong comment/test):\n  "
-            + "\n  ".join(bad)
-        )
+class TestKitData:
+    """Kiểm metadata kit bằng quy tắc chung; matcher dữ liệu riêng ở ngoài repo."""
 
     def test_kit_strings_are_style_or_placeholder(self):
         """Mọi chuỗi trong kit phải là placeholder, token style, hoặc từ khoá PBIR.
@@ -302,34 +225,187 @@ class TestLeakedTokensNeverReturn:
 class TestMindmapsStayInSync:
     """HTML mindmap sinh RA TỪ khối mermaid trong .md — hai bản không được lệch."""
 
-    def test_regenerating_html_produces_identical_files(self, tmp_path):
+    def test_cli_writes_project_mindmaps_from_repo_script(self, tmp_path):
         import shutil
-        import subprocess
         import sys
+
+        docs = tmp_path / "project-docs"
+        docs.mkdir()
+        shutil.copy2(os.path.join(REPO, "templates", "documents", "PROJECT.md"), docs / "PROJECT.md")
+        script = os.path.join(REPO, "skills", "data-discovery", "scripts", "generate_mindmap_html.py")
+        result = subprocess.run(
+            [sys.executable, script, "--docs", str(docs), "PROJECT.md"],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert list((docs / "mindmaps").glob("*.html"))
+
+    def test_cli_rejects_parent_path(self, tmp_path):
+        docs = tmp_path / "project-docs"
+        docs.mkdir()
+        outside = tmp_path / "outside.md"
+        outside.write_text("```mermaid\nmindmap\n  root((Ngoài trạm))\n    Nhánh\n```", encoding="utf-8")
+        script = os.path.join(REPO, "skills", "data-discovery", "scripts", "generate_mindmap_html.py")
+        result = subprocess.run(
+            [sys.executable, script, "--docs", str(docs), "../outside.md"],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode != 0
+        assert not (docs / "mindmaps").exists()
+
+    def test_cli_rejects_linked_output_directory(self, tmp_path):
+        docs = tmp_path / "project-docs"
+        docs.mkdir()
+        (docs / "PROJECT.md").write_text(
+            "```mermaid\nmindmap\n  root((Dự án))\n    Nhánh\n```", encoding="utf-8"
+        )
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        try:
+            (docs / "mindmaps").symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            pytest.skip("Máy không cho tạo symlink thư mục")
+        script = os.path.join(REPO, "skills", "data-discovery", "scripts", "generate_mindmap_html.py")
+        result = subprocess.run(
+            [sys.executable, script, "--docs", str(docs), "PROJECT.md"],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode != 0
+        assert list(outside.iterdir()) == []
+
+
+class TestSkillScriptOutputBoundary:
+    def test_mockup_rejects_repo_output(self):
+        script = os.path.join(REPO, "skills", "data-mockup", "scripts", "gen_skeleton.py")
+        target = os.path.join(REPO, "data")
+        result = subprocess.run(
+            [sys.executable, script, "missing-spec.yaml", "-o", target],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode == 2
+        assert not os.path.exists(target)
+
+    def test_planning_workbook_rejects_repo_output(self):
+        script = os.path.join(REPO, "skills", "data-discovery", "scripts", "generate_project_management_xlsx.py")
+        target = os.path.join(REPO, "Project_Management.xlsx")
+        result = subprocess.run(
+            [sys.executable, script, "--out", target],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode == 2
+        assert not os.path.exists(target)
+
+    @pytest.mark.parametrize("command,target", [
+        ("dict", "DATASET_SPEC.md"),
+        ("verify", "DATA_QUALITY_REPORT.md"),
+        ("pack", "Mockup.xlsx"),
+    ])
+    def test_mockpack_rejects_repo_output(self, command, target):
+        script = os.path.join(REPO, "skills", "data-mockup", "scripts", "mockpack.py")
+        output = os.path.join(REPO, target)
+        source = os.path.join(REPO, "templates", "documents", "dataset", "dataset.template.yaml")
+        args = [sys.executable, script, command, source]
+        if command != "dict":
+            args.append("missing-data")
+        args.extend(["-o", output])
+        result = subprocess.run(args, cwd=REPO, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False, timeout=30)
+        assert result.returncode == 1
+        assert "TỪ CHỐI" in result.stdout
+        assert not os.path.exists(output)
+
+    def test_mockpack_save_frames_rejects_traversal_and_hardlink(self, tmp_path):
+        import pandas as pd
+
+        script_dir = os.path.join(REPO, "skills", "data-mockup", "scripts")
+        sys.path.insert(0, script_dir)
+        spec = importlib.util.spec_from_file_location("mockpack_output_boundary_test", os.path.join(script_dir, "mockpack.py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        out = tmp_path / "csv"
+        frame = pd.DataFrame({"id": [1]})
+        with pytest.raises(ValueError):
+            module.save_frames({"../outside": frame}, str(out))
+        assert not out.exists()
+        out.mkdir()
+        original = tmp_path / "original.txt"
+        original.write_text("giữ nguyên", encoding="utf-8")
+        try:
+            os.link(original, out / "dim_khach_hang.csv")
+        except OSError:
+            pytest.skip("Máy không cho tạo hardlink")
+        with pytest.raises(ValueError):
+            module.save_frames({"dim_khach_hang": frame}, str(out))
+        assert original.read_text(encoding="utf-8") == "giữ nguyên"
+
+    def test_mockpack_rejects_quoted_hardlink_output(self, tmp_path):
+        script = os.path.join(REPO, "skills", "data-mockup", "scripts", "mockpack.py")
+        source = os.path.join(REPO, "templates", "documents", "dataset", "dataset.template.yaml")
+        original = tmp_path / "original.md"
+        original.write_text("giữ nguyên", encoding="utf-8")
+        output = tmp_path / "DATASET_SPEC.md"
+        try:
+            os.link(original, output)
+        except OSError:
+            pytest.skip("Máy không cho tạo hardlink")
+        result = subprocess.run(
+            [sys.executable, script, "dict", source, "-o", f'"{output}"'],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace",
+            capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode == 1
+        assert "TỪ CHỐI" in result.stdout
+        assert original.read_text(encoding="utf-8") == "giữ nguyên"
+
+    def test_planning_workbook_rejects_quoted_hardlink_output(self, tmp_path):
+        script = os.path.join(REPO, "skills", "data-discovery", "scripts", "generate_project_management_xlsx.py")
+        original = tmp_path / "original.xlsx"
+        original.write_text("giữ nguyên", encoding="utf-8")
+        output = tmp_path / "Project_Management.xlsx"
+        try:
+            os.link(original, output)
+        except OSError:
+            pytest.skip("Máy không cho tạo hardlink")
+        result = subprocess.run(
+            [sys.executable, script, "--out", f'"{output}"'],
+            cwd=REPO, text=True, encoding="utf-8", errors="replace",
+            capture_output=True, check=False, timeout=30,
+        )
+        assert result.returncode == 2
+        assert original.read_text(encoding="utf-8") == "giữ nguyên"
+
+    def test_regenerating_html_produces_identical_files(self, tmp_path):
+        import importlib.util
+        import shutil
         skill = os.path.join(REPO, "skills", "data-discovery")
-        out = os.path.join(REPO, "templates", "documents", "mindmaps")
+        docs = os.path.join(REPO, "templates", "documents")
+        out = os.path.join(docs, "mindmaps")
         before = {f: open(os.path.join(out, f), encoding="utf-8").read()
                   for f in os.listdir(out) if f.endswith(".html")}
         assert before, "không có mindmap HTML nào"
-        backup = tmp_path / "bak"
-        shutil.copytree(out, backup)
-        try:
-            r = subprocess.run(
-                [sys.executable, os.path.join(skill, "scripts", "generate_mindmap_html.py")],
-                capture_output=True, text=True, encoding="utf-8",
-            )
-            assert r.returncode == 0, f"generator lỗi:\n{r.stdout}\n{r.stderr}"
-            after = {f: open(os.path.join(out, f), encoding="utf-8").read()
-                     for f in os.listdir(out) if f.endswith(".html")}
-            assert after.keys() == before.keys(), (
-                f"đổi tập file: {sorted(before)} -> {sorted(after)}")
-            drift = [f for f in before if before[f] != after[f]]
-            assert not drift, (
-                "HTML đã lệch khỏi khối mermaid trong .md — chạy lại "
-                f"generate_mindmap_html.py rồi commit: {drift}")
-        finally:
-            shutil.rmtree(out)
-            shutil.copytree(backup, out)
+        scratch_docs = tmp_path / "documents"
+        scratch_docs.mkdir()
+        for name in os.listdir(docs):
+            if name.endswith(".md"):
+                shutil.copy2(os.path.join(docs, name), scratch_docs / name)
+        script = os.path.join(skill, "scripts", "generate_mindmap_html.py")
+        spec = importlib.util.spec_from_file_location("mindmap_generator_test", script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.DOCS = str(scratch_docs)
+        module.OUT = str(scratch_docs / "mindmaps")
+        made = []
+        for name in sorted(os.listdir(scratch_docs)):
+            if name.endswith(".md"):
+                made.extend(module.build(name))
+        assert made
+        after = {f: (scratch_docs / "mindmaps" / f).read_text(encoding="utf-8")
+                 for f in os.listdir(module.OUT) if f.endswith(".html")}
+        assert after.keys() == before.keys(), (
+            f"đổi tập file: {sorted(before)} -> {sorted(after)}")
+        drift = [f for f in before if before[f] != after[f]]
+        assert not drift, (
+            "HTML đã lệch khỏi khối mermaid trong .md — chạy lại "
+            f"generate_mindmap_html.py rồi commit: {drift}")
 
     def test_no_reference_to_deleted_png_mindmaps(self):
         bad = [f"{rel}" for rel in tracked_files()

@@ -1,6 +1,12 @@
-# Secrets — KHÔNG commit (.env giữ luôn con trỏ POWERBI_PROJECT_DIR)
-.env
-.env.bak.*
+# Secrets — KHÔNG commit (cấu hình nằm ở config.env của trạm; .env ở checkout là cấu hình đời cũ, vẫn chặn)
+.env*
+!.env.example
+config.env
+*.credentials.json
+auth.json
+oauth_creds.json
+*.pem
+*.key
 
 # Virtual env
 .venv/
@@ -25,16 +31,17 @@ policy.json
 
 # Cache tool local
 .ruff_cache/
+.playwright-cli/
 
-# Con trỏ đời cũ (trước v0.6) — con trỏ mới là 1 dòng POWERBI_PROJECT_DIR trong .env
+# Con trỏ đời cũ (trước v0.6) — nay cấu hình nằm ở config.env của trạm dữ liệu
 knowledge.config.json
 
-# Residue cua bo test installer (fake USERPROFILE)
-tests/installer/fakehome*/
-
-# Plans live in the OpcOS workshop ledger, never in this public repo
+# Local planning notes are not part of the public source release
 docs/plans/
-# Station/runtime data lives in $ADS_DATA (default ~/.data), never here
+# Basic workspace and local binding are private machine data
+/workspace/
+/.ads-binding.json
+# Legacy runtime data
 lab/
 out/
 audit/

@@ -1,7 +1,7 @@
 ---
 title: "DESIGN — KPIM Mart (Tư duy thiết kế & Theme Power BI)"
 type: design_spec
-category: "30_PROJECTS/35_TEMPLATES/PBI_Project_Delivery_Kit"
+category: "agent-data-studio/sample-retail"
 created: 2026-07-13
 updated: 2026-07-13
 status: active
@@ -32,12 +32,12 @@ tags: [design, theme, power-bi, kpim-mart, ui]
 | Background | `#F5F7FA` | Nền trang |
 | Card bg | `#FFFFFF` | Nền card/visual |
 
-## 3. Icon & nút (buttons)
+## 3. Biểu tượng và nút
 - Bộ icon phẳng (flat, line) cho: bộ lọc, làm mới, quay lại, drill-through, xuất file.
 - Nút bookmark cho toggle (Tháng↔Năm, Bản đồ↔Bảng).
 - KPI card kèm ▲▼ (mũi tên tăng/giảm) + màu positive/negative.
 
-## 4. Typography
+## 4. Kiểu chữ
 - Font: **Segoe UI** (mặc định Power BI, hỗ trợ tiếng Việt) — tiêu đề 16–20pt bold, body 10–12pt.
 
 ## 5. Áp dụng
@@ -45,4 +45,4 @@ tags: [design, theme, power-bi, kpim-mart, ui]
 2. Đặt logo vào header band (block `image`), tiêu đề vào `textbox`.
 3. Nếu có mẫu báo cáo của khách → distill thành kit riêng (`distill_template` MCP) và cập nhật theme.
 
-> File theme: `theme.json` (cùng thư mục). Chuẩn dựng báo cáo: `27.06_PowerBI_Report_Design_Standard`.
+> File theme: `theme.json` (cùng thư mục). Hướng dẫn dựng báo cáo: [`pbi-design`](../../skills/pbi-design/SKILL.md).

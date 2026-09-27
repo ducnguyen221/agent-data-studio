@@ -1,4 +1,4 @@
-# SQL (T-SQL / nguồn quan hệ) — Best Practices cho BI (agent reference)
+# SQL (T-SQL / nguồn quan hệ) — cách viết và tối ưu cho BI
 
 > Nguồn: Microsoft Learn (SQL Server index design, T-SQL performance, high-CPU SARGability) + kinh nghiệm KPIM. Áp dụng khi agent viết SQL cho nguồn (Value.NativeQuery, View, stored proc, staging DW).
 
@@ -12,7 +12,7 @@
 - Không sửa được query → tạo **computed column có index** dùng cùng hàm.
 (MS: "Troubleshoot high-CPU" Step 6; "Post-migration optimization".)
 
-## 2. Index design
+## 2. Thiết kế chỉ mục (index)
 - Tạo **nonclustered index** trên cột hay dùng ở predicate/join (SARGable). Bỏ index không dùng (`sys.dm_db_index_usage_stats`).
 - **Covering index**: đưa mọi cột query cần (WHERE/JOIN/GROUP BY + SELECT) vào index (key SARGable + `INCLUDE` cột còn lại) → chỉ đọc index, giảm I/O.
 - Window function: index khớp `PARTITION BY` rồi `ORDER BY` (+ `INCLUDE` cột đo). Tận dụng **batch mode** (columnstore hoặc compat level ≥150).

@@ -1,60 +1,17 @@
-# Codex CLI — cài & đăng ký powerbi-agent
+# Cài Agent Data Studio cho Codex
 
-Codex đọc **`AGENTS.md`** ở gốc repo một cách native — mọi luật làm việc nằm ở đó.
-
-## Cách 1 — Trọn bộ (MCP + venv + skills) — khuyến nghị
+Đây là lựa chọn mặc định của bộ cài. Cần Git, Python 3.11 trở lên và Windows cho các tính năng Power BI Desktop.
 
 ```powershell
-git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
-cd "$env:USERPROFILE\.mcp\powerbi-mcp"
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\agent-data-studio"
+cd "$env:USERPROFILE\agent-data-studio"
+.\install.ps1
 ```
 
-Installer làm 3 việc:
-1. Thêm block `[mcp_servers.powerbi-mcp-bridge]` vào `~/.codex/config.toml` (backup `.bak`).
-2. Copy 9 skill từ [`skills/`](../../skills/) vào `~/.codex/skills/`.
-3. **Cài 8 quy trình thành SKILL** (từ [`commands/`](../../commands/)) trong `~/.codex/skills/` — mỗi lệnh
-   thành skill `pbi-<lệnh>`, gọi bằng tên: *"chạy pbi-help"*, *"chạy pbi-setup"*…
-   *(Từ v0.6 — trước đó đặt nhầm vào `~/.codex/prompts/`, mà file ở đó phải gọi bằng
-   `/prompts:<tên>` chứ không phải `/<tên>` — nên tên lệnh lệch hẳn so với Claude.)*
+Script tạo `.venv/`, `workspace/`, kiểm adapter skill trong repo và đăng ký `powerbi-mcp-bridge` vào cấu hình người dùng của Codex (`~/.codex/config.toml`, CLI và desktop cùng đọc file này). Nó sao lưu file cấu hình trước khi thay đổi và giữ các server khác. Mọi thư mục mở trong Codex dùng chung server của checkout này; mỗi máy chỉ trỏ một checkout — xem [giới hạn](../README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng). Mở lại Codex tại folder repo sau khi cài; kiểm tra MCP trong danh sách công cụ của Codex hoặc hỏi agent gọi `knowledge_status`.
 
-Sau cài, Codex có **17 skill**: 9 quy trình chuyên môn + 8 quy trình lệnh. Installer tự dọn các
-skill tên cũ (`powerbi-*`…) do bản trước sinh ra.
+Codex tìm skill ở [`.agents/skills/`](../../.agents/skills/). Mỗi adapter yêu cầu đọc bản gốc tại [`skills/`](../../skills/); script và tài liệu hỗ trợ cũng lấy tại repo. Không cần copy skill vào `~/.codex/skills/` hay cài plugin để dùng checkout này. Cần đọc một quy trình `pbi-*` thì yêu cầu agent mở file tương ứng trong [`commands/`](../../commands/).
 
-**Restart phiên Codex** sau cài.
+**Việc đầu tiên:** bảo Codex đọc [CSV mẫu](../../samples/README.md), kiểm tra dữ liệu và lưu báo cáo vào `workspace/outputs/first-report.md`. Bài này không cần Power BI. Sau đó, nếu có Power BI Desktop, mở báo cáo và thử `list_local_reports`; các tool Desktop cần thư viện ADOMD.NET. Thông tin Power BI Service chỉ cần khi dùng Service.
 
-Chỉ muốn cập nhật phần quy trình (skill + lệnh), không đụng venv/MCP:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex -Only plugin
-```
-
-Đăng ký tay (nếu muốn tự làm):
-
-```toml
-# ~/.codex/config.toml
-[mcp_servers.powerbi-mcp-bridge]
-command = "C:/Users/<you>/.mcp/powerbi-mcp/.venv/Scripts/python.exe"
-args    = ["C:/Users/<you>/.mcp/powerbi-mcp/mcp_server_powerbi.py"]
-env     = { PYTHONUNBUFFERED = "1" }
-```
-
-## Cách 2 — Cài dạng PLUGIN (hiện trong `codex plugin list` / app)
-
-Codex đọc **cùng một `.claude-plugin/marketplace.json`** với Claude — không cần manifest riêng.
-Cài để plugin xuất hiện trong trình quản lý plugin của Codex (9 skill + 8 quy trình `pbi-*` (gọi theo tên, Codex không có slash-command) + agent
-`pbi-knowledge-curator` được nạp tự động):
-
-```bash
-codex plugin marketplace add https://github.com/ducnguyen221/agent-data-studio
-codex plugin add agent-data-studio@agent-data-studio
-codex plugin list   # thấy: agent-data-studio@agent-data-studio  installed, enabled  0.7.0
-```
-
-> Chỉ cài plugin = có skill/lệnh, CHƯA có 16 tool MCP. Muốn đủ tool → chạy install.ps1 (Cách 1).
-> Đừng chạy CẢ Cách 1 (copy skill) LẪN Cách 2 (plugin) cùng lúc — skill sẽ bị nạp 2 lần.
-
-## Khuyến nghị kèm theo
-
-Đăng ký thêm `powerbi-modeling` (Microsoft) cho modeling ops — xem [`AGENTS.md`](../../AGENTS.md) §2.
-Vai gợi ý cho Codex trong tổ đa-agent: **Reviewer/second-opinion** (chỉ đọc) — §4.2.
+Nếu đã có trạm dữ liệu ngoài repo, đặt `ADS_DATA` trước khi cài (xem [START-HERE.md](../../START-HERE.md)). Cập nhật skill sau này bằng `git pull` trong repo rồi khởi động lại Codex. `install.ps1 -Only plugin` chỉ kiểm adapter, không cập nhật MCP hoặc môi trường Python.

@@ -1,179 +1,43 @@
-# powerbi-agent
+# Agent Data Studio
 
-**🌐 Language:** **English** · [Tiếng Việt](README.vi.md)
+**[Tiếng Việt](README.vi.md) · [English](README.md)**
 
-> ⚠️ **Windows only.** Power BI Desktop ships for Windows only, so the tools that talk to Desktop
-> **require Windows 10/11**. There is no macOS/Linux build.
+Agent Data Studio gives AI agents a shared set of data analysis skills, scripts and Power BI tools. Start with the included CSV sample; Power BI Desktop and its client libraries are needed only for Desktop workflows. Direct Power BI Desktop use requires Windows.
 
-**An MCP server + skill pack that turns any AI Agent into a data analyst working DIRECTLY on Power BI.**
-Not just a bridge: it also ships the analysis process, the documentation templates and the report
-design kits that a senior consultant would bring to the job.
+**First time here?** Follow the [step-by-step starter guide in Vietnamese](START-HERE.md). The [installation website](docs/install/index.html) and [repository map](INDEX.md) provide more detail.
 
-Supports **Power BI Desktop (local)** · **Power BI Service (cloud)** · **PBIP/PBIR project files**.
-Hosts: **Claude Code · Codex CLI · Google Antigravity** and any stdio MCP client.
+## Install for Codex
 
-> 🌐 [ducnguyen.vn/agent-data-studio](https://ducnguyen.vn/agent-data-studio/) · 📘 [Full install guide](docs/INSTALL.html) ·
-> 🗺️ [**INDEX.md** — the complete repo map](INDEX.md) · 🤖 [AGENTS.md](AGENTS.md) · [Roadmap](ROADMAP.md) · [UAT results](docs/UAT-REPORT.md)
-
-## 🏛️ Built by KPIM — shared free with the community
-
-The analysis process and report templates were built by **[KPIM](https://kpim.vn)** — a consultancy
-delivering **Data & Business Intelligence** solutions and **in-depth Data & AI training**. The
-workflows and templates here are **distilled by many KPIM experts** from real engagements and shared
-**FREE** with the community, students and data practitioners.
-
----
-
-## What you get — four pillars
-
-| | Pillar | What it means in practice |
-|---|---|---|
-| **1** | **MCP Server** | 16 tools so the agent queries DAX, edits the model and writes report pages itself — every query passing a **server-side data-safety policy**, not a prompt hint. |
-| **2** | **Digitized expertise** | 9 skills · 8 commands · 1 curator agent · a Knowledge OS. The agent follows a real consultant's process instead of improvising. |
-| **3** | **Report design kits** | Clone a proven page and rebind the fields — style preserved 100%. Layouts an AI draws from scratch always look off; this fixes that. |
-| **4** | **Document templates** | 7 markdown deliverables + a 6-sheet Excel + a Power BI theme + 6 mindmaps in [`templates/documents/`](templates/documents/), ready to fill in for a new project. |
-
-**→ Where everything lives, folder by folder: [INDEX.md](INDEX.md).**
-
-## Install
-
-Paste this into your agent (Claude Code / Codex / Antigravity):
-
-```
-Clone https://github.com/ducnguyen221/agent-data-studio into ~/.mcp/powerbi-mcp, then run install.ps1 there (read the script first), and restart the MCP host.
-```
-
-Or run it yourself:
+On Windows, install Git and Python 3.11 or later, then open PowerShell:
 
 ```powershell
-git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
-cd "$env:USERPROFILE\.mcp\powerbi-mcp"
-powershell -ExecutionPolicy Bypass -File .\install.ps1
+git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\agent-data-studio"
+cd "$env:USERPROFILE\agent-data-studio"
+.\install.ps1
 ```
 
-The installer builds a `.venv`, probes for ADOMD.NET/TOM, registers the MCP server on all three
-hosts, then installs the 9 skills + 8 commands from the repo's `skills/` and `commands/` on each host (the curator agent from `agents/` only lands in Claude Code's `agents/` folder — other hosts
-get the same capability through the `pbi-knowledge` skill). It is
-idempotent — safe to re-run — and removes old-named skills/commands it generated in earlier versions. To refresh only the workflows: `.\install.ps1 -Only plugin`.
+The installer defaults to **Codex**, registers this repository's MCP server and prepares the ignored `workspace/` station. The MCP entry is merged into the host's user-level configuration (for example `~/.codex/config.toml`) next to your other servers, so every folder you open in that host shares the server of this checkout; point each machine at one checkout ([limits, in Vietnamese](hosts/README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng)). Restart Codex in the repository folder. Use `-Hosts claude` or `-Hosts antigravity` for another host; see the [host guides](hosts/README.md). The original skills, scripts and workflows run from this repository. The installer checks thin, local skill adapters instead of copying skills into global host folders.
 
-**Requirements:** Windows · Python 3.11+ · ADOMD.NET (bundled with SSMS, or the
-[Analysis Services client libraries](https://learn.microsoft.com/en-us/analysis-services/client-libraries)).
+Run `.\doctor.ps1 -Hosts codex` in PowerShell after setup. It reports source, Python and MCP registration checks, while live Power BI and host skill loading still need to be verified in the host. If your organization blocks scripts, ask IT to authorize the setup under its policy. `.\update.ps1` previews a Git update; applying a reviewed commit currently requires unchanged dependencies and ignore rules and leaves host restart pending. See [START-HERE.md](START-HERE.md) for the guarded update and uninstall steps.
 
-### Or install as a plugin
+If you want Codex to handle setup, ask it to clone this repository, read `START-HERE.md`, run `install.ps1`, verify the result and guide you through the sample CSV exercise.
 
-The same `.claude-plugin/marketplace.json` works for **both Claude Code and Codex** — it ships the
-skills, commands and agent, but **not** the 16 MCP tools (run `install.ps1` for those).
+## First task without Power BI
 
-```bash
-claude plugin marketplace add ducnguyen221/agent-data-studio && claude plugin install agent-data-studio@agent-data-studio
-codex  plugin marketplace add https://github.com/ducnguyen221/agent-data-studio && codex plugin add agent-data-studio@agent-data-studio
-```
+In Codex, open the repository and ask: “Read `samples/sales-demo.csv` using `skills/data-discovery/SKILL.md`. Check data quality, calculate revenue by month and save a brief report to `workspace/outputs/first-report.md`.” The [sample guide](samples/README.md) includes figures to compare with the result.
 
-Per-host details: [`hosts/`](hosts/).
+`workspace/` contains `projects/`, `knowledge/`, `outputs/`, `state/` and local configuration. Git ignores the entire folder. Keep personal data, work results and credentials out of Git. If you already use an external station, set `ADS_DATA` to its path before installing. The installer records the local binding while the engine and skills continue to run from this repository.
 
-## Your first 10 minutes
+## Power BI capabilities
 
-```
-1.  restart your AI host          →  it picks up the MCP server
-2.  /pbi-help                     →  the agent lists what it can do and routes your request
-3.  /pbi-setup                    →  designate a project dir (a folder OUTSIDE the repo). Once.
-4.  /pbi-new "Revenue report"     →  it reads past lessons, surveys the data, documents, then builds
-```
+The MCP server provides 16 tools for Desktop/model discovery, policy checked DAX queries, model edits, report page kits, report design extraction and project knowledge. Desktop features require Power BI Desktop and ADOMD.NET. To check the Desktop connection, open a report and run `.\doctor.ps1 -ProbeDesktop` in PowerShell; it runs `EVALUATE ROW("x",1)` and reports `NOT_CHECKED` rather than an error when Desktop is closed. Service queries require separate credentials. The nine source skills are in [`skills/`](skills/), eight workflows in [`commands/`](commands/), report page kits in [`report-templates/`](report-templates/README.md) and document templates in [`templates/documents/`](templates/documents/).
 
-Already have a `.pbip` you like? `/pbi-scan <path>` explains its design;
-`/pbi-kit <path>` turns it into reusable kits.
+The server applies row limits, a DAX policy and audit logging. These guard against accidental disclosure; permissions on the underlying data remain your responsibility. Microsoft's Power BI Modeling MCP can be installed separately for advanced model work.
 
-## Main features
+## Repository and local data
 
-### 8 commands
+Git updates the source in this repository. `.agents/skills/` and `.claude/skills/` are thin entry points to `skills/`; scripts run from the repository. Do not edit plugin cache copies to change this source. Git excludes `workspace/`, `.venv/`, local configuration and credentials. Check `git status` before every commit.
 
-| Command | What it does |
-|---|---|
-| `/pbi-help` | List every capability + route your request to the right process |
-| `/pbi-setup` | Declare the project dir — where all knowledge lives, outside the repo (once) |
-| `/pbi-new <name>` | Open a project: its own folder + prior lessons + the analysis process |
-| `/pbi-scan <path.pbip>` | Scan a report's design: every page + theme + DESIGN.md + catalog |
-| `/pbi-kit <path.pbip>` | Distill a report into a **set** of reusable report-page kits |
-| `/pbi-done` | Close a project: handoff checklist + distill + timeline + knowledge packaging |
-| `/pbi-pack [project]` | Package lessons on 4 axes: tech-stack · industry · business-domain · powerbi |
-| `/pbi-recall <keyword>` | "Have we done something like this before?" |
+The KPIM sample assets (dataset profiles, the `kpim-business-light` kit and `Project_Management.xlsx`) are owned by KPIM, which permits their use and distribution with this repository under the MIT license; see [NOTICE.md](NOTICE.md) for attribution.
 
-### 16 tools, in 6 groups
-
-| Group | Tools |
-|---|---|
-| **Discover** | `list_local_reports` · `list_tables` · `describe_table` |
-| **Query** 🛡️ | `execute_dax_local` · `execute_dax_service` — always through the policy |
-| **Write model** | `add_measure_local` · `add_relationship_local` |
-| **Templates** 🎨 | `list_templates` · `apply_template` · `distill_template` |
-| **Distill** | `distill_model_schema` · `distill_report_design` |
-| **Knowledge OS** 🧠 | `knowledge_status` · `setup_knowledge` · `init_project` · `log_timeline` |
-
-Full table with descriptions: [INDEX.md](INDEX.md).
-
-### 9 skills
-
-All in [`skills/`](skills/):
-`data-discovery` (business phase: survey → document → plan) · `data-mockup` (mockup/sample data) ·
-`pbi-model` (Power Query/M, star schema, DAX measures in TMDL) · `pbi-analysis` (tool reference) ·
-`pbi-design` (design report pages / Design Brief before PBIR) · `pbi-build` (9 technical steps) ·
-`pbi-review` (review SQL, DAX, model, report pages) · `pbi-publish` (publish to Fabric / Power BI Service) ·
-`pbi-knowledge` (Knowledge OS).
-
-## 🛡️ Data safety
-
-**Raw data stays inside the Power BI engine — only aggregated results reach the LLM.**
-
-- **aggregate-only, ON by default** — `EVALUATE '<table>'` and `EVALUATE ALL(...)` are refused with a
-  rewrite hint toward `SUMMARIZECOLUMNS`/`TOPN`. Disable with `POWERBI_AGGREGATE_ONLY=0`.
-- **PII blocklist + audit log** — copy `policy.example.json` → `policy.json` and list the columns to
-  block; every query is recorded to `<project dir>/audit/*.jsonl` with its verdict and row count.
-- **Honest about limits** — this guards against accidental leaks. Real security is still RLS on the
-  model plus a least-privilege service principal.
-
-Your project knowledge lives in a **project dir you designate, outside the repo**. Nobody receives
-anyone else's knowledge through git. The only path out is you asking, `sanitize=True`, and a review.
-
-## Runs alongside microsoft/powerbi-modeling-mcp
-
-powerbi-agent doesn't rebuild modeling — it delegates:
-
-```bash
-claude mcp add powerbi-modeling -s user -- npx -y "@microsoft/powerbi-modeling-mcp@latest" --start
-```
-
-| Task | Server |
-|---|---|
-| DAX + policy, schema discovery, report/PBIR layer, distill | **powerbi-agent** |
-| Bulk table/column/measure/relationship edits, transactions, TMDL, DAX validate | **powerbi-modeling** (Microsoft) |
-
-## Where to go next
-
-| | |
-|---|---|
-| 🗺️ [**INDEX.md**](INDEX.md) | Complete repo map: four pillars, every folder, glossary, end-to-end flow |
-| 🤖 [AGENTS.md](AGENTS.md) | Working rules for agents + the multi-agent protocol (§4) |
-| 🧩 [plugins/README.md](plugins/README.md) | The digitized expertise: skills, commands, agent |
-| 🎨 [report-templates/](report-templates/README.md) | How report kits work |
-| 🗓️ [ROADMAP.md](ROADMAP.md) | Positioning, architecture, milestones |
-
-Uninstall: `.\uninstall.ps1` (keeps files) · `.\uninstall.ps1 -RemoveVenv`.
-
-**Already have a skill with the same name?** The installer never deletes a skill it did not create.
-If it finds one whose `name:` matches ours but which lacks our ownership marker, it *moves* that copy
-next to the skills folder (`powerbi-agent-backup-<timestamp>\`) and installs ours. To keep yours
-instead, put an empty file named `.powerbi-agent-keep` inside its folder — install and uninstall both
-leave such a folder completely alone, on every run.
-
-## Authors & credit
-
-The **KPIM analysis process, tooling, templates and techniques** here were built by
-**[KPIM](https://kpim.vn)** (many experts collaborating), technical lead & development by
-**Duc Nguyen (Nguyễn Quang Đức — [ducnguyen221](https://github.com/ducnguyen221))** — so an AI Agent
-can **do data analysis like an expert**. Shared free with the community and students.
-
-If you reuse the process / templates / tools, please **keep the credit to KPIM & Duc Nguyen**.
-
-## License
-
-**MIT** — © 2026 KPIM ([kpim.vn](https://kpim.vn)) & Duc Nguyen. See [`LICENSE`](LICENSE).
+[Host guides](hosts/README.md) · [Repository map](INDEX.md) · [Website](https://ducnguyen.vn/agent-data-studio/) · [MIT license](LICENSE)

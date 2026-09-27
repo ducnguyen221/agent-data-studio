@@ -1,10 +1,10 @@
-/* powerbi-agent — shared design system (theo khuôn landing / ai-record family) */
+/* Agent Data Studio — shared website styles */
 :root{
   --bg:#ffffff; --bg-tint:#f7f9fc; --surface:#ffffff; --surface-2:#f4f6fa; --surface-3:#eef1f6;
-  --border:#e4e8ef; --border-strong:#d3d9e3; --text:#14161b; --muted:#565d69; --faint:#868d99;
-  --accent:#2f6df6; --accent-ink:#1b4fd0; --accent-weak:#e9f0fe; --accent-glow:rgba(47,109,246,.16);
+  --border:#e4e8ef; --border-strong:#d3d9e3; --text:#14161b; --muted:#565d69; --faint:#666c78;
+  --accent:#2361e6; --accent-ink:#1b4fd0; --accent-weak:#e9f0fe; --accent-glow:rgba(47,109,246,.16);
   --gold:#e8a200; --gold-weak:#fdf3d7;
-  --ok:#0f9d58; --ok-weak:#e4f5ec; --warn:#c9820a; --danger:#d64554; --danger-weak:#fdecee;
+  --ok:#0b7a45; --ok-weak:#e4f5ec; --warn:#c9820a; --danger:#bb3645; --danger-weak:#fdecee;
   --code-bg:#0f1116; --code-text:#e8ebf1; --code-border:#20242e;
   --radius:16px; --radius-sm:11px;
   --shadow-sm:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.04);
@@ -17,7 +17,7 @@
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#0e0f13; --bg-tint:#111318; --surface:#16181d; --surface-2:#1b1e24; --surface-3:#22262e;
-    --border:#282c34; --border-strong:#343a44; --text:#e9ebef; --muted:#a4abb6; --faint:#727984;
+    --border:#282c34; --border-strong:#343a44; --text:#e9ebef; --muted:#a4abb6; --faint:#8d949f;
     --accent:#5b8cff; --accent-ink:#8fb0ff; --accent-weak:#182338; --accent-glow:rgba(91,140,255,.20);
     --gold:#f2c811; --gold-weak:#2b2410;
     --ok:#3ec38a; --ok-weak:#12271d; --warn:#e0a032; --danger:#ef6d79; --danger-weak:#2c161a;
@@ -57,6 +57,7 @@ header.site.scrolled{border-bottom-color:var(--border)}
 .nav .gh{margin-left:20px}
 @media (max-width:860px){.nav-links{gap:14px}.nav-links a{font-size:13px}.nav .gh span{display:none}}
 @media (max-width:560px){.brand{font-size:14.5px;gap:7px}.brand img{width:26px;height:26px}.nav{gap:10px;height:56px}.nav-links{gap:9px}.nav-links a{font-size:12px}}
+@media (max-width:560px){header.site .brand{font-size:0;flex:none;max-width:30px;overflow:hidden;white-space:nowrap}header.site .brand img{width:30px;height:30px;flex:none}.nav-links{margin-left:auto}.nav .gh,.langsel{display:none}}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-family:var(--font);
@@ -69,6 +70,10 @@ header.site.scrolled{border-bottom-color:var(--border)}
 .btn-ghost{background:var(--surface-2);color:var(--text);border-color:var(--border)}
 .btn-ghost:hover{background:var(--surface-3);border-color:var(--border-strong)}
 .btn-sm{padding:8px 14px;font-size:14px;border-radius:9px}
+/* AA: chữ trắng trên accent tối-mode (#5b8cff) chỉ đạt 3.16:1 → nền nút đậm hơn */
+@media (prefers-color-scheme:dark){.btn-primary{background:#2361e6}.btn-primary:hover{background:#1b4fd0}}
+/* AA 1.4.1: link nằm trong đoạn văn không được chỉ phân biệt bằng màu */
+main p a:not(.btn),main dd a{text-decoration:underline;text-underline-offset:3px}
 
 /* page hero (sub-pages) */
 .page-hero{position:relative;padding:64px 0 36px;overflow:hidden}
@@ -127,6 +132,8 @@ table.tbl code{font-family:var(--mono);font-size:13px;color:var(--accent)}
 .code-card pre{margin:0;padding:15px 18px}
 .code-card pre code{font-family:var(--mono);font-size:13px;line-height:1.8;color:var(--code-text);white-space:pre;display:block}
 .code-scroll .cm{color:#6f7a8d}.code-scroll .pr{color:#5b8cff}
+/* FINAL-PLAN §6.2: lời nhờ phải xuống dòng trên mobile, không bắt cuộn ngang (chỉ đổi hiển thị, nội dung sao chép giữ nguyên) */
+@media (max-width:620px){.code-card pre code{white-space:pre-wrap;overflow-wrap:anywhere}}
 
 /* callouts */
 .note{border-left:3px solid var(--accent);background:var(--accent-weak);padding:14px 18px;
@@ -138,6 +145,7 @@ table.tbl code{font-family:var(--mono);font-size:13px;color:var(--accent)}
 .step{display:flex;gap:16px;align-items:flex-start;margin:18px 0}
 .step .num{flex:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;
   font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px}
+@media (prefers-color-scheme:dark){.step .num{background:#2361e6}}
 .step .body{flex:1;min-width:0}
 .step h3{font-size:1.08rem;font-weight:700}
 .step p{margin-top:6px;color:var(--muted);font-size:14.5px;line-height:1.6}
@@ -158,8 +166,8 @@ table.tbl code{font-family:var(--mono);font-size:13px;color:var(--accent)}
 .quicknav a:hover{color:var(--text);background:var(--surface-2)}
 .quicknav a.on{color:var(--accent)}
 .quicknav a.on .qdot{background:var(--accent)}
-@media (max-width:1240px){.quicknav .qlabel{display:none}.quicknav{padding:10px 6px}}
-@media (max-width:760px){.quicknav{display:none}}
+@media (max-width:1520px){.quicknav .qlabel{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.quicknav{padding:10px 6px}.quicknav a{min-width:24px;min-height:24px;justify-content:center}}
+@media (max-width:1259px){.quicknav{display:none}}
 
 /* footer */
 footer.site{border-top:1px solid var(--border);background:var(--bg-tint);padding:38px 0 34px;margin-top:40px}

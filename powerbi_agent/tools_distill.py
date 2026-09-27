@@ -9,12 +9,12 @@ là dữ liệu nhạy cảm, không được commit).
 """
 
 import os
-import tempfile
 import re
 
 import pandas as pd
-from pyadomd import Pyadomd
 
+from powerbi_agent.adomd import adomd_missing_message, import_pyadomd
+from powerbi_agent.connection import local_connection_string
 from powerbi_agent.discovery import find_active_pbi_ports
 from powerbi_agent.util import log, short_err
 
@@ -32,22 +32,24 @@ def _resolve_output_dir(output_dir: str | None) -> str:
     env_dir = os.getenv("POWERBI_DISTILL_DIR")
     if env_dir:
         return env_dir
-    from powerbi_agent.knowledge import resolve_root
+    from powerbi_agent.knowledge import _safe_child, resolve_root
     root = resolve_root()
-    # Schema model là dữ liệu khách hàng -> đi cùng thư mục dữ liệu, không vào repo.
-    return os.path.join(root, "distilled") if root else os.path.join(tempfile.gettempdir(), "powerbi-agent-distilled")
+    if not root:
+        raise ValueError("Chưa có trạm dữ liệu hợp lệ; không tạo hồ sơ model.")
+    return _safe_child(root, "distilled")
 
 
-def _catalog_of(port: str) -> str:
-    conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};"
+def _catalogs(port: str) -> list[str]:
+    Pyadomd = import_pyadomd()
+    conn_str = local_connection_string(port)
     with Pyadomd(conn_str) as conn:
         with conn.cursor().execute("SELECT [CATALOG_NAME] FROM $SYSTEM.DBSCHEMA_CATALOGS") as cur:
             catalogs = cur.fetchall()
-            return catalogs[0][0] if catalogs else "Unknown"
+        return [str(row[0]) for row in catalogs]
 
 
-def register(mcp):
-    """Đăng ký tool distill vào instance FastMCP."""
+def register(mcp, adomd_loaded: bool = True):
+    """Đăng ký tool distill vào instance FastMCP (app truyền adomd_loaded = app.ADOMD_LOADED)."""
 
     @mcp.tool()
     def distill_model_schema(
@@ -65,28 +67,26 @@ def register(mcp):
         - output_dir: thư mục ghi; mặc định env POWERBI_DISTILL_DIR hoặc <thư mục dự án>/distilled/.
           LƯU Ý: schema model có thể nhạy cảm (tên bảng/cột/công thức nghiệp vụ) — đừng ghi vào repo public.
         """
+        if not adomd_loaded:
+            return f"Lỗi chưng cất mô hình: {adomd_missing_message()}"
         try:
-            # Tự động dò cổng & model_id nếu thiếu
-            if not port or not model_id:
+            # Chỉ tự chọn khi đúng một cổng và một model; không lấy database đầu tiên.
+            if not port:
                 instances = find_active_pbi_ports()
                 if not instances:
                     return "Không tìm thấy phiên bản Power BI Desktop nào đang hoạt động để trích xuất."
-                if len(instances) > 1:
-                    output = "Có nhiều báo cáo đang mở. Vui lòng cung cấp chính xác cổng và model_id:\n"
-                    for inst in instances:
-                        try:
-                            output += f"- Cổng: {inst['port']} | Mã Model: {_catalog_of(inst['port'])}\n"
-                        except Exception:
-                            output += f"- Cổng: {inst['port']} (Không lấy được model_id)\n"
-                    return output
-                port = port or instances[0]["port"]
-                if not model_id:
-                    try:
-                        model_id = _catalog_of(port)
-                    except Exception as e:
-                        return f"Lỗi lấy tên Model từ cổng {port}: {short_err(e)}"
+                if len(instances) != 1:
+                    return "Có nhiều báo cáo đang mở; chọn cổng và model_id từ list_local_reports trước khi trích xuất."
+                port = instances[0]["port"]
+            if not model_id:
+                catalogs = _catalogs(str(port))
+                if len(catalogs) != 1:
+                    return "Cổng này có nhiều hoặc không có model; chọn model_id cụ thể từ list_local_reports."
+                model_id = catalogs[0]
 
-            conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};Catalog={model_id};"
+            conn_str = local_connection_string(port, model_id)
+            Pyadomd = import_pyadomd()
+
             with Pyadomd(conn_str) as conn:
                 def get_df(query):
                     with conn.cursor().execute(query) as cur:
@@ -191,12 +191,14 @@ def register(mcp):
             else:
                 md.append("\n*Không có liên kết quan hệ.*")
 
-            from powerbi_agent.knowledge import ensure_outside_repo
+            from powerbi_agent.knowledge import _safe_child, ensure_outside_repo
             dest_dir = ensure_outside_repo(_resolve_output_dir(output_dir), "schema model")
             os.makedirs(dest_dir, exist_ok=True)
             fname = output_filename if output_filename else f"distilled_model_{model_id}.md"
             fname = re.sub(r'[\\/*?:"<>|]', "_", fname)
-            output_path = os.path.join(dest_dir, fname)
+            if fname in (".", ".."):
+                raise ValueError("Tên file hồ sơ model không hợp lệ.")
+            output_path = _safe_child(dest_dir, fname)
 
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(md))
@@ -204,5 +206,5 @@ def register(mcp):
             link_path = output_path.replace("\\", "/")
             return f"Đã trích xuất thành công mô hình '{model_id}' và lưu blueprint tại:\n[Link File](file:///{link_path})"
         except Exception as e:
-            log.exception("distill_model_schema thất bại")
+            log.error("distill_model_schema thất bại (%s)", type(e).__name__)
             return f"Lỗi chưng cất mô hình: {short_err(e)}"

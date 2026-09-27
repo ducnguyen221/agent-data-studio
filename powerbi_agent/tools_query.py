@@ -1,29 +1,36 @@
 """Tool truy vấn: Desktop (ADOMD) + Service (REST) + schema discovery. Đăng ký qua register()."""
 
 import os
+import re
 
 import pandas as pd
 import requests
 from msal import ConfidentialClientApplication
-from pyadomd import Pyadomd  # LƯU Ý: adomd.load_adomd() phải chạy trước khi import module này
 
 from powerbi_agent import policy
+from powerbi_agent.adomd import adomd_missing_message, import_pyadomd
+from powerbi_agent.connection import local_connection_string
 from powerbi_agent.discovery import find_active_pbi_ports
 from powerbi_agent.util import MAX_ROWS, df_to_markdown_capped, log, short_err
 
 # MSAL app singleton — giữ token cache trong process, hết 1-round-trip-mỗi-call
 _msal_app = None
+_DATASET_GUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\Z")
 
 
 def get_azure_token():
     """Lấy Access Token từ Entra ID (client-credential). Cache token qua app singleton."""
     global _msal_app
+    from dotenv import load_dotenv
+    from powerbi_agent._env import secrets_file
+
+    load_dotenv(secrets_file())
     client_id = os.getenv("CLIENT_ID")
     client_secret = os.getenv("CLIENT_SECRET")
     tenant_id = os.getenv("TENANT_ID")
 
     if not all([client_id, client_secret, tenant_id]):
-        raise ValueError("Thiếu cấu hình CLIENT_ID, CLIENT_SECRET hoặc TENANT_ID trong file .env.")
+        raise ValueError("Thiếu cấu hình Power BI Service trong kho thông tin xác thực đã chọn.")
 
     scope = ["https://analysis.windows.net/powerbi/api/.default"]
     if _msal_app is None:
@@ -37,11 +44,13 @@ def get_azure_token():
     result = _msal_app.acquire_token_for_client(scopes=scope)
     if "access_token" in result:
         return result["access_token"]
-    raise Exception(f"Không thể lấy token: {result.get('error_description')}")
+    raise RuntimeError("Không thể lấy token Power BI Service; kiểm tra quyền và cấu hình ứng dụng.")
 
 
 def _query_df(port: str, model_id: str, query: str) -> pd.DataFrame:
-    conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};Catalog={model_id};"
+    Pyadomd = import_pyadomd()
+
+    conn_str = local_connection_string(port, model_id)
     with Pyadomd(conn_str) as conn:
         with conn.cursor().execute(query) as cur:
             data = cur.fetchall()
@@ -51,12 +60,23 @@ def _query_df(port: str, model_id: str, query: str) -> pd.DataFrame:
             return pd.DataFrame(data, columns=columns)
 
 
-def register(mcp):
-    """Đăng ký các tool truy vấn + discovery vào instance FastMCP."""
+def register(mcp, adomd_loaded: bool = True):
+    """Đăng ký các tool truy vấn + discovery vào instance FastMCP.
+
+    adomd_loaded: app truyền app.ADOMD_LOADED. False thì tool Desktop trả lỗi thiếu thành phần
+    TRƯỚC khi import pyadomd (pyadomd nuốt lỗi thiếu DLL rồi hỏng muộn bằng NameError).
+    Mặc định True giữ hành vi cũ cho người gọi trực tiếp (test đăng ký tool riêng lẻ).
+    """
 
     @mcp.tool()
     def list_local_reports() -> str:
         """Liệt kê các báo cáo Power BI Desktop đang mở trên máy tính kèm thông tin cổng kết nối."""
+        if not adomd_loaded:
+            return adomd_missing_message()
+        try:
+            Pyadomd = import_pyadomd()
+        except ImportError:
+            return "Thiếu ADOMD.NET hoặc pyadomd; mở hướng dẫn cài Power BI Desktop để sửa."
         instances = find_active_pbi_ports()
         if not instances:
             return "Không tìm thấy phiên bản Power BI Desktop nào đang hoạt động trên máy."
@@ -64,7 +84,7 @@ def register(mcp):
         output = "Các báo cáo đang mở:\n"
         for inst in instances:
             try:
-                conn_str = f"Provider=MSOLAP;Data Source=localhost:{inst['port']};"
+                conn_str = local_connection_string(inst["port"])
                 with Pyadomd(conn_str) as conn:
                     with conn.cursor().execute("SELECT [CATALOG_NAME] FROM $SYSTEM.DBSCHEMA_CATALOGS") as cur:
                         catalogs = cur.fetchall()
@@ -81,6 +101,8 @@ def register(mcp):
         Liệt kê các bảng trong model đang mở (đã lọc bảng hệ thống LocalDateTable/DateTableTemplate).
         - port / model_id: lấy từ list_local_reports.
         """
+        if not adomd_loaded:
+            return f"Lỗi list_tables: {adomd_missing_message()}"
         try:
             df = _query_df(port, model_id, "SELECT [Name], [Description] FROM $SYSTEM.TMSCHEMA_TABLES")
             if df.empty:
@@ -88,7 +110,7 @@ def register(mcp):
             df = df[~df["Name"].str.startswith("LocalDateTable_") & ~df["Name"].str.startswith("DateTableTemplate_")]
             return df_to_markdown_capped(df, 0)
         except Exception as e:
-            log.exception("list_tables thất bại")
+            log.error("list_tables thất bại (%s)", type(e).__name__)
             return f"Lỗi list_tables: {short_err(e)}"
 
     @mcp.tool()
@@ -98,6 +120,8 @@ def register(mcp):
         - port / model_id: lấy từ list_local_reports.
         - table_name: tên bảng (lấy từ list_tables).
         """
+        if not adomd_loaded:
+            return f"Lỗi describe_table: {adomd_missing_message()}"
         try:
             df_t = _query_df(port, model_id, "SELECT [ID], [Name] FROM $SYSTEM.TMSCHEMA_TABLES")
             row = df_t[df_t["Name"] == table_name]
@@ -136,7 +160,7 @@ def register(mcp):
                     out.append(f"- `[{m['Name']}]` = `{str(m['Expression'])[:200]}`")
             return "\n".join(out)
         except Exception as e:
-            log.exception("describe_table thất bại")
+            log.error("describe_table thất bại (%s)", type(e).__name__)
             return f"Lỗi describe_table: {short_err(e)}"
 
     @mcp.tool()
@@ -153,6 +177,9 @@ def register(mcp):
         allowed, reason = policy.check_dax(dax_query, tool="execute_dax_local")
         if not allowed:
             return reason
+        if not adomd_loaded:
+            policy.audit("execute_dax_local", dax_query, "error")
+            return f"Lỗi khi thực thi DAX cục bộ: {adomd_missing_message()}"
         try:
             df = _query_df(port, model_id, dax_query)
             if df.empty:
@@ -163,7 +190,7 @@ def register(mcp):
             return df_to_markdown_capped(df, effective_max)
         except Exception as e:
             policy.audit("execute_dax_local", dax_query, "error")
-            log.exception("execute_dax_local thất bại")
+            log.error("execute_dax_local thất bại (%s)", type(e).__name__)
             return f"Lỗi khi thực thi DAX cục bộ: {short_err(e)}"
 
     @mcp.tool()
@@ -178,6 +205,9 @@ def register(mcp):
         allowed, reason = policy.check_dax(dax_query, tool="execute_dax_service")
         if not allowed:
             return reason
+        if not isinstance(dataset_id, str) or not _DATASET_GUID.fullmatch(dataset_id):
+            policy.audit("execute_dax_service", dax_query, "invalid_target")
+            return "Mã dataset không hợp lệ; chọn GUID của model từ Power BI."
         try:
             token = get_azure_token()
             headers = {
@@ -193,10 +223,19 @@ def register(mcp):
             response = requests.post(url, json=payload, headers=headers, timeout=(10, 60))
             if response.status_code != 200:
                 policy.audit("execute_dax_service", dax_query, "error")
-                return f"Lỗi gọi API Power BI (Code {response.status_code}): {short_err(response.text)}"
+                return f"Lỗi gọi API Power BI (Code {response.status_code}); chi tiết phản hồi đã ẩn."
 
             res_data = response.json()
-            tables = res_data.get('results', [{}])[0].get('tables', [])
+            if res_data.get("error") is not None:
+                policy.audit("execute_dax_service", dax_query, "error")
+                return "Power BI Service trả lỗi truy vấn; chi tiết phản hồi đã ẩn."
+            results = res_data.get("results", [])
+            if any(result.get("error") is not None or
+                   any(table.get("error") is not None for table in result.get("tables", []))
+                   for result in results):
+                policy.audit("execute_dax_service", dax_query, "error")
+                return "Power BI Service trả lỗi truy vấn; chi tiết phản hồi đã ẩn."
+            tables = results[0].get('tables', []) if results else []
             if not tables:
                 policy.audit("execute_dax_service", dax_query, "allowed", 0)
                 return "Không có dữ liệu trả về từ Dataset."
@@ -209,5 +248,5 @@ def register(mcp):
 
         except Exception as e:
             policy.audit("execute_dax_service", dax_query, "error")
-            log.exception("execute_dax_service thất bại")
+            log.error("execute_dax_service thất bại (%s)", type(e).__name__)
             return f"Lỗi kết nối Power BI Service: {short_err(e)}"

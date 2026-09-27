@@ -1,19 +1,19 @@
-# Power BI — Knowledge Map (concept clusters, agent reference)
+# Power BI — bản đồ kiến thức cho agent
 
-> Distill từ kho tri thức Power BI của KPIM (glossary ~380 thuật ngữ, 8 cụm) + tài liệu vận hành. Dùng để agent "định vị" khái niệm và biết chỗ đào sâu (reference DAX/M/SQL nằm ở skill `pbi-model`: `../../../pbi-model/references/kpim/`).
+> Dùng tám nhóm chủ đề dưới đây để xác định khái niệm cần tra cứu. Hướng dẫn DAX, Power Query M và SQL nằm ở skill `pbi-model`: `../../../pbi-model/references/kpim/`.
 
-## 8 cụm khái niệm (concept clusters)
-1. **Foundation** — Power BI Desktop/Service/Report Server, PBIX/PBIP/PBIR, Report, Dashboard, Semantic model, Workspace, App, License (Free/Pro/PPU/Premium/Fabric capacity).
-2. **Prepare (Power Query)** — M language, Applied Steps, Get Data, Import/DirectQuery/Direct Lake/Live connection, Query folding, Reference/Duplicate, Merge/Append, Parameter, Privacy level, Incremental refresh. → xem `pbi-model` → `m-best-practices.md`.
-3. **Model** — Fact/Dimension, Star/Snowflake/Galaxy schema, Grain, PK/FK, Cardinality, Cross-filter direction, Active/Inactive relationship (USERELATIONSHIP), Many-to-many, Bridge table, Role-playing dimension, Date table. → xem `pbi-model` → `dax-best-practices.md` §3.
-4. **DAX** — Measure (explicit/implicit), Calculated column/table, Row/Filter context, Context transition, CALCULATE/CALCULATETABLE, FILTER, ALL/REMOVEFILTERS/ALLSELECTED/ALLEXCEPT/KEEPFILTERS, Time-intelligence, Calculation groups, Variables (VAR), UDF. → xem `pbi-model` → `dax-best-practices.md`.
-5. **Visual** — Card, Matrix, Slicer, Conditional formatting, Tooltip page, Drill-through/down, Bookmark, Field/Numeric parameter, Selection pane, Sync slicers, Mobile layout, Paginated report, Waterfall/combo/scatter. → dựng qua kit `report-templates/kpim-business-light` + `apply_template`.
-6. **Service** — Gateway (on-premises data gateway), Scheduled/Incremental refresh, Dataflow, Datamart, OneLake, Endorsement (Promoted/Certified), Deployment pipeline, Publish/Share, Build permission, App audience.
-7. **Security** — RLS (static/dynamic), OLS, Workspace role, Item-level access, Sensitivity label, USERPRINCIPALNAME/USERNAME/CUSTOMDATA, Microsoft Entra ID, B2B guest. Bảo mật cứng = RLS + service principal quyền tối thiểu.
-8. **Optimize** — Performance Analyzer, DAX query view, VertiPaq, Cardinality reduction, Composite model, Aggregation table, DAX Studio, VertiPaq Analyzer, columnstore/batch mode.
+## Tám nhóm khái niệm
+1. **Nền tảng** — phân biệt Power BI Desktop, Service và Report Server; tệp PBIX/PBIP/PBIR; báo cáo, dashboard, semantic model, workspace, app và giấy phép Free/Pro/PPU/Premium/Fabric capacity.
+2. **Chuẩn bị dữ liệu (Power Query)** — lấy dữ liệu (Get Data), các bước biến đổi bằng M (Applied Steps), chế độ Import/DirectQuery/Direct Lake/kết nối trực tiếp, Reference/Duplicate, Merge/Append, tham số, mức riêng tư, query folding và làm mới tăng dần. → xem `pbi-model` → `m-best-practices.md`.
+3. **Mô hình dữ liệu** — bảng fact/dimension, lược đồ sao/bông tuyết/galaxy, hạt dữ liệu (grain), khóa chính/ngoại, bội số và hướng lọc quan hệ, quan hệ hoạt động/không hoạt động (`USERELATIONSHIP`), many-to-many, bảng cầu nối, dimension nhiều vai trò và bảng ngày. → xem `pbi-model` → `dax-best-practices.md` §3.
+4. **Tính toán DAX** — measure tường minh/ngầm, cột/bảng tính, ngữ cảnh dòng và lọc, chuyển ngữ cảnh, `CALCULATE`/`CALCULATETABLE`, `FILTER`, `ALL`/`REMOVEFILTERS`/`ALLSELECTED`/`ALLEXCEPT`/`KEEPFILTERS`, tính theo thời gian, nhóm tính toán, biến `VAR` và UDF. → xem `pbi-model` → `dax-best-practices.md`.
+5. **Trực quan hóa** — thẻ số, bảng ma trận, bộ lọc, định dạng có điều kiện, tooltip, drill-through/drill-down, bookmark, tham số trường/số, ngăn chọn, đồng bộ slicer, bố cục di động, báo cáo phân trang và biểu đồ waterfall/combo/scatter. → dựng qua kit `report-templates/kpim-business-light` + `apply_template` khi có quyền dùng kit.
+6. **Power BI Service** — gateway cho nguồn tại chỗ, lịch/làm mới tăng dần, dataflow, datamart, OneLake, gắn nhãn Promoted/Certified, quy trình triển khai, xuất bản/chia sẻ, quyền Build và nhóm người xem app.
+7. **Bảo mật** — RLS tĩnh/động, OLS, vai trò workspace, quyền từng mục, nhãn nhạy cảm, `USERPRINCIPALNAME`/`USERNAME`/`CUSTOMDATA`, Microsoft Entra ID và khách B2B; tài khoản ứng dụng chỉ nên có quyền cần thiết.
+8. **Tối ưu hiệu năng** — Performance Analyzer, DAX query view, VertiPaq, giảm cardinality, mô hình kết hợp, bảng tổng hợp, DAX Studio, VertiPaq Analyzer và chế độ columnstore/batch mode.
 
-## Thứ tự học/dependency
-Power Query basics → Data types → Model (star schema + relationships + date table) → DAX (context → CALCULATE → measures → time-intelligence) → Visual/report → Service (refresh/RLS/publish) → Optimize.
+## Thứ tự học
+Power Query và kiểu dữ liệu → mô hình sao, quan hệ và bảng ngày → ngữ cảnh DAX, `CALCULATE` và measure → trang báo cáo → làm mới, RLS và xuất bản trên Service → tối ưu hiệu năng.
 
 ## Vận hành (governance) — lưu ý thực chiến
 - **Gateway**: cần cho refresh nguồn on-prem từ Service; standard (enterprise, chia sẻ) vs personal.

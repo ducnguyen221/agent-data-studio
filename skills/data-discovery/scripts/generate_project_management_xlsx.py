@@ -1,3 +1,8 @@
+import argparse
+import os
+import stat
+import sys
+
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -20,31 +25,31 @@ def widths(ws, ws_widths):
 
 # ============ 1. KEY INFORMATION ============
 ws=wb.active; ws.title="KEY INFORMATION"
-ws["A1"]="KEY INFORMATION — KPIM Mart (Báo cáo Bán Hàng)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
+ws["A1"]="THÔNG TIN CỐT LÕI — KPIM Mart (Báo cáo bán hàng)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
 r=3
 sections=[
- ("1. REQUIREMENTS & OBJECTIVES",[
+ ("1. YÊU CẦU VÀ MỤC TIÊU",[
    ("Tổng hợp dữ liệu","Gộp SQL Server + Excel + SharePoint; kết nối bảng; so sánh TH vs KH; gộp nhiều bảng"),
    ("Tính toán thông minh","Chỉ số theo logic nghiệp vụ; time-intelligence (cùng kỳ, lũy kế); so sánh công thức đa bảng"),
    ("Trực quan hóa","Dashboard biểu đồ; Pivot Table; slicer & lọc điều kiện"),
    ("Cập nhật & Mở rộng","Kéo-thả phân tích mới; truy vết; dễ cập nhật; tương tác biểu đồ"),
  ]),
- ("2. ANALYTICS QUESTIONS",[
+ ("2. CÂU HỎI PHÂN TÍCH",[
    ("Hiện trạng chỉ số bán hàng?","DT/số SP hiện tại; theo năm/tháng; theo cửa hàng/quản lý/sản phẩm"),
    ("Kết quả KD có đạt chỉ tiêu?","Cửa hàng/Quản lý/Tháng nào đạt hoặc không đạt chỉ tiêu"),
    ("Đang tăng trưởng hay suy giảm?","Tổng DT vs cùng kỳ; cửa hàng/SP tăng-giảm; tháng vs tháng trước, quý vs quý trước"),
    ("Yếu tố nào gây suy giảm DT?","Cửa hàng không đạt; vượt ngưỡng lũy kế; tháng giảm-cửa hàng giảm nhất; truy vết SP bán giảm"),
  ]),
- ("3. DATA REQUIRED",[
+ ("3. DỮ LIỆU CẦN THIẾT",[
    ("SQL Server","Danh mục SP/KH/khu vực (Dimension)"),
    ("SharePoint List","Đơn hàng bán — Fact 15 trường"),
    ("Excel","Kế hoạch tháng theo khu vực (mỗi sheet 1 năm)"),
  ]),
- ("4. METRICS & DIMENSIONS",[
+ ("4. CHỈ SỐ VÀ CHIỀU PHÂN TÍCH",[
    ("Chỉ số (6 nhóm)","Doanh Thu; Lợi Nhuận Gộp; Tổng Khuyến Mãi; Số SP Bán; Số Khách Mua Hàng; Số Đơn Hàng"),
    ("Chiều (4 nhóm)","Thời gian; Khách hàng; Sản phẩm; Khu vực bán hàng"),
  ]),
- ("5. RESULT & DELIVERY",[
+ ("5. KẾT QUẢ VÀ BÀN GIAO",[
    ("6 báo cáo","Tổng quan; Phân tích doanh thu; Tái mua hàng; Kết quả theo khu vực; Phân khúc KH; Giám sát biên LN gộp"),
    ("Bàn giao",".pbix/.pbip + Data Model + measure + tài liệu md + Project_Management.xlsx + đào tạo"),
  ]),
@@ -59,7 +64,7 @@ widths(ws,[34,90])
 
 # ============ 2. PLANNING ============
 ws=wb.create_sheet("PLANNING")
-ws["A1"]="PLANNING — Kế hoạch triển khai (task 2 cấp)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
+ws["A1"]="KẾ HOẠCH TRIỂN KHAI (công việc 2 cấp)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
 hdr=["Giai Đoạn","Đầu Mục Công Việc","Kết quả / Output","Tuần dự kiến","Trạng thái"]
 put(ws,3,hdr); style_header(ws,3,len(hdr)); r=4
 plan=[
@@ -106,7 +111,7 @@ widths(ws,[6,44,34,12,14])
 
 # ============ 3. DATA DICTIONARY ============
 ws=wb.create_sheet("DATA DICTIONARY")
-ws["A1"]="DATA DICTIONARY — Fact Đơn Hàng Bán (15 trường)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
+ws["A1"]="TỪ ĐIỂN DỮ LIỆU — Bảng đơn hàng bán (15 trường)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
 put(ws,3,["STT","Tên cột","Loại dữ liệu","Định nghĩa","Additive"]); style_header(ws,3,5); r=4
 dd=[
 (1,"Mã giao dịch","Text","Mã định danh giao dịch mua bán đơn hàng","Key"),
@@ -134,7 +139,7 @@ widths(ws,[6,20,16,60,14])
 
 # ============ 4. METRICS_CALCULATION ============
 ws=wb.create_sheet("METRICS_CALCULATION")
-ws["A1"]="METRICS_CALCULATION — DAX Measures"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
+ws["A1"]="CÔNG THỨC CHỈ SỐ — DAX"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
 put(ws,3,["Nhóm (Folder)","Measure","Mô tả","DAX gợi ý","Format"]); style_header(ws,3,5); r=4
 mt=[
 ("Doanh Thu","Doanh Thu","Tổng doanh thu","SUM(Fact_DonHang[Tổng doanh thu])","#,0"),
@@ -169,7 +174,7 @@ widths(ws,[16,30,26,52,10])
 
 # ============ 5. DOMAIN_DIMENSION ============
 ws=wb.create_sheet("DOMAIN_DIMENSION")
-ws["A1"]="DOMAIN_DIMENSION — Chiều phân tích & tư duy nghiệp vụ"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
+ws["A1"]="CHIỀU PHÂN TÍCH VÀ NGHIỆP VỤ"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
 put(ws,3,["Nhóm chiều","Bảng","Cột chiều","Tư duy nghiệp vụ"]); style_header(ws,3,4); r=4
 dm=[
 ("Thời gian","Dim_Date","Ngày/Tháng/Quý/Năm","Xu hướng; nền time-intelligence (YTD, cùng kỳ, tháng trước)"),
@@ -196,8 +201,8 @@ widths(ws,[14,16,22,60])
 
 # ============ 6. REPORT ============
 ws=wb.create_sheet("REPORT")
-ws["A1"]="REPORT — Danh sách & đặc tả báo cáo (Group→Report→Page)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
-put(ws,3,["Report Group","Report","Trang","Mục tiêu","Visual (block kit)","Nguồn"]); style_header(ws,3,6); r=4
+ws["A1"]="BÁO CÁO — Danh sách và đặc tả (Nhóm→Báo cáo→Trang)"; ws["A1"].font=Font(bold=True,size=14,color="12776E")
+put(ws,3,["Nhóm báo cáo","Báo cáo","Trang","Mục tiêu","Loại biểu đồ (kit)","Nguồn"]); style_header(ws,3,6); r=4
 rp=[
 ("KPIM Mart — Bán Hàng","R1 Tổng Quan","1. Tổng quan chỉ số","DT/LNG/SP/đơn tổng","cardVisual, comboChart, slicer","SharePoint+SQL"),
 ("","","2. So sánh Quận/Cửa hàng","So chỉ số theo địa lý","azureMap, clusteredBarChart, pivotTable",""),
@@ -228,6 +233,31 @@ widths(ws,[22,24,34,30,34,16])
 for name in wb.sheetnames:
     wb[name].freeze_panes="A4"
 
-out="./Project_Management.xlsx"
+parser = argparse.ArgumentParser(description="Sinh workbook kế hoạch mẫu vào trạm dữ liệu")
+parser.add_argument("--out", help="Đường dẫn .xlsx ở trạm; mặc định trong trạm hiện tại")
+args = parser.parse_args()
+repo_root = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, repo_root)
+from powerbi_agent._env import data_dir
+from powerbi_agent.knowledge import ensure_outside_repo
+
+try:
+    chosen = args.out or os.path.join(data_dir(), "Project_Management.xlsx")
+    out = ensure_outside_repo(chosen, "workbook dự án")
+except (RuntimeError, ValueError) as exc:
+    parser.error(str(exc))
+if not out.lower().endswith(".xlsx"):
+    parser.error("Đầu ra phải là file .xlsx.")
+lexical = os.path.abspath(os.path.expanduser(str(chosen).strip().strip('"').strip("'")))
+for target in (lexical, out):
+    if os.path.lexists(target):
+        item = os.stat(target, follow_symlinks=False)
+        if (
+            os.path.islink(target)
+            or bool(getattr(item, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+            or (os.path.isfile(target) and item.st_nlink > 1)
+        ):
+            parser.error("File đầu ra là liên kết; chọn file thường trong trạm.")
+os.makedirs(os.path.dirname(out), exist_ok=True)
 wb.save(out)
-print("saved", out, "| sheets:", wb.sheetnames)
+print("Đã lưu", out, "| các sheet:", wb.sheetnames)

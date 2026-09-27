@@ -1,266 +1,52 @@
-# INDEX — repo map
+# Bản đồ Agent Data Studio
 
-Two views of the same repo. **§1 answers "I want to do X — where do I go?"**
-**§2 answers "I see folder Y — what is it?"** Everything else hangs off those two.
-
-| I am… | Read |
+| Tôi muốn… | Bắt đầu tại |
 |---|---|
-| New here, want to install and try it | [`README.md`](README.md) |
-| An AI agent about to work in this repo | [`AGENTS.md`](AGENTS.md) — working rules, multi-agent protocol |
-| Looking for a specific folder / file / tool | this file |
-| Wondering where the project is heading | [`ROADMAP.md`](ROADMAP.md) |
+| Cài và thử với dữ liệu mẫu | [START-HERE.md](START-HERE.md) |
+| Chọn Codex, Claude Code hoặc Antigravity | [hosts/README.md](hosts/README.md) |
+| Hiểu quy trình phân tích | [skills/README.md](skills/README.md) và [commands/](commands/) |
+| Làm việc với Power BI | [skills/pbi-analysis/SKILL.md](skills/pbi-analysis/SKILL.md) |
+| Tìm bộ mẫu báo cáo | [report-templates/README.md](report-templates/README.md) |
+| Đóng góp mã nguồn | [AGENTS.md](AGENTS.md) và [scripts/README.md](scripts/README.md) |
 
----
+## Mã nguồn và trạm làm việc
 
-## §1 — Axis A: the four pillars
-
-| # | Pillar | What you get | Lives in | Commands & tools |
-|---|---|---|---|---|
-| **1** | **MCP Server** — the agent works directly on Power BI | 16 tools behind a server-side data-safety policy | [`powerbi_agent/`](powerbi_agent/) · [`hosts/`](hosts/) · `install.ps1` · `policy.example.json` | all 16 tools |
-| **2** | **Digitized expertise** — your workflow, skills, knowledge | 9 skills · 8 commands · 1 agent · Knowledge OS | [`skills/`](skills/) · [`commands/`](commands/) · [`agents/`](agents/) | `/pbi-*` |
-| **3** | **Report design kits** — build reports like a designer | Clone-and-rebind kits; style preserved 100% | [`report-templates/`](report-templates/README.md) | `list_templates` · `apply_template` · `distill_template` · `/pbi-kit` |
-| **4** | **Document templates** — create & manage analysis docs | 7 markdown docs + Excel (6 sheets) + theme + 6 mindmaps | [`templates/documents/`](templates/documents/) | skill `data-discovery` |
-
-### 1.1 Pillar 1 — MCP Server
-
-The bridge. Everything else is worthless without it.
-
-| File | Why it matters |
-|---|---|
-| [`powerbi_agent/app.py`](powerbi_agent/app.py) | Boots the server, registers all 16 tools |
-| [`powerbi_agent/policy.py`](powerbi_agent/policy.py) | **The safety layer** — aggregate-only, PII blocklist, audit log, row cap |
-| [`powerbi_agent/tools_query.py`](powerbi_agent/tools_query.py) | Discover + query (Desktop via ADOMD, Service via REST) |
-| [`powerbi_agent/adomd.py`](powerbi_agent/adomd.py) · [`discovery.py`](powerbi_agent/discovery.py) | Find the ADOMD.NET DLLs · find the Desktop port |
-| [`install.ps1`](install.ps1) | One command: venv → probe → register 3 hosts → install workflows |
-| [`policy.example.json`](policy.example.json) | Copy to `policy.json` and list the columns to block |
-
-**Flow:** `install.ps1` → restart host → `/pbi-help` → the agent sees the tools.
-
-#### The 16 tools
-
-| Group | Tool | What it does |
+| Nơi | Vai trò | Có đưa lên Git? |
 |---|---|---|
-| **Discover** | `list_local_reports` | Reports open in Desktop (port + model ID) |
-| | `list_tables` | Tables in the model (system tables filtered out) |
-| | `describe_table` | One table's columns + data types + measures |
-| **Query** 🛡️ | `execute_dax_local` | DAX against Desktop — through the data-safety policy |
-| | `execute_dax_service` | DAX against Service (MSAL, token cache) — through the policy |
-| **Write model** | `add_measure_local` | Create/update a measure via TOM |
-| | `add_relationship_local` | Create a Many-to-One relationship via TOM |
-| **Templates** 🎨 | `list_templates` | Available report kits |
-| | `apply_template` | Build a NEW page from a kit — clone-and-rebind, style preserved |
-| | `distill_template` | Distill a polished page into a reusable kit (sanitizable) |
-| **Distill** | `distill_model_schema` | Model → Markdown blueprint + Mermaid ERD |
-| | `distill_report_design` | Scan a whole report: every page + theme + DESIGN + CATALOG |
-| **Knowledge OS** 🧠 | `knowledge_status` | Is the project dir set up + current state |
-| | `setup_knowledge` | Set up the user-designated project dir (outside the repo) |
-| | `init_project` | Create `projects/<slug>/` + register in INDEX + TIMELINE |
-| | `log_timeline` | Log an event/lesson to TIMELINE.md (append-only) |
+| [`powerbi_agent/`](powerbi_agent/) · [`mcp_server_powerbi.py`](mcp_server_powerbi.py) | Engine MCP và 16 công cụ | Có |
+| [`skills/`](skills/) · [`commands/`](commands/) · [`agents/`](agents/) | Nguồn gốc của skill, quy trình và agent | Có |
+| [`.agents/skills/`](.agents/skills/) · [`.claude/skills/`](.claude/skills/) | Adapter mỏng để host tìm skill trong repo | Có |
+| [`scripts/`](scripts/) · [`install.ps1`](install.ps1) | Script thực thi, cập nhật adapter và bộ cài | Có |
+| [`hosts/`](hosts/) | Hướng dẫn đăng ký MCP cho từng ứng dụng AI | Có |
+| [`samples/`](samples/) | Dữ liệu tổng hợp cho bài thử đầu tiên | Có |
+| `workspace/` | Dự án, tri thức, kết quả và cấu hình cá nhân của bản cài cơ bản | **Không** — Git bỏ qua cả thư mục |
+| `ADS_DATA` bên ngoài repo | Trạm đã có của người dùng nâng cao | Không |
 
-> ⚠️ Report writes (`apply_template`, `distill_template`) act on PBIR files on disk — **close the
-> `.pbip` in Power BI Desktop first**, or Desktop will overwrite what the tool just wrote.
+Mã nguồn, skill và script luôn được đọc hoặc chạy từ checkout này. Bản cài cơ bản giữ `workspace/` cùng một thư mục repo cho dễ tìm; Git không theo dõi nó. Nếu dùng trạm ngoài, installer lưu đường dẫn trong `.ads-binding.json` cục bộ (cũng bị Git bỏ qua). Trước khi thêm file lên Git, xem `git status`.
 
-### 1.2 Pillar 2 — Digitized expertise
+## Bạn có thể làm gì?
 
-The biggest and most valuable part of the repo — 30+ files that turn a generic agent into
-someone who works the way an experienced Power BI consultant works.
+**Phân tích dữ liệu:** dùng [`data-discovery`](skills/data-discovery/SKILL.md) để tìm hiểu bài toán, [`data-mockup`](skills/data-mockup/SKILL.md) để tạo dữ liệu mẫu, rồi lưu kết quả trong `workspace/outputs/`. [CSV thực hành](samples/README.md) không cần Power BI.
 
-| Skill | Use it when | Key contents |
-|---|---|---|
-| [`data-discovery`](skills/data-discovery/SKILL.md) | Project start — data in, before touching the model | `scripts/` (generators, read [`templates/documents/`](templates/documents/) — pillar 4) |
-| [`data-mockup`](skills/data-mockup/SKILL.md) | You need mockup / sample data | `references/` · `scripts/` |
-| [`pbi-model`](skills/pbi-model/SKILL.md) | Modelling — Power Query/M, star schema, relationships, DAX measures in TMDL | `references/kpim/` — DAX · Power Query M · SQL best practices · gotchas |
-| [`pbi-analysis`](skills/pbi-analysis/SKILL.md) | Unsure which tool to call | Tool reference + policy rules + split with `powerbi-modeling` |
-| [`pbi-design`](skills/pbi-design/SKILL.md) | Designing report pages — the Design Brief before PBIR is written | `references/` |
-| [`pbi-build`](skills/pbi-build/SKILL.md) | Building — the 9 technical steps | `references/kpim/` — knowledge map |
-| [`pbi-review`](skills/pbi-review/SKILL.md) | Independent review of SQL, DAX, model, report pages | `references/` |
-| [`pbi-publish`](skills/pbi-publish/SKILL.md) | Publishing to Fabric / Power BI Service | `references/` |
-| [`pbi-knowledge`](skills/pbi-knowledge/SKILL.md) | Handling project knowledge | Knowledge OS mechanics, 4-axis packaging, privacy rules |
+**Làm Power BI:** dùng [`pbi-model`](skills/pbi-model/SKILL.md), [`pbi-analysis`](skills/pbi-analysis/SKILL.md), [`pbi-design`](skills/pbi-design/SKILL.md), [`pbi-build`](skills/pbi-build/SKILL.md), [`pbi-review`](skills/pbi-review/SKILL.md), [`pbi-publish`](skills/pbi-publish/SKILL.md) và [`pbi-knowledge`](skills/pbi-knowledge/SKILL.md). MCP có công cụ khám phá model, truy vấn DAX có policy, sửa model, áp kit và lưu tri thức dự án. Power BI Desktop và ADOMD.NET chỉ cần cho công việc với Desktop; Service có bước đăng nhập riêng.
 
-**The KPIM analysis process (skill `data-discovery`), 5 phases:** Research (read the data, ask back) →
-Key Information (Requirements · Analytics Questions · Data · Metrics & Dimensions · Result & Delivery)
-→ Planning (2-level Excel tasks) → Implementation (hand off to `pbi-build`) → Monitoring.
+**Dùng mẫu:** [`report-templates/`](report-templates/README.md) chứa kit trang báo cáo; [`templates/documents/`](templates/documents/) chứa mẫu tài liệu. Mẫu công khai là ví dụ chung. Tài liệu dự án thật lưu ở trạm cá nhân, không đưa vào `report-templates/` hay `templates/` khi chưa rà soát.
 
-**The 9-step pipeline (skill `pbi-build`):** 1 Connect data (Power Query, M parameters) →
-2 Transform M (explicit data types) → 3 Star-schema modelling + relationships → 4 DAX measures
-(verify each) → 5 Aggregated queries (policy-guarded) → 6+7 Visuals & report pages from kits →
-8 Advanced (tooltips, drill-through, parameters) → 9 Artifacts + knowledge distillation.
+## 16 công cụ MCP
 
-**8 commands** in [`commands/`](commands/):
-`/pbi-help` · `/pbi-setup` · `/pbi-new` · `/pbi-scan` · `/pbi-kit` ·
-`/pbi-done` · `/pbi-pack` · `/pbi-recall`.
-**1 agent**: [`pbi-knowledge-curator`](agents/pbi-knowledge-curator.md) — packages lessons at project close.
-
-> Installed to all three hosts. Antigravity has no slash-command mechanism, so its copy of the
-> commands lands inside the `pbi-knowledge` skill — call them by name instead.
-
-### 1.3 Pillar 3 — Report design kits
-
-The hard-won rule: **a layout an AI builds from scratch always looks off; clone a proven page and
-rebind the fields and it looks right.** `apply_template` is that rule as code — it keeps
-`visualContainerObjects` (the style) untouched and changes only name/position/fields/type/title.
-
-A kit is a plain text folder, git-friendly:
-
-```
-report-templates/kpim-business-light/
-  kit.json          # meta: canvas, blocks, roles
-  blueprint.md      # source page map: 30 visuals, positions, bindings
-  blocks/*.json     # verbatim visual.json per type (KPI card, combo chart, pivot, slicer, map…)
-  _page.json        # page settings + background
-```
-
-**Loop:** a page you like → `/pbi-kit` or `distill_template` → later projects `apply_template` it back.
-Kits carrying real business bindings stay on your machine (`POWERBI_TEMPLATES_DIR`); to publish → `sanitize=True`.
-
-### 1.4 Pillar 4 — Document templates
-
-Fill-in-ready deliverables so the agent documents a project the way a consultant would,
-**before** any report gets built. Lives at [`templates/documents/`](templates/documents/) in the
-repo root; the `data-discovery` skill uses it.
-
-| File | Contents |
+| Nhóm | Công cụ |
 |---|---|
-| `PROJECT.md` | Key Information summary (5 tables + mindmap) |
-| `RESEARCH_NOTES.md` | Input notes + the questions to ask the client back |
-| `DATA_DICTIONARY.md` | Tables / sources / fields |
-| `METRICS_CALCULATION.md` | DAX measures, grouped |
-| `DOMAIN_DIMENSION.md` | Analysis dimensions + business reasoning |
-| `REPORTS.md` | Report Group → Report → Page → visuals |
-| `DESIGN.md` + `theme.json` | Design rationale + an importable Power BI theme |
-| `Project_Management.xlsx` | 6 sheets incl. 2-level task planning |
-| `mindmaps/*.html` | Objectives · Questions · Data dictionary · Measures · Dimensions · Reports |
-| `skills/data-discovery/scripts/` | Generators for the mindmaps and the xlsx |
+| Khám phá | `list_local_reports`, `list_tables`, `describe_table` |
+| Truy vấn | `execute_dax_local`, `execute_dax_service` |
+| Sửa model | `add_measure_local`, `add_relationship_local` |
+| Kit trang | `list_templates`, `apply_template`, `distill_template` |
+| Chưng cất | `distill_model_schema`, `distill_report_design` |
+| Tri thức | `knowledge_status`, `setup_knowledge`, `init_project`, `log_timeline` |
 
----
+Các lệnh có thể gọi và cách gọi khác nhau giữa các host. Tám file quy trình `pbi-*` nằm ở [`commands/`](commands/); bạn có thể bảo agent đọc file tương ứng từ repo bằng lời thường. [Hướng dẫn host](hosts/README.md) ghi rõ cách kiểm tra MCP.
 
-## §2 — Axis B: folder map
+## Đường dẫn quan trọng
 
-```
-powerbi-agent/
-├─ README.md · README.vi.md      Start here: what it does · how to install · main features
-├─ INDEX.md                      ← you are here
-├─ AGENTS.md                     Rules for AI agents (canonical). CLAUDE.md/GEMINI.md point at it
-├─ ROADMAP.md · LICENSE
-├─ install.ps1 · uninstall.ps1 · pack.ps1
-├─ mcp_server_powerbi.py         MCP entrypoint (a shim — do not rename or move)
-├─ policy.example.json · .env.example · pyproject.toml · requirements*.txt
-│
-├─ powerbi_agent/          ▸ PILLAR 1   14 modules — the MCP server itself
-├─ hosts/                  ▸ PILLAR 1   per-host setup: claude · codex · antigravity
-│
-├─ skills/                 ▸ PILLAR 2   the digitized expertise — 9 skills
-│  │                                    data-discovery · data-mockup · pbi-model
-│  │                                    pbi-analysis · pbi-design · pbi-build
-│  │                                    pbi-review · pbi-publish · pbi-knowledge
-│  └─ data-discovery/scripts/           generators
-├─ commands/               ▸ PILLAR 2   8 × /pbi-*
-├─ agents/                 ▸ PILLAR 2   pbi-knowledge-curator
-├─ templates/documents/    ▸ PILLAR 4   doc templates + xlsx + theme + mindmaps
-├─ upstream/ · LICENSES/ · THIRD_PARTY_NOTICES.md   vendored upstream · third-party licences
-│
-├─ report-templates/       ▸ PILLAR 3   report-page kits for apply_template
-│  └─ kpim-business-light/                12 sanitized blocks
-│
-├─ scripts/                             dev utilities (not shipped to users)
-├─ tests/ · .github/                    unit + installer tests, CI
-└─ docs/                                GitHub Pages site + plans/
-```
+`workspace/projects/<ten-du-an>/` dành cho dự án; `workspace/knowledge/` cho tri thức dùng lại; `workspace/outputs/` cho kết quả; `workspace/state/` cho trạng thái cục bộ. Cấu hình không chứa mật khẩu ở `workspace/config.env`. Khóa cho Power BI Service chỉ được cung cấp khi dùng Service, trong file secret riêng ngoài Git. Repo có [mẫu cấu hình](.env.example) và [mẫu policy](policy.example.json).
 
-| Folder | What it is, in one sentence | Most important files | Pillar | Who opens it |
-|---|---|---|---|---|
-| [`powerbi_agent/`](powerbi_agent/) | The MCP server: 14 Python modules providing 16 tools | `app.py` · `policy.py` · `tools_query.py` | 1 | Developers |
-| [`hosts/`](hosts/) | How to register the server in each AI host | `claude/` · `codex/` · `antigravity/` | 1 | Installers |
-| [`skills/`](skills/) | The 9 expert processes, single source; installer copies them to hosts | 9 × `SKILL.md` | 2 | Agents |
-| [`commands/`](commands/) | 8 slash commands that trigger those processes | `pbi-help.md` · `pbi-setup.md` | 2 | Users |
-| [`agents/`](agents/) | Sub-agent that packages lessons at project close | `pbi-knowledge-curator.md` | 2 | Agents |
-| [`templates/documents/`](templates/documents/) | Fill-in-ready analysis deliverables | `PROJECT.md` · `Project_Management.xlsx` | 4 | Users |
-| [`report-templates/`](report-templates/README.md) | Report-page kits, sanitized and public | `kpim-business-light/kit.json` | 3 | Users |
-| [`scripts/`](scripts/) | Dev-only utilities, never shipped to users | `cli.py` · `build_template_gallery.py` | — | Developers |
-| [`tests/`](tests/) | Unit tests + a fake-profile installer harness | `test_unit.py` · `installer/installer.tests.ps1` | — | Developers |
-| [`docs/`](docs/) | The public website + internal plans | `index.html` · `INSTALL.html` · `plans/` | — | Anyone |
-| [`.claude-plugin/`](.claude-plugin/plugin.json) | Plugin `agent-data-studio` (source = whole repo) + marketplace catalog; Codex manifest in `.codex-plugin/` | `marketplace.json` · `plugin.json` | 2 | Hosts |
-
----
-
-## §3 — Glossary
-
-The repo's own history proves this section is needed: two folders were once both called
-`templates/`, and the docs had to write "≠" five times to explain the difference. Names now
-carry a qualifier instead.
-
-### "template" means four different things
-
-| Path | Contains | Owner | Public? |
-|---|---|---|---|
-| `report-templates/` | Report-**page** kits (PBIR), sanitized | Repo | ✅ |
-| `templates/documents/` | **Document** templates (md/xlsx/theme/mindmaps) | Repo, used by skill `data-discovery` | ✅ |
-| `docs/template/` | The website gallery **route** | Repo (stable URL) | ✅ |
-| `<project dir>/templates/` | Your **private** kits, not sanitized | **You**, outside the repo | ❌ never |
-
-### Four names for what feels like one thing
-
-Deliberately not unified — renaming any of them would break every existing install for
-approximately zero benefit.
-
-| Name | What it actually is |
-|---|---|
-| `powerbi-agent` | The GitHub repo and the plugin |
-| `powerbi_agent` | The Python package (underscore — it is an import name) |
-| `powerbi-mcp-bridge` | The MCP server ID hosts register. **Never rename** — it lives in every user's config |
-| `~/.mcp/powerbi-mcp` | The conventional clone location, nothing more |
-
-### Other terms
-
-| Term | Meaning |
-|---|---|
-| **kit** | One report page distilled into text, replayable by `apply_template` |
-| **skill** | A process the agent reads and follows (`SKILL.md` + supporting files) |
-| **command** | A `/pbi-*` shortcut that kicks off a process |
-| **tool** | An MCP function the agent calls (16 of them) |
-| **project dir** | A folder **you** designate outside the repo, where all project knowledge lives |
-| **host** | The AI app running the agent: Claude Code, Codex CLI, Antigravity |
-| **policy** | Server-side data-safety enforcement — not a prompt hint |
-| **PBIP / PBIR** | Power BI's project / enhanced-report file formats (Microsoft names) |
-
----
-
-## §4 — End-to-end flow
-
-```
-  data + docs                                                       reusable assets
-       │                                                                    ▲
-       ▼                                                                    │
- /pbi-new ──▶ skill data-discovery ──▶ skill pbi-build ──────────▶ /pbi-done
-              BUSINESS phase           TECHNICAL phase                 close-out
-              survey · ask back        9 steps: Power Query →          handoff checklist
-              document · plan          model → DAX → pages             distill · timeline
-                       ▲                        │                            │
-                       │                        ▼                            ▼
-                       │                 16 MCP tools               agent pbi-knowledge-curator
-                       │                 + policy 🛡️                packages lessons on 4 axes
-                       │                 + kits 🎨                          │
-                       └──── /pbi-recall ◀───── INDEX + TIMELINE ◀─────────┘
-                                                 (in YOUR project dir)
-
-  Side paths:  /pbi-scan <.pbip>  understand an existing report
-               /pbi-kit  <.pbip>  turn it into reusable kits
-               /pbi-help          "what can this thing do?"
-```
-
----
-
-## §5 — What is NOT in this repo
-
-Clone it and these will be missing. That is intentional, not a broken checkout.
-
-| Missing | Where it lives | Why |
-|---|---|---|
-| **project dir** | A folder you designate, outside the repo | It holds real client data. the pointer is one line in the repo's gitignored `.env`, so nobody receives anyone else's knowledge through git |
-| `.env` | Your machine | Service-principal secrets. Created from `.env.example`, never committed |
-| `policy.json` | Your machine | Lists the actual PII column names of your data |
-| `.venv/` | Your machine | Built by `install.ps1` |
-| `docs/internal/` | Your machine | Internal notes with client context |
-
-The only path from private knowledge into the public repo: you ask for it explicitly,
-`sanitize=True` runs, and you review the result.
+Khi sửa file PBIR trên đĩa, hãy đóng báo cáo `.pbip` trong Power BI Desktop trước để bản đang mở không ghi đè kết quả. Với model hoặc report có nhiều agent tham gia, chỉ một agent ghi tại một thời điểm.

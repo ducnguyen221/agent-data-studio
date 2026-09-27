@@ -1,4 +1,4 @@
-# Design playbook — P1 INTERVIEW & P2 THIẾT KẾ
+# Hướng dẫn thiết kế — P1 KHẢO SÁT & P2 THIẾT KẾ
 
 Đọc file này khi đang **hỏi nghiệp vụ** và **thiết kế cấu trúc**. Phần sinh số & đóng gói ở `mockup-build-playbook.md`.
 
@@ -38,7 +38,7 @@ Trước khi viết spec, đọc lại cho user một đoạn ngắn: *"Tôi s�
 
 ---
 
-## PHẦN 1 — Bộ câu hỏi interview (6 nhóm)
+## PHẦN 1 — Bộ câu hỏi khảo sát (6 nhóm)
 
 Hỏi theo nhóm, mỗi lần 2–4 câu, ưu tiên câu hỏi trắc nghiệm để user chốt nhanh. Câu nào user không biết → đề xuất mặc định hợp lý và nói rõ "tôi giả định X, sai thì báo".
 
@@ -88,8 +88,7 @@ Người dùng hay nói "làm giống Vinamilk", "data cho Thế Giới Di Độ
 
 | Hướng | Khi nào dùng | Rủi ro |
 |---|---|---|
-| **Thương hiệu nhà KPIM** (khuyến nghị mặc định) | Lab đào tạo, demo, POC nội bộ | Không có. Dùng `KPIM Mart`, `KPIM Bank`… — xem Phụ lục B |
-| **Thương hiệu hư cấu riêng** | User muốn không dính KPIM | Phải đặt tên nghe thật mà không đụng doanh nghiệp có thật — kiểm tra bằng một lượt tìm kiếm nhanh |
+| **Thương hiệu hư cấu** (khuyến nghị mặc định) | Lab đào tạo, demo, POC | Đặt tên nghe tự nhiên mà không trùng doanh nghiệp có thật — kiểm tra trước khi công bố |
 | **Thương hiệu có thật** | Chỉ khi user là chính chủ, hoặc chỉ dùng nội bộ và user khẳng định chấp nhận | Số liệu bịa gắn tên hãng thật = có thể bị hiểu là dữ liệu thật của họ. Nếu buộc phải dùng, **bắt buộc** ghi cảnh báo ở `00_README` và đề nghị user không phát tán ra ngoài |
 
 Ranh giới thực dụng: **tên riêng của tổ chức** (chuỗi, ngân hàng, nhà mạng) thì hư cấu; **danh mục ngành hàng, tên hàng hoá thông dụng, địa danh hành chính** thì dùng tên thật cho tự nhiên ("Gia vị – nguyên liệu nấu ăn", "Tiêu xay", "Quận Phú Nhuận", "Cao Bằng"). Nếu bộ dữ liệu cần **tên nhà cung cấp/nhãn hàng**, ưu tiên nhãn hư cấu; dùng nhãn có thật thì phải là thông tin phổ thông (tên nhãn) chứ không gắn số liệu kinh doanh nhạy cảm cho họ.
@@ -114,7 +113,7 @@ Mục tiêu: cấu trúc phải **kể đúng câu chuyện nghiệp vụ**.
 - Danh mục (enum) phải là danh mục **có thật trong ngành**, đóng và hữu hạn: trạng thái đơn hàng, nhóm sản phẩm, kênh bán, lý do huỷ.
 - Ghi rõ quy tắc nghiệp vụ dạng câu: "đơn huỷ không tính doanh thu", "1 khách chỉ có 1 hạng thẻ tại 1 thời điểm".
 
-### Lăng kính 2 — Data engineer (DE)
+### Lăng kính 2 — Kỹ sư dữ liệu (DE)
 Mục tiêu: cấu trúc **chịu được** khi nạp vào DB / Power BI.
 
 - **Grain trước, cột sau.** Viết grain thành câu, rồi mới liệt kê cột. Cột nào không được xác định bởi grain → thuộc bảng khác.
@@ -126,7 +125,7 @@ Mục tiêu: cấu trúc **chịu được** khi nạp vào DB / Power BI.
 - **Additive**: đánh dấu từng số đo là `additive` (cộng được mọi chiều: số lượng, doanh thu), `semi_additive` (cộng theo chiều khác nhưng không theo thời gian: số dư, tồn kho), `non_additive` (không cộng được: đơn giá, tỉ lệ, %). Sai chỗ này là dashboard cộng bậy.
 - **Bảng thời gian**: luôn có `dim_date` phủ từ min→max ngày (kể cả khi lớp nghiệp vụ không xuất ra).
 
-### Lăng kính 3 — Data analyst (DA)
+### Lăng kính 3 — Chuyên viên phân tích dữ liệu (DA)
 Mục tiêu: số liệu **có ý nghĩa khi vẽ lên biểu đồ**.
 
 - Với mỗi KPI trong `metrics`, tự hỏi: vẽ theo tháng thì thấy gì? Không thấy gì thú vị = thiết kế còn thiếu biến động.
@@ -140,7 +139,7 @@ Mọi bảng có `grain` bằng lời · mọi cột có `type` + `definition` �
 
 ---
 
-## PHỤ LỤC A — 8 domain gợi ý sẵn
+## PHỤ LỤC A — 8 lĩnh vực gợi ý sẵn
 
 Dùng khi user chưa có yêu cầu rõ: đưa danh sách này cho chọn, rồi hỏi tiếp Nhóm 4–6. Mỗi domain là **điểm khởi đầu**, không phải khuôn cứng.
 
@@ -158,18 +157,3 @@ Dùng khi user chưa có yêu cầu rõ: đưa danh sách này cho chọn, rồi
 **Ánh xạ đề xuất riêng của user vào khung này:** tìm domain gần nhất trong bảng, giữ nguyên cấu trúc lõi, thay danh từ/động từ theo ngành của user, rồi hỏi bù Nhóm 4–6.
 
 ---
-
-## PHỤ LỤC B — Thư viện bộ dữ liệu KPIM có sẵn
-
-Năm bộ đã dựng và đang dùng dạy học, đã được **distill thành hồ sơ tham chiếu ngay trong skill này**: `references/kpim/kpim-datasets/`. Mỗi hồ sơ có: cấu trúc bảng + grain + số dòng, các cột đáng chú ý, KPI tiêu biểu, hình mẫu đáng tái dùng, cạm bẫy không nên chép, và bảng "giống bộ này nhưng…" để biến thể nhanh.
-
-| Tên chuẩn | Ngành | Đọc khi user cần |
-|---|---|---|
-| **Data KPIM Mart** | Bán lẻ chuỗi cửa hàng | Star schema kinh điển, kế hoạch vs thực hiện, RFM |
-| **Data KPIM Bank** | Ngân hàng — dư nợ & tiền gửi | Số dư semi-additive, snapshot hằng ngày, khối lượng lớn |
-| **Data KPIM HR** | Nhân sự | Vòng đời vào–ra, cây tổ chức tự trỏ, chấm công & lương |
-| **Data KPIM Marketing** | Marketing đa kênh & outreach | Phễu nhiều bước, nối kế hoạch ↔ kết quả nền tảng, consent |
-
-**Cách dùng:** user chưa rõ yêu cầu → đưa 5 tên cho chọn ("gần giống bộ nào nhất?") → đọc **đúng một** hồ sơ → lấy khung bảng/grain/KPI làm điểm xuất phát → hỏi bù Nhóm 4–6.
-
-Hồ sơ là **bản distill, không phải dữ liệu**; bộ gốc là tài sản khoá học nội bộ, không kèm trong repo. Giới hạn: `kpim-datasets/README.md`.

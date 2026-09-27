@@ -15,14 +15,14 @@ from powerbi_agent.util import df_to_markdown_capped, short_err
 
 
 class TestUtil:
-    def test_short_err_passthrough(self):
-        assert short_err("ngắn") == "ngắn"
+    def test_short_err_hides_raw_response(self):
+        assert "private-canary" not in short_err("private-canary")
 
-    def test_short_err_caps_long_messages(self):
+    def test_short_err_hides_exception_message(self):
         msg = "x" * 1000
-        out = short_err(msg)
+        out = short_err(ValueError(msg))
         assert len(out) < 450
-        assert out.endswith("…[đã cắt]")
+        assert msg not in out and "ValueError" in out
 
     def test_df_markdown_no_cap(self):
         df = pd.DataFrame({"a": [1, 2]})
@@ -107,6 +107,17 @@ class TestPolicyM1:
         monkeypatch.setenv("POWERBI_POLICY_FILE", str(pf))
         allowed, _ = policy.check_dax("EVALUATE SUMMARIZECOLUMNS('KH'[Phân khúc])")
         assert allowed
+
+    def test_malformed_policy_blocks_without_echoing_query(self, tmp_path, monkeypatch):
+        pf = tmp_path / "policy.json"
+        pf.write_text('{"blocked_columns": "wrong-shape"}', encoding="utf-8")
+        monkeypatch.setenv("POWERBI_POLICY_FILE", str(pf))
+        monkeypatch.setenv("POWERBI_AUDIT_DIR", str(tmp_path / "audit"))
+        query = 'EVALUATE ROW("canary-private", 1)'
+        allowed, reason = policy.check_dax(query)
+        assert not allowed and "canary-private" not in reason
+        audit_text = next((tmp_path / "audit").glob("*.jsonl")).read_text(encoding="utf-8")
+        assert "blocked_policy_error" in audit_text and "canary-private" not in audit_text
 
     def test_audit_never_breaks_query(self, monkeypatch):
         monkeypatch.setenv("POWERBI_AUDIT_DIR", "Z:/duong/dan/khong/ton/tai")
@@ -237,12 +248,11 @@ class TestReportTemplates:
 
 
 class TestKnowledgeIndexMigration:
-    """Knowledge Dir dựng bởi bản < 0.5.0 mang placeholder `/pbi-new` cũ.
+    """INDEX cũ có thể mang placeholder `/powerbi-new` không còn dùng.
 
     ensure_skeleton chỉ ghi INDEX.md khi file CHƯA tồn tại, nên người nâng cấp giữ
-    nguyên dòng cũ trên đĩa. Nếu register_project_in_index chỉ khớp tên mới thì
-    placeholder cũ không bao giờ được thay -> INDEX của họ mãi bảo chạy `/pbi-new`,
-    lệnh mà installer vừa xoá.
+    nguyên dòng cũ trên đĩa. register_project_in_index phải thay được cả placeholder
+    cũ `/powerbi-new` lẫn placeholder hiện tại `/pbi-new`.
     """
 
     def _index_with(self, tmp_path, placeholder: str) -> str:
@@ -252,15 +262,15 @@ class TestKnowledgeIndexMigration:
         )
         return str(tmp_path)
 
-    def test_replaces_legacy_pbi_placeholder(self, tmp_path):
+    def test_replaces_current_pbi_placeholder(self, tmp_path):
         from powerbi_agent import knowledge as kn
         root = self._index_with(tmp_path, "_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n")
         kn.register_project_in_index(root, "ban-le", "Bán lẻ")
         txt = (tmp_path / "INDEX.md").read_text(encoding="utf-8")
-        assert "pbi-new" not in txt, "placeholder cũ còn sót — người nâng cấp thấy lệnh đã bị xoá"
+        assert "pbi-new" not in txt, "placeholder hiện tại chưa được thay bằng link dự án"
         assert "projects/ban-le/PROJECT.md" in txt
 
-    def test_replaces_current_placeholder(self, tmp_path):
+    def test_replaces_legacy_powerbi_placeholder(self, tmp_path):
         from powerbi_agent import knowledge as kn
         root = self._index_with(tmp_path, "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n")
         kn.register_project_in_index(root, "ban-le", "Bán lẻ")
@@ -271,7 +281,7 @@ class TestKnowledgeIndexMigration:
 
 
 def _outside(path: str, repo: str) -> bool:
-    """`path` nằm NGOÀI `repo`?
+    r"""`path` nằm NGOÀI `repo`?
 
     KHÔNG dùng trực tiếp `os.path.commonpath`: nó NÉM `ValueError: Paths don't have
     the same drive` khi hai đường khác ổ đĩa — trên CI repo ở `D:\` còn tmp ở `C:\`
@@ -295,11 +305,17 @@ class TestKnowledge:
         monkeypatch.setenv("POWERBI_PROJECT_DIR", str(tmp_path))
         assert kn.resolve_root() == str(tmp_path)
 
-    def test_resolve_root_none_when_unset(self, monkeypatch):
+    def test_resolve_root_basic_when_unset(self, monkeypatch):
         from powerbi_agent import knowledge as kn
+        from powerbi_agent import _env
         monkeypatch.delenv(kn.ENV_KEY, raising=False)
+        monkeypatch.delenv("ADS_DATA", raising=False)
         monkeypatch.setattr(kn, "LEGACY_CONFIG_FILE", "Z:/khong/ton/tai-cu.json")
-        assert kn.resolve_root() is None
+        if os.path.exists(os.path.join(_env._PKG_PARENT, ".env")):
+            with pytest.raises(RuntimeError, match="cấu hình dữ liệu đời cũ"):
+                kn.resolve_root()
+        else:
+            assert kn.resolve_root() == _env.data_dir()
 
     def test_set_project_dir_preserves_secrets_in_env(self, tmp_path, monkeypatch):
         """Con trỏ ghi vào .env — mà .env CHỨA SECRET. Ghi ẩu = mất credential của user."""
@@ -408,29 +424,96 @@ class TestDistill:
         monkeypatch.setenv("POWERBI_DISTILL_DIR", "C:/env-dir")
         assert _resolve_output_dir(None) == "C:/env-dir"
 
-    def test_output_dir_default_outside_repo(self, monkeypatch):
+    def test_output_dir_default_outside_repo(self, tmp_path, monkeypatch):
         from powerbi_agent.tools_distill import _resolve_output_dir
         monkeypatch.delenv("POWERBI_DISTILL_DIR", raising=False)
+        monkeypatch.setenv("POWERBI_PROJECT_DIR", str(tmp_path))
         out = _resolve_output_dir(None)
-        assert ".powerbi-agent" not in out  # không dùng thư mục dấu chấm nữa
+        assert out == str(tmp_path / "distilled")
+
+
+class TestLocalConnection:
+    def test_accepts_only_local_port_and_safe_catalog(self):
+        from powerbi_agent.connection import local_connection_string
+
+        assert local_connection_string(54000, "Model Demo") == (
+            'Provider=MSOLAP;Data Source=localhost:54000;Catalog="Model Demo";'
+        )
+        for port in ("0", "65536", "54000;Data Source=remote", "abc", -1):
+            with pytest.raises(ValueError):
+                local_connection_string(port, "Model Demo")
+        assert local_connection_string(54000, 'x;Data Source=remote') == (
+            'Provider=MSOLAP;Data Source=localhost:54000;Catalog="x;Data Source=remote";'
+        )
+        assert local_connection_string(54000, 'O\'Brien="A"').endswith(
+            'Catalog="O\'Brien=""A""";'
+        )
+        for model in ("", "x\n", "x\x00", " " * 257):
+            with pytest.raises(ValueError):
+                local_connection_string(54000, model)
+
+
+def test_local_startup_does_not_access_service_secret(tmp_path):
+    """Nạp MCP/16 tool ở trạm mẫu không được mở đường secret Service."""
+    import subprocess
+    import sys
+
+    (tmp_path / "config.env").write_text("POWERBI_AGGREGATE_ONLY=1\n", encoding="utf-8")
+    env = os.environ.copy()
+    env["ADS_DATA"] = str(tmp_path)
+    env["PYTHONPATH"] = os.path.dirname(os.path.dirname(__file__))
+    probe = (
+        "from powerbi_agent import _env\n"
+        "def deny(): raise RuntimeError('secret-read-canary')\n"
+        "_env.secrets_file = deny\n"
+        "from powerbi_agent import app\n"
+        "assert len(app.mcp._tool_manager._tools) >= 16\n"
+        "print('LOCAL_STARTUP_OK')\n"
+    )
+    result = subprocess.run([sys.executable, "-c", probe], cwd=tmp_path, env=env,
+                            capture_output=True, text=True, encoding="utf-8", errors="replace",
+                            timeout=30)
+    assert result.returncode == 0, result.stderr[-600:]
+    assert result.stdout.strip() == "LOCAL_STARTUP_OK"
+    assert "secret-read-canary" not in result.stderr
+
+
+def test_tom_cleanup_cannot_override_sanitized_result(caplog):
+    from powerbi_agent.tools_tom import _disconnect_safely
+
+    class BrokenServer:
+        @property
+        def Connected(self):
+            raise RuntimeError("private-cleanup-canary")
+
+    class BrokenDisconnect:
+        Connected = True
+
+        def Disconnect(self):
+            raise RuntimeError("private-disconnect-canary")
+
+    _disconnect_safely(BrokenServer())
+    _disconnect_safely(BrokenDisconnect())
+    _disconnect_safely(None)
+    assert "private-" not in caplog.text
 
 
 class TestIndexMigration:
-    """INDEX.md dựng bởi bản <0.5.0 trỏ tới lệnh /pbi-* mà installer đã xoá."""
+    """INDEX.md đời cũ dùng /powerbi-*; lệnh hiện tại nằm ở commands/pbi-*.md."""
 
     def test_migrate_renames_old_commands(self, tmp_path):
         from powerbi_agent import knowledge as kn
         idx = tmp_path / "INDEX.md"
-        idx.write_text("Chạy `/pbi-new <tên>` rồi `/pbi-done`.\n", encoding="utf-8")
+        idx.write_text("Chạy `/powerbi-new <tên>` rồi `/powerbi-done`.\n", encoding="utf-8")
         assert kn.migrate_index(str(tmp_path)) is True
         txt = idx.read_text(encoding="utf-8")
-        assert "/powerbi-new" in txt and "/powerbi-done" in txt
-        assert "/pbi-new" not in txt
+        assert "/pbi-new" in txt and "/pbi-done" in txt
+        assert "/powerbi-new" not in txt
 
     def test_migrate_is_idempotent_and_reports_no_change(self, tmp_path):
         from powerbi_agent import knowledge as kn
         idx = tmp_path / "INDEX.md"
-        idx.write_text("Chạy `/powerbi-new`.\n", encoding="utf-8")
+        idx.write_text("Chạy `/pbi-new`.\n", encoding="utf-8")
         assert kn.migrate_index(str(tmp_path)) is False
 
     def test_migrate_leaves_user_knowledge_alone(self, tmp_path):
@@ -474,6 +557,15 @@ class TestOutputsStayOutsideRepo:
         for bad in ("docs/leak", "powerbi_agent", "."):
             with pytest.raises(ValueError):
                 kn.ensure_outside_repo(os.path.join(repo, bad))
+
+    def test_allows_only_basic_workspace_inside_repo(self):
+        from powerbi_agent import knowledge as kn
+        repo = os.path.dirname(os.path.dirname(os.path.abspath(kn.__file__)))
+        workspace = os.path.join(repo, "workspace")
+        assert kn.ensure_outside_repo(os.path.join(workspace, "projects", "demo")) == os.path.join(
+            workspace, "projects", "demo")
+        with pytest.raises(ValueError):
+            kn.ensure_outside_repo(os.path.join(repo, "workspace-backup", "demo"))
 
     def test_public_kit_folder_only_with_explicit_opt_in(self):
         """report-templates/ chỉ mở cho kit ĐÃ sanitize, không mở theo đường dẫn."""
@@ -683,9 +775,13 @@ def test_env_data_dir_follows_ads_data(monkeypatch, tmp_path):
 
     monkeypatch.setenv("ADS_DATA", str(tmp_path))
     assert _env.data_dir() == str(tmp_path)
-    assert _env.env_file() == str(tmp_path / ".env")
+    assert _env.env_file() == str(tmp_path / "config.env")
     monkeypatch.delenv("ADS_DATA")
-    assert _env.data_dir() == _env._PKG_PARENT
+    if os.path.exists(os.path.join(_env._PKG_PARENT, ".env")):
+        with pytest.raises(RuntimeError, match="cấu hình dữ liệu đời cũ"):
+            _env.data_dir()
+    else:
+        assert _env.data_dir() == os.path.join(_env._PKG_PARENT, "workspace")
 
 
 def test_env_secrets_file_default_and_override(monkeypatch, tmp_path):
@@ -697,3 +793,167 @@ def test_env_secrets_file_default_and_override(monkeypatch, tmp_path):
     assert _env.secrets_file() == str(tmp_path / "secrets.env")
     monkeypatch.setenv("ADS_SECRETS_FILE", str(tmp_path / "vault" / "s.env"))
     assert _env.secrets_file() == str(tmp_path / "vault" / "s.env")
+
+
+def test_cli_json_handles_dates_and_decimals(capsys):
+    import datetime
+    import decimal
+    from scripts import cli
+
+    cli._print({"data": [{"date": datetime.date(2026, 1, 2), "value": decimal.Decimal("1.5")} ]})
+    output = capsys.readouterr().out
+    assert '"2026-01-02"' in output and '"1.5"' in output
+
+
+def test_station_rejects_windows_aliases_to_source():
+    from powerbi_agent import _env
+
+    if os.name != "nt":
+        pytest.skip("Windows path aliases")
+    repo = _env._PKG_PARENT
+    b = "\\"
+    aliases = (
+        b * 2 + "?" + b + repo + b + "probe",
+        b * 2 + "localhost" + b + repo[0] + "$" + repo[2:] + b + "probe",
+    )
+    for alias in aliases:
+        with pytest.raises(ValueError):
+            _env._validated_station(alias)
+
+
+def test_station_rejects_workspace_junction_back_to_source(monkeypatch, tmp_path):
+    from powerbi_agent import _env
+    import subprocess
+
+    repo = tmp_path / "source"
+    repo.mkdir()
+    workspace = repo / "workspace"
+    try:
+        workspace.symlink_to(repo, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        if os.name != "nt":
+            pytest.skip("Cannot create directory symlink")
+        made = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(workspace), str(repo)],
+            capture_output=True, text=True,
+        )
+        if made.returncode:
+            pytest.skip("Cannot create test junction")
+    monkeypatch.setattr(_env, "_PKG_PARENT", str(repo))
+    with pytest.raises(ValueError):
+        _env._validated_station(str(workspace))
+
+
+def test_knowledge_skeleton_rejects_child_junction(tmp_path):
+    from powerbi_agent import knowledge as kn
+    import subprocess
+
+    root = tmp_path / "station"
+    outside = tmp_path / "outside"
+    root.mkdir()
+    outside.mkdir()
+    try:
+        (root / "knowledge").symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        if os.name != "nt":
+            pytest.skip("Cannot create directory symlink in this environment")
+        made = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(root / "knowledge"), str(outside)],
+            capture_output=True, text=True,
+        )
+        if made.returncode:
+            pytest.skip("Cannot create test junction in this environment")
+    with pytest.raises(ValueError):
+        kn.ensure_skeleton(str(root))
+    assert list(outside.iterdir()) == []
+
+
+def test_policy_rejects_invalid_project_root_without_type_error(monkeypatch):
+    from powerbi_agent import knowledge as kn
+
+    monkeypatch.setattr(kn, "resolve_root", lambda: None)
+    monkeypatch.delenv("POWERBI_POLICY_FILE", raising=False)
+    with pytest.raises(ValueError, match="Trạm dữ liệu"):
+        policy._policy_file()
+
+
+def _capture_tools(module):
+    captured = {}
+
+    class FakeMcp:
+        def tool(self):
+            def decorate(fn):
+                captured[fn.__name__] = fn
+                return fn
+            return decorate
+
+    module.register(FakeMcp())
+    return captured
+
+
+def test_distill_template_rejects_visual_type_path_traversal(monkeypatch, tmp_path):
+    from powerbi_agent import pbir, tools_template
+
+    monkeypatch.setattr(pbir, "resolve_definition_dir", lambda _: str(tmp_path / "report" / "definition"))
+    monkeypatch.setattr(pbir, "find_page", lambda *_: (str(tmp_path / "page"), {"displayName": "Example"}))
+    monkeypatch.setattr(pbir, "list_visuals", lambda *_: [("v1", {"visual": {"visualType": "../escape"}})])
+    tools = _capture_tools(tools_template)
+    result = tools["distill_template"]("report.pbip", "page", str(tmp_path / "output"))
+    assert result.startswith("Lỗi distill_template")
+    assert not (tmp_path / "output").exists()
+    assert not (tmp_path / "escape.json").exists()
+
+
+def test_design_rejects_theme_name_traversal_before_read(monkeypatch, tmp_path):
+    from powerbi_agent import pbir, tools_design
+
+    definition = tmp_path / "Example.Report" / "definition"
+    definition.mkdir(parents=True)
+    read_paths = []
+    monkeypatch.setattr(pbir, "resolve_definition_dir", lambda _: str(definition))
+
+    def fake_read(path):
+        read_paths.append(path)
+        return {"themeCollection": {"customTheme": {"name": "../outside.json"}}}
+
+    monkeypatch.setattr(pbir, "read_json", fake_read)
+    tools = _capture_tools(tools_design)
+    result = tools["distill_report_design"]("Example.pbip", out_dir=str(tmp_path / "output"))
+    assert result.startswith("Lỗi distill_report_design")
+    assert len(read_paths) == 1
+    assert not (tmp_path / "output" / "theme" / "outside.json").exists()
+
+
+def test_model_distill_requires_unique_model(monkeypatch):
+    from powerbi_agent import tools_distill
+
+    monkeypatch.setattr(tools_distill, "_catalogs", lambda _: ["model-A", "model-B"])
+    tools = _capture_tools(tools_distill)
+    result = tools["distill_model_schema"](port="123")
+    assert "chọn model_id" in result
+
+
+def test_knowledge_basic_station_initializes_current_commands(tmp_path, monkeypatch):
+    from powerbi_agent import knowledge as kn
+    from powerbi_agent import tools_knowledge
+
+    monkeypatch.setenv("POWERBI_PROJECT_DIR", str(tmp_path))
+    registered = {}
+
+    class FakeMCP:
+        def tool(self):
+            def capture(fn):
+                registered[fn.__name__] = fn
+                return fn
+            return capture
+
+    tools_knowledge.register(FakeMCP())
+    assert "CHƯA SETUP" in registered["knowledge_status"]()
+    kn.ensure_skeleton(str(tmp_path))
+    assert "Knowledge Dir:" in registered["knowledge_status"]()
+    index = tmp_path / "INDEX.md"
+    assert "/pbi-new" in index.read_text(encoding="utf-8")
+    assert not kn.migrate_index(str(tmp_path))
+    index.write_text("# INDEX\n\n/powerbi-new\n", encoding="utf-8")
+    assert kn.migrate_index(str(tmp_path))
+    assert index.read_text(encoding="utf-8") == "# INDEX\n\n/pbi-new\n"

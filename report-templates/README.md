@@ -6,6 +6,8 @@ bằng clone-and-rebind — style giữ nguyên 100%, chỉ đổi binding field
 
 - Tool liên quan: `list_templates` (liệt kê kit ở đây + env `POWERBI_TEMPLATES_DIR`) ·
   `apply_template` (kit → trang mới) · `distill_template` (trang đẹp → kit mới).
-- Kit đi kèm: [`kpim-business-light/`](kpim-business-light/README.md) (12 block, đã sanitize).
+- Kit đi kèm: [`kpim-business-light/`](kpim-business-light/README.md) (12 block, đã sanitize) — asset của KPIM,
+  chia sẻ để cộng đồng tham khảo; xem [PROVENANCE.md](kpim-business-light/PROVENANCE.md) và [NOTICE.md](../NOTICE.md).
+- Kit mới chỉ vào gói phát hành khi thư mục kit có `PROVENANCE.md` ghi chủ sở hữu, nguồn và giấy phép.
 - Kit chứa binding nghiệp vụ THẬT → để NGOÀI repo (env `POWERBI_TEMPLATES_DIR`);
   muốn chia sẻ → distill với `sanitize=True`.

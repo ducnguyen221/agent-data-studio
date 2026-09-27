@@ -1,5 +1,7 @@
 # UAT Report — powerbi-agent v0.2.0
 
+> **Hồ sơ lịch sử:** Các kết quả dưới đây chỉ áp dụng cho v0.2.0 ngày 2026-07-12. Chúng không xác nhận trình cài, chế độ `workspace/` hoặc khả năng nạp skill/MCP trên ba host của bản hiện tại.
+
 > Ngày: 2026-07-12 · Môi trường: Windows 11, Power BI Desktop (Store 2.155), SSMS 21 ADOMD/TOM,
 > Python 3.12 venv. Dữ liệu UAT: một báo cáo Power BI nội bộ (.pbip PBIR nhiều trang, model
 > nhiều bảng và measure) + template kit đã kiểm chứng. **Mọi số liệu nhận dạng model và tên

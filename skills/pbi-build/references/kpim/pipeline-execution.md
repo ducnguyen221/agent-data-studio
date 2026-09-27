@@ -1,6 +1,6 @@
 ---
 title: Pipeline thi công 9 khâu — Power BI end-to-end (điều phối trọn gói)
-source: KPIM practice — gộp skill powerbi-pipeline (repo) và pbi-project-delivery/references/pipeline-execution.md (OpcOS); tên skill đổi sang studio
+source: Agent Data Studio practice
 updated: 2026-09-17
 ---
 

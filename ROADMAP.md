@@ -1,10 +1,10 @@
-# powerbi-agent — Kế hoạch triển khai (Implementation Roadmap)
+# Agent Data Studio — Kế hoạch triển khai (Implementation Roadmap)
 
-> **powerbi-agent** = MCP server + bộ skill + template kit giúp AI Agent (Claude Code · Codex ·
+> **Agent Data Studio** = MCP server + bộ skill + template kit giúp AI Agent (Claude Code · Codex ·
 > Antigravity · mọi MCP client) làm việc **trực tiếp và đúng chuẩn** với Power BI — từ Power Query
 > đến trang báo cáo hoàn thiện — với chính sách an toàn dữ liệu enforce ở tầng server.
 >
-> Trạng thái: 0.6.0 — 16 tool (đọc + ghi model qua TOM + template engine), đang chạy production → v1.0 theo roadmap dưới đây.
+> Trạng thái: 0.7.0 — 16 tool (đọc + ghi model qua TOM + template engine) + 9 skill; chạy thẳng từ checkout, dữ liệu và tri thức nằm ở trạm dữ liệu (`workspace/` hoặc `ADS_DATA`); bộ cài / doctor / update / gỡ cho Claude Code · Codex · Antigravity. Chưa đạt Definition of Done v1.0 (mục 4) → tiếp tục theo roadmap dưới đây.
 
 ---
 
@@ -12,7 +12,7 @@
 
 **Không xây lại modeling.** [`microsoft/powerbi-modeling-mcp`](https://github.com/microsoft/powerbi-modeling-mcp)
 (official, MIT) đã phủ: tạo/sửa table, column, measure, relationship, bulk ops + transaction, TMDL/PBIP,
-DAX validate. powerbi-agent **delegate** phần đó và tập trung vào 4 vùng Microsoft chưa/không làm:
+DAX validate. Agent Data Studio **delegate** phần đó và tập trung vào 4 vùng Microsoft chưa/không làm:
 
 | Vùng | Vì sao là khoảng trống |
 |---|---|

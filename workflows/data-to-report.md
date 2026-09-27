@@ -1,45 +1,29 @@
 ---
 name: data-to-report
-description: End-to-end chain from raw data and business documents to a reviewed, published Power BI report, with the skill, files to read and gate for every step.
+description: Quy trình từ dữ liệu và yêu cầu nghiệp vụ tới báo cáo được kiểm tra
 skills: [pbi-knowledge, data-discovery, data-mockup, pbi-model, pbi-analysis, pbi-design, pbi-build, pbi-review, pbi-publish]
-gates: [project-opened, discovery-approved, model-verified, numbers-checked, brief-approved, page-validated, review-clean, published, project-closed]
+gates: [project-opened, discovery-approved, model-verified, numbers-checked, brief-approved, page-validated, review-clean, project-closed]
 ---
 
-# Workflow: dữ liệu → báo cáo (trọn gói)
+# Quy trình dữ liệu → báo cáo
 
-Đọc **một bước một lần**: mở SKILL.md của bước đang làm, chỉ mở reference khi bảng dưới chỉ tới. Mỗi bước có
-**cổng kiểm** — chưa qua cổng thì không sang bước sau. Đường dẫn tính từ gốc repo.
+Đọc `SKILL.md` của bước đang làm từ `skills/` trong repo; chỉ mở reference liên quan. Source, script và workflow ở repo; artifact dự án ở `workspace/` (basic, bị Git bỏ qua) hoặc trạm ngoài do `ADS_DATA` chỉ định. Mỗi bước có cổng kiểm trước khi chuyển tiếp.
 
-```
-pbi-knowledge ─► data-discovery ─┬─► pbi-model ─► pbi-analysis ─► pbi-design ─► pbi-build ─► pbi-review ─► pbi-publish ─► pbi-knowledge
-  (mở dự án)                     └─► data-mockup ─┘ (chưa có dữ liệu)              ▲    │ vòng Edit→Validate→Reload→Screenshot→Review
-                                                                                     └────┘
-```
+Nếu đầu vào chỉ là CSV, thực hiện bước 0–1 để khảo sát và đánh giá dữ liệu; có thể phân tích CSV mà chưa cần Power BI Desktop hoặc MCP. Chỉ đi tới model và trang báo cáo khi mục tiêu dự án đòi hỏi và công cụ đã sẵn sàng. Publish chỉ khi người dùng yêu cầu rõ và đường tích hợp thực tế được kiểm.
 
-| # | Bước | Skill | File đọc | Cổng kiểm | Lệnh |
-|---|---|---|---|---|---|
-| 0 | Mở dự án, nạp kinh nghiệm cũ | `pbi-knowledge` | `skills/pbi-knowledge/SKILL.md` · `references/kpim/knowledge-os.md` | **project-opened** — có `projects/<slug>/`; đã tóm tắt kinh nghiệm cũ | `/pbi-setup` (lần đầu) · `/pbi-new <tên>` · `/pbi-recall` |
-| 1 | Khảo sát, hỏi ngược, tài liệu hoá, kế hoạch | `data-discovery` | `skills/data-discovery/SKILL.md` · `references/kpim/discovery-process.md` · mẫu `templates/documents/` | **discovery-approved** — PROJECT.md đủ 5 bảng + 6 mindmap; Project_Management.xlsx có PLANNING; câu hỏi PII đã hỏi; user duyệt | — |
-| 1′ | (Nhánh) Chưa có dữ liệu → bộ mẫu | `data-mockup` | `skills/data-mockup/SKILL.md` · `references/kpim/mockup-*-playbook.md` · `templates/documents/dataset/` | Verify 0 FAIL (ngoài `intentional_fail`); Excel có Data Dictionary | — |
-| 2 | Kết nối, transform, mô hình hoá, measure | `pbi-model` | `skills/pbi-model/SKILL.md` · `references/kpim/{m,dax,sql}-best-practices.md` · `tom-tmdl-write.md` · MS `modeling-guidelines.md`, `tmdl-guidelines.md` | **model-verified** — row count khớp; kiểu cột đúng; ERD hình sao; mỗi measure `EVALUATE ROW` khớp số biết trước; mở lại file vẫn còn measure (TMDL) | — |
-| 3 | Truy vấn an toàn, soát số | `pbi-analysis` | `skills/pbi-analysis/SKILL.md` · `references/kpim/mcp-tools.md` · `operations.md` | **numbers-checked** — `policy.json` đã khai PII; 1–2 con số đối chiếu `METRICS_CALCULATION` khớp; audit sạch | — |
-| 4 | Thiết kế trang → Design Brief | `pbi-design` | `skills/pbi-design/SKILL.md` · `references/kpim/clone-not-generate.md` · `design-standard.md` · MS `design-brief.md`, archetypes | **brief-approved** — có nguồn clone hoặc archetype; toạ độ theo lưới KPIM; binding là field thật; user duyệt Brief | `/pbi-scan` (redesign) · `/pbi-recall` (kit cũ) |
-| 5 | Dựng trang + vòng kiểm | `pbi-build` | `skills/pbi-build/SKILL.md` · `references/kpim/rebind-and-pitfalls.md` · MS `powerbi-report-author-cli.md`, `powerbi-desktop.md`, `screenshot-review.md` | **page-validated** — grep tên cũ = 0; `validate` 0 lỗi; reload OK; screenshot được `agents/pbi-render-reviewer.md` chấm ĐẠT; user nghiệm thu mắt | — |
-| 6 | Review độc lập | `pbi-review` | `skills/pbi-review/SKILL.md` · `references/kpim/review-checklist.md` | **review-clean** — không Blocker/Major; tie-out khớp; RLS/PII ổn | — |
-| 7 | Publish (khi user yêu cầu) | `pbi-publish` *(unverified)* | `skills/pbi-publish/SKILL.md` · `references/microsoft/common/*` | **published** — workspace đúng; LRO Succeeded; binding report ↔ model đích khớp; HANDOFF ghi refresh/quyền | — |
-| 8 | Đóng dự án, đóng gói tri thức | `pbi-knowledge` | `skills/pbi-knowledge/SKILL.md` · `agents/pbi-knowledge-curator.md` | **project-closed** — 4 artifact (PLAN · CHANGESET · VERIFICATION · HANDOFF); design/ + schema distill; bài học đã pack; TIMELINE có mốc | `/pbi-done` · `/pbi-kit` · `/pbi-pack` |
+| # | Bước | File đọc từ gốc repo | Cổng kiểm |
+|---|---|---|---|
+| 0 | Mở dự án, tra kinh nghiệm | `skills/pbi-knowledge/SKILL.md`, `commands/pbi-setup.md`, `commands/pbi-new.md` | `projects/<slug>/` trong trạm; kinh nghiệm liên quan đã được xem. Nếu chưa có MCP, tạo tài liệu khảo sát trong trạm và ghi rõ tool chưa chạy. |
+| 1 | Khảo sát và lập kế hoạch | `skills/data-discovery/SKILL.md`, `skills/data-discovery/references/kpim/discovery-process.md`, `templates/documents/` | Yêu cầu, nguồn, grain, chỉ số, cột nhạy cảm và kế hoạch được ghi rõ; người dùng duyệt phạm vi. |
+| 1′ | Tạo dữ liệu mẫu khi thiếu dữ liệu | `skills/data-mockup/SKILL.md`, hai playbook trong `skills/data-mockup/references/kpim/` | Bộ mẫu kiểm được, có dictionary và lỗi dự kiến được giải thích. |
+| 2 | Kết nối và dựng model khi cần Power BI | `skills/pbi-model/SKILL.md`, reference trong `skills/pbi-model/references/` | Row count, kiểu cột, quan hệ và measure được kiểm với số đối chiếu; trạng thái lưu được xác nhận. |
+| 3 | Soát số và chính sách truy vấn | `skills/pbi-analysis/SKILL.md`, `skills/pbi-analysis/references/kpim/mcp-tools.md` | Policy PII phù hợp, số đối chiếu khớp và audit được xem khi tool có sẵn. |
+| 4 | Thiết kế trang | `skills/pbi-design/SKILL.md`, reference trong `skills/pbi-design/references/` | Design Brief có nguồn thiết kế và field thật; người dùng duyệt. |
+| 5 | Dựng và xem ảnh render | `skills/pbi-build/SKILL.md`, `agents/pbi-render-reviewer.md` | Validate, reload, screenshot và kiểm mắt; thiếu ảnh thì chưa nghiệm thu trang. |
+| 6 | Review độc lập | `skills/pbi-review/SKILL.md`, `skills/pbi-review/references/kpim/review-checklist.md` | Không còn lỗi nghiêm trọng, số tie-out khớp. |
+| 7 | Publish nếu được yêu cầu | `skills/pbi-publish/SKILL.md` | Kiểm quyền, đích, kết quả triển khai, binding và refresh bằng bằng chứng của host/Service. Đường publish chưa được nghiệm thu tổng quát. |
+| 8 | Đóng dự án | `skills/pbi-knowledge/SKILL.md`, `commands/pbi-done.md`, `agents/pbi-knowledge-curator.md` | Artifact bàn giao đầy đủ theo phạm vi thực tế; bài học tái dùng được đối chiếu và lưu trong trạm. |
 
-## Quay lui
+Các tệp `commands/pbi-*.md` có thể được gọi bằng `/pbi-*` khi host nhận lệnh. Host không hỗ trợ thì yêu cầu bằng ngôn ngữ tự nhiên với tên quy trình. Tệp adapter tồn tại chưa chứng minh host đã chạy được lệnh.
 
-| Phát hiện ở | Quay về |
-|---|---|
-| Số không khớp (bước 3, 6) | `pbi-model` (measure/model) hoặc `data-discovery` (định nghĩa chỉ số sai) |
-| Thiếu measure khi thiết kế/dựng (bước 4, 5) | `pbi-model` |
-| Visual trống / rebind sót (bước 5) | `pbi-build` bước clone + rebind |
-| Thiết kế không đạt (bước 5, 6) | `pbi-design` sửa Brief |
-
-## Luật xuyên suốt
-- Dữ liệu dự án chỉ ở Knowledge Dir / thư mục dữ liệu máy, **không bao giờ** trong repo.
-- PBIR/TMDL chỉ ghi khi `.pbip` đóng; TOM chỉ để thử.
-- Không tự dựng layout từ số 0; dữ liệu thô không rời engine.
-- Mỗi bước để lại bằng chứng cổng kiểm trong `projects/<slug>/artifacts/VERIFICATION`.
+Số không khớp thì quay lại định nghĩa chỉ số hoặc model. Visual trống hay rebind sai thì quay lại bước dựng. Thiết kế không đạt thì sửa Brief rồi kiểm trang lại. Mỗi cổng ghi bằng chứng vào `projects/<slug>/artifacts/VERIFICATION` của trạm.

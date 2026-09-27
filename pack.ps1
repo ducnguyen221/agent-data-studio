@@ -1,110 +1,100 @@
 ﻿<#
 .SYNOPSIS
-  Đóng gói repo thành .zip mang sang máy khác.
-
+  Tạo ZIP public từ commit sạch của Agent Data Studio.
 .DESCRIPTION
-  Đóng gói theo ALLOWLIST — chỉ những file GIT ĐANG TRACK mới vào zip.
-
-  Vì sao không dùng blacklist như trước: bản cũ copy MỌI thứ ở gốc rồi trừ vài cái, nên
-  zip mang theo cả `policy.json` (tên cột PII thật của khách), `knowledge.config.json`
-  (đường dẫn cá nhân), `docs/internal/`, cache… — mà zip này sinh ra để ĐƯA CHO NGƯỜI KHÁC.
-  Danh sách loại trừ luôn tụt lại phía sau: thêm file riêng tư mới là nó tự lọt.
-
-  Allowlist đảo ngược mặc định: thứ gì chưa được commit thì KHÔNG ra khỏi máy.
-
+  Chỉ đóng gói bytes trong HEAD. Không có tùy chọn đưa .env, credential hay workspace vào gói.
 .PARAMETER OutDir
-  Nơi ghi file zip. Mặc định thư mục hiện tại.
-.PARAMETER IncludeEnv
-  Kèm `.env` (SECRET + đường dẫn cá nhân). Chỉ dùng khi tự mang sang máy CỦA MÌNH.
+  Thư mục ngoài repo để đặt ZIP; bắt buộc khai báo tường minh.
 #>
 [CmdletBinding()]
 param(
-    [string] $OutDir = ".",
-    [switch] $IncludeEnv
+    [Parameter(Mandatory=$true)] [string] $OutDir
 )
-$ErrorActionPreference = "Stop"
-$Root  = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Stamp = Get-Date -Format "yyyyMMdd"
-# Ten DUY NHAT theo tien trinh: dat theo GIAY thi hai lan chay song song (harness chay
-# 3 ban) dung chung mot thu muc staging va xoa file cua nhau giua chung.
-$stage = Join-Path $env:TEMP ("pbimcp-pack-$PID-" + [guid]::NewGuid().ToString("N"))
-
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    throw "Cần git để lấy danh sách file được phép đóng gói (allowlist). Không có git thì DỪNG — không fallback sang copy-tất-cả."
+$ErrorActionPreference = 'Stop'
+$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Root = [System.IO.Path]::GetFullPath($Root).TrimEnd('\')
+$target = [System.IO.Path]::GetFullPath($OutDir).TrimEnd('\')
+if ($target.Equals($Root, [StringComparison]::OrdinalIgnoreCase) -or
+    $target.StartsWith($Root + '\', [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Thư mục ZIP phải nằm ngoài repo source.'
 }
-
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'Cần Git để đóng gói từ commit.' }
+$dirty = & git -C $Root status --porcelain --untracked-files=all
+if ($LASTEXITCODE -ne 0) { throw 'Không đọc được trạng thái Git.' }
+if ($dirty) { throw 'Checkout còn thay đổi; review và commit trước khi tạo artifact public.' }
+$forced = & git -C $Root ls-files --cached --ignored --exclude-standard
+if ($LASTEXITCODE -ne 0) { throw 'Không kiểm được Git index.' }
+if ($forced) { throw 'Git index có file bị ignore nhưng đã track; kiểm tra trước khi đóng gói.' }
+$tracked = @(& git -C $Root ls-tree -r --name-only HEAD)
+if ($LASTEXITCODE -ne 0 -or $tracked.Count -eq 0) { throw 'Không kiểm được danh sách file trong HEAD.' }
+$allowedRoots = @('.agents', '.claude', '.claude-plugin', '.codex-plugin', '.github',
+    'LICENSES', 'agents', 'commands', 'docs', 'hosts',
+    'powerbi_agent', 'report-templates', 'samples', 'scripts', 'skills', 'templates',
+    'tests', 'upstream', 'workflows')
+$allowedFiles = @('.env.example', '.gitattributes', '.gitignore', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md',
+    'INDEX.md', 'LICENSE', 'NOTICE.md', 'README.md', 'README.vi.md', 'ROADMAP.md', 'START-HERE.md',
+    'doctor.ps1', 'install.ps1', 'mcp_server_powerbi.py', 'pack.ps1', 'policy.example.json',
+    'pyproject.toml', 'requirements.loose.txt', 'requirements.txt',
+    'THIRD_PARTY_NOTICES.md', 'uninstall.ps1', 'update.ps1')
+$required = @('.env.example', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
+    'LICENSES/microsoft-skills-for-fabric.txt', 'install.ps1', 'doctor.ps1')
+foreach ($name in $required) {
+    if ($name -notin $tracked) { throw "HEAD thiếu file bắt buộc cho gói public: $name" }
+}
+foreach ($name in $tracked) {
+    $normalized = $name.Replace('\', '/')
+    $rootName = ($normalized -split '/', 2)[0]
+    if (($normalized -notin $allowedFiles) -and ($rootName -notin $allowedRoots)) {
+        throw "HEAD chứa file ngoài allowlist public: $normalized"
+    }
+    if ($normalized -ne '.env.example' -and
+        $normalized -match '(^|/)(workspace|\.venv|\.env(?:\.[^/]*)?|config\.env|secrets\.env|policy\.json|knowledge\.config\.json|docs/internal)(/|$)') {
+        throw "HEAD chứa dữ liệu/cấu hình riêng: $normalized"
+    }
+}
+# Asset KPIM chia sẻ cho cộng đồng chỉ vào gói khi nhóm asset có PROVENANCE.md trong HEAD
+# và gốc repo có NOTICE.md. Nhóm = thư mục hồ sơ dữ liệu, từng kit trong report-templates/,
+# hoặc thư mục của workbook mẫu. Nhóm thiếu ghi nguồn vẫn bị chặn như trước.
+$trackedSet = @{}
+foreach ($name in $tracked) { $trackedSet[$name.Replace('\', '/')] = $true }
+$gatedCount = 0
+$unapproved = @()
+foreach ($name in $tracked) {
+    $normalized = $name.Replace('\', '/')
+    $group = $null
+    if ($normalized -like 'skills/data-mockup/references/kpim/kpim-datasets/*') {
+        $group = 'skills/data-mockup/references/kpim/kpim-datasets'
+    } elseif ($normalized -like 'report-templates/*/*') {
+        $group = 'report-templates/' + ($normalized -split '/')[1]
+    } elseif ($normalized -eq 'templates/documents/Project_Management.xlsx') {
+        $group = 'templates/documents'
+    }
+    if (-not $group) { continue }
+    $gatedCount++
+    if (-not $trackedSet.ContainsKey("$group/PROVENANCE.md")) { $unapproved += $normalized }
+}
+if ($unapproved.Count -gt 0) {
+    throw "HEAD còn $($unapproved.Count) file hồ sơ dữ liệu hoặc tài sản template thiếu PROVENANCE.md trong nhóm; dừng trước khi tạo ZIP."
+}
+if ($gatedCount -gt 0 -and -not $trackedSet.ContainsKey('NOTICE.md')) {
+    throw 'HEAD có asset KPIM nhưng thiếu NOTICE.md ở gốc repo; dừng trước khi tạo ZIP.'
+}
+$sha = (& git -C $Root rev-parse --short=12 HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or -not $sha) { throw 'Không đọc được commit HEAD.' }
+$zip = Join-Path $target "agent-data-studio-$sha.zip"
+if (Test-Path -LiteralPath $zip) { throw 'Artifact cùng commit đã tồn tại; không ghi đè.' }
+New-Item -ItemType Directory -Path $target -Force | Out-Null
+& git -C $Root archive --format=zip --output=$zip HEAD
+if ($LASTEXITCODE -ne 0) { throw 'Git archive thất bại.' }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archive = [System.IO.Compression.ZipFile]::OpenRead($zip)
 try {
-    New-Item -ItemType Directory -Path $stage -Force | Out-Null
-
-    # Zip KHÔNG được nằm trong repo: `git add -A` sau đó sẽ commit luôn cả gói (kèm .env
-    # nếu dùng -IncludeEnv). Mặc định "." chính là repo, nên phải chặn tường minh.
-    # Windows PowerShell 5.1 KHÔNG có toán tử `?.` — dùng if thường.
-    # KIEM TRUOC, TAO SAU: truoc day nhanh 'chua ton tai' tao thu muc roi moi tu choi,
-    # de lai mot thu muc rong ngay trong working tree — dung thu rac ma chinh lenh nay
-    # sinh ra de chong.
-    $rp = Resolve-Path $OutDir -ErrorAction SilentlyContinue
-    if ($rp) { $outFull = $rp.Path }
-    else {
-        # Join-Path với đường dẫn ĐÃ tuyệt đối cho ra "C:\a\C:\b" -> GetFullPath ném
-        # "path's format is not supported". Phải tách hai trường hợp.
-        $combined = if ([System.IO.Path]::IsPathRooted($OutDir)) { $OutDir }
-                    else { Join-Path (Get-Location).Path $OutDir }
-        $outFull = [System.IO.Path]::GetFullPath($combined)
-    }
-    if ($outFull.TrimEnd('\') -eq $Root.TrimEnd('\') -or $outFull.StartsWith($Root.TrimEnd('\') + '\')) {
-        throw "TỪ CHỐI ghi zip vào trong repo ($outFull). Gói này có thể chứa secret; để trong working tree là một lệnh 'git add -A' nữa là bị commit. Dùng -OutDir <thư mục ngoài repo>."
-    }
-    if (-not (Test-Path $outFull)) { New-Item -ItemType Directory -Path $outFull -Force | Out-Null }
-    $zip = Join-Path $outFull "powerbi-mcp-setup-$Stamp.zip"
-
-    Write-Host "[i] Đóng gói từ: $Root (allowlist = git ls-files)" -ForegroundColor Cyan
-    # -z: phân tách bằng NUL, KHÔNG C-quote đường dẫn non-ASCII. Mặc định git bọc nháy
-    # những path có ký tự lạ; script cũ coi chuỗi đã bọc nháy là tên file thật -> Test-Path
-    # trượt -> file bị bỏ IM LẶNG mà số đếm vẫn báo đủ.
-    $raw = & git -C $Root -c core.quotepath=false ls-files -z
-    if ($LASTEXITCODE -ne 0) { throw "git ls-files lỗi — dừng để không đóng gói nhầm." }
-    $files = @(($raw -split "`0") | Where-Object { $_ })
-    if (-not $files) { throw "git ls-files không trả về file nào — dừng để không đóng gói nhầm." }
-
-    $copied = 0
-    foreach ($rel in $files) {
-        $src = Join-Path $Root $rel
-        if (-not (Test-Path -LiteralPath $src)) { continue }   # file đã xoá nhưng chưa commit
-        $dst = Join-Path $stage $rel
-        $dir = Split-Path -Parent $dst
-        if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-        Copy-Item -LiteralPath $src -Destination $dst -Force
-        $copied++
-    }
-    if ($copied -ne $files.Count) {
-        throw "Chi copy duoc $copied/$($files.Count) file - co path khong doc duoc. Dung de khong giao goi thieu."
-    }
-    Write-Host "[OK] $copied/$($files.Count) file duoc track -> staging" -ForegroundColor Green
-
-    # .env là NGOẠI LỆ có chủ đích: gitignored nên allowlist không lấy, chỉ thêm khi user yêu cầu rõ.
-    if ($IncludeEnv) {
-        $envSrc = Join-Path $Root ".env"
-        if (Test-Path $envSrc) {
-            Copy-Item -LiteralPath $envSrc -Destination (Join-Path $stage ".env") -Force
-            Write-Host "[!] ĐÃ KÈM .env — chứa SECRET và đường dẫn cá nhân. Chỉ mang sang máy CỦA BẠN." -ForegroundColor Yellow
-        }
-    }
-
-    # Chốt an toàn: dù allowlist đã lọc, vẫn khẳng định lại không có file riêng tư nào lọt.
-    $forbidden = @('policy.json', 'knowledge.config.json')
-    if (-not $IncludeEnv) { $forbidden += '.env' }
-    $leaked = Get-ChildItem $stage -Recurse -Force -File -ErrorAction SilentlyContinue |
-        Where-Object { $forbidden -contains $_.Name -or $_.FullName -like '*\docs\internal\*' }
-    if ($leaked) {
-        throw "DỪNG: file riêng tư lọt vào staging: $($leaked.FullName -join ', ')"
-    }
-
-    if (Test-Path $zip) { Remove-Item $zip -Force }
-    Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
-    Write-Host "[OK] Đã tạo: $zip" -ForegroundColor Green
-    Write-Host "     Bên trong CHỈ có file đã commit — không có policy.json / docs internal / cache." -ForegroundColor Gray
-}
-finally {
-    # finally: hỏng giữa chừng cũng không được để bản sao dữ liệu nằm lại trong %TEMP%.
-    if (Test-Path $stage) { Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue }
-}
+    $bad = @($archive.Entries | Where-Object {
+        $name = $_.FullName.Replace('\','/').ToLowerInvariant()
+        $name -match '(^|/)(workspace|\.venv|\.env|config\.env|secrets\.env|policy\.json|knowledge\.config\.json|docs/internal)(/|$)' -or
+        $name -eq '.ads-binding.json'
+    })
+    if ($bad.Count -gt 0) { throw 'Artifact chứa file dữ liệu/cấu hình riêng; không được phát hành.' }
+} finally { $archive.Dispose() }
+Write-Output "Artifact: $zip"
+Write-Output "Commit: $sha"

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-"""gen_skeleton — KHUNG GENERATOR, chép đi sửa cho từng bộ dữ liệu.
+"""gen_skeleton — generator mẫu bán lẻ, chạy từ repo với spec và output ở trạm.
 
 Bản mẫu này sinh đúng bộ BÁN LẺ mô tả trong `templates/documents/dataset/dataset.template.yaml` (gốc repo),
-chạy được ngay để bạn thấy pipeline đầy đủ trước khi sửa theo nghiệp vụ của mình.
+chạy được ngay để bạn thấy pipeline đầy đủ. Spec ngành khác cần generator riêng được
+triển khai trong source repo; script mẫu không tự suy ra builder từ mọi spec.
 
-    python gen_skeleton.py dataset.yaml -o data/
-    python mockpack.py verify dataset.yaml data/ -o DATA_QUALITY_REPORT.md
-    python mockpack.py pack   dataset.yaml data/ -o BanLe.xlsx
+    python gen_skeleton.py <dataset.yaml> -o <thu-muc-du-an>/data
+    python mockpack.py verify <dataset.yaml> <thu-muc-du-an>/data -o <thu-muc-du-an>/DATA_QUALITY_REPORT.md
+    python mockpack.py pack <dataset.yaml> <thu-muc-du-an>/data -o <thu-muc-du-an>/BanLe.xlsx
 
-SỬA Ở ĐÂU: mỗi hàm `build_*` dưới đây tương ứng một bảng trong spec. Xoá hàm không dùng,
-thêm hàm mới, rồi khai vào `BUILDERS` ở cuối file. Giữ nguyên 4 nguyên tắc:
+Khi phát triển generator khác trong source repo, giữ 4 nguyên tắc:
 
 1. Một nguồn ngẫu nhiên duy nhất `r = mp.rng(seed)` — không dùng random.* toàn cục.
 2. Thứ tự sinh: cfg → dim → bridge → fact → lớp nghiệp vụ.
@@ -25,9 +25,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-# mockpack.py nằm ở thư mục scripts của skill. Khi chép generator sang thư mục dự án:
-# đặt biến môi trường MOCKPACK_DIR trỏ vào đó, hoặc chép mockpack.py sang cạnh file này.
-sys.path.insert(0, os.environ.get("MOCKPACK_DIR") or os.path.dirname(os.path.abspath(__file__)))
+# Helper và generator dùng chung luôn ở cùng thư mục scripts của repo.
 import mockpack as mp  # noqa: E402
 
 
@@ -90,7 +88,7 @@ def build_dim_cua_hang(r, cfg, tables):
     kv = [KHU_VUC[i % 3] for i in range(n)]
     return pd.DataFrame({
         "ma_ch": mp.id_seq("CH-", n, width=2),
-        "ten_ch": [f"KPIM Mart {k} {i:02d}" for i, k in enumerate(kv, 1)],
+        "ten_ch": [f"Cửa hàng Mẫu {k} {i:02d}" for i, k in enumerate(kv, 1)],
         "khu_vuc": kv,
         "ngay_khai_truong": mp.date_series(r, n, "2019-01-01", "2024-12-31").date,
     })
@@ -179,10 +177,23 @@ BUILDERS = [                      # đúng thứ tự phụ thuộc: cfg → dim
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Sinh dữ liệu mockup theo dataset.yaml")
     ap.add_argument("spec", nargs="?", default="dataset.yaml")
-    ap.add_argument("-o", "--out", default="data")
+    ap.add_argument("-o", "--out", help="Thư mục dữ liệu đầu ra; mặc định ở trạm đang dùng")
     args = ap.parse_args(argv)
 
+    repo_root = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    sys.path.insert(0, repo_root)
+    from powerbi_agent._env import data_dir
+    from powerbi_agent.knowledge import ensure_outside_repo
+
+    try:
+        out_dir = ensure_outside_repo(args.out or os.path.join(data_dir(), "mockdata"), "dữ liệu mẫu")
+    except (RuntimeError, ValueError) as exc:
+        ap.error(str(exc))
+
     spec = mp.load_spec(args.spec)
+    unsupported = sorted({table["name"] for table in spec["tables"]} - {name for name, _ in BUILDERS})
+    if unsupported:
+        ap.error("Generator bán lẻ mẫu chưa hỗ trợ bảng: " + ", ".join(unsupported))
     ds = spec["dataset"]
     cfg = {
         "as_of": str(ds["as_of_date"]),
@@ -199,8 +210,8 @@ def main(argv=None):
             continue
         tables[name] = builder(r, cfg, tables)
 
-    mp.save_frames(tables, args.out)
-    print(f"→ {args.out}/  (chạy tiếp: mockpack.py verify {args.spec} {args.out})")
+    mp.save_frames(tables, out_dir)
+    print(f"→ {out_dir}/  (chạy tiếp: mockpack.py verify {args.spec} {out_dir})")
     return 0
 
 

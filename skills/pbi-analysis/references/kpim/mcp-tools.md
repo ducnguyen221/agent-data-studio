@@ -1,13 +1,13 @@
 ---
 title: Sổ tay 16 tool của engine studio (bridge Power BI) + phân vai với Modeling MCP của Microsoft
 skill: pbi-analysis
-source: KPIM practice — gộp bản skill powerbi-mcp (repo) và bản vận hành (OpcOS data-bi)
+source: Agent Data Studio practice
 updated: 2026-09-17
 ---
 
 # 16 tool của engine studio
 
-Engine chạy từ gói đã cài (`$ADS_DATA/.venv`), bật MCP **theo nhu cầu**. Mặc định làm việc tiết kiệm
+Engine và môi trường Python `.venv/` chạy từ checkout Agent Data Studio; `ADS_DATA` chỉ chứa dữ liệu trạm. Bật MCP **theo nhu cầu**. Mặc định làm việc tiết kiệm
 context: chỉ gọi tool khi cần số liệu/cấu trúc thật.
 
 | Nhóm | Tool | Chức năng | Ghi chú |
@@ -22,7 +22,7 @@ context: chỉ gọi tool khi cần số liệu/cấu trúc thật.
 | Template | `list_templates()` | Kit có sẵn (`report-templates/` + `POWERBI_TEMPLATES_DIR`) | |
 | | `apply_template(report_path, kit_dir, page_spec)` | Dựng trang mới từ kit (clone-and-rebind) | File `.pbip` phải **đóng**; luật ở `pbi-design` / `pbi-build` |
 | | `distill_template(report_path, page, out_dir, kit_name?, sanitize=True)` | Trang đẹp → kit tái dùng | `out_dir` khác nhau cho từng trang |
-| Distill | `distill_model_schema(port?, model_id?, output_filename?, output_dir?)` | Model → blueprint Markdown + ERD Mermaid | Schema có thể nhạy cảm — không ghi vào repo/thư mục đồng bộ công khai |
+| Distill | `distill_model_schema(port?, model_id?, output_filename?, output_dir?)` | Model → blueprint Markdown + ERD Mermaid | Schema có thể nhạy cảm — ghi vào trạm basic `workspace/` bị Git loại trừ hoặc trạm ngoài riêng tư |
 | | `distill_report_design(report_path, project?, out_dir?)` | Quét trọn báo cáo: mọi trang + theme + DESIGN.md + REPORT_CATALOG.md | Mặc định vào Knowledge Dir |
 | Knowledge OS | `knowledge_status()` | Trạng thái Knowledge Dir | Gọi trước mọi quy trình tri thức |
 | | `setup_knowledge(path)` · `init_project(name)` · `log_timeline(project, event, lesson?, link?)` | Thiết lập · mở dự án · ghi mốc | Luồng: skill `pbi-knowledge` |
@@ -34,7 +34,7 @@ context: chỉ gọi tool khi cần số liệu/cấu trúc thật.
 | Aggregate-only (mặc định BẬT) | `EVALUATE 'Bảng'` / `EVALUATE ALL(...)` bị từ chối kèm gợi ý viết lại | Tắt có chủ đích: `POWERBI_AGGREGATE_ONLY=0` |
 | PII blocklist | Cột khai trong `policy.json` bị cấm project | `POWERBI_POLICY_FILE`; hỏi user cột nhạy cảm **đầu dự án** |
 | Trần dòng | Kết quả có cột dimension siết còn 200 dòng (thuần measure thì không) | `POWERBI_DIMENSION_ROW_CAP` |
-| Audit | Mọi truy vấn ghi JSONL (verdict + số dòng, không lưu dữ liệu) | `POWERBI_AUDIT_DIR`; mặc định thư mục dữ liệu, không bao giờ trong repo |
+| Audit | Mọi truy vấn ghi JSONL (verdict + số dòng, không lưu dữ liệu) | `POWERBI_AUDIT_DIR`; mặc định trạm dữ liệu (`workspace/` bị Git loại trừ ở basic) |
 
 Trung thực về giới hạn: đây là lớp chặn rò **vô ý**; bảo mật cứng là RLS + service principal quyền tối thiểu.
 

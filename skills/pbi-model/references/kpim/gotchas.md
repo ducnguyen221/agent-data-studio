@@ -1,15 +1,15 @@
-# Gotchas & Bẫy kinh nghiệm (agent reference)
+# Các bẫy thường gặp khi làm Power BI
 
 > Bẫy đã trả giá khi làm Power BI end-to-end. Đọc để tránh lặp lại.
 
-## Data / Power Query
+## Dữ liệu và Power Query
 - **Date thành serial 45292**: Excel ngày về số → ép kiểu Date tường minh ở bước cuối.
 - **Bước làm gãy query folding** (Index, một số custom step, merge với nguồn khác) → refresh chậm; kiểm bằng View Native Query.
 - **Cột khóa có blank** → xuất hiện "blank member" ở mọi slicer/quan hệ.
 - Nhiều sheet Excel (mỗi năm 1 sheet) → **append** thành 1 bảng dài trước khi model.
 - Mã SP/khu vực **không đồng nhất** giữa nguồn → phải mapping về 1 mã chuẩn (Unify Code).
 
-## Data Model
+## Mô hình dữ liệu
 - **Auto date/time** phình model → tắt, dùng Date Table riêng.
 - Snapshot fact nối date qua **cột cuối tháng** là đủ (đừng ép ngày chính xác).
 - Quan hệ Many-to-many/ngược chiều → soi Mermaid ERD (`distill_model_schema`) đảm bảo hình sao.
@@ -20,10 +20,10 @@
 - Lặp biểu thức không dùng VAR → chậm gấp đôi.
 - Chia bằng `/` không guard → lỗi/‑∞ khi mẫu 0 → dùng `DIVIDE`.
 
-## Report / PBIR
+## Báo cáo và PBIR
 - **KHÔNG dựng layout từ số 0** (luôn xấu) → clone-and-rebind (skill `pbi-design` / `pbi-build`), giữ `visualContainerObjects`.
 - Field bind phải **tồn tại** trong model → `describe_table` trước khi bind.
-- Ghi REPORT (PBIR) chỉ khi file **.pbip ĐÓNG**; ghi model thì lúc nào cũng được (engine live).
+- Ghi REPORT (PBIR) hoặc TMDL bền chỉ khi file **.pbip ĐÓNG** và không còn thay đổi chưa lưu. TOM trên model đang mở chỉ dùng để thử nghiệm có kiểm soát; không coi là đã lưu bền vào file.
 - **Bookmark để tay** — clone bookmark từng vỡ báo cáo; dựng stacked visuals + nhờ user bấm tạo.
 - Agent **không thấy render** → bắt buộc user nghiệm thu mắt trên Desktop.
 
@@ -33,5 +33,4 @@
 - Đừng interleave write 2 MCP (bridge của studio + Modeling MCP của Microsoft) cùng lúc — modeling SaveChanges xong mới quay lại query/report.
 
 ## Vận hành
-- SQL Server **Developer** = free đủ tính năng (kèm Report Server) nhưng vẫn là rủi ro pháp lý — nói rõ với khách.
-- Power BI Pro **$14/user/th** (từ 4/2025); RLS chỉ từ Pro; Fabric F64 → viewer Free.
+- Khi chọn bản quyền hoặc chi phí SQL Server/Power BI/Fabric, đối chiếu tài liệu Microsoft hiện hành và chính sách của tổ chức; không dùng giá hoặc điều kiện cấp phép cũ trong tài liệu này để tư vấn.

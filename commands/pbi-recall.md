@@ -1,11 +1,10 @@
 ---
-description: Gợi nhớ kinh nghiệm — tra dự án cũ, bài học, kit, timeline theo từ khoá
+description: Tra kinh nghiệm dự án, bài học và mẫu trong trạm dữ liệu
 ---
 
-Tra cứu tri thức Power BI / dữ liệu đã tích luỹ theo: $ARGUMENTS
+Tra cứu theo từ khóa: $ARGUMENTS
 
-1. `knowledge_status` → lấy đường dẫn Knowledge Dir.
-2. Đọc `INDEX.md` (mục lục) + `TIMELINE.md` (dòng thời gian).
-3. Grep từ khoá trong `knowledge/**/*.md` + `projects/*/PROJECT.md` + `projects/*/design/DESIGN.md` + `templates/*/README.md`.
-4. Tổng hợp trả lời: dự án nào liên quan (khi nào, kết quả), bài học nào áp dụng được (Why/How-to-apply), kit/template nào tái dùng được. Kèm đường dẫn để user mở.
-5. Không có kết quả → nói thẳng chưa có kinh nghiệm về chủ đề này, đề xuất bắt đầu bằng `/pbi-new`.
+1. Gọi `knowledge_status` để xác định trạm; nếu chưa thiết lập, làm theo `commands/pbi-setup.md`.
+2. Đọc `INDEX.md`, `TIMELINE.md` và tìm trong `knowledge/`, `projects/*/PROJECT.md`, `projects/*/design/DESIGN.md`, `templates/*/README.md` của trạm.
+3. Trả lời bằng phát hiện có nguồn: dự án liên quan, bài học áp dụng được, mẫu có thể tái dùng và đường dẫn để mở.
+4. Không có kết quả thì nói rõ chưa tìm thấy; gợi ý khảo sát dự án mới. Không suy diễn từ tên file hoặc tạo bài học chưa được kiểm chứng.

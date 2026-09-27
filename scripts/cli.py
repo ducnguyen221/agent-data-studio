@@ -1,126 +1,100 @@
-import sys
-import os
+"""CLI đọc Power BI Desktop qua cùng policy và giới hạn của MCP."""
+
+from __future__ import annotations
+
 import argparse
 import json
-import io
+import os
+import sys
 
-# Cấu hình encoding UTF-8 cho stdout để tránh lỗi Unicode trên Windows
-if sys.stdout.encoding != 'utf-8':
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Dùng CHUNG bộ nạp ADOMD.NET đa-phiên-bản của MCP server (không hardcode đường dẫn SSMS).
-# Import mcp_server_powerbi sẽ tự dò & nạp ADOMD.NET động (mọi SSMS / standalone / GAC).
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root — script nằm trong scripts/
-from mcp_server_powerbi import find_active_pbi_ports
-from pyadomd import Pyadomd
-import pandas as pd
+from powerbi_agent import app  # noqa: F401 - nạp config trước ADOMD
+from powerbi_agent import policy
+from powerbi_agent.adomd import adomd_missing_message, import_pyadomd
+from powerbi_agent.connection import local_connection_string
+from powerbi_agent.discovery import find_active_pbi_ports
+from powerbi_agent.tools_query import _query_df
+from powerbi_agent.util import MAX_ROWS
 
-def cmd_list(args):
-    instances = find_active_pbi_ports()
-    if not instances:
-        print(json.dumps({"status": "success", "data": []}))
-        return
-        
-    results = []
-    for inst in instances:
-        port = inst['port']
+
+def _print(payload: dict) -> None:
+    print(json.dumps(payload, ensure_ascii=False, default=str))
+
+
+def _list_models() -> list[dict]:
+    # Gate TRƯỚC import pyadomd (như tools_query): thiếu DLL thì pyadomd in banner ra stdout
+    # rồi hỏng muộn bằng NameError; stdout của CLI phải chỉ là JSON.
+    if not app.ADOMD_LOADED:
+        raise RuntimeError(adomd_missing_message())
+    try:
+        Pyadomd = import_pyadomd()
+    except (ImportError, OSError) as exc:
+        raise RuntimeError("Chưa có ADOMD.NET/pyadomd; cài driver rồi chạy lại lệnh list.") from exc
+
+    models = []
+    for instance in find_active_pbi_ports():
+        port = str(instance["port"])
         try:
-            conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};"
-            with Pyadomd(conn_str) as conn:
-                with conn.cursor().execute("SELECT [CATALOG_NAME] FROM $SYSTEM.DBSCHEMA_CATALOGS") as cur:
-                    catalogs = cur.fetchall()
-                    catalog_name = catalogs[0][0] if catalogs else "Unknown"
-            results.append({
-                "port": port,
-                "model_id": catalog_name,
-                "status": "connected"
-            })
-        except Exception as e:
-            results.append({
-                "port": port,
-                "model_id": "Unknown",
-                "status": "error",
-                "error": str(e)
-            })
-            
-    print(json.dumps({"status": "success", "data": results}, indent=2, ensure_ascii=False))
+            with Pyadomd(local_connection_string(port)) as conn:
+                with conn.cursor().execute("SELECT [CATALOG_NAME] FROM $SYSTEM.DBSCHEMA_CATALOGS") as cursor:
+                    for row in cursor.fetchall():
+                        models.append({"port": port, "model_id": str(row[0])})
+        except Exception:
+            print(f"Không đọc được model ở cổng {port}; kiểm tra Power BI Desktop/ADOMD.NET.", file=sys.stderr)
+    return models
 
-def cmd_query(args):
-    port = args.port
-    model_id = args.model_id
-    query = args.dax
-    
-    conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};Catalog={model_id};"
+
+def _rows(port: str, model_id: str, query: str, tool: str, max_rows: int) -> dict:
     try:
-        with Pyadomd(conn_str) as conn:
-            with conn.cursor().execute(query) as cur:
-                data = cur.fetchall()
-                if not data:
-                    print(json.dumps({"status": "success", "data": "Truy vấn thành công nhưng không có dữ liệu trả về."}))
-                    return
-                
-                columns = [desc[0] for desc in cur.description] if cur.description else None
-                df = pd.DataFrame(data, columns=columns)
-                if args.format == 'markdown':
-                    print(df.to_markdown(index=False))
-                else:
-                    records = df.to_dict(orient='records')
-                    print(json.dumps({"status": "success", "data": records}, indent=2, ensure_ascii=False))
-    except Exception as e:
-        print(json.dumps({"status": "error", "message": str(e)}, indent=2, ensure_ascii=False))
-
-def cmd_tables(args):
-    port = args.port
-    model_id = args.model_id
-    
-    conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};Catalog={model_id};"
+        local_connection_string(port, model_id)
+    except ValueError:
+        return {"status": "error", "message": "Cần chọn cổng và model cụ thể từ lệnh list."}
+    # Gate như _list_models: thiếu ADOMD thì báo rõ lý do, không đi tiếp tới truy vấn/pyadomd.
+    if not app.ADOMD_LOADED:
+        return {"status": "error", "message": adomd_missing_message()}
+    allowed, reason = policy.check_dax(query, tool=tool)
+    if not allowed:
+        return {"status": "blocked", "message": reason}
     try:
-        with Pyadomd(conn_str) as conn:
-            tables_query = "SELECT [Name] FROM $SYSTEM.TMSCHEMA_TABLES"
-            with conn.cursor().execute(tables_query) as cur:
-                tables = cur.fetchall()
-                if tables:
-                    filtered_tables = [t[0] for t in tables if not t[0].startswith('LocalDateTable_') and not t[0].startswith('DateTableTemplate_')]
-                    if args.format == 'markdown':
-                        df = pd.DataFrame(filtered_tables, columns=["Table Name"])
-                        print(df.to_markdown(index=False))
-                    else:
-                        print(json.dumps({"status": "success", "data": filtered_tables}, indent=2, ensure_ascii=False))
-                else:
-                    print(json.dumps({"status": "success", "data": []}))
-    except Exception as e:
-        print(json.dumps({"status": "error", "message": str(e)}, indent=2, ensure_ascii=False))
+        df = _query_df(port, model_id, query)
+        cap = policy.cap_dimension_rows(df, min(max_rows, MAX_ROWS))
+        rows = df.head(cap).to_dict(orient="records")
+        policy.audit(tool, query, "allowed", len(rows))
+        return {"status": "success", "data": rows, "truncated": len(df) > len(rows)}
+    except Exception:
+        policy.audit(tool, query, "error")
+        print("Truy vấn Power BI Desktop thất bại; kiểm tra report/model đã chọn và driver.", file=sys.stderr)
+        return {"status": "error", "message": "Không truy vấn được model đã chọn; kiểm tra Power BI Desktop và quyền truy cập."}
 
-def main():
-    parser = argparse.ArgumentParser(description="CLI Tool để tương tác trực tiếp với Power BI Desktop Local.")
-    subparsers = parser.add_subparsers(dest="command", help="Các lệnh hỗ trợ")
-    
-    # Subcommand: list
-    subparsers.add_parser("list", help="Liệt kê các báo cáo đang mở và cổng kết nối.")
-    
-    # Subcommand: query
-    parser_query = subparsers.add_parser("query", help="Thực thi truy vấn DAX/DMV lên báo cáo đang mở.")
-    parser_query.add_argument("port", type=str, help="Cổng kết nối")
-    parser_query.add_argument("model_id", type=str, help="Mã model/catalog")
-    parser_query.add_argument("dax", type=str, help="Câu lệnh DAX")
-    parser_query.add_argument("--format", type=str, choices=['json', 'markdown'], default='markdown', help="Định dạng kết quả trả về")
-    
-    # Subcommand: tables
-    parser_tables = subparsers.add_parser("tables", help="Lấy danh sách các bảng trong mô hình.")
-    parser_tables.add_argument("port", type=str, help="Cổng kết nối")
-    parser_tables.add_argument("model_id", type=str, help="Mã model/catalog")
-    parser_tables.add_argument("--format", type=str, choices=['json', 'markdown'], default='markdown', help="Định dạng kết quả")
 
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Truy vấn Power BI Desktop với policy chung của Agent Data Studio.")
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("list", help="Liệt kê cổng Power BI Desktop đang mở.")
+    for name in ("query", "tables"):
+        cmd = sub.add_parser(name)
+        cmd.add_argument("port")
+        cmd.add_argument("model_id")
+        if name == "query":
+            cmd.add_argument("dax")
+        cmd.add_argument("--max-rows", type=int, default=MAX_ROWS)
     args = parser.parse_args()
-    
     if args.command == "list":
-        cmd_list(args)
-    elif args.command == "query":
-        cmd_query(args)
-    elif args.command == "tables":
-        cmd_tables(args)
-    else:
-        parser.print_help()
+        try:
+            _print({"status": "success", "data": _list_models()})
+            return 0
+        except RuntimeError as exc:
+            _print({"status": "error", "message": str(exc)})
+            return 2
+    if args.max_rows < 1:
+        _print({"status": "error", "message": "--max-rows phải lớn hơn 0."})
+        return 2
+    query = args.dax if args.command == "query" else "SELECT [Name] FROM $SYSTEM.TMSCHEMA_TABLES"
+    result = _rows(args.port, args.model_id, query, args.command, args.max_rows)
+    _print(result)
+    return 0 if result["status"] == "success" else 2
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

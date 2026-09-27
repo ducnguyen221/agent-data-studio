@@ -8,14 +8,15 @@ if sys.stdout.encoding != 'utf-8':
 
 # Bộ nạp ADOMD.NET đa-phiên-bản nằm trong mcp_server_powerbi; import bên dưới sẽ tự dò & nạp
 # (mọi SSMS / ADOMD.NET standalone / GAC) — không hardcode đường dẫn SSMS.
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root — script nằm trong scripts/
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root — script nằm trong scripts/
 
 try:
     from mcp_server_powerbi import find_active_pbi_ports
+    from powerbi_agent.connection import local_connection_string
     from pyadomd import Pyadomd
     print("[INFO] Đã nạp thành công các thư viện kết nối Power BI.")
-except ImportError as e:
-    print(f"[ERROR] Thiếu thư viện hoặc file mcp_server_powerbi.py: {e}")
+except ImportError:
+    print("[ERROR] Thiếu thư viện hoặc file mcp_server_powerbi.py; kiểm tra bộ cài.")
     sys.exit(1)
 
 def run_test():
@@ -29,6 +30,7 @@ def run_test():
         return False
         
     print(f"[SUCCESS] Tìm thấy {len(instances)} phiên bản Power BI Desktop đang mở:")
+    connected = False
     for inst in instances:
         port = inst['port']
         workspace_id = inst['workspace_id']
@@ -36,8 +38,8 @@ def run_test():
         
         # 2. Thử nghiệm kết nối ADOMD.NET
         print(f"          -> Thử kết nối tới cổng {port}...")
-        conn_str = f"Provider=MSOLAP;Data Source=localhost:{port};"
         try:
+            conn_str = local_connection_string(port)
             with Pyadomd(conn_str) as conn:
                 query = "SELECT [CATALOG_NAME] FROM $SYSTEM.DBSCHEMA_CATALOGS"
                 with conn.cursor().execute(query) as cur:
@@ -55,13 +57,14 @@ def run_test():
                         print(f"          - Các bảng mẫu tìm thấy: {filtered_tables}")
                     else:
                         print("          - Không tìm thấy bảng dữ liệu nào.")
-        except Exception as e:
-            print(f"[ERROR] Lỗi khi kết nối ADOMD tới cổng {port}: {e}")
+                connected = True
+        except Exception:
+            print(f"[ERROR] Lỗi khi kết nối ADOMD tới cổng {port}.")
             print("        -> Có thể máy chưa cài đặt ADOMD.NET Client Library hoặc Power BI Desktop đang bận.")
             print("        -> Tải thư viện ADOMD.NET tại: https://learn.microsoft.com/en-us/analysis-services/client-libraries")
             
     print("--- KẾT THÚC KIỂM TRA ---")
-    return True
+    return connected
 
 if __name__ == "__main__":
-    run_test()
+    sys.exit(0 if run_test() else 1)

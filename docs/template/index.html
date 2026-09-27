@@ -3,174 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kho Template · powerbi-agent — báo cáo đẹp tái tạo được</title>
-<meta name="description" content="Kho template báo cáo Power BI của powerbi-agent: mỗi kit là một trang báo cáo đã chứng minh, AI tái tạo đúng thiết kế trên dữ liệu của bạn. Tự đồng bộ khi có kit mới.">
+<title>Thiết kế báo cáo · Agent Data Studio</title>
+<meta name="description" content="Cách dùng mẫu thiết kế Power BI trong Agent Data Studio: xác định mục tiêu, chọn bố cục, kiểm tra số liệu và nghiệm thu trang báo cáo.">
+<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/template/">
+<meta property="og:title" content="Thiết kế báo cáo · Agent Data Studio">
+<meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/template/">
+<meta property="og:type" content="website">
 <link rel="icon" href="../assets/logo-128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-  .kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:18px}
-  .kit{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    overflow:hidden;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}
-  .kit:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--border-strong)}
-  .kit-thumb{aspect-ratio:16/9;background:var(--surface-2);position:relative;overflow:hidden}
-  .kit-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-  /* placeholder mini-dashboard khi kit chưa có ảnh preview */
-  .ph{position:absolute;inset:0;padding:12px;display:grid;grid-template-rows:26px 1fr 1fr;gap:8px;
-    background:linear-gradient(160deg,var(--surface-2),var(--surface-3))}
-  .ph .hd{background:var(--accent-weak);border-radius:6px}
-  .ph .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-  .ph .cell{border-radius:6px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden}
-  .ph .cell i{position:absolute;bottom:0;left:10%;width:16%;background:var(--accent);opacity:.75;border-radius:2px 2px 0 0}
-  .ph .cell i:nth-child(2){left:34%;background:var(--gold)}
-  .ph .cell i:nth-child(3){left:58%;background:var(--ok)}
-  .kit-body{padding:18px 20px}
-  .kit-body h3{font-size:1.1rem;font-weight:800}
-  .kit-body .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .kit-body .meta span{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;
-    background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
-  .kit-body .meta .san{background:var(--ok-weak);color:var(--ok);border-color:transparent}
-  .kit-body p{margin-top:10px;color:var(--muted);font-size:13.5px;line-height:1.55;
-    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  /* detail panel */
-  .detail{display:none;margin-top:22px;background:var(--surface);border:1px solid var(--accent);
-    border-radius:var(--radius);box-shadow:var(--shadow-md);padding:26px}
-  .detail.open{display:block}
-  .detail h3{font-size:1.3rem;font-weight:800}
-  .detail .blocks{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
-  .detail .blocks code{font-family:var(--mono);font-size:12px;background:var(--accent-weak);
-    color:var(--accent-ink);border-radius:6px;padding:3px 9px}
-  .detail .imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:12px;margin-top:14px}
-  .detail .imgs img{width:100%;border-radius:10px;border:1px solid var(--border)}
-  .detail .close{float:right;cursor:pointer;color:var(--faint);font-size:22px;line-height:1;background:none;border:none}
+  .design-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+  .design-path article{background:var(--surface);border-top:3px solid var(--accent);border-radius:10px;padding:23px;box-shadow:var(--shadow-sm)}
+  .design-path span{font:700 12px var(--mono);color:var(--accent)}
+  .design-path h2{font-size:1.1rem;margin-top:14px}.design-path p{color:var(--muted);font-size:14px;margin-top:10px}
+  .empty-state{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;background:var(--bg-tint);border:1px solid var(--border);border-radius:20px;padding:34px;margin-top:38px}
+  .empty-state h2{font-size:clamp(1.5rem,3vw,2rem)}.empty-state p{color:var(--muted);margin-top:14px}
+  .empty-state .sketch{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:220px;padding:15px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+  .sketch span{display:block;background:var(--surface-2);border-radius:8px}
+  .sketch span:first-child{grid-column:span 2;background:var(--accent-weak)}
+  @media(max-width:760px){.design-path,.empty-state{grid-template-columns:1fr}.empty-state .sketch{min-height:180px}}
 </style>
 </head>
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
-
 <header class="site" id="siteHeader">
   <div class="wrap nav">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="powerbi-agent">powerbi-agent</a>
-    <nav class="nav-links">
-      <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a>
-      <a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="./" class="active" aria-current="page"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a>
-      <a href="../install/"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
+    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="../feature/">Power Agent</a>
+      <a href="../instruction/">Hướng dẫn</a>
+      <a href="./" class="active" aria-current="page">Thiết kế</a>
+      <a href="../install/">Cài đặt</a>
     </nav>
-    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-      <span>GitHub</span>
-    </a>
+    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
   </div>
 </header>
-
 <main>
-<section class="page-hero">
-  <div class="wrap">
-    <p class="crumb"><a href="../"><span data-i18n="vi">Trang chủ</span><span data-i18n="en">Home</span></a> / <span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></p>
-    <span class="eyebrow"><span class="dot"></span><span data-i18n="vi">Kho template</span><span data-i18n="en">Template gallery</span></span>
-    <h1><span data-i18n="vi">Thiết kế đã chứng minh —<br>tái tạo trong một câu lệnh.</span><span data-i18n="en">Proven design —<br>reproduced in one command.</span></h1>
-    <p class="lead">Mỗi template là một trang báo cáo thật được "đóng khuôn": bố cục, màu sắc, thẻ KPI,
-    biểu đồ giữ nguyên 100% — AI chỉ thay dữ liệu của bạn vào. Nhấn vào từng thẻ để xem chi tiết.
-    Kho này <b>tự đồng bộ khi build</b>: thêm kit vào repo + chạy script đồng bộ là trang có thẻ mới (chi tiết cuối trang).</p>
-  </div>
-</section>
-
-<div class="wrap">
-  <div class="kit-grid reveal" id="kitGrid" aria-live="polite"><p style="color:var(--muted)">Đang tải kho template…</p></div>
-  <div class="detail" id="kitDetail"></div>
-
-  <div class="note" style="margin-top:34px">
-    <b>Tự tạo template của riêng bạn:</b> có trang báo cáo ưng ý → bảo AI
-    <code class="inline">distill_template</code> (hoặc chạy <code class="inline">/pbi-scan</code> rồi chọn trang).
-    Kit riêng nằm trong Knowledge Dir của bạn; muốn chia sẻ công khai → distill với
-    <code class="inline">sanitize=True</code> (tự xóa tên bảng/cột nghiệp vụ) rồi đưa vào thư mục
-    <code class="inline">report-templates/</code> của repo và chạy <code class="inline">scripts/build_template_gallery.py</code> —
-    trang này sẽ tự có thẻ mới, kèm ảnh nếu kit có <code class="inline">preview*.png</code>.
-  </div>
-</div>
-</main>
-
-<footer class="site">
-  <div class="wrap foot">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="powerbi-agent" width="26" height="26">powerbi-agent</a>
-    <div class="foot-links">
-      <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a><a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="./"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a><a href="../install/"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
-      <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumb"><a href="../">Trang chủ</a> / Thiết kế báo cáo</p>
+      <span class="eyebrow"><span class="dot"></span>Thiết kế báo cáo</span>
+      <h1>Báo cáo bắt đầu<br>từ câu hỏi.</h1>
+      <p class="lead">Power Agent giúp bạn đi từ mục tiêu phân tích tới trang Power BI có thể kiểm tra. Mẫu thiết kế là điểm bắt đầu; người dùng vẫn cần kiểm tra số liệu, tương tác và cách hiển thị trong Power BI Desktop.</p>
     </div>
-    <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
-  </div>
-</footer>
-
+  </section>
+  <section class="wrap" style="padding-top:12px">
+    <div class="design-path">
+      <article><span>01 / ĐỊNH HƯỚNG</span><h2>Viết brief</h2><p>Xác định người xem, quyết định cần hỗ trợ, chỉ số và mức chi tiết cần đọc.</p></article>
+      <article><span>02 / DỰNG TRANG</span><h2>Chọn bố cục</h2><p>Sắp thứ tự thông tin, chọn visual phù hợp và gắn dữ liệu từ model.</p></article>
+      <article><span>03 / NGHIỆM THU</span><h2>Kiểm trong Power BI</h2><p>Đối chiếu số liệu, nhãn, màu, trạng thái lọc và khả năng đọc trên màn hình thật.</p></article>
+    </div>
+    <div class="empty-state">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Thư viện công khai</span>
+        <h2>Chưa công bố bộ mẫu trên website</h2>
+        <p>Một bộ mẫu chỉ xuất hiện ở đây sau khi quyền sử dụng, dữ liệu và bản xem trước được kiểm tra. Hiện tại bạn có thể làm việc với mẫu cục bộ trong repo hoặc tạo thiết kế cho dự án riêng của mình.</p>
+        <p>Repo có kèm kit trang <code class="inline">kpim-business-light</code>, hồ sơ bộ dữ liệu mẫu và workbook kế hoạch: đây là asset của KPIM, chia sẻ để cộng đồng tham khảo. Cách ghi nguồn xem <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/NOTICE.md">NOTICE.md</a>.</p>
+        <p style="margin-top:22px"><a class="btn btn-primary" href="../install/">Bắt đầu với dữ liệu mẫu</a> <a class="btn btn-ghost" href="../feature/">Xem Power Agent</a></p>
+      </div>
+      <div class="sketch" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </section>
+</main>
+<footer class="site"><div class="wrap foot">
+  <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
+  <div class="foot-links"><a href="../feature/">Power Agent</a><a href="../instruction/">Hướng dẫn</a><a href="./">Thiết kế</a><a href="../install/">Cài đặt</a></div>
+  <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
+</div></footer>
 <script src="../assets/site.js"></script>
-<script>
-(function(){
-  var grid=document.getElementById('kitGrid'), detail=document.getElementById('kitDetail');
-  function esc(s){var d=document.createElement('span');d.textContent=s||'';return d.innerHTML;}
-  // templates.json do build script của repo sinh (trusted), nhưng vẫn guard defense-in-depth:
-  function safeRel(u){u=String(u||'');return (/^assets\//.test(u)&&!/[<>"']/.test(u))?u:'';}
-  function safeGh(u){u=String(u||'');return /^https:\/\/github\.com\//.test(u)?u:'https://github.com/ducnguyen221/agent-data-studio';}
-  function thumb(k){
-    var p0=safeRel(k.previews&&k.previews[0]);
-    if(p0) return '<img src="'+p0+'" alt="Ảnh xem trước template '+esc(k.name)+'" loading="lazy">';
-    return '<div class="ph" aria-hidden="true"><div class="hd"></div>'+
-      '<div class="row"><div class="cell"><i style="height:55%"></i><i style="height:80%"></i><i style="height:35%"></i></div>'+
-      '<div class="cell"><i style="height:70%"></i><i style="height:45%"></i><i style="height:60%"></i></div>'+
-      '<div class="cell"><i style="height:40%"></i><i style="height:65%"></i><i style="height:85%"></i></div></div>'+
-      '<div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div>';
-  }
-  function showDetail(k){
-    var imgs = (k.previews||[]).map(function(p,i){var u=safeRel(p);return u?'<img src="'+u+'" alt="Ảnh mẫu '+(i+1)+' của template '+esc(k.name)+'" loading="lazy">':'';}).join('');
-    detail.innerHTML =
-      '<button class="close" aria-label="Đóng">×</button>'+
-      '<span class="eyebrow"><span class="dot"></span>Template</span>'+
-      '<h3>'+esc(k.name)+'</h3>'+
-      '<p style="margin-top:10px;color:var(--muted);line-height:1.65">'+esc(k.description||'(Chưa có mô tả — thêm README.md vào thư mục kit.)')+'</p>'+
-      '<div class="blocks">'+(k.blocks||[]).map(function(b){return '<code>'+esc(b)+'</code>';}).join('')+'</div>'+
-      '<p style="font-size:13.5px;color:var(--faint)">Canvas '+esc((k.canvas&&k.canvas.width)+'×'+(k.canvas&&k.canvas.height))+
-      ' · '+(Number(k.n_blocks)||0)+' loại visual · tạo '+esc(k.created)+(k.sanitized?' · <b style="color:var(--ok)">đã sanitize (an toàn chia sẻ)</b>':'')+'</p>'+
-      (imgs?'<div class="imgs">'+imgs+'</div>':'')+
-      '<div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">'+
-      '<a class="btn btn-ghost btn-sm" href="'+safeGh(k.readme_url)+'" target="_blank" rel="noopener">Xem trên GitHub</a>'+
-      '<button class="btn btn-primary btn-sm copy-btn" data-copy="Dùng apply_template với kit report-templates/'+esc(k.dir)+' dựng trang báo cáo mới trên model hiện tại, bind field phù hợp."><span class="lbl">Chép lệnh cho AI</span></button></div>';
-    detail.classList.add('open');
-    detail.querySelector('.close').onclick=function(){detail.classList.remove('open');};
-    // re-wire copy for dynamically added button
-    var btn=detail.querySelector('.copy-btn');
-    btn.addEventListener('click',function(){
-      var l=btn.querySelector('.lbl');
-      function done(ok){l.textContent=ok?'Đã chép':'Lỗi — chép tay';setTimeout(function(){l.textContent='Chép lệnh cho AI';},1600);}
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(btn.getAttribute('data-copy')).then(function(){done(true)},function(){done(false)});
-      } else done(false);
-    });
-    detail.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});
-  }
-  fetch('templates.json').then(function(r){
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    return r.json();
-  }).then(function(data){
-    if(!data||!Array.isArray(data.kits)) throw new Error('schema');
-    var kits=data.kits||[];
-    if(!kits.length){grid.innerHTML='<p style="color:var(--muted)">Kho chưa có template public — distill kit đầu tiên của bạn theo hướng dẫn bên dưới.</p>';return;}
-    grid.innerHTML=kits.map(function(k,i){
-      return '<article class="kit" data-i="'+i+'" tabindex="0" role="button" aria-controls="kitDetail" aria-expanded="false" aria-label="Xem chi tiết '+esc(k.name)+'">'+
-        '<div class="kit-thumb">'+thumb(k)+'</div>'+
-        '<div class="kit-body"><h3>'+esc(k.name)+'</h3>'+
-        '<div class="meta"><span>'+(Number(k.n_blocks)||0)+' loại visual</span><span>'+esc((k.canvas&&k.canvas.width)+'×'+(k.canvas&&k.canvas.height))+'</span>'+
-        (k.sanitized?'<span class="san">sanitized</span>':'')+'</div>'+
-        '<p>'+esc(k.description||'Kit visual chuẩn cho apply_template.')+'</p></div></article>';
-    }).join('');
-    grid.querySelectorAll('.kit').forEach(function(el){
-      var open=function(){grid.querySelectorAll('.kit').forEach(function(x){x.setAttribute('aria-expanded','false')});el.setAttribute('aria-expanded','true');showDetail(kits[+el.getAttribute('data-i')]);};
-      el.addEventListener('click',open);
-      el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
-    });
-  }).catch(function(){grid.innerHTML='<p style="color:var(--danger)">Không tải được templates.json.</p>';});
-})();
-</script>
 </body>
 </html>

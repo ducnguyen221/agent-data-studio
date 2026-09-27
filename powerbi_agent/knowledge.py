@@ -1,27 +1,9 @@
-"""Knowledge OS — nơi lưu tài liệu dự án, NẰM NGOÀI repo.
+"""Knowledge OS — dự án riêng trong `workspace/` basic hoặc trạm ADS_DATA.
 
-MỘT nguyên tắc, không ngoại lệ:
-**repo giữ thứ đến từ GitHub; MỌI sản phẩm tạo ra nằm ở thư mục dữ liệu ngoài repo.**
-
-  REPO     ~/.mcp/powerbi-mcp/    code · skill · template public
-           .env                   (gitignored) POWERBI_PROJECT_DIR= + secret
-  DỮ LIỆU  <project_dir>, mặc định ~/powerbi-project/
-           projects/<slug>/ · knowledge/{4 trục}/ · templates/ · INDEX.md · TIMELINE.md
-           projects.json   SỔ GHI NHỚ: dự án nào, tài liệu nằm ở đâu, lúc nào
-           policy.json     cột PII của khách
-           audit/          log truy vấn DAX
-
-Chỉ 2 thư mục. Con trỏ là MỘT DÒNG trong `.env` — không cần thư mục cấu hình thứ ba,
-và `.env` vốn đã được `app.py` nạp sẵn nên không thêm cơ chế mới nào.
-
-`audit/`, `policy.json`, `distilled/` nằm ở thư mục DỮ LIỆU chứ không phải repo: chúng nói
-VỀ dữ liệu khách hàng (câu DAX, tên cột PII, schema model). Để trong repo là lặp lại đúng
-lỗi đã làm lọt tên khách ra bản public.
-
-Thứ tự resolve:
-1. env `POWERBI_PROJECT_DIR` (đặt trong `.env` hoặc env thật của máy)
-2. `knowledge.config.json` cũ ở gốc repo — CHỈ ĐỌC, để bản cài cũ không gãy
-3. Chưa có → None (agent dừng, hỏi user chọn nơi lưu; gợi ý mặc định ~/powerbi-project)
+Engine, script và skill luôn thuộc source repo. Dữ liệu nằm trong station; riêng
+basic cho phép `workspace/` bị Git bỏ qua. Con trỏ dự án sống ở station/config.env,
+credential chỉ được nạp khi dùng Power BI Service. Cấu hình đời cũ chỉ để đọc và
+migrate; không ghi nội dung dự án hay policy vào cây source được Git theo dõi.
 """
 
 import json
@@ -34,7 +16,7 @@ from datetime import date, datetime
 from powerbi_agent._env import data_dir, env_file
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# `.env` sống ở thư mục dữ liệu máy ($ADS_DATA); chưa đặt thì lùi về gốc repo (bản cài cũ).
+# Config không chứa credential và sống ở station.
 ENV_FILE = env_file()
 ENV_KEY = "POWERBI_PROJECT_DIR"
 # Con trỏ đời cũ — chỉ đọc để migrate, không ghi mới vào đây nữa.
@@ -44,8 +26,8 @@ DEFAULT_PROJECT_DIRNAME = "powerbi-project"
 
 
 def default_project_dir() -> str:
-    """Gợi ý mặc định để user chỉ cần bấm đồng ý."""
-    return os.path.join(os.path.expanduser("~"), DEFAULT_PROJECT_DIRNAME)
+    """Trạm đã chọn; người mới dùng workspace ngay trong checkout."""
+    return data_dir()
 
 # 4 trục đóng gói tri thức (quy trình #3)
 KNOWLEDGE_AXES = ("tech-stack", "industry", "business-domain", "powerbi")
@@ -69,6 +51,11 @@ def _read_json(path: str) -> dict:
 
 
 def _write_json(path: str, data) -> None:
+    root = resolve_root()
+    if not root:
+        raise ValueError("Chưa có trạm dữ liệu hợp lệ.")
+    _safe_child(root, os.path.relpath(path, root))
+    _safe_child(root, os.path.relpath(path + ".tmp", root))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
@@ -89,16 +76,16 @@ def resolve_root() -> str | None:
         base = _read_json(LEGACY_CONFIG_FILE).get("knowledge_dir")
         if base:
             legacy = os.path.join(os.path.expanduser(base), "powerbi-agent")
-            return legacy if os.path.isdir(legacy) else os.path.expanduser(base)
+            base = legacy if os.path.isdir(legacy) else os.path.expanduser(base)
     if not base:
-        return None
+        base = data_dir()
     # Chuẩn hoá Ở CHỖ ĐỌC nữa: set_project_dir đã strip nhưng biến môi trường do user tự
     # `setx` thì không qua đó — giá trị `"C:\Data"` (kèm nháy) sẽ tạo thư mục tên có nháy.
     root = os.path.expanduser(base.strip().strip('"').strip("'"))
     # CHỐT DUY NHẤT: env trỏ thẳng vào repo thì mọi thứ dựng sau đó (INDEX.md, TIMELINE.md,
     # projects.json, audit/) đều rơi vào git working tree. Chặn ở đây thay vì ở từng chỗ gọi.
     try:
-        ensure_outside_repo(root, "thư mục dự án")
+        root = ensure_outside_repo(root, "thư mục dự án")
     except ValueError:
         log_once_bad_project_dir(root)
         return None
@@ -114,8 +101,8 @@ def log_once_bad_project_dir(root: str) -> None:
     _warned_bad_root.add(root)
     from powerbi_agent.util import log
     log.error(
-        "POWERBI_PROJECT_DIR trỏ vào TRONG repo (%s) — bỏ qua, coi như chưa setup. "
-        "Chọn thư mục ngoài repo rồi chạy lại /powerbi-setup.", root
+        "POWERBI_PROJECT_DIR trỏ vào vùng source của repo — bỏ qua. "
+        "Chọn workspace mặc định hoặc thư mục dữ liệu ngoài repo."
     )
 
 
@@ -126,16 +113,15 @@ def resolve_root_raw() -> str | None:
 
 
 def set_project_dir(path: str) -> str:
-    """Ghi con trỏ thành MỘT DÒNG trong `.env` của repo, rồi trả về đường dẫn chuẩn hoá.
-
-    `.env` cũng chứa SECRET (service principal). Ghi ẩu là mất credential của user, nên
-    dùng đúng kỷ luật đã kiểm chứng ở install.ps1: backup trước → upsert đúng một dòng,
-    giữ nguyên mọi dòng khác → đọc lại verify. Không viết lại cả file từ đầu.
-    """
-    full = os.path.abspath(os.path.expanduser(path))
+    """Ghi con trỏ dự án vào station/config.env, giữ nguyên cấu hình khác."""
+    full = ensure_outside_repo(path, "thư mục dự án")
+    os.makedirs(os.path.dirname(ENV_FILE), exist_ok=True)
+    _safe_child(data_dir(), "config.env")
     lines: list[str] = []
     if os.path.exists(ENV_FILE):
-        shutil.copy2(ENV_FILE, f"{ENV_FILE}.bak.{datetime.now():%Y%m%d-%H%M%S}")
+        backup = f"{ENV_FILE}.bak.{datetime.now():%Y%m%d-%H%M%S}"
+        _safe_child(data_dir(), os.path.basename(backup))
+        shutil.copy2(ENV_FILE, backup)
         with open(ENV_FILE, encoding="utf-8") as f:
             lines = f.read().splitlines()
 
@@ -276,7 +262,7 @@ def _same_or_inside(target: str, root: str) -> bool | None:
 
 
 def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits: bool = False) -> str:
-    """Chặn mọi đường ghi dữ liệu khách hàng vào TRONG repo. Raise ValueError nếu vi phạm.
+    """Chặn ghi vào source; cho phép duy nhất workspace basic trong repo.
 
     Mặc định an toàn là chưa đủ: `distill_*` đều nhận `out_dir` tuỳ ý, và env
     POWERBI_AUDIT_DIR / POWERBI_POLICY_FILE / POWERBI_DISTILL_DIR / POWERBI_PROJECT_DIR
@@ -292,10 +278,26 @@ def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits:
     # mà expand sau thì `~` không ở vị trí 0 nên không được mở, tạo ra thư mục tên `~`.
     cleaned = str(path).strip().strip('"').strip("'")
     try:
-        full = os.path.realpath(_to_drive_form(os.path.expanduser(cleaned)))
+        lexical = os.path.normcase(os.path.abspath(_to_drive_form(os.path.expanduser(cleaned))))
+        full = os.path.realpath(lexical)
     except OSError:
         # Host UNC không tồn tại/không phản hồi → không xác định được ⇒ FAIL CLOSED.
-        raise ValueError(f"TỪ CHỐI ghi {what}: không phân giải được đường dẫn {cleaned!r}.") from None
+        raise ValueError(f"TỪ CHỐI ghi {what}: không phân giải được đường dẫn.") from None
+
+    workspace = os.path.join(_REPO_ROOT, "workspace")
+    anchored_workspace = os.path.normcase(os.path.abspath(workspace))
+    lexical_workspace = (
+        lexical == anchored_workspace
+        or lexical.startswith(anchored_workspace.rstrip("\\/") + os.sep)
+    )
+    canonical_workspace = _canon(workspace)
+    if lexical_workspace and canonical_workspace != anchored_workspace:
+        raise ValueError(f"TỪ CHỐI ghi {what}: workspace là junction/symlink ra ngoài vùng trạm.")
+    if lexical_workspace and not (
+        _canon(full) == canonical_workspace
+        or _canon(full).startswith(canonical_workspace.rstrip("\\/") + os.sep)
+    ):
+        raise ValueError(f"TỪ CHỐI ghi {what}: đường dẫn thoát khỏi workspace.")
 
     # Ưu tiên so DANH TÍNH (st_dev, st_ino) — không phụ thuộc cách viết đường dẫn.
     ident = _same_or_inside(full, _REPO_ROOT)
@@ -305,40 +307,57 @@ def ensure_outside_repo(path: str, what: str = "dữ liệu", allow_public_kits:
         ident = c_full == c_repo or c_full.startswith(c_repo.rstrip("\\/") + os.sep)
     if not ident:
         return full
+    inside_workspace = (
+        _canon(full) == canonical_workspace
+        or _canon(full).startswith(canonical_workspace.rstrip("\\/") + os.sep)
+    )
+    if canonical_workspace == anchored_workspace and inside_workspace:
+        return full
     if allow_public_kits and _same_or_inside(full, os.path.join(_REPO_ROOT, "report-templates")):
         return full
     raise ValueError(
-        f"TỪ CHỐI ghi {what} vào trong repo: {full}\n"
-        "Repo là git working tree công khai — dữ liệu khách hàng phải nằm ở thư mục dự án "
-        f"(hiện tại: {resolve_root_raw() or 'chưa setup, chạy /powerbi-setup'})."
+        f"TỪ CHỐI ghi {what} vào source của repo. "
+        "Dữ liệu phải nằm trong workspace hoặc trạm ngoài đã chọn."
     )
 
 
+def _safe_child(root: str, relative: str) -> str:
+    """Từ chối đường con thoát trạm qua `..`, junction hoặc symlink có sẵn."""
+    target = os.path.abspath(os.path.join(root, relative))
+    try:
+        if os.path.commonpath([os.path.normcase(target), os.path.normcase(root)]) != os.path.normcase(root):
+            raise ValueError("Đường dẫn thoát khỏi trạm dữ liệu.")
+        if _same_or_inside(os.path.realpath(target), os.path.realpath(root)) is not True:
+            raise ValueError("Đường dẫn đi qua junction/symlink ngoài trạm dữ liệu.")
+    except (OSError, ValueError) as exc:
+        raise ValueError("Không xác minh được đường con của trạm dữ liệu.") from exc
+    return target
+
+
 NOT_SETUP_MSG = (
-    "Chưa thiết lập nơi lưu tài liệu dự án. HỎI user một câu duy nhất: lưu ở đâu?\n"
-    f"  1. {default_project_dir()}   (mặc định — user chỉ cần đồng ý)\n"
-    "  2. Một thư mục khác — user dán đường dẫn.\n"
-    "Rồi gọi tool setup_knowledge(path).\n"
-    "TUYỆT ĐỐI không lưu tài liệu dự án vào trong repo: repo là git working tree, "
-    "chỉ một lệnh `git add -A` là dữ liệu khách hàng bị commit."
+    "Chưa có cấu trúc tài liệu dự án trong trạm. Gọi setup_knowledge() để dùng trạm mặc định "
+    f"{default_project_dir()}; chỉ gọi setup_knowledge(path) nếu người dùng chọn thư mục ngoài repo. "
+    "Workspace basic bị Git loại trừ."
 )
 
 
 def ensure_skeleton(root: str) -> None:
     """Dựng cấu trúc chuẩn (idempotent)."""
-    os.makedirs(os.path.join(root, "projects"), exist_ok=True)
-    os.makedirs(os.path.join(root, "templates"), exist_ok=True)
+    root = ensure_outside_repo(root, "thư mục dự án")
+    os.makedirs(root, exist_ok=True)
+    os.makedirs(_safe_child(root, "projects"), exist_ok=True)
+    os.makedirs(_safe_child(root, "templates"), exist_ok=True)
     for axis in KNOWLEDGE_AXES:
-        os.makedirs(os.path.join(root, "knowledge", axis), exist_ok=True)
+        os.makedirs(_safe_child(root, os.path.join("knowledge", axis)), exist_ok=True)
 
-    index = os.path.join(root, "INDEX.md")
+    index = _safe_child(root, "INDEX.md")
     if not os.path.exists(index):
         with open(index, "w", encoding="utf-8", newline="\n") as f:
             f.write(
-                "# INDEX — powerbi-agent Knowledge\n\n"
+                "# INDEX — Agent Data Studio\n\n"
                 "> Mục lục tri thức. Agent đọc file này ĐẦU TIÊN mỗi khi làm việc "
                 "với Power BI để nạp bối cảnh + kinh nghiệm cũ.\n\n"
-                "## Dự án (projects/)\n\n_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n\n"
+                "## Dự án (projects/)\n\n_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n\n"
                 "## Tri thức đã đóng gói (knowledge/)\n\n"
                 "- `tech-stack/` — bài học theo công nghệ (SQL, M, DAX, nguồn dữ liệu…)\n"
                 "- `industry/` — theo ngành (viễn thông, bán lẻ, ngân hàng…)\n"
@@ -349,7 +368,7 @@ def ensure_skeleton(root: str) -> None:
                 "## Dòng thời gian\n\nXem [TIMELINE.md](TIMELINE.md).\n"
             )
 
-    timeline = os.path.join(root, "TIMELINE.md")
+    timeline = _safe_child(root, "TIMELINE.md")
     if not os.path.exists(timeline):
         with open(timeline, "w", encoding="utf-8", newline="\n") as f:
             f.write(
@@ -362,25 +381,20 @@ def ensure_skeleton(root: str) -> None:
 def append_timeline(root: str, project: str, event: str, lesson: str = "", link: str = "") -> None:
     ensure_skeleton(root)
     line = f"| {date.today().isoformat()} | {project} | {event} | {lesson} | {link} |\n"
-    with open(os.path.join(root, "TIMELINE.md"), "a", encoding="utf-8", newline="\n") as f:
+    with open(_safe_child(root, "TIMELINE.md"), "a", encoding="utf-8", newline="\n") as f:
         f.write(line)
 
 
 def migrate_index(root: str) -> bool:
-    """Cập nhật INDEX.md của thư mục dữ liệu dựng bởi bản cũ. Idempotent, trả True nếu có sửa.
-
-    ensure_skeleton chỉ GHI INDEX.md khi file chưa tồn tại, nên người nâng cấp giữ nguyên
-    nội dung cũ trỏ tới các lệnh `/pbi-*` mà installer vừa xoá. Nếu chỉ vá lúc tạo dự án mới
-    thì ai không tạo dự án sẽ không bao giờ được sửa — nên chạy ở cả setup lẫn status.
-    """
-    index = os.path.join(root, "INDEX.md")
+    """Đổi tên lệnh cũ `/powerbi-*` thành `/pbi-*` trong INDEX, giữ nội dung khác."""
+    index = _safe_child(root, "INDEX.md")
     if not os.path.exists(index):
         return False
     with open(index, encoding="utf-8") as f:
         txt = old = f.read()
     # Chỉ đổi tên lệnh; KHÔNG đụng nội dung tri thức user tự viết.
-    for cmd in ("setup", "new", "scan", "done", "pack", "recall"):
-        txt = txt.replace(f"/pbi-{cmd}", f"/powerbi-{cmd}")
+    for cmd in ("setup", "new", "scan", "kit", "done", "pack", "recall", "help"):
+        txt = txt.replace(f"/powerbi-{cmd}", f"/pbi-{cmd}")
     if txt == old:
         return False
     with open(index, "w", encoding="utf-8", newline="\n") as f:
@@ -390,19 +404,19 @@ def migrate_index(root: str) -> bool:
 
 def register_project_in_index(root: str, slug: str, name: str) -> None:
     """Thêm dòng dự án vào INDEX (thay placeholder nếu còn)."""
-    index = os.path.join(root, "INDEX.md")
+    index = _safe_child(root, "INDEX.md")
     with open(index, encoding="utf-8") as f:
         txt = f.read()
     entry = f"- [{name}](projects/{slug}/PROJECT.md) — khởi tạo {date.today().isoformat()}\n"
     if entry in txt:
         return
-    # Phải nhận CẢ placeholder cũ `/pbi-new` (Knowledge Dir dựng bởi bản < 0.5.0).
+    # Phải nhận cả placeholder đời cũ để không thêm dự án thành dòng trùng.
     # ensure_skeleton chỉ ghi INDEX.md khi file CHƯA tồn tại, nên người nâng cấp vẫn giữ
     # dòng cũ trên đĩa. Nếu chỉ so khớp tên mới thì placeholder cũ không bao giờ bị thay,
     # và INDEX của họ mãi mãi bảo chạy `/pbi-new` — lệnh mà installer vừa xoá.
     placeholders = (
-        "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n",
         "_(chưa có — `/pbi-new <tên>` để bắt đầu)_\n",
+        "_(chưa có — `/powerbi-new <tên>` để bắt đầu)_\n",
     )
     for ph in placeholders:
         if ph in txt:

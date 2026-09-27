@@ -1,4 +1,4 @@
-# GEMINI.md — powerbi-agent
+# GEMINI.md — Agent Data Studio
 
 > Con trỏ để tránh lệch phiên bản: toàn bộ hướng dẫn agent (cài đặt, luật làm việc với Power BI,
 > điều phối multi-agent, quy ước dev) nằm ở **[`AGENTS.md`](./AGENTS.md)** — đọc file đó trước

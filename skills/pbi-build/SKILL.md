@@ -6,8 +6,7 @@ metadata:
   chain_position: 5
   status: stable
   sources:
-    - "kpim: repo skill powerbi-pipeline + OpcOS kpim-skills pbi-project-delivery (pipeline-execution, knowledge map)"
-    - "kpim: clone/rebind lessons 2026-09-16/17 (rebind sites, object edits, orphan pages, TOM not dirty)"
+    - "agent-data-studio: report build and validation practice"
     - "microsoft: plugins/powerbi-authoring/skills/powerbi-report-authoring/references/*@v0.3.16 (verbatim, not yet distilled)"
 ---
 
@@ -28,17 +27,17 @@ gói thì điều phối 9 khâu, giao đúng skill chủ ở từng khâu.
 Làm trọn gói: `workflows/data-to-report.md` (gốc repo) + [pipeline-execution](references/kpim/pipeline-execution.md).
 Agent review screenshot độc lập: `agents/pbi-render-reviewer.md` (gốc repo).
 
-## Must / Prefer / Avoid
-- **Must** — không dựng layout từ số 0: clone trang đã duyệt / kit, đổi `name`, `position`, binding, `visualType`; giữ `objects` + `visualContainerObjects`.
-- **Must** — rebind **toàn diện**: `queryState` + `selector.metadata` + `referenceLabel` + `Conditional` + `expansionStates` + `sortDefinition` + `filterConfig` + `image`; grep tên cũ = 0.
-- **Must** — sửa JSON **trên object** (parse → sửa node → ghi), không thay chuỗi thô.
-- **Must** — ghi PBIR/TMDL chỉ khi `.pbip` **đóng**; tìm trang theo `pages.json` (tránh trang mồ côi).
-- **Must** — không báo xong khi chưa qua **Validate → Reload → Screenshot → Review** sạch và user nghiệm thu mắt.
-- **Prefer** — CLI Microsoft (T0) cho validate/reload/screenshot; MCP studio cho template/distill.
-- **Prefer** — một thay đổi có render → một vòng kiểm; gom sửa nhỏ cùng trang vào một vòng.
-- **Avoid** — clone bookmark (để user tạo tay); sửa theme mà không đổi tên file khi reload không nhận.
-- **Avoid** — reload khi Desktop báo `hasUnsavedChanges: true` — hỏi user lưu/bỏ trước.
-- **Avoid** — đường tạm dài > 260 ký tự khi copy thư mục trang.
+## Bắt buộc / Ưu tiên / Tránh
+- **Bắt buộc** — không dựng layout từ số 0: clone trang đã duyệt / kit, đổi `name`, `position`, binding, `visualType`; giữ `objects` + `visualContainerObjects`.
+- **Bắt buộc** — rebind **toàn diện**: `queryState` + `selector.metadata` + `referenceLabel` + `Conditional` + `expansionStates` + `sortDefinition` + `filterConfig` + `image`; grep tên cũ = 0.
+- **Bắt buộc** — sửa JSON **trên object** (parse → sửa node → ghi), không thay chuỗi thô.
+- **Bắt buộc** — ghi PBIR/TMDL chỉ khi `.pbip` **đóng**; tìm trang theo `pages.json` (tránh trang mồ côi).
+- **Bắt buộc** — không báo xong khi chưa qua **Validate → Reload → Screenshot → Review** sạch và user nghiệm thu mắt.
+- **Ưu tiên** — CLI Microsoft (T0) cho validate/reload/screenshot; MCP studio cho template/distill.
+- **Ưu tiên** — một thay đổi có render → một vòng kiểm; gom sửa nhỏ cùng trang vào một vòng.
+- **Tránh** — clone bookmark (để user tạo tay); sửa theme mà không đổi tên file khi reload không nhận.
+- **Tránh** — reload khi Desktop báo `hasUnsavedChanges: true` — hỏi user lưu/bỏ trước.
+- **Tránh** — đường tạm dài > 260 ký tự khi copy thư mục trang.
 
 ## Quy trình dựng một trang
 
@@ -47,14 +46,14 @@ Agent review screenshot độc lập: `agents/pbi-render-reviewer.md` (gốc rep
 | 1 | Nạp Brief; kiểm field bind tồn tại (`describe_table`); measure thiếu → `pbi-model` | [rebind-and-pitfalls](references/kpim/rebind-and-pitfalls.md) §4 | Mọi binding có thật |
 | 2 | `powerbi-desktop status` → chọn PID; user **đóng** file nếu cần ghi | MS [powerbi-desktop](references/microsoft/powerbi-desktop.md) | Biết PID; file đóng khi ghi |
 | 3 | **Clone + rebind** (trang đã duyệt hoặc `apply_template` từ kit), đăng ký `pages.json` | [rebind-and-pitfalls](references/kpim/rebind-and-pitfalls.md) · MS [authoring](references/microsoft/authoring.md) | Grep tên bảng/cột cũ trong trang mới = 0 |
-| 4 | Định dạng theo Brief & chuẩn KPIM (card, table, cartesian, shape, textbox…) | MS [formatting-overview](references/microsoft/formatting-overview.md) · [card](references/microsoft/card.md) · [table](references/microsoft/table.md) · [conditional-formatting](references/microsoft/conditional-formatting.md) | Toạ độ/khung/màu khớp Brief |
+| 4 | Định dạng theo Brief và kit/theme đã được người dùng duyệt (card, table, chart, shape, textbox…) | MS [formatting-overview](references/microsoft/formatting-overview.md) · [card](references/microsoft/card.md) · [table](references/microsoft/table.md) · [conditional-formatting](references/microsoft/conditional-formatting.md) | Toạ độ/khung/màu khớp Brief |
 | 5 | **Validate**: `powerbi-report-author validate <Tên>.Report` | MS [powerbi-report-author-cli](references/microsoft/powerbi-report-author-cli.md) | 0 lỗi |
 | 6 | **Reload**: `powerbi-desktop reload --pid <pid>` | MS [powerbi-desktop](references/microsoft/powerbi-desktop.md) | Reload không lỗi |
 | 7 | **Screenshot + review** (tự review hoặc agent `pbi-render-reviewer`) | MS [screenshot-review](references/microsoft/screenshot-review.md) | Không còn lỗi hiển thị; có lỗi → quay lại bước 3/4 |
 | 8 | Tính năng nâng cao nếu Brief có (tooltip, drill-through, slicer, filter) | MS [slicers](references/microsoft/slicers.md) · [filters](references/microsoft/filters.md) · [filter-pane](references/microsoft/filter-pane.md) · [pipeline-execution](references/kpim/pipeline-execution.md) §8 | Demo được trên Desktop |
 | 9 | User nghiệm thu mắt → [`pbi-review`](../pbi-review/SKILL.md); trang đẹp → `/pbi-kit` | — | User "ok"; ghi CHANGESET/VERIFICATION |
 
-## References
+## Tài liệu tham khảo
 
 ### KPIM — `references/kpim/`
 | File | Đọc khi |

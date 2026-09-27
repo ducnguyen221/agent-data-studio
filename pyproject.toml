@@ -25,7 +25,9 @@ dependencies = [
 
 [project.optional-dependencies]
 # PIN ruff: bo rule mac dinh doi theo phien ban, khong pin = CI do ngau nhien.
-dev = ["pytest>=8", "ruff==0.16.1"]
+# PyYAML/openpyxl: tests/test_no_leak.py chay that script skill (data-mockup, data-discovery); can duoi lay
+# tu skills/data-mockup/scripts/requirements.txt. pandas/numpy da co qua dependencies cua engine.
+dev = ["pytest>=8", "ruff==0.16.1", "PyYAML>=6.0", "openpyxl>=3.1"]
 
 [project.scripts]
 powerbi-agent = "powerbi_agent.app:main"
@@ -49,10 +51,19 @@ select = ["E4", "E7", "E9", "F"]
 # E402: import sau code là CHỦ ĐÍCH (load_adomd phải chạy trước import pyadomd)
 ignore = ["E402"]
 
+[tool.ruff.lint.per-file-ignores]
+# Fixture pytest `source_fixture` import từ test_installer.py rồi nhận làm tham số test:
+# pyflakes coi tham số đó là "định nghĩa lại tên import chưa dùng" (F811), nhưng đây là
+# cách pytest tiêm fixture, không phải lỗi. Chỉ miễn đúng các file import fixture này.
+"tests/test_installer_host.py" = ["F811"]
+"tests/test_process_matrix.py" = ["F811"]
+"tests/test_installer_followups.py" = ["F811"]
+
 [tool.pytest.ini_options]
 # Chỉ thu test trong tests/ — script tự kiểm đi kèm skill (vd skills/data-mockup/scripts/test_mockpack.py)
 # không phải pytest và không được chạy vô tình.
 testpaths = ["tests"]
+pythonpath = ["."]
 markers = [
     "integration: cần Power BI Desktop đang mở (bỏ qua trên CI)",
 ]

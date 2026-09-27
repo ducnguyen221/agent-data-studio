@@ -6,7 +6,7 @@ source: KPIM practice — đo trên trang mẫu đã được duyệt; gộp tok
 
 # Chuẩn trang KPIM (đo 16/09/2026)
 
-Đây là **số đo**, không phải gợi ý thẩm mỹ. Dựng trang mới thì bám số này; lệch số phải có lý do ghi vào Design Brief.
+Đây là **số đo của một mẫu cụ thể**, không phải chuẩn mặc định cho mọi dự án. Chỉ dùng khi người dùng chọn mẫu này và quyền tài sản đã được xác nhận; dự án khác dùng lưới/theme đã duyệt trong Design Brief.
 
 ## 1. Canvas & lưới
 
@@ -72,5 +72,5 @@ Palette dữ liệu: `#4874C5` `#E67D29` `#42A19F` `#FEBA02` `#A6A6A6` `#D64554`
 4. Page tooltip (`pageBinding` type Tooltip).
 5. `shape` panel nền dưới nhóm visual + theme custom.
 
-Kit mẫu đã sanitize mang đủ 5 pattern: `report-templates/kpim-business-light/` ở gốc repo
-(`blueprint.md` · `blocks/*.json` · `_page.json` · `kit.json`).
+Kit ví dụ trong `report-templates/kpim-business-light/` có các pattern trên;
+`sanitize` không xác nhận quyền phân phối. Chỉ dùng/đóng gói sau khi quyền từng tài sản được duyệt.

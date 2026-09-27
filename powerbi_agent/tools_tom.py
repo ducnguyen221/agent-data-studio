@@ -5,19 +5,29 @@ nên dùng `microsoft/powerbi-modeling-mcp`. Hai tool này giữ làm fallback k
 máy không cài modeling-mcp hoặc cần thao tác đơn lẻ nhanh — KHÔNG mở rộng thêm.
 """
 
-from powerbi_agent.util import log
+from powerbi_agent.connection import local_connection_string
+from powerbi_agent.util import log, short_err
 
 
 def _connect_db(TOM, port: str, model_id: str):
     """Mở kết nối TOM và trả (server, db). Caller chịu trách nhiệm Disconnect."""
     server = TOM.Server()
-    server.Connect(f"Provider=MSOLAP;Data Source=localhost:{port};Catalog={model_id};")
+    server.Connect(local_connection_string(port, model_id))
     db = None
     if server.Databases.Contains(model_id):
         db = server.Databases[model_id]
-    elif server.Databases.Count > 0:
-        db = server.Databases[0]
     return server, db
+
+
+def _disconnect_safely(server) -> None:
+    """Lỗi đóng TOM không được thay thế phản hồi lỗi đã che cho người dùng."""
+    if server is None:
+        return
+    try:
+        if server.Connected:
+            server.Disconnect()
+    except Exception as exc:
+        log.warning("TOM disconnect thất bại (%s)", type(exc).__name__)
 
 
 def register(mcp, tabular_loaded: bool):
@@ -86,11 +96,10 @@ def register(mcp, tabular_loaded: bool):
             action = "cập nhật" if is_update else "tạo mới"
             return f"Thành công: Đã {action} measure '[{measure_name}]' trong bảng '{table_name}'."
         except Exception as e:
-            log.exception("add_measure_local thất bại")
-            return f"Lỗi khi thêm/sửa measure qua TOM: {e}"
+            log.error("add_measure_local thất bại (%s)", type(e).__name__)
+            return f"Lỗi khi thêm/sửa measure qua TOM: {short_err(e)}"
         finally:
-            if server is not None and server.Connected:
-                server.Disconnect()
+            _disconnect_safely(server)
 
     @mcp.tool()
     def add_relationship_local(
@@ -154,8 +163,7 @@ def register(mcp, tabular_loaded: bool):
                 f"-> '{to_table}[{to_column}]' (Một)."
             )
         except Exception as e:
-            log.exception("add_relationship_local thất bại")
-            return f"Lỗi khi tạo mối quan hệ qua TOM: {e}"
+            log.error("add_relationship_local thất bại (%s)", type(e).__name__)
+            return f"Lỗi khi tạo mối quan hệ qua TOM: {short_err(e)}"
         finally:
-            if server is not None and server.Connected:
-                server.Disconnect()
+            _disconnect_safely(server)

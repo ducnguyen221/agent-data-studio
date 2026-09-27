@@ -3,21 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cài đặt · powerbi-agent — 3 cách từ dễ đến thủ công</title>
-<meta name="description" content="Cài powerbi-agent: cách nhanh nhất là dán 1 câu cho AI tự cài; hoặc git clone + installer; hoặc chỉ cài skills dạng plugin. Kèm yêu cầu hệ thống, kiểm tra sau cài và xử lý sự cố.">
+<title>Bắt đầu trong 4 bước · Agent Data Studio</title>
+<meta name="description" content="Cài Agent Data Studio bằng Codex trên Windows theo từng bước: lấy repo, tạo workspace, kiểm tra kết nối và làm việc đầu tiên với dữ liệu mẫu hoặc Power BI.">
+<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/install/">
+<meta property="og:title" content="Bắt đầu trong 4 bước · Agent Data Studio">
+<meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/install/">
+<meta property="og:type" content="website">
 <link rel="icon" href="../assets/logo-128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-  .way{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    box-shadow:var(--shadow-sm);padding:26px;margin:18px 0;position:relative}
-  .way.best{border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}
-  .way .badge{position:absolute;top:-11px;left:22px;background:var(--accent);color:#fff;
-    font-size:11.5px;font-weight:700;padding:3px 12px;border-radius:999px;letter-spacing:.03em}
-  .way h2{font-size:1.25rem;font-weight:800}
-  .way .for{margin-top:6px;font-size:13px;color:var(--faint)}
+  .install-hero{padding-bottom:30px}.install-hero .lead{max-width:66ch}
+  .path-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-top:30px}
+  .path-strip span{background:var(--surface);padding:17px 18px;font-size:13px;font-weight:700;color:var(--muted)}
+  .path-strip b{font:700 12px var(--mono);color:var(--accent);margin-right:10px}
+  .setup-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(250px,.6fr);gap:30px;align-items:start;min-width:0}
+  .setup-grid>div,.journey-step,.code-card,.code-scroll{min-width:0;max-width:100%}
+  .setup-rail{position:sticky;top:86px;background:var(--bg-tint);border:1px solid var(--border);border-radius:18px;padding:22px}
+  .setup-rail h2{font-size:1rem}.setup-rail a{display:block;color:var(--muted);font-size:13px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .setup-rail a:last-child{border:0}.setup-rail a:hover{color:var(--accent)}
+  .journey-step{border-top:1px solid var(--border);padding:28px 0 38px;scroll-margin-top:90px}
+  .journey-step:first-child{border:0;padding-top:0}.step-kicker{font:700 12px var(--mono);color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+  .journey-step h2{font-size:clamp(1.4rem,2.8vw,1.9rem);margin-top:10px;text-wrap:balance}
+  .journey-step>p{max-width:62ch;color:var(--muted);margin-top:12px;line-height:1.7}
+  .step-check{background:var(--ok-weak);border-left:3px solid var(--ok);padding:13px 16px;border-radius:8px;margin-top:18px;font-size:14px}
+  .step-check b{color:var(--ok)}.mini-list{margin:18px 0 0;padding-left:22px;color:var(--muted);line-height:1.8;font-size:14px}
+  .station-map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px;min-width:0}
+  .station-map>div{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:15px}
+  .station-map b{display:block;font:700 13px var(--mono);color:var(--text)}.station-map span{display:block;color:var(--muted);font-size:13px;margin-top:5px}
+  .mode-note{font-size:13px;color:var(--muted);margin-top:14px}.plain-link{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+  @media(max-width:800px){.setup-grid{grid-template-columns:1fr}.setup-rail{display:none}.path-strip{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.station-map{grid-template-columns:minmax(0,1fr)}.journey-step{padding-bottom:30px}}
 </style>
 </head>
 <body>
@@ -25,11 +43,11 @@
 
 <header class="site" id="siteHeader">
   <div class="wrap nav">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="powerbi-agent">powerbi-agent</a>
+    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
     <nav class="nav-links">
-      <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a>
+      <a href="../feature/"><span data-i18n="vi">Power Agent</span><span data-i18n="en">Power Agent</span></a>
       <a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="../template/"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a>
+      <a href="../template/"><span data-i18n="vi">Thiết kế</span><span data-i18n="en">Design</span></a>
       <a href="./" class="active" aria-current="page"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
     </nav>
     <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
@@ -40,142 +58,123 @@
 </header>
 
 <nav class="quicknav" aria-label="Điều hướng nhanh">
-  <a href="#yeu-cau"><span class="qdot"></span><span class="qlabel">Yêu cầu</span></a>
-  <a href="#cach-1"><span class="qdot"></span><span class="qlabel">Cách 1 · Agent</span></a>
-  <a href="#cach-2"><span class="qdot"></span><span class="qlabel">Cách 2 · Thủ công</span></a>
-  <a href="#cach-3"><span class="qdot"></span><span class="qlabel">Cách 3 · Plugin</span></a>
+  <a href="#chuan-bi"><span class="qdot"></span><span class="qlabel">Chuẩn bị</span></a>
+  <a href="#cai-dat"><span class="qdot"></span><span class="qlabel">Cài đặt</span></a>
   <a href="#kiem-tra"><span class="qdot"></span><span class="qlabel">Kiểm tra</span></a>
+  <a href="#viec-dau-tien"><span class="qdot"></span><span class="qlabel">Việc đầu tiên</span></a>
   <a href="#su-co"><span class="qdot"></span><span class="qlabel">Sự cố</span></a>
 </nav>
 
 <main>
-<section class="page-hero">
+<section class="page-hero install-hero">
   <div class="wrap">
-    <p class="crumb"><a href="../"><span data-i18n="vi">Trang chủ</span><span data-i18n="en">Home</span></a> / <span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></p>
-    <span class="eyebrow"><span class="dot"></span><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></span>
-    <h1><span data-i18n="vi">Cài trong 5 phút —<br>AI tự làm phần khó.</span><span data-i18n="en">Install in 5 minutes —<br>the AI does the hard part.</span></h1>
-    <p class="lead">3 cách từ dễ đến thủ công. Với hầu hết mọi người: dùng <b>Cách 1</b> — dán một câu
-    cho AI của bạn, nó tự cài mọi thứ trên cả 3 nền tảng (Claude Code, Codex, Antigravity).</p>
+    <p class="crumb"><a href="../">Trang chủ</a> / Cài đặt</p>
+    <span class="eyebrow"><span class="dot"></span>Bắt đầu với Codex</span>
+    <h1>Mở repo. Chạy cài đặt.<br><span style="color:var(--accent)">Bắt đầu làm việc.</span></h1>
+    <p class="lead">Bạn cần một máy Windows, một AI host và thư mục repo này. Mọi kỹ năng và công cụ chạy từ repo; dữ liệu của bạn nằm trong <code class="inline">workspace/</code> ở cùng chỗ. Hãy đi theo bốn bước dưới đây.</p>
+    <div class="path-strip" aria-label="Bốn bước cài đặt">
+      <span><b>01</b>Chuẩn bị</span><span><b>02</b>Nhờ Codex cài</span><span><b>03</b>Kiểm tra</span><span><b>04</b>Làm việc đầu tiên</span>
+    </div>
   </div>
 </section>
+<div class="wrap setup-grid">
+  <div>
+    <section class="journey-step" id="chuan-bi">
+      <span class="step-kicker">Bước 01 / Chuẩn bị</span>
+      <h2>Chọn một chỗ lưu repo trên máy</h2>
+      <p>Cài <a class="plain-link" href="https://git-scm.com/downloads/win">Git</a>, <a class="plain-link" href="https://www.python.org/downloads/">Python 3.11+</a> và một trong ba ứng dụng AI: Codex, Claude Code hoặc Antigravity. Power BI Desktop cần khi bạn muốn làm việc với báo cáo đang mở; bạn vẫn có thể bắt đầu từ tệp CSV mẫu trước.</p>
+      <div class="station-map" aria-label="Cấu trúc sau khi cài">
+        <div><b>agent-data-studio/</b><span>Mã nguồn, engine, scripts, skills. Cập nhật tại đây.</span></div>
+        <div><b>workspace/</b><span>Projects, knowledge, outputs và state cá nhân. Git bỏ qua toàn bộ.</span></div>
+      </div>
+      <p class="mode-note">Đã có trạm dữ liệu riêng? Có thể đặt <code class="inline">ADS_DATA</code> tới thư mục ngoài repo trước khi cài. Chế độ mặc định dùng <code class="inline">workspace/</code>.</p>
+      <div class="step-check"><b>Kiểm tra:</b> Bạn biết mình muốn đặt repo ở thư mục nào và đã mở Codex trên Windows.</div>
+    </section>
 
-<div class="wrap">
+    <section class="journey-step" id="cai-dat">
+      <span class="step-kicker">Bước 02 / Nhờ Codex cài</span>
+      <h2>Dán yêu cầu này vào Codex</h2>
+      <p>Codex sẽ lấy repo, đọc trình cài rồi cài ngay tại folder đó. Installer mặc định cấu hình Codex. Có thể chọn thêm Claude Code hoặc Antigravity bằng <code class="inline">-Hosts claude,codex,antigravity</code>; hãy kiểm tra từng host trên máy bạn sau khi cài.</p>
+      <div class="code-card">
+        <div class="code-top"><span class="fn">Yêu cầu cho Codex</span><button class="copy-btn" type="button"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-scroll"><pre><code>Hãy cài Agent Data Studio trên máy Windows này.
+Clone https://github.com/ducnguyen221/agent-data-studio
+vào thư mục source phù hợp trên máy tôi. Mở repo đó,
+đọc README và install.ps1 trước khi chạy. Dùng chế độ
+workspace mặc định trong repo, cài cho Codex, rồi kiểm
+tra kết quả. Cho tôi biết đường dẫn repo, trạng thái MCP
+và việc đầu tiên tôi có thể thử với samples/sales-demo.csv.</code></pre></div>
+      </div>
+      <p class="mode-note">Dùng Claude Code hoặc Antigravity? Nhắc Codex chạy installer với <code class="inline">-Hosts</code> tương ứng. Repo có adapter skill cho các host; nội dung gốc nằm tại <code class="inline">skills/</code>. Khả năng tự nạp adapter cần được kiểm tra trong phiên host thực tế.</p>
+      <p class="mode-note">MCP được gộp vào cấu hình người dùng của host (ví dụ <code class="inline">~/.codex/config.toml</code>) cạnh các server sẵn có, nên mọi thư mục mở trong host dùng chung server của checkout này: mỗi máy trỏ một checkout. Muốn chuyển sang checkout khác, chạy <code class="inline">.\uninstall.ps1 -Hosts &lt;host&gt;</code> ở checkout cũ trước. <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/hosts/README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng">Xem giới hạn</a></p>
+      <div class="step-check"><b>Kiểm tra:</b> Repo có <code>workspace/</code>, môi trường Python và host được đăng ký thành công.</div>
+    </section>
 
-  <section id="yeu-cau" style="padding-top:0">
-    <div class="sec-head reveal"><span class="eyebrow"><span class="dot"></span>Trước khi cài</span><h2>Máy cần có gì</h2></div>
-    <div class="tbl-wrap reveal">
-      <table class="tbl">
-        <thead><tr><th>Thành phần</th><th>Ghi chú</th></tr></thead>
+    <section class="journey-step" id="kiem-tra">
+      <span class="step-kicker">Bước 03 / Kiểm tra</span>
+      <h2>Khởi động lại AI trong chính repo</h2>
+      <p>Đóng và mở lại AI host ở folder <code class="inline">agent-data-studio</code>. Yêu cầu AI kiểm tra kết nối MCP và đọc skill <code class="inline">data-discovery</code> từ repo. Nếu host chưa nhận công cụ, chạy lại installer cho đúng host và xem thông báo lỗi cụ thể.</p>
+      <p>Có thể nhờ AI chạy <code class="inline">.\doctor.ps1 -Hosts codex</code> trong PowerShell trước. Doctor kiểm môi trường và đăng ký MCP; kết quả <code class="inline">NOT_CHECKED</code> vẫn cần bạn xác nhận trong host và Power BI thật. Nếu máy tổ chức chặn script, hãy nhờ IT cho phép theo chính sách của tổ chức.</p>
+      <p>Khi đã mở một báo cáo trong Power BI Desktop, chạy thêm <code class="inline">.\doctor.ps1 -ProbeDesktop</code> để thử kết nối bằng <code class="inline">EVALUATE ROW("x",1)</code>. Nếu Desktop đang đóng, kết quả là <code class="inline">NOT_CHECKED</code> (chưa kiểm), không phải lỗi.</p>
+      <ol class="mini-list">
+        <li>Codex: mở repo làm project, kiểm tra MCP và skill trong <code>.agents/skills/</code>.</li>
+        <li>Claude Code: mở repo, kiểm tra MCP và adapter trong <code>.claude/skills/</code>.</li>
+        <li>Antigravity: mở repo, kiểm tra MCP và adapter trong <code>.agents/skills/</code>.</li>
+      </ol>
+      <div class="step-check"><b>Kiểm tra:</b> AI chỉ ra được đường dẫn <code>skills/data-discovery/SKILL.md</code> và thấy công cụ MCP của repo. Nếu một host chưa nhận, xem là chưa cài xong trên host đó.</div>
+      <div class="tbl-wrap" style="margin-top:20px"><table class="tbl">
+        <thead><tr><th>Host</th><th>Trình cài</th><th>Bước xác nhận trên máy bạn</th></tr></thead>
         <tbody>
-          <tr><td class="lbl">Windows 10/11</td><td>Power BI Desktop chỉ chạy trên Windows</td></tr>
-          <tr><td class="lbl">Power BI Desktop</td><td>Bản cài thường hoặc Microsoft Store đều được</td></tr>
-          <tr><td class="lbl">Python 3.11+</td><td>Kiểm tra: <code>python --version</code>. Chưa có → <a href="https://www.python.org/downloads/" style="color:var(--accent)">tải tại đây</a> (tick "Add to PATH")</td></tr>
-          <tr><td class="lbl">ADOMD.NET</td><td>Có sẵn nếu máy đã cài SSMS (bản 18–22). Chưa có → cài <a href="https://learn.microsoft.com/en-us/analysis-services/client-libraries" style="color:var(--accent)">Analysis Services client libraries</a>. Trình cài tự dò mọi vị trí.</td></tr>
-          <tr><td class="lbl">1 AI agent</td><td>Claude Code · Codex CLI · Google Antigravity (một trong ba, hoặc cả ba)</td></tr>
+          <tr><td class="lbl">Codex</td><td>Mặc định</td><td>Mở repo, xác nhận skill và MCP được nạp.</td></tr>
+          <tr><td class="lbl">Claude Code</td><td>Chọn qua <code>-Hosts</code></td><td>Mở repo, xác nhận skill và MCP được nạp.</td></tr>
+          <tr><td class="lbl">Antigravity</td><td>Chọn qua <code>-Hosts</code></td><td>Mở repo, xác nhận skill và MCP được nạp.</td></tr>
         </tbody>
-      </table>
-    </div>
-  </section>
+      </table></div>
+      <p class="mode-note">Bảng này mô tả đường cài đặt hiện có; kiểm thử thực tế trên cả ba host cho bản đóng gói hiện tại đang được hoàn tất.</p>
+    </section>
 
-  <section id="cach-1" style="padding-top:8px">
-    <div class="way best reveal">
-      <span class="badge">KHUYẾN NGHỊ</span>
-      <h2>Cách 1 — Đưa cho chính AI cài</h2>
-      <p class="for">Dành cho: tất cả mọi người · thời gian: ~5 phút · không cần biết dòng lệnh</p>
-      <p style="margin-top:12px;color:var(--muted);line-height:1.65">Mở AI của bạn, dán nguyên câu này.
-      AI sẽ tải mã nguồn, đọc trình cài trước khi chạy, dựng môi trường, đăng ký vào cả 3 nền tảng
-      và tự học 9 skill + 8 lệnh:</p>
+    <section class="journey-step" id="viec-dau-tien">
+      <span class="step-kicker">Bước 04 / Làm việc đầu tiên</span>
+      <h2>Thử với dữ liệu mẫu, rồi nối Power BI</h2>
+      <p>Bắt đầu với dữ liệu giả lập đi kèm repo. Kết quả được lưu trong <code class="inline">workspace/outputs/</code>, không đưa vào Git. Sau đó mở một báo cáo Power BI Desktop và nhờ AI liệt kê model trước khi yêu cầu chỉnh sửa.</p>
       <div class="code-card">
-        <div class="code-top"><span class="fn">dán vào AI</span>
-          <button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbl">Sao chép</span></button></div>
-        <div class="code-scroll"><pre><code>Clone https://github.com/ducnguyen221/agent-data-studio
-vào ~/.mcp/powerbi-mcp rồi chạy install.ps1 trong đó
-(đọc script trước khi chạy), sau đó restart MCP host.</code></pre></div>
+        <div class="code-top"><span class="fn">Yêu cầu đầu tiên</span><button class="copy-btn" type="button"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-scroll"><pre><code>Trong repo này, đọc skills/data-discovery/SKILL.md
+và samples/sales-demo.csv. Hãy tóm tắt bộ dữ liệu,
+đề xuất 3 câu hỏi kinh doanh, kiểm tra tổng số đơn
+và doanh thu, rồi lưu ghi chú vào workspace/outputs/.</code></pre></div>
       </div>
-      <p style="color:var(--muted);font-size:14px">Xong thì <b>khởi động lại AI</b> và gõ <code class="inline">/pbi-setup</code> — xem tiếp <a href="../instruction/" style="color:var(--accent);font-weight:600"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>.</p>
-    </div>
-  </section>
+      <p class="mode-note">Với Power BI, mở tệp <code class="inline">.pbix</code> trước rồi hỏi: “Liệt kê các model đang mở và các bảng của model; chưa chỉnh sửa gì.”</p>
+      <div class="step-check"><b>Hoàn tất:</b> AI tạo được ghi chú mẫu và bạn biết kết quả nằm ở đâu.</div>
+    </section>
 
-  <section id="cach-2" style="padding-top:0">
-    <div class="way reveal">
-      <h2>Cách 2 — Tự chạy lệnh (git + installer)</h2>
-      <p class="for">Dành cho: người quen dòng lệnh, muốn kiểm soát từng bước</p>
-      <div class="code-card">
-        <div class="code-top"><span class="fn">PowerShell</span>
-          <button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbl">Sao chép</span></button></div>
-        <div class="code-scroll"><pre><code><span class="cm"># 1. Lấy mã nguồn về đúng chỗ khuyến nghị</span>
-<span class="pr">git</span> clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\.mcp\powerbi-mcp"
-<span class="pr">cd</span> "$env:USERPROFILE\.mcp\powerbi-mcp"
-<span class="cm"># 2. Cài in-place: venv + dò ADOMD/TOM + đăng ký 3 host + skills + lệnh</span>
-<span class="pr">powershell</span> -ExecutionPolicy Bypass -File .\install.ps1
-<span class="cm"># 3. (khuyến nghị) cài kèm modeling chính chủ Microsoft</span>
-<span class="pr">claude</span> mcp add powerbi-modeling -s user -- npx -y "@microsoft/powerbi-modeling-mcp@latest" --start</code></pre></div>
+    <section class="journey-step" id="su-co">
+      <span class="step-kicker">Khi cần trợ giúp</span>
+      <h2>Ba chỗ nên kiểm tra trước</h2>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="card"><h3>AI không thấy skill</h3><p>Mở AI tại folder repo, khởi động lại host, rồi kiểm tra <code>.agents/skills/</code> hoặc <code>.claude/skills/</code>.</p></div>
+        <div class="card"><h3>Power BI chưa kết nối</h3><p>Kiểm tra báo cáo đang mở trong Power BI Desktop và thư viện ADOMD.NET, rồi chạy <code>.\doctor.ps1 -ProbeDesktop</code>. Việc phân tích CSV mẫu vẫn có thể làm trước.</p></div>
       </div>
-      <p style="color:var(--muted);font-size:14px;line-height:1.6">Trình cài idempotent (chạy lại an toàn),
-      backup config trước khi sửa, không đụng file bí mật. Tham số: <code class="inline">-Hosts claude,codex,antigravity</code>
-      chọn nền tảng · <code class="inline">-SkipVenv</code> chỉ cập nhật đăng ký. Bản hướng dẫn chi tiết từng
-      bước + ảnh: <a href="../INSTALL.html" style="color:var(--accent);font-weight:600">INSTALL.html</a>.</p>
-    </div>
-  </section>
-
-  <section id="cach-3" style="padding-top:0">
-    <div class="way reveal">
-      <h2>Cách 3 — Chỉ cài skills (dạng plugin, không cần Python)</h2>
-      <p class="for">Dành cho: người chỉ cần quy trình &amp; kiến thức (chưa cần AI thao tác trực tiếp lên Power BI)</p>
-      <div class="code-card">
-        <div class="code-top"><span class="fn">Claude Code / Codex</span>
-          <button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbl">Sao chép</span></button></div>
-        <div class="code-scroll"><pre><code>claude plugin marketplace add ducnguyen221/agent-data-studio
-claude plugin install powerbi-agent@powerbi-agent</code></pre></div>
-      </div>
-      <p style="color:var(--muted);font-size:14px">Muốn đủ 16 công cụ (truy vấn, dựng báo cáo…) → quay lại Cách 1/2.</p>
-    </div>
-  </section>
-
-  <section id="kiem-tra" style="padding-top:8px">
-    <div class="sec-head reveal"><span class="eyebrow"><span class="dot"></span>Sau khi cài</span><h2>Kiểm tra 30 giây</h2></div>
-    <div class="reveal">
-      <div class="step"><span class="num">1</span><div class="body"><h3>Khởi động lại AI</h3><p>Đóng mở lại Claude Code / Codex / Antigravity để nhận công cụ mới.</p></div></div>
-      <div class="step"><span class="num">2</span><div class="body"><h3>Kiểm tra kết nối</h3>
-        <p>Claude Code: chạy <code class="inline">claude mcp list</code> — phải thấy
-        <code class="inline">powerbi-mcp-bridge ✔ Connected</code>.</p></div></div>
-      <div class="step"><span class="num">3</span><div class="body"><h3>Thử lệnh đầu tiên</h3>
-        <p>Mở 1 file .pbix bất kỳ trong Power BI Desktop rồi hỏi AI: <i>"Liệt kê các báo cáo Power BI
-        đang mở và cho xem danh sách bảng của model."</i> AI trả về danh sách bảng = cài thành công 🎉</p></div></div>
-      <div class="step"><span class="num">4</span><div class="body"><h3>Thiết lập bộ nhớ tri thức</h3>
-        <p>Gõ <code class="inline">/pbi-setup</code> — chỉ định thư mục lưu tri thức dự án (1 lần).
-        Chi tiết: <a href="../instruction/" style="color:var(--accent);font-weight:600"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>.</p></div></div>
-    </div>
-  </section>
-
-  <section id="su-co" style="padding-top:8px">
-    <div class="sec-head reveal"><span class="eyebrow"><span class="dot"></span>Khi có vấn đề</span><h2>Sự cố thường gặp</h2></div>
-    <div class="tbl-wrap reveal">
-      <table class="tbl">
-        <thead><tr><th>Triệu chứng</th><th>Cách xử lý</th></tr></thead>
-        <tbody>
-          <tr><td class="lbl">Công cụ không xuất hiện</td><td>Khởi động lại AI; kiểm tra <code>claude mcp list</code></td></tr>
-          <tr><td class="lbl">Báo thiếu ADOMD.NET</td><td>Cài SSMS hoặc Analysis Services client libraries; hoặc đặt biến môi trường <code>ADOMD_LIB_DIR</code> trỏ tới thư mục chứa DLL</td></tr>
-          <tr><td class="lbl">Không tìm thấy báo cáo đang mở</td><td>Power BI Desktop phải ĐANG mở 1 file; chờ vài giây cho engine khởi động</td></tr>
-          <tr><td class="lbl">Truy vấn bị chặn "aggregate-only"</td><td>Là chủ đích (bảo vệ dữ liệu chi tiết). AI sẽ tự viết lại dạng tổng hợp; thực sự cần dữ liệu thô → đặt <code>POWERBI_AGGREGATE_ONLY=0</code></td></tr>
-          <tr><td class="lbl">Trang báo cáo AI tạo không thấy</td><td>File .pbip phải ĐÓNG khi AI ghi; nếu đang mở → Đóng KHÔNG lưu rồi mở lại</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="reveal" style="margin-top:16px;color:var(--muted);font-size:14px">Không tự xử được? Mở
-    <a href="https://github.com/ducnguyen221/agent-data-studio/issues" style="color:var(--accent);font-weight:600">GitHub Issues</a>
-    — kèm thông báo lỗi và bước tái hiện.</p>
-  </section>
-
+      <p style="margin-top:18px"><a class="plain-link" href="../instruction/">Hướng dẫn sử dụng</a> · <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/issues">Gửi lỗi trên GitHub</a></p>
+    </section>
+  </div>
+  <aside class="setup-rail" aria-label="Mục lục cài đặt">
+    <h2>Tiến trình cài đặt</h2>
+    <a href="#chuan-bi">01 · Chuẩn bị máy và thư mục</a>
+    <a href="#cai-dat">02 · Cài với Codex</a>
+    <a href="#kiem-tra">03 · Kiểm tra host</a>
+    <a href="#viec-dau-tien">04 · Thử với dữ liệu mẫu</a>
+    <a href="#su-co">Gỡ vướng</a>
+  </aside>
 </div>
 </main>
 
 <footer class="site">
   <div class="wrap foot">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="powerbi-agent" width="26" height="26">powerbi-agent</a>
+    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
     <div class="foot-links">
-      <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a><a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="../template/"><span data-i18n="vi">Template</span><span data-i18n="en">Templates</span></a><a href="./"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
+      <a href="../feature/">Power Agent</a><a href="../instruction/">Hướng dẫn</a>
+      <a href="../template/">Thiết kế</a><a href="./">Cài đặt</a>
       <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
     </div>
     <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>

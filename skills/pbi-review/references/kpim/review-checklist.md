@@ -1,6 +1,6 @@
 ---
 title: Checklist review độc lập — SQL · DAX · model · trang báo cáo
-source: KPIM practice — gộp skill sql-pbix-reviewer (OpcOS data-bi) + chuẩn trang KPIM
+source: Agent Data Studio practice
 updated: 2026-09-17
 ---
 
@@ -35,10 +35,10 @@ updated: 2026-09-17
 - [ ] Cột PII che/không project; `policy.json` đã khai; service principal quyền tối thiểu.
 
 ## F. Trang báo cáo (đọc cùng screenshot)
-- [ ] Lưới chuẩn KPIM: 1280×720, lề 30, gutter 20, header 80, KPI y100 h110, chart y225 h235, detail y475 h230.
+- [ ] Lưới, tỷ lệ và khoảng cách khớp Design Brief hoặc kit đã được người dùng duyệt; chỉ áp số đo KPIM nếu dự án chọn mẫu đó và có quyền dùng.
 - [ ] Chỉ visual hiện đại (`cardVisual`, `pivotTable`, `tableEx`, `azureMap` + chart chuẩn).
-- [ ] Card có reference label; màu điều kiện `#42A19F` / `#D64554` **đúng chiều ý nghĩa** chỉ số.
-- [ ] Style container: nền trắng, bo 5, viền ThemeDataColor 0 −10 %, padding 15, title 12 pt bold ColorId 2.
+- [ ] Card có nhãn đối chiếu; màu điều kiện theo theme đã duyệt và **đúng chiều ý nghĩa** chỉ số.
+- [ ] Style container, panel và chữ khớp kit/theme đã duyệt; không tự áp token của tổ chức khác.
 - [ ] Matrix nằm trên `shape` panel có z thấp hơn; không visual chồng lấn ngoài ý muốn; không chữ bị cắt.
 - [ ] Không còn binding tên cũ sau clone (grep = 0); không trang mồ côi ngoài `pages.json`.
 - [ ] Accessibility: tương phản, alt text, thứ tự tab (Microsoft `accessibility.md`).
