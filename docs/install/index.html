@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" data-lang="vi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bắt đầu trong 4 bước · Agent Data Studio</title>
-<meta name="description" content="Cài Agent Data Studio bằng Codex trên Windows theo từng bước: lấy repo, tạo workspace, kiểm tra kết nối và làm việc đầu tiên với dữ liệu mẫu hoặc Power BI.">
+<title>Cài bằng ứng dụng AI của bạn · Agent Data Studio</title>
+<meta name="description" content="Cài Agent Data Studio trên Windows bằng một yêu cầu dán vào Codex, Claude Code, Claude Desktop hoặc Google Antigravity: agent hỏi trước khi cài, kiểm tra máy, cài, chạy doctor và thử với dữ liệu mẫu.">
 <link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/install/">
-<meta property="og:title" content="Bắt đầu trong 4 bước · Agent Data Studio">
+<meta property="og:title" content="Cài bằng ứng dụng AI của bạn · Agent Data Studio">
 <meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/install/">
 <meta property="og:type" content="website">
 <link rel="icon" href="../assets/logo-128.png">
@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-  .install-hero{padding-bottom:30px}.install-hero .lead{max-width:66ch}
+  .install-hero{padding-bottom:30px}.install-hero .lead{max-width:44em}
   .path-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-top:30px}
   .path-strip span{background:var(--surface);padding:17px 18px;font-size:13px;font-weight:700;color:var(--muted)}
   .path-strip b{font:700 12px var(--mono);color:var(--accent);margin-right:10px}
@@ -58,10 +58,11 @@
 </header>
 
 <nav class="quicknav" aria-label="Điều hướng nhanh">
+  <a href="#cai-dat"><span class="qdot"></span><span class="qlabel">Dán yêu cầu</span></a>
   <a href="#chuan-bi"><span class="qdot"></span><span class="qlabel">Chuẩn bị</span></a>
-  <a href="#cai-dat"><span class="qdot"></span><span class="qlabel">Cài đặt</span></a>
   <a href="#kiem-tra"><span class="qdot"></span><span class="qlabel">Kiểm tra</span></a>
   <a href="#viec-dau-tien"><span class="qdot"></span><span class="qlabel">Việc đầu tiên</span></a>
+  <a href="#cai-tay"><span class="qdot"></span><span class="qlabel">Cài tay</span></a>
   <a href="#su-co"><span class="qdot"></span><span class="qlabel">Sự cố</span></a>
 </nav>
 
@@ -69,101 +70,165 @@
 <section class="page-hero install-hero">
   <div class="wrap">
     <p class="crumb"><a href="../">Trang chủ</a> / Cài đặt</p>
-    <span class="eyebrow"><span class="dot"></span>Bắt đầu với Codex</span>
-    <h1>Mở repo. Chạy cài đặt.<br><span style="color:var(--accent)">Bắt đầu làm việc.</span></h1>
-    <p class="lead">Bạn cần một máy Windows, một AI host và thư mục repo này. Mọi kỹ năng và công cụ chạy từ repo; dữ liệu của bạn nằm trong <code class="inline">workspace/</code> ở cùng chỗ. Hãy đi theo bốn bước dưới đây.</p>
+    <span class="eyebrow"><span class="dot"></span>Cài bằng ứng dụng AI bạn đang dùng</span>
+    <h1>Dán một yêu cầu.<br><span style="color:var(--accent)">Agent cài giúp bạn.</span></h1>
+    <p class="lead">Codex, Claude Code, Claude Desktop hay Google Antigravity đều dùng chung một yêu cầu. Agent đọc hướng dẫn cài ngay trong repo, <b>hỏi bạn trước</b> khi cài thêm phần mềm, rồi cài, kiểm tra và báo lại từng bước. Dữ liệu của bạn nằm trong <code class="inline">workspace/</code> của repo.</p>
     <div class="path-strip" aria-label="Bốn bước cài đặt">
-      <span><b>01</b>Chuẩn bị</span><span><b>02</b>Nhờ Codex cài</span><span><b>03</b>Kiểm tra</span><span><b>04</b>Làm việc đầu tiên</span>
+      <span><b>01</b>Dán yêu cầu</span><span><b>02</b>Đồng ý phần cần cài</span><span><b>03</b>Khởi động lại</span><span><b>04</b>Làm việc đầu tiên</span>
     </div>
   </div>
 </section>
 <div class="wrap setup-grid">
   <div>
+    <section class="journey-step" id="cai-dat">
+      <span class="step-kicker">Bước 01 / Dán yêu cầu</span>
+      <h2>Dán yêu cầu này vào ứng dụng AI của bạn</h2>
+      <p>Mở ứng dụng AI trên máy Windows, bấm <b>Sao chép</b> rồi dán nguyên văn. Agent đọc <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/INSTALL.md">hướng dẫn cài dành cho agent</a> và tự nhận ra mình là ứng dụng nào để đăng ký cho đúng.</p>
+      <div class="code-card prompt-card" data-i18n="vi">
+        <div class="code-top"><span class="fn">Yêu cầu cài đặt · dùng cho mọi ứng dụng AI</span><button class="copy-btn" type="button" aria-label="Sao chép yêu cầu cài đặt"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-scroll"><pre id="prompt-vi"><code>Hãy cài Agent Data Studio lên máy Windows này cho chính ứng dụng AI bạn đang chạy
+(Codex, Claude Code, Claude Desktop hoặc Google Antigravity).
+
+Nguồn duy nhất: https://github.com/ducnguyen221/agent-data-studio
+Đọc trước hướng dẫn dành cho agent tại
+https://raw.githubusercontent.com/ducnguyen221/agent-data-studio/main/INSTALL.md
+(không mở được link thì clone repo rồi đọc file INSTALL.md trong đó),
+rồi làm đúng và đủ các bước trong đó: kiểm tra máy đã có gì (Git, Python, PowerShell),
+hỏi tôi trước khi cài thêm phần mềm hoặc cần quyền admin, clone repo về thư mục an toàn
+(không OneDrive/Desktop), chạy install.ps1 cho đúng host đang dùng, chạy doctor.ps1,
+hướng dẫn tôi khởi động lại ứng dụng, rồi kiểm tra bằng bài mẫu samples/sales-demo.csv.
+
+Quy tắc: chỉ chạy script/lệnh có trong repo trên hoặc trong INSTALL.md; không đổi chính sách
+hệ thống; không đọc hay ghi mật khẩu/khóa; gặp lỗi thì dừng và giải thích bằng lời thường.
+Kết thúc bằng bản tóm tắt: đường dẫn repo, host đã đăng ký, kết quả doctor từng dòng,
+phần mềm đã cài thêm, và việc tôi cần làm tiếp.</code></pre></div>
+      </div>
+      <div class="code-card prompt-card" data-i18n="en">
+        <div class="code-top"><span class="fn">Install prompt · works in any AI app</span><button class="copy-btn" type="button"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-scroll"><pre id="prompt-en"><code>Install Agent Data Studio on this Windows machine for the AI app you are running in
+(Codex, Claude Code, Claude Desktop or Google Antigravity).
+
+Single source: https://github.com/ducnguyen221/agent-data-studio
+First read the agent guide at
+https://raw.githubusercontent.com/ducnguyen221/agent-data-studio/main/INSTALL.md
+(if the link cannot be opened, clone the repo and read its INSTALL.md),
+then follow every step in it: check what the machine already has (Git, Python, PowerShell),
+ask me before installing software or anything that needs admin rights, clone the repo to a
+safe folder (not OneDrive/Desktop), run install.ps1 for the host in use, run doctor.ps1,
+tell me how to restart the app, then verify with the sample samples/sales-demo.csv.
+
+Rules: only run scripts/commands from that repo or INSTALL.md; do not change system policy;
+never read or write passwords/keys; on any error stop and explain in plain words.
+Finish with a summary: repo path, registered host, every doctor line, software added,
+and what I need to do next.</code></pre></div>
+      </div>
+      <ol class="mini-list">
+        <li>Kiểm tra máy đã có Git, Python, PowerShell — chỉ đọc, chưa cài gì.</li>
+        <li>Trình kế hoạch ngắn và chờ bạn đồng ý trước khi cài thêm phần mềm.</li>
+        <li>Lấy repo về <code>%USERPROFILE%\agent-data-studio</code>, không đặt trong OneDrive hay Desktop.</li>
+        <li>Chạy trình cài cho đúng ứng dụng bạn dùng, rồi chạy doctor và chép lại từng dòng kết quả.</li>
+        <li>Hướng dẫn bạn khởi động lại ứng dụng và thử với dữ liệu mẫu.</li>
+      </ol>
+      <p class="mode-note">Tab chat của Claude Desktop không chạy được lệnh trên máy. Hãy dán yêu cầu vào Claude Code, Codex hoặc Antigravity và nói thêm “cài cho Claude Desktop”, hoặc <a class="plain-link" href="#cai-tay">tự cài theo mục cuối</a>.</p>
+      <div class="step-check"><b>Kiểm tra:</b> Agent trả lời bằng một kế hoạch và hỏi bạn trước khi cài thêm bất cứ thứ gì.</div>
+    </section>
+
     <section class="journey-step" id="chuan-bi">
-      <span class="step-kicker">Bước 01 / Chuẩn bị</span>
-      <h2>Chọn một chỗ lưu repo trên máy</h2>
-      <p>Cài <a class="plain-link" href="https://git-scm.com/downloads/win">Git</a>, <a class="plain-link" href="https://www.python.org/downloads/">Python 3.11+</a> và một trong ba ứng dụng AI: Codex, Claude Code hoặc Antigravity. Power BI Desktop cần khi bạn muốn làm việc với báo cáo đang mở; bạn vẫn có thể bắt đầu từ tệp CSV mẫu trước.</p>
+      <span class="step-kicker">Bước 02 / Đồng ý phần cần cài</span>
+      <h2>Agent hỏi trước khi cài thêm phần mềm</h2>
+      <p>Tối thiểu máy cần Git và Python. Power BI Desktop và các thư viện đi kèm chỉ cần khi bạn làm với báo cáo; bài thử đầu tiên chưa cần. Không cần SQL Server hay SSAS server. Bảng dưới là những gì agent có thể đề nghị cài — bạn đồng ý từng mục.</p>
+      <div class="tbl-wrap" style="margin-top:20px"><table class="tbl">
+        <thead><tr><th>Thành phần</th><th>Khi nào cần</th><th>Gói <code>winget</code></th><th>Cần admin?</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">Git</td><td>Bắt buộc</td><td><code>Git.Git</code></td><td>Không, khi cài cho riêng bạn</td></tr>
+          <tr><td class="lbl">Python 3.11–3.14</td><td>Bắt buộc (khuyến nghị 3.12)</td><td><code>Python.Python.3.12</code></td><td>Không</td></tr>
+          <tr><td class="lbl">Power BI Desktop</td><td>Khi làm với báo cáo đang mở</td><td><code>9NTXR16HNW1T</code> (Store)</td><td>Không</td></tr>
+          <tr><td class="lbl">ADOMD.NET, AMO/TOM</td><td>Khi truy vấn hoặc sửa model</td><td><code>Microsoft.SQLServerManagementStudio.21</code> hoặc <a class="plain-link" href="https://learn.microsoft.com/analysis-services/client-libraries">bộ MSI</a></td><td>Có</td></tr>
+          <tr><td class="lbl">Node.js LTS</td><td>Khi dựng trang báo cáo bằng CLI</td><td><code>OpenJS.NodeJS.LTS</code></td><td>Có</td></tr>
+          <tr><td class="lbl">Azure CLI</td><td>Chỉ khi xuất bản lên Service</td><td><code>Microsoft.AzureCLI</code></td><td>Có</td></tr>
+        </tbody>
+      </table></div>
+      <div class="code-card">
+        <div class="code-top"><span class="fn">Chỉ chạy khi bạn đồng ý · PowerShell</span><button class="copy-btn" type="button" aria-label="Sao chép lệnh cài phần mềm"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-scroll"><pre><code>winget install --id Git.Git -e --scope user
+winget install --id Python.Python.3.12 -e --scope user
+winget install --id 9NTXR16HNW1T --source msstore</code></pre></div>
+      </div>
+      <p class="mode-note">Máy không có <code class="inline">winget</code> (Windows LTSC, Windows Sandbox): tải từ trang chính thức — <a class="plain-link" href="https://git-scm.com/download/win">Git</a>, <a class="plain-link" href="https://www.python.org/downloads/windows/">Python</a> (chọn 3.12 hoặc 3.13, tick “Add python.exe to PATH”), Power BI Desktop từ Microsoft Store hoặc <a class="plain-link" href="https://learn.microsoft.com/power-bi/fundamentals/desktop-get-the-desktop">trang tải của Microsoft</a>. Python 3.14 mới được kiểm bằng bộ test, chưa kiểm kết nối Power BI Desktop thật.</p>
+      <p class="mode-note">Dòng cuối là Power BI Desktop, có thể cài sau. Script của repo chạy bằng <code class="inline">-ExecutionPolicy Bypass</code> cho riêng lệnh đó; agent không đổi chính sách của máy. Nếu tổ chức chặn script, hãy nhờ IT.</p>
       <div class="station-map" aria-label="Cấu trúc sau khi cài">
         <div><b>agent-data-studio/</b><span>Mã nguồn, engine, scripts, skills. Cập nhật tại đây.</span></div>
         <div><b>workspace/</b><span>Projects, knowledge, outputs và state cá nhân. Git bỏ qua toàn bộ.</span></div>
       </div>
-      <p class="mode-note">Đã có trạm dữ liệu riêng? Có thể đặt <code class="inline">ADS_DATA</code> tới thư mục ngoài repo trước khi cài. Chế độ mặc định dùng <code class="inline">workspace/</code>.</p>
-      <div class="step-check"><b>Kiểm tra:</b> Bạn biết mình muốn đặt repo ở thư mục nào và đã mở Codex trên Windows.</div>
-    </section>
-
-    <section class="journey-step" id="cai-dat">
-      <span class="step-kicker">Bước 02 / Nhờ Codex cài</span>
-      <h2>Dán yêu cầu này vào Codex</h2>
-      <p>Codex sẽ lấy repo, đọc trình cài rồi cài ngay tại folder đó. Installer mặc định cấu hình Codex. Có thể chọn thêm Claude Code hoặc Antigravity bằng <code class="inline">-Hosts claude,codex,antigravity</code>; hãy kiểm tra từng host trên máy bạn sau khi cài.</p>
-      <div class="code-card">
-        <div class="code-top"><span class="fn">Yêu cầu cho Codex</span><button class="copy-btn" type="button"><span class="lbl">Sao chép</span></button></div>
-        <div class="code-scroll"><pre><code>Hãy cài Agent Data Studio trên máy Windows này.
-Clone https://github.com/ducnguyen221/agent-data-studio
-vào thư mục source phù hợp trên máy tôi. Mở repo đó,
-đọc README và install.ps1 trước khi chạy. Dùng chế độ
-workspace mặc định trong repo, cài cho Codex, rồi kiểm
-tra kết quả. Cho tôi biết đường dẫn repo, trạng thái MCP
-và việc đầu tiên tôi có thể thử với samples/sales-demo.csv.</code></pre></div>
-      </div>
-      <p class="mode-note">Dùng Claude Code hoặc Antigravity? Nhắc Codex chạy installer với <code class="inline">-Hosts</code> tương ứng. Repo có adapter skill cho các host; nội dung gốc nằm tại <code class="inline">skills/</code>. Khả năng tự nạp adapter cần được kiểm tra trong phiên host thực tế.</p>
-      <p class="mode-note">MCP được gộp vào cấu hình người dùng của host (ví dụ <code class="inline">~/.codex/config.toml</code>) cạnh các server sẵn có, nên mọi thư mục mở trong host dùng chung server của checkout này: mỗi máy trỏ một checkout. Muốn chuyển sang checkout khác, chạy <code class="inline">.\uninstall.ps1 -Hosts &lt;host&gt;</code> ở checkout cũ trước. <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/hosts/README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng">Xem giới hạn</a></p>
-      <div class="step-check"><b>Kiểm tra:</b> Repo có <code>workspace/</code>, môi trường Python và host được đăng ký thành công.</div>
+      <p class="mode-note">Đã có trạm dữ liệu riêng? Nói với agent đường dẫn đó trước khi cài để nó đặt <code class="inline">ADS_DATA</code>. Chế độ mặc định dùng <code class="inline">workspace/</code>.</p>
+      <div class="step-check"><b>Kiểm tra:</b> Bạn biết agent sẽ cài gì, ở đâu, và đã đồng ý.</div>
     </section>
 
     <section class="journey-step" id="kiem-tra">
-      <span class="step-kicker">Bước 03 / Kiểm tra</span>
-      <h2>Khởi động lại AI trong chính repo</h2>
-      <p>Đóng và mở lại AI host ở folder <code class="inline">agent-data-studio</code>. Yêu cầu AI kiểm tra kết nối MCP và đọc skill <code class="inline">data-discovery</code> từ repo. Nếu host chưa nhận công cụ, chạy lại installer cho đúng host và xem thông báo lỗi cụ thể.</p>
-      <p>Có thể nhờ AI chạy <code class="inline">.\doctor.ps1 -Hosts codex</code> trong PowerShell trước. Doctor kiểm môi trường và đăng ký MCP; kết quả <code class="inline">NOT_CHECKED</code> vẫn cần bạn xác nhận trong host và Power BI thật. Nếu máy tổ chức chặn script, hãy nhờ IT cho phép theo chính sách của tổ chức.</p>
-      <p>Khi đã mở một báo cáo trong Power BI Desktop, chạy thêm <code class="inline">.\doctor.ps1 -ProbeDesktop</code> để thử kết nối bằng <code class="inline">EVALUATE ROW("x",1)</code>. Nếu Desktop đang đóng, kết quả là <code class="inline">NOT_CHECKED</code> (chưa kiểm), không phải lỗi.</p>
-      <ol class="mini-list">
-        <li>Codex: mở repo làm project, kiểm tra MCP và skill trong <code>.agents/skills/</code>.</li>
-        <li>Claude Code: mở repo, kiểm tra MCP và adapter trong <code>.claude/skills/</code>.</li>
-        <li>Antigravity: mở repo, kiểm tra MCP và adapter trong <code>.agents/skills/</code>.</li>
-      </ol>
-      <div class="step-check"><b>Kiểm tra:</b> AI chỉ ra được đường dẫn <code>skills/data-discovery/SKILL.md</code> và thấy công cụ MCP của repo. Nếu một host chưa nhận, xem là chưa cài xong trên host đó.</div>
+      <span class="step-kicker">Bước 03 / Khởi động lại</span>
+      <h2>Mở lại ứng dụng AI trong chính repo</h2>
+      <p>Phiên đang dùng để cài chưa thấy công cụ mới — điều đó bình thường. Khởi động lại theo bảng, rồi hỏi trong phiên mới: “Gọi <code class="inline">knowledge_status</code>, rồi đọc <code class="inline">skills/data-discovery/SKILL.md</code> trong repo này.”</p>
       <div class="tbl-wrap" style="margin-top:20px"><table class="tbl">
-        <thead><tr><th>Host</th><th>Trình cài</th><th>Bước xác nhận trên máy bạn</th></tr></thead>
+        <thead><tr><th>Ứng dụng</th><th>Agent cài với</th><th>Khởi động lại và xác nhận</th></tr></thead>
         <tbody>
-          <tr><td class="lbl">Codex</td><td>Mặc định</td><td>Mở repo, xác nhận skill và MCP được nạp.</td></tr>
-          <tr><td class="lbl">Claude Code</td><td>Chọn qua <code>-Hosts</code></td><td>Mở repo, xác nhận skill và MCP được nạp.</td></tr>
-          <tr><td class="lbl">Antigravity</td><td>Chọn qua <code>-Hosts</code></td><td>Mở repo, xác nhận skill và MCP được nạp.</td></tr>
+          <tr><td class="lbl">Codex</td><td><code>-Hosts codex</code></td><td>Mở lại trong thư mục repo; bản desktop mở repo làm project và tin cậy thư mục.</td></tr>
+          <tr><td class="lbl">Claude Code</td><td><code>-Hosts claude</code></td><td>Mở lại trong thư mục repo; xem <code>/mcp</code> hoặc <code>claude mcp list</code>.</td></tr>
+          <tr><td class="lbl">Claude Desktop</td><td><code>-Hosts claude-desktop</code></td><td>Thoát hẳn từ khay hệ thống rồi mở lại. Chỉ có 16 công cụ MCP, không có skill.</td></tr>
+          <tr><td class="lbl">Antigravity</td><td><code>-Hosts antigravity</code></td><td>Khởi động lại, mở thư mục repo, xem mục MCP.</td></tr>
         </tbody>
       </table></div>
-      <p class="mode-note">Bảng này mô tả đường cài đặt hiện có; kiểm thử thực tế trên cả ba host cho bản đóng gói hiện tại đang được hoàn tất.</p>
+      <p>Agent chép lại từng dòng của <code class="inline">doctor.ps1</code>. Dòng <code class="inline">NOT_CHECKED</code> ở kết nối Power BI không phải lỗi: khi đã mở một báo cáo trong Power BI Desktop, nhờ agent chạy thêm doctor với <code class="inline">-ProbeDesktop</code> để thử <code class="inline">EVALUATE ROW("x",1)</code>.</p>
+      <div class="step-check"><b>Kiểm tra:</b> Phiên mới thấy công cụ của repo và doctor không còn dòng <code>FAIL</code>. Chưa đạt hai điều này thì xem là chưa cài xong trên ứng dụng đó.</div>
     </section>
 
     <section class="journey-step" id="viec-dau-tien">
       <span class="step-kicker">Bước 04 / Làm việc đầu tiên</span>
       <h2>Thử với dữ liệu mẫu, rồi nối Power BI</h2>
-      <p>Bắt đầu với dữ liệu giả lập đi kèm repo. Kết quả được lưu trong <code class="inline">workspace/outputs/</code>, không đưa vào Git. Sau đó mở một báo cáo Power BI Desktop và nhờ AI liệt kê model trước khi yêu cầu chỉnh sửa.</p>
+      <p>Agent thường đã làm bài mẫu ở cuối lượt cài. Muốn tự thử lại, gửi yêu cầu dưới đây. Kết quả nằm trong <code class="inline">workspace/outputs/</code>, không đưa vào Git; con số đúng là <b>182 đơn, 20.350.000 VND</b>.</p>
       <div class="code-card">
-        <div class="code-top"><span class="fn">Yêu cầu đầu tiên</span><button class="copy-btn" type="button"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-top"><span class="fn">Yêu cầu đầu tiên</span><button class="copy-btn" type="button" aria-label="Sao chép yêu cầu đầu tiên"><span class="lbl">Sao chép</span></button></div>
         <div class="code-scroll"><pre><code>Trong repo này, đọc skills/data-discovery/SKILL.md
 và samples/sales-demo.csv. Hãy tóm tắt bộ dữ liệu,
 đề xuất 3 câu hỏi kinh doanh, kiểm tra tổng số đơn
 và doanh thu, rồi lưu ghi chú vào workspace/outputs/.</code></pre></div>
       </div>
       <p class="mode-note">Với Power BI, mở tệp <code class="inline">.pbix</code> trước rồi hỏi: “Liệt kê các model đang mở và các bảng của model; chưa chỉnh sửa gì.”</p>
-      <div class="step-check"><b>Hoàn tất:</b> AI tạo được ghi chú mẫu và bạn biết kết quả nằm ở đâu.</div>
+      <div class="step-check"><b>Hoàn tất:</b> AI tạo được ghi chú mẫu với đúng con số và bạn biết kết quả nằm ở đâu.</div>
+    </section>
+
+    <section class="journey-step" id="cai-tay">
+      <span class="step-kicker">Tự cài không cần agent</span>
+      <h2>Ba lệnh trong PowerShell</h2>
+      <p>Cài Git và Python như bảng ở bước 02, mở PowerShell mới rồi chạy. Thay <code class="inline">codex</code> bằng <code class="inline">claude</code>, <code class="inline">claude-desktop</code> hoặc <code class="inline">antigravity</code> theo ứng dụng bạn dùng.</p>
+      <div class="code-card">
+        <div class="code-top"><span class="fn">Cài tay · PowerShell</span><button class="copy-btn" type="button" aria-label="Sao chép lệnh cài tay"><span class="lbl">Sao chép</span></button></div>
+        <div class="code-scroll"><pre><code>git clone https://github.com/ducnguyen221/agent-data-studio "$env:USERPROFILE\agent-data-studio"
+cd "$env:USERPROFILE\agent-data-studio"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex</code></pre></div>
+      </div>
+      <p class="mode-note">Muốn kiểm máy trước khi cài: chạy <code class="inline">.\doctor.ps1 -Preflight</code> theo cùng cách sau lệnh <code class="inline">cd</code>. Lệnh in 7 dòng <code class="inline">prereq</code> (PowerShell, ExecutionPolicy, Git, Python, ADOMD.NET, Node, az), chưa cần <code class="inline">.venv</code>, và thoát mã 1 nếu có dòng <code class="inline">FAIL</code>. Cài nhiều ứng dụng một lần: <code class="inline">-Hosts codex,claude</code>; doctor và uninstall thì mỗi lần một ứng dụng.</p>
+      <p class="mode-note">Cài xong, chạy <code class="inline">.\doctor.ps1 -Hosts codex</code> theo cùng cách và khởi động lại ứng dụng như bảng ở bước 03. MCP được gộp vào cấu hình người dùng của ứng dụng, nên mọi thư mục mở trong ứng dụng dùng chung server của checkout này: mỗi máy trỏ một checkout. <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/hosts/README.md#mcp-được-đăng-ký-ở-cấu-hình-người-dùng">Xem giới hạn</a></p>
     </section>
 
     <section class="journey-step" id="su-co">
       <span class="step-kicker">Khi cần trợ giúp</span>
-      <h2>Ba chỗ nên kiểm tra trước</h2>
+      <h2>Bốn chỗ nên kiểm tra trước</h2>
       <div class="grid-2" style="margin-top:20px">
-        <div class="card"><h3>AI không thấy skill</h3><p>Mở AI tại folder repo, khởi động lại host, rồi kiểm tra <code>.agents/skills/</code> hoặc <code>.claude/skills/</code>.</p></div>
-        <div class="card"><h3>Power BI chưa kết nối</h3><p>Kiểm tra báo cáo đang mở trong Power BI Desktop và thư viện ADOMD.NET, rồi chạy <code>.\doctor.ps1 -ProbeDesktop</code>. Việc phân tích CSV mẫu vẫn có thể làm trước.</p></div>
+        <div class="card"><h3>AI không thấy công cụ</h3><p>Khởi động lại ứng dụng theo bảng ở bước 03 và mở đúng thư mục repo. Vẫn chưa thấy thì nhờ agent chạy lại trình cài cho đúng ứng dụng.</p></div>
+        <div class="card"><h3>Power BI chưa kết nối</h3><p>Kiểm tra báo cáo đang mở trong Power BI Desktop và thư viện ADOMD.NET, rồi chạy <code>.\doctor.ps1 -ProbeDesktop</code>. Việc phân tích CSV mẫu vẫn làm được trước.</p></div>
+        <div class="card"><h3>Script bị chặn</h3><p>Nếu cả lệnh có <code>-ExecutionPolicy Bypass</code> cũng bị chặn, đó là chính sách của tổ chức. Nhờ IT, không tự vượt.</p></div>
+        <div class="card"><h3>Agent muốn làm việc lạ</h3><p>Đổi chính sách máy, đọc mật khẩu, tải script từ nơi khác repo: từ chối và yêu cầu agent quay lại hướng dẫn trong repo.</p></div>
       </div>
       <p style="margin-top:18px"><a class="plain-link" href="../instruction/">Hướng dẫn sử dụng</a> · <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/issues">Gửi lỗi trên GitHub</a></p>
     </section>
   </div>
   <aside class="setup-rail" aria-label="Mục lục cài đặt">
     <h2>Tiến trình cài đặt</h2>
-    <a href="#chuan-bi">01 · Chuẩn bị máy và thư mục</a>
-    <a href="#cai-dat">02 · Cài với Codex</a>
-    <a href="#kiem-tra">03 · Kiểm tra host</a>
+    <a href="#cai-dat">01 · Dán yêu cầu vào ứng dụng AI</a>
+    <a href="#chuan-bi">02 · Đồng ý phần cần cài</a>
+    <a href="#kiem-tra">03 · Khởi động lại và kiểm tra</a>
     <a href="#viec-dau-tien">04 · Thử với dữ liệu mẫu</a>
+    <a href="#cai-tay">Tự cài không cần agent</a>
     <a href="#su-co">Gỡ vướng</a>
   </aside>
 </div>

@@ -22,15 +22,18 @@ TABULAR_DLL = "Microsoft.AnalysisServices.Tabular.dll"
 _adomd_issue = None
 
 
-def candidate_adomd_dirs():
+def candidate_adomd_dirs(env_dir=None):
     """Sinh danh sách thư mục ứng viên có thể chứa AdomdClient.dll, theo thứ tự ưu tiên.
 
     Có ADOMD_LIB_DIR thì CHỈ trả thư mục đó (override độc quyền), không dò tiếp SSMS/SDK.
+    `env_dir` khác None thay cho biến môi trường (find_adomd_dlls áp giá trị trong config.env mà
+    không sửa os.environ); chuỗi rỗng = không override.
     """
     dirs = []
 
     # 1. Override tường minh từ môi trường (đường dẫn tới thư mục chứa DLL) — độc quyền
-    env_dir = os.getenv("ADOMD_LIB_DIR")
+    if env_dir is None:
+        env_dir = os.getenv("ADOMD_LIB_DIR")
     if env_dir:
         return [env_dir] if os.path.isdir(env_dir) else []
 
@@ -61,6 +64,65 @@ def candidate_adomd_dirs():
             seen.add(d)
             uniq.append(d)
     return uniq
+
+
+def config_adomd_lib_dir(config_env):
+    """Giá trị ADOMD_LIB_DIR trong config.env của trạm — CHỈ đọc khoá này, không nạp biến nào khác.
+
+    Trả None khi không có file/khoá. Không có python-dotenv (Python hệ thống lúc -Preflight) thì
+    đọc dòng `KEY=value` đơn giản: bỏ nháy bao ngoài, bỏ chú thích ` #` cuối dòng.
+    """
+    if not config_env or not os.path.isfile(config_env):
+        return None
+    import io
+    import re
+
+    value = None
+    with open(config_env, encoding="utf-8-sig") as handle:
+        for line in handle.read().splitlines():
+            if not re.match(r"\s*(export\s+)?ADOMD_LIB_DIR\s*=", line):
+                continue
+            try:
+                from dotenv import dotenv_values
+
+                value = dotenv_values(stream=io.StringIO(line)).get("ADOMD_LIB_DIR")
+            except ImportError:
+                raw = line.split("=", 1)[1].strip()
+                if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in "\"'":
+                    value = raw[1:-1]
+                else:
+                    value = re.split(r"\s+#", raw, maxsplit=1)[0].strip()
+    return value
+
+
+def find_adomd_dlls(config_env=None):
+    """Dò DLL client library TRÊN ĐĨA theo đúng thứ tự engine nạp — KHÔNG import clr/pythonnet.
+
+    Một nguồn cho install.ps1 và doctor.ps1 (gọi qua Python, kể cả Python hệ thống chưa cài
+    pythonnet) với engine: load_adomd/load_tabular dùng cùng candidate_adomd_dirs(). ADOMD_LIB_DIR
+    của biến môi trường thắng config.env (như load_dotenv(override=False) ở app.py); có override
+    thì độc quyền, không xét GAC. Trả dict thuần JSON:
+    `{"override": str|None, "dirs": [{"dir", "adomd", "tabular"}], "gac": {"adomd", "tabular"}}`.
+    """
+    if "ADOMD_LIB_DIR" in os.environ:
+        override = os.environ["ADOMD_LIB_DIR"] or None
+    else:
+        override = config_adomd_lib_dir(config_env) or None
+    dirs = [
+        {
+            "dir": d,
+            "adomd": os.path.isfile(os.path.join(d, ADOMD_DLL)),
+            "tabular": os.path.isfile(os.path.join(d, TABULAR_DLL)),
+        }
+        for d in candidate_adomd_dirs(override or "")
+    ]
+    gac = {"adomd": False, "tabular": False}
+    if not override:
+        # Phương án cuối của load_adomd/load_tabular: AddReference theo tên -> assembly đã vào GAC.
+        gac_root = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Microsoft.NET", "assembly", "GAC_MSIL")
+        for key, dll in (("adomd", ADOMD_DLL), ("tabular", TABULAR_DLL)):
+            gac[key] = bool(glob.glob(os.path.join(gac_root, dll[: -len(".dll")], "*", dll)))
+    return {"override": override, "dirs": dirs, "gac": gac}
 
 
 def _load_from_override(clr, env_dir: str, dll: str) -> bool:

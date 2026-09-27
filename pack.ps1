@@ -32,7 +32,7 @@ $allowedRoots = @('.agents', '.claude', '.claude-plugin', '.codex-plugin', '.git
     'powerbi_agent', 'report-templates', 'samples', 'scripts', 'skills', 'templates',
     'tests', 'upstream', 'workflows')
 $allowedFiles = @('.env.example', '.gitattributes', '.gitignore', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md',
-    'INDEX.md', 'LICENSE', 'NOTICE.md', 'README.md', 'README.vi.md', 'ROADMAP.md', 'START-HERE.md',
+    'INDEX.md', 'INSTALL.md', 'LICENSE', 'NOTICE.md', 'README.md', 'README.vi.md', 'ROADMAP.md', 'START-HERE.md',
     'doctor.ps1', 'install.ps1', 'mcp_server_powerbi.py', 'pack.ps1', 'policy.example.json',
     'pyproject.toml', 'requirements.loose.txt', 'requirements.txt',
     'THIRD_PARTY_NOTICES.md', 'uninstall.ps1', 'update.ps1')

@@ -4,7 +4,7 @@
 > Antigravity · mọi MCP client) làm việc **trực tiếp và đúng chuẩn** với Power BI — từ Power Query
 > đến trang báo cáo hoàn thiện — với chính sách an toàn dữ liệu enforce ở tầng server.
 >
-> Trạng thái: 0.7.0 — 16 tool (đọc + ghi model qua TOM + template engine) + 9 skill; chạy thẳng từ checkout, dữ liệu và tri thức nằm ở trạm dữ liệu (`workspace/` hoặc `ADS_DATA`); bộ cài / doctor / update / gỡ cho Claude Code · Codex · Antigravity. Chưa đạt Definition of Done v1.0 (mục 4) → tiếp tục theo roadmap dưới đây.
+> Trạng thái: 0.7.1 — 16 tool (đọc + ghi model qua TOM + template engine) + 9 skill; chạy thẳng từ checkout, dữ liệu và tri thức nằm ở trạm dữ liệu (`workspace/` hoặc `ADS_DATA`); bộ cài / doctor / update / gỡ cho Claude Code · Codex · Antigravity, và Claude Desktop ở dạng chỉ MCP; cài bằng một prompt copy-dán theo `INSTALL.md`. Chưa đạt Definition of Done v1.0 (mục 4) → tiếp tục theo roadmap dưới đây.
 
 ---
 
@@ -37,10 +37,10 @@ T1  DELEGATE               microsoft/powerbi-modeling-mcp (modeling, bulk, TMDL,
 | **Power BI Desktop** (file .pbix/.pbip đang mở) | ADOMD.NET → `localhost:<port>` (tự dò port msmdsrv) | ✅ v0 |
 | **Power BI Service / Fabric** (dataset đã publish) | REST `executeQueries` + MSAL service principal | ✅ v0 |
 | **PBIP project files** (file đóng, git-versioned) | Đọc/ghi trực tiếp TMDL (model) + PBIR JSON (report) | 🔜 v1 |
-| **MCP host** | stdio — Claude Code, Codex CLI, Antigravity, VS Code, Cursor… | ✅ v0 (installer 3 host, mở rộng được) |
+| **MCP host** | stdio — Claude Code, Claude Desktop, Codex CLI, Antigravity, VS Code, Cursor… | ✅ v0 (installer 4 host từ 0.7.1, mở rộng được) |
 | **microsoft/powerbi-modeling-mcp** | Chạy song song, phân vai qua skill (không trùng tool name) | 🔜 M0 |
 
-Yêu cầu hệ: Windows (Power BI Desktop chỉ có trên Windows) · Python 3.11+ · ADOMD.NET
+Yêu cầu hệ: Windows (Power BI Desktop chỉ có trên Windows) · Python 3.11–3.14 · ADOMD.NET
 (SSMS 18–22 / standalone / GAC — tự dò, override `ADOMD_LIB_DIR`).
 
 ## 3. Feature spec theo milestone
@@ -94,7 +94,7 @@ Kèm: installer in-place 3 host (`install.ps1`), CLI debug (`scripts/cli.py`), s
 ### M4 — Sản phẩm hóa
 
 - [ ] Docs song ngữ (README EN + VI) · demo GIF/video · ví dụ end-to-end (CSV → model → 2 trang báo cáo theo kit).
-- [ ] Versioned release + CHANGELOG.
+- [x] Versioned release + CHANGELOG — tag + GitHub Release từ v0.7.0, ghi chú ở `docs/CHANGELOG.md`.
 - [ ] (Cân nhắc) Đăng MCP registry/marketplace cộng đồng.
 
 ### M5 — Knowledge OS: dự án, tri thức, timeline — ✅ CORE XONG 2026-07-14 (v0.3.0)

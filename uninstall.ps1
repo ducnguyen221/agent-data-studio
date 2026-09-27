@@ -1,7 +1,7 @@
 ﻿# Removes only MCP registrations pointing at this checkout.
 [CmdletBinding()]
 param(
-    [ValidateSet('claude', 'codex', 'antigravity')]
+    [ValidateSet('claude', 'codex', 'antigravity', 'claude-desktop')]
     [string[]] $Hosts = @('codex'),
     [switch] $RemoveVenv
 )
@@ -28,12 +28,17 @@ kind, filename, server = sys.argv[1:4]
 path = Path(filename)
 if kind == "scan":
     profile = path
-    for relative, format_name in (
-        (".claude.json", "json"),
-        (".codex/config.toml", "toml"),
-        (".gemini/antigravity/mcp_config.json", "json"),
+    # Claude Desktop đọc %APPDATA%\Claude\..., không nằm dưới hồ sơ người dùng (đối số thứ 5, tuỳ chọn).
+    appdata = Path(sys.argv[5]) if len(sys.argv) > 5 and sys.argv[5] else None
+    for base, relative, format_name in (
+        (profile, ".claude.json", "json"),
+        (profile, ".codex/config.toml", "toml"),
+        (profile, ".gemini/antigravity/mcp_config.json", "json"),
+        (appdata, "Claude/claude_desktop_config.json", "json"),
     ):
-        config = profile / relative
+        if base is None:
+            continue
+        config = base / relative
         if not config.exists():
             continue
         try:
@@ -138,6 +143,7 @@ try {
             'claude' { Join-Path $env:USERPROFILE '.claude.json' }
             'codex' { Join-Path $env:USERPROFILE '.codex\config.toml' }
             'antigravity' { Join-Path $env:USERPROFILE '.gemini\antigravity\mcp_config.json' }
+            'claude-desktop' { if ($env:APPDATA) { Join-Path $env:APPDATA 'Claude\claude_desktop_config.json' } }
         }
         $kind = if ($hostName -eq 'codex') { 'toml' } else { 'json' }
         $oldPreference = $ErrorActionPreference
@@ -196,7 +202,7 @@ if ($RemoveVenv -and -not $failed) {
                 $prev = $ErrorActionPreference
                 $ErrorActionPreference = 'Continue'
                 try {
-                    $scan = & $python $tempHelper scan $env:USERPROFILE $serverPath (Join-Path $venv 'Scripts\python.exe') 2>&1
+                    $scan = & $python $tempHelper scan $env:USERPROFILE $serverPath (Join-Path $venv 'Scripts\python.exe') ([string]$env:APPDATA) 2>&1
                     $scanExit = $LASTEXITCODE
                 } finally { $ErrorActionPreference = $prev }
                 if ($scanExit -ne 0 -or (@($scan) -join [Environment]::NewLine) -notmatch '(?m)^CLEAR\s*$') {

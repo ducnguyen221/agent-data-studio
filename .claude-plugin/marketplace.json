@@ -9,7 +9,7 @@
     {
       "name": "agent-data-studio",
       "description": "Agent skills for data discovery and Power BI from model to publish, with repository-owned engine and external or ignored project data.",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "source": "./",
       "license": "MIT",
       "author": {
