@@ -25,7 +25,9 @@ dependencies = [
 
 [project.optional-dependencies]
 # PIN ruff: bo rule mac dinh doi theo phien ban, khong pin = CI do ngau nhien.
-dev = ["pytest>=8", "ruff==0.16.1"]
+# PyYAML/openpyxl: tests/test_no_leak.py chay that script skill (data-mockup, data-discovery); can duoi lay
+# tu skills/data-mockup/scripts/requirements.txt. pandas/numpy da co qua dependencies cua engine.
+dev = ["pytest>=8", "ruff==0.16.1", "PyYAML>=6.0", "openpyxl>=3.1"]
 
 [project.scripts]
 powerbi-agent = "powerbi_agent.app:main"

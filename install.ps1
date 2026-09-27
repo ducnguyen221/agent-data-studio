@@ -68,12 +68,20 @@ function Backup-File([string]$Path) {
         Info "Đã sao lưu: $backup"
     }
 }
+# Hash .NET thuần, KHÔNG dùng Get-FileHash: ở Windows PowerShell 5.1 đó là hàm trong module
+# Microsoft.PowerShell.Utility, phải autoload -> PSModulePath lẫn module PowerShell 7 là CommandNotFoundException.
+function Get-Sha256([string]$Path) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $stream = [System.IO.File]::OpenRead($Path)
+    try { return [System.BitConverter]::ToString($sha.ComputeHash($stream)) }
+    finally { $stream.Dispose(); $sha.Dispose() }
+}
 # Cài lại mà cấu hình không đổi thì bản sao lưu vừa tạo là thừa; chỉ xoá khi byte trùng khớp.
 function Remove-UnchangedBackup([string]$Path) {
     $backup = $script:LastBackup
     $script:LastBackup = $null
     if ($backup -and (Test-Path -LiteralPath $backup -PathType Leaf) -and (Test-Path -LiteralPath $Path -PathType Leaf) -and
-        (Get-FileHash -LiteralPath $backup).Hash -eq (Get-FileHash -LiteralPath $Path).Hash) {
+        (Get-Sha256 $backup) -eq (Get-Sha256 $Path)) {
         Remove-Item -LiteralPath $backup -Force
         Info "Cấu hình không đổi; bỏ bản sao lưu thừa."
     }

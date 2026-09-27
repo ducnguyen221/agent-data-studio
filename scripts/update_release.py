@@ -229,16 +229,17 @@ $running = @($pythons |
     })
 [Console]::Write($running.Count)
 '''
-    env = {name: os.environ[name] for name in (
-        "SystemRoot", "WINDIR", "PATH", "TEMP", "TMP",
-    ) if name in os.environ}
+    # Env đầy đủ trừ PSModulePath: env rút gọn (thiếu hồ sơ người dùng, LOCALAPPDATA...) làm Windows
+    # PowerShell 5.1 quá hạn trên runner CI; PSModulePath thừa hưởng từ pwsh 7 làm 5.1 nạp nhầm module
+    # bản Core -> bỏ khoá để 5.1 tự dựng đường mặc định. CIM lần đầu có thể chậm: hạn 45s, lỗi vẫn dừng.
+    env = {name: value for name, value in os.environ.items() if name.upper() != "PSMODULEPATH"}
     env["ADS_UPDATE_ROOT"] = str(repo)
     env["ADS_UPDATE_PID"] = str(os.getpid())
     try:
         result = subprocess.run(
             [shell, "-NoProfile", "-NonInteractive", "-Command", script],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
-            env=env, check=False, timeout=20,
+            env=env, check=False, timeout=45,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise UpdateError("Không kiểm được phiên Python đang dùng source.") from exc
