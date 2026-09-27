@@ -1,33 +1,3 @@
 {
-  "kits": [
-    {
-      "name": "kpim-business-light",
-      "dir": "kpim-business-light",
-      "description": "Template kit mẫu đi kèm powerbi-agent — distill (đã sanitize) từ một trang dashboard quản trị doanh nghiệp production thật gồm 30 visual: canvas 1280×720, nền #DFE7F6, card KPI reference-label với conditional color, combo chart, pivot table, slicer, azure map, bookmark navigator…",
-      "canvas": {
-        "width": 1280,
-        "height": 720,
-        "displayOption": "FitToPage"
-      },
-      "created": "2026-07-12",
-      "sanitized": true,
-      "blocks": [
-        "azureMap",
-        "bookmarkNavigator",
-        "cardVisual",
-        "clusteredBarChart",
-        "donutChart",
-        "image",
-        "lineClusteredColumnComboChart",
-        "pivotTable",
-        "scatterChart",
-        "shape",
-        "slicer",
-        "textbox"
-      ],
-      "n_blocks": 12,
-      "previews": [],
-      "readme_url": "https://github.com/ducnguyen221/agent-data-studio/tree/main/report-templates/kpim-business-light"
-    }
-  ]
+  "kits": []
 }

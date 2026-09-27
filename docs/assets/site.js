@@ -1,4 +1,4 @@
-// powerbi-agent shared site JS: sticky header, reveal, copy, quick-nav highlight, netbg
+// Agent Data Studio: sticky header, reveal, copy, quick-nav highlight, netbg
 (function(){
   var h=document.getElementById('siteHeader');
   if(h){var f=function(){h.classList.toggle('scrolled',window.scrollY>8)};window.addEventListener('scroll',f,{passive:true});f();}
@@ -86,6 +86,9 @@
 
 // ===== i18n language toggle =====
 (function(){
+  // Tắt nút EN: bật lại (true) khi bản dịch EN đã dịch đủ + QA xong. Giữ data-i18n và cơ chế dịch.
+  var EN_ENABLED=false;
+  if(!EN_ENABLED){ document.documentElement.setAttribute('data-lang','vi'); return; }
   var KEY='powerbi-lang';
   // Migration: nguoi dung cu luu duoi key 'pbi-lang' (truoc v0.5.0) — doc lai 1 lan
   // roi ghi sang key moi, de ho khong bi reset ve mac dinh.
@@ -97,6 +100,8 @@
     try{ localStorage.setItem(KEY, l); }catch(e){}
     document.querySelectorAll('.langsel').forEach(function(sel){
       var lbl=sel.querySelector('.langsel-cur'); if(lbl) lbl.textContent = (l==='en'?'EN':'VN');
+      // WCAG 2.5.3: tên truy cập phải chứa chữ đang hiển thị (VN/EN)
+      var b0=sel.querySelector('button'); if(b0) b0.setAttribute('aria-label',(l==='en'?'EN':'VN')+' · Ngôn ngữ / Language');
       sel.querySelectorAll('li button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-set')===l); });
     });
   }
