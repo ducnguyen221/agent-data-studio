@@ -10,6 +10,7 @@ Muốn kit apply được cho trang đẹp cụ thể → dùng distill_template
 """
 
 import os
+import re
 import shutil
 from datetime import date
 
@@ -58,15 +59,17 @@ def register(mcp):
                 if not root:
                     return "CHƯA SETUP Knowledge Dir. " + kn.NOT_SETUP_MSG + " (Hoặc truyền out_dir tường minh.)"
                 slug = kn.slugify(project or report_name)
-                os.makedirs(os.path.join(root, "projects", slug), exist_ok=True)
-                out_dir = os.path.join(root, "projects", slug, "design")
+                kn.ensure_skeleton(root)
+                project_dir = kn._safe_child(root, os.path.join("projects", slug))
+                os.makedirs(project_dir, exist_ok=True)
+                out_dir = kn._safe_child(root, os.path.join("projects", slug, "design"))
             out_dir = kn.ensure_outside_repo(out_dir, "hồ sơ thiết kế báo cáo")
             os.makedirs(out_dir, exist_ok=True)
 
             # ---- report.json + theme ----
             report_json = pbir.read_json(os.path.join(definition, "report.json"))
             tc = report_json.get("themeCollection", {})
-            theme_dir = os.path.join(out_dir, "theme")
+            theme_dir = kn._safe_child(out_dir, "theme")
             os.makedirs(theme_dir, exist_ok=True)
             themes = []
             static = os.path.join(report_root, "StaticResources")
@@ -75,10 +78,13 @@ def register(mcp):
                 info = tc.get(kind)
                 if not info:
                     continue
-                name = info["name"]
-                src = os.path.join(static, sub, name if name.endswith(".json") else name + ".json")
+                name = info.get("name") if isinstance(info, dict) else None
+                if not isinstance(name, str) or not re.fullmatch(r'[^\\/:*?"<>|\x00-\x1f]{1,128}', name) or name in (".", "..") or ".." in name:
+                    raise ValueError("Tên theme trong báo cáo không hợp lệ.")
+                relative_theme = os.path.join("StaticResources", sub, name if name.endswith(".json") else name + ".json")
+                src = kn._safe_child(report_root, relative_theme)
                 if os.path.exists(src):
-                    dst = os.path.join(theme_dir, os.path.basename(src))
+                    dst = kn._safe_child(out_dir, os.path.join("theme", os.path.basename(src)))
                     shutil.copy2(src, dst)
                     themes.append((kind, _theme_summary(src)))
 
@@ -117,7 +123,7 @@ def register(mcp):
                         f"| `{vid}` | {vtype} | {round(pos.get('x', 0))},{round(pos.get('y', 0))} z{pos.get('z', 0)} "
                         f"| {round(pos.get('width', 0))}×{round(pos.get('height', 0))} | {fstr} |")
                 catalog.append("")
-            with open(os.path.join(out_dir, "REPORT_CATALOG.md"), "w", encoding="utf-8", newline="\n") as f:
+            with open(kn._safe_child(out_dir, "REPORT_CATALOG.md"), "w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(catalog) + "\n")
 
             # ---- DESIGN.md ----
@@ -145,12 +151,20 @@ def register(mcp):
                        "- Trang đẹp muốn APPLY lại → `distill_template` trang đó thành kit.",
                        "- Model → `distill_model_schema`. Theme → import `theme/*.json` trong Desktop.",
                        ]
-            with open(os.path.join(out_dir, "DESIGN.md"), "w", encoding="utf-8", newline="\n") as f:
+            with open(kn._safe_child(out_dir, "DESIGN.md"), "w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(design) + "\n")
 
             # timeline nếu có knowledge
             root = kn.resolve_root()
-            if root and out_dir.startswith(root):
+            in_station = False
+            if root:
+                try:
+                    in_station = os.path.commonpath(
+                        [os.path.normcase(root), os.path.normcase(out_dir)]
+                    ) == os.path.normcase(root)
+                except ValueError:  # Khác ổ đĩa trên Windows: hồ sơ đã ghi, chỉ bỏ timeline.
+                    pass
+            if in_station:
                 rel = os.path.relpath(out_dir, root).replace("\\", "/")
                 kn.append_timeline(root, project or report_name, "Quét thiết kế báo cáo",
                                    f"{len(page_summaries)} trang, {sum(inventory.values())} visual", rel)
@@ -163,5 +177,5 @@ def register(mcp):
                 "Gợi ý tiếp: distill_model_schema (model) + distill_template cho trang muốn tái tạo."
             )
         except Exception as e:
-            log.exception("distill_report_design thất bại")
+            log.error("distill_report_design thất bại (%s)", type(e).__name__)
             return f"Lỗi distill_report_design: {short_err(e)}"

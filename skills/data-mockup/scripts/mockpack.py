@@ -12,9 +12,9 @@ Ngoài ra là thư viện helper cho generator (`import mockpack`):
     date_series, funnel, jitter, mask_email, mask_phone, vn_names
 
 Engine verify (Report + toàn bộ rule) nằm ở `mockverify.py` CÙNG THƯ MỤC — lệnh
-`verify` tự import; chép mockpack.py đi đâu thì chép kèm mockverify.py theo.
+`verify` tự import; cả hai file luôn chạy từ `skills/data-mockup/scripts/` trong repo.
 
-KHÔNG sửa file này cho từng dự án — phần riêng của dự án nằm ở generator.
+KHÔNG chép hoặc sửa file này cho từng dự án — spec và đầu ra riêng nằm trong trạm.
 """
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ import argparse
 import io
 import os
 import re
+import stat
 import sys
 import unicodedata
 from datetime import date, datetime
@@ -666,9 +667,15 @@ def slugify(text: str) -> str:
 
 def save_frames(frames: dict, out_dir: str):
     """Ghi mỗi bảng ra <out_dir>/<ten_bang>.csv — đầu vào của verify và pack."""
+    out_dir = _station_output(out_dir, "CSV dữ liệu mẫu")
+    targets = []
+    for name in frames:
+        if not isinstance(name, str) or not NAME_RE.fullmatch(name):
+            raise ValueError("Tên bảng không hợp lệ để ghi CSV.")
+        targets.append(_station_output(os.path.join(out_dir, f"{name}.csv"), "CSV dữ liệu mẫu"))
     os.makedirs(out_dir, exist_ok=True)
-    for name, df in frames.items():
-        df.to_csv(os.path.join(out_dir, f"{name}.csv"), index=False, encoding="utf-8-sig")
+    for (name, df), target in zip(frames.items(), targets):
+        df.to_csv(target, index=False, encoding="utf-8-sig")
         print(f"  {name}: {len(df):,} dòng")
 
 
@@ -677,12 +684,32 @@ def save_frames(frames: dict, out_dir: str):
 # =============================================================================
 
 
+def _station_output(path: str, what: str) -> str:
+    repo_root = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+    from powerbi_agent.knowledge import ensure_outside_repo
+
+    checked = ensure_outside_repo(path, what)
+    lexical = os.path.abspath(os.path.expanduser(str(path).strip().strip('"').strip("'")))
+    for target in (lexical, checked):
+        if os.path.lexists(target):
+            item = os.stat(target, follow_symlinks=False)
+            if (
+                os.path.islink(target)
+                or bool(getattr(item, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+                or (os.path.isfile(target) and item.st_nlink > 1)
+            ):
+                raise ValueError(f"TỪ CHỐI ghi {what}: đích là liên kết.")
+    return checked
+
+
 def _run(argv=None):
     ap = argparse.ArgumentParser(prog="mockpack", description="Công cụ dựng bộ dữ liệu mockup")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("dict", help="sinh §2–§6 của DATASET_SPEC.md từ dataset.yaml")
-    p.add_argument("spec"); p.add_argument("-o", "--out", default="DATASET_SPEC.md")
+    p.add_argument("spec"); p.add_argument("-o", "--out", default=None)
 
     p = sub.add_parser("verify", help="kiểm tra dữ liệu theo rule trong spec")
     p.add_argument("spec"); p.add_argument("source", help="thư mục CSV hoặc file .xlsx")
@@ -693,6 +720,15 @@ def _run(argv=None):
     p.add_argument("-o", "--out", required=True)
 
     args = ap.parse_args(argv)
+    if args.cmd == "dict":
+        args.out = _station_output(
+            args.out or os.path.join(os.path.dirname(os.path.abspath(args.spec)), "DATASET_SPEC.md"),
+            "từ điển dữ liệu mẫu",
+        )
+    elif args.cmd == "pack":
+        args.out = _station_output(args.out, "workbook dữ liệu mẫu")
+    elif args.out:
+        args.out = _station_output(args.out, "báo cáo chất lượng dữ liệu")
     spec = load_spec(args.spec)
 
     if args.cmd == "dict":

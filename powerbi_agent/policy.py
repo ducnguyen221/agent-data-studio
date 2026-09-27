@@ -13,6 +13,7 @@ KHÔNG phải bảo mật cứng. Bảo mật cứng = RLS trên model + service
 """
 
 import json
+import hashlib
 import os
 import tempfile
 import re
@@ -62,34 +63,27 @@ def _policy_file() -> str:
         return ensure_outside_repo(env, "blocklist PII")
     from powerbi_agent.knowledge import resolve_root
     root = resolve_root()
-    if root:
-        p = os.path.join(root, "policy.json")
-        if os.path.exists(p):
-            return p
-    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    legacy = os.path.join(repo_root, "policy.json")
-    if os.path.exists(legacy):
-        log.warning(
-            "policy.json đang nằm TRONG repo (%s). Chuyển sang %s để tên cột PII không "
-            "nằm trong git working tree.", legacy, os.path.join(root or "<thư mục dự án>", "policy.json")
-        )
-        return legacy
-    return os.path.join(root, "policy.json") if root else legacy
+    if not root:
+        raise ValueError("Trạm dữ liệu không hợp lệ; truy vấn bị chặn.")
+    return os.path.join(root, "policy.json")
 
 
 def load_blocklist() -> list[str]:
-    """Đọc danh sách cột cấm từ policy.json. Không có file = không chặn gì."""
+    """Đọc blocklist; file tồn tại nhưng lỗi cấu trúc phải chặn truy vấn."""
     path = _policy_file()
     if not os.path.exists(path):
         return []
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
-        cols = data.get("blocked_columns", [])
-        return [c for c in cols if isinstance(c, str) and c.strip()]
-    except Exception as e:
-        log.warning("policy.json không đọc được (%s) — bỏ qua blocklist.", e)
-        return []
+        if not isinstance(data, dict) or not isinstance(data.get("blocked_columns"), list):
+            raise ValueError("policy.json thiếu blocked_columns dạng danh sách")
+        cols = data["blocked_columns"]
+        if any(not isinstance(c, str) or not c.strip() for c in cols):
+            raise ValueError("policy.json có mục blocked_columns không hợp lệ")
+        return cols
+    except (OSError, ValueError, TypeError, json.JSONDecodeError) as e:
+        raise ValueError("Không đọc được policy.json; truy vấn bị chặn cho tới khi sửa cấu hình.") from e
 
 
 def _find_blocked(dax_query: str, blocklist: list[str]) -> str | None:
@@ -121,7 +115,7 @@ def _audit_dir() -> str:
         # lùi về %TEMP% thay vì ném lỗi lên người dùng.
         return ensure_outside_repo(candidate, "audit log")
     except ValueError:
-        log.error("POWERBI_AUDIT_DIR trỏ vào trong repo (%s) — ghi tạm vào %s.", candidate, fallback)
+        log.error("POWERBI_AUDIT_DIR trỏ vào source — ghi audit ở vùng tạm.")
         return fallback
 
 
@@ -137,12 +131,12 @@ def audit(tool: str, dax_query: str, verdict: str, rows: int = -1) -> None:
             "tool": tool,
             "verdict": verdict,          # allowed | blocked_raw_dump | blocked_pii | error
             "rows": rows,                 # -1 = không áp dụng / lỗi
-            "dax": dax_query[:500],
+            "query_sha256": hashlib.sha256(dax_query.encode("utf-8")).hexdigest(),
         }
         with open(path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except Exception as e:
-        log.warning("Không ghi được audit log: %s", e)
+        log.warning("Không ghi được audit log (%s).", type(e).__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -158,11 +152,15 @@ def check_dax(dax_query: str, tool: str = "execute_dax") -> tuple[bool, str]:
                 audit(tool, dax_query, "blocked_raw_dump")
                 return False, _REWRITE_HINT
 
-    blocked_col = _find_blocked(dax_query, load_blocklist())
+    try:
+        blocked_col = _find_blocked(dax_query, load_blocklist())
+    except ValueError:
+        audit(tool, dax_query, "blocked_policy_error")
+        return False, "Policy dữ liệu không hợp lệ; sửa policy.json trước khi truy vấn."
     if blocked_col:
         audit(tool, dax_query, "blocked_pii")
         return False, (
-            f"Truy vấn bị chặn: cột '{blocked_col}' nằm trong PII blocklist (policy.json). "
+            "Truy vấn bị chặn: một cột nằm trong PII blocklist (policy.json). "
             "Cột này không được xuất vào context LLM. Nếu chỉ cần đếm/tổng hợp, hãy tính bằng "
             "measure không project cột đó; nếu thực sự cần, sửa policy.json (quyết định của người)."
         )

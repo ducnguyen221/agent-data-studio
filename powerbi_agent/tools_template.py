@@ -8,6 +8,7 @@ chỉ đổi name / position / queryState / visualType (+ title text nếu yêu 
 
 import json
 import os
+import re
 from datetime import date
 
 from powerbi_agent import pbir
@@ -33,7 +34,7 @@ def _load_kits() -> list[tuple[str, dict]]:
                 try:
                     kits.append((os.path.join(root, name), pbir.read_json(kj)))
                 except Exception as e:
-                    log.warning("kit.json hỏng ở %s: %s", kj, e)
+                    log.warning("kit.json hỏng (%s).", type(e).__name__)
     return kits
 
 
@@ -82,15 +83,24 @@ def register(mcp):
             visuals = pbir.list_visuals(page_dir)
             if not visuals:
                 return f"Trang '{page}' không có visual nào."
+            for _, visual in visuals:
+                visual_type = visual.get("visual", {}).get("visualType")
+                if visual_type and (
+                    not isinstance(visual_type, str)
+                    or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,127}", visual_type)
+                    or ".." in visual_type
+                    or visual_type.endswith(".")
+                ):
+                    raise ValueError("visualType không hợp lệ để tạo tên file kit.")
 
             # Kit CHUA sanitize la du lieu khach -> chan ghi vao repo.
             # report-templates/ duoc mien vi do la noi kit DA sanitize duoc phep nam.
-            from powerbi_agent.knowledge import ensure_outside_repo
+            from powerbi_agent.knowledge import _safe_child, ensure_outside_repo
             # Ngoai le report-templates/ CHI danh cho kit DA sanitize. Truoc day ngoai le
             # theo DUONG DAN nen sanitize=False cung tuon duoc du lieu tho vao thu muc cong khai.
             out_dir = ensure_outside_repo(out_dir, "template kit", allow_public_kits=sanitize)
             os.makedirs(out_dir, exist_ok=True)
-            blocks_dir = os.path.join(out_dir, "blocks")
+            _safe_child(out_dir, "blocks")  # kiểm sớm: blocks/ không thoát trạm qua junction/symlink
 
             # Khi sanitize: gom TÊN THẬT (Entity/Property) trên TOÀN trang trước → 1 map
             # nhất quán cho cả blocks lẫn blueprint
@@ -135,7 +145,7 @@ def register(mcp):
                 block = json.loads(json.dumps(vobj))  # deep copy
                 if sanitize:
                     pbir.deep_sanitize(block, san_map)
-                pbir.write_json_no_bom(os.path.join(blocks_dir, f"{vtype}.json"), block)
+                pbir.write_json_no_bom(_safe_child(out_dir, os.path.join("blocks", f"{vtype}.json")), block)
                 block_meta.append({
                     "file": f"blocks/{vtype}.json",
                     "visualType": vtype,
@@ -152,7 +162,7 @@ def register(mcp):
                 page_tpl = json.loads(json.dumps(page_tpl))
                 pbir.deep_sanitize(page_tpl, san_map)
                 page_tpl.pop("displayName", None)   # tên trang không suy ra được từ map
-            pbir.write_json_no_bom(os.path.join(out_dir, "_page.json"), page_tpl)
+            pbir.write_json_no_bom(_safe_child(out_dir, "_page.json"), page_tpl)
 
             # blueprint.md
             src_name = page_json.get("displayName", page)
@@ -175,7 +185,7 @@ def register(mcp):
                 "đặt vị trí theo bảng trên (hoặc layout mới), bind field thật của model đích.",
                 "KHÔNG sửa tay `visualContainerObjects` trong blocks — đó là style làm trang đẹp.",
             ]
-            with open(os.path.join(out_dir, "blueprint.md"), "w", encoding="utf-8", newline="\n") as f:
+            with open(_safe_child(out_dir, "blueprint.md"), "w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(bp) + "\n")
 
             # kit.json
@@ -203,7 +213,7 @@ def register(mcp):
                 },
                 "blocks": block_meta,
             }
-            pbir.write_json_no_bom(os.path.join(out_dir, "kit.json"), kit)
+            pbir.write_json_no_bom(_safe_child(out_dir, "kit.json"), kit)
 
             return (
                 # Mọi FILE ghi ra đều đã sạch, nhưng chuỗi trả về đi thẳng vào context LLM —
@@ -215,7 +225,7 @@ def register(mcp):
                    "- CHƯA sanitize — binding nghiệp vụ thật còn trong blocks, đừng public kit này\n")
             )
         except Exception as e:
-            log.exception("distill_template thất bại")
+            log.error("distill_template thất bại (%s)", type(e).__name__)
             return f"Lỗi distill_template: {short_err(e)}"
 
     @mcp.tool()
@@ -298,5 +308,5 @@ def register(mcp):
                 "Nếu file đang mở sẵn: Đóng KHÔNG LƯU rồi mở lại — Ctrl+S phiên cũ sẽ đè mất trang này."
             )
         except Exception as e:
-            log.exception("apply_template thất bại")
+            log.error("apply_template thất bại (%s)", type(e).__name__)
             return f"Lỗi apply_template: {short_err(e)}"

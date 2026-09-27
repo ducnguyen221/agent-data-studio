@@ -19,9 +19,8 @@ except ValueError:
 
 
 def short_err(err, limit: int = 400) -> str:
-    """Rút gọn thông điệp lỗi trước khi trả về cho agent (tránh đổ chuỗi dài/nhạy cảm)."""
-    msg = str(err)
-    return msg if len(msg) <= limit else msg[:limit] + " …[đã cắt]"
+    """Chỉ trả loại lỗi; exception có thể mang query, URL hoặc credential."""
+    return type(err).__name__ if not isinstance(err, str) else "Chi tiết phản hồi đã ẩn"
 
 
 def df_to_markdown_capped(df, max_rows: int) -> str:

@@ -19,8 +19,16 @@ def find_active_pbi_ports():
         try:
             import subprocess
             # Lệnh PowerShell lấy các cổng TCP đang lắng nghe của tiến trình msmdsrv
-            cmd = 'powershell -NoProfile -Command "Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -in (Get-Process -Name msmdsrv -ErrorAction SilentlyContinue).Id } | Select-Object -ExpandProperty LocalPort"'
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            command = (
+                'Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | '
+                'Where-Object { $_.OwningProcess -in '
+                '(Get-Process -Name msmdsrv -ErrorAction SilentlyContinue).Id } | '
+                'Select-Object -ExpandProperty LocalPort'
+            )
+            result = subprocess.run(
+                ['powershell', '-NoProfile', '-Command', command],
+                capture_output=True, text=True, timeout=10,
+            )
             if result.returncode == 0 and result.stdout.strip():
                 for line in result.stdout.strip().split('\n'):
                     port_str = line.strip()

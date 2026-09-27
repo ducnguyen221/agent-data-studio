@@ -258,6 +258,18 @@ def case_round_trip():
 # RUNNER
 # =============================================================================
 
+def case_generator_rejects_unimplemented_table():
+    output = os.path.join(TMP, "unsupported-data")
+    try:
+        with contextlib.redirect_stderr(io.StringIO()):
+            gen_skeleton.main([_write_spec(base_spec()), "-o", output])
+    except SystemExit as exc:
+        assert exc.code == 2
+    else:
+        raise AssertionError("Generator mẫu phải từ chối bảng chưa có builder")
+    assert not os.path.exists(output)
+
+
 CASES = [
     ("load_spec chấp nhận template", case_template_loads),
     ("FIX A: tên bảng xấu → raise", case_bad_table_name),
@@ -276,6 +288,7 @@ CASES = [
     ("FIX C: pack fail-fast khi thiếu bảng", case_pack_fail_fast),
     ("verify bắt FK mồ côi/PK trùng/enum lạ/bool rác/vượt as_of", case_verify_catches_errors),
     ("verify: WAIVED không tính là FAIL", case_verify_waived),
+    ("generator mẫu từ chối bảng chưa hỗ trợ", case_generator_rejects_unimplemented_table),
     ("round-trip gen → verify → pack → verify: 0 FAIL", case_round_trip),
 ]
 

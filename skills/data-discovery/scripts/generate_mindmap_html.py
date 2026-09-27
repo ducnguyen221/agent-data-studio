@@ -13,17 +13,20 @@ Vì sao HTML tự chứa, không nhúng thư viện mermaid:
   - Chạy offline, mở bằng double-click, không cần mạng, không dính CSP.
   - File chỉ vài KB thay vì kéo theo cả bundle JS.
 
-Chạy:
-    python generate_mindmap_html.py            # sinh cho mọi file .md trong templates/documents/
-    python generate_mindmap_html.py PROJECT.md # chỉ 1 file
+Chạy script ở repo, chỉ định thư mục tài liệu thuộc trạm:
+    python skills/data-discovery/scripts/generate_mindmap_html.py --docs <thu-muc-du-an>
+    python skills/data-discovery/scripts/generate_mindmap_html.py --docs <thu-muc-du-an> PROJECT.md
 """
 
 from __future__ import annotations
 
+import argparse
 import html
 import os
 import re
+import stat
 import sys
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Bộ mẫu tài liệu nằm ở gốc repo: templates/documents/ (skill này ở skills/data-discovery/scripts/).
@@ -114,8 +117,32 @@ PAGE = """<!doctype html>
 """
 
 
+def _is_link(path: str) -> bool:
+    item = Path(path)
+    if item.is_symlink() or getattr(item, "is_junction", lambda: False)():
+        return True
+    try:
+        return bool(
+            os.stat(path, follow_symlinks=False).st_file_attributes
+            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+        )
+    except (AttributeError, OSError):
+        return False
+
+
 def build(md_name: str) -> list[str]:
+    if (
+        not md_name.endswith(".md")
+        or md_name in (".", "..")
+        or "/" in md_name
+        or "\\" in md_name
+        or os.path.isabs(md_name)
+        or os.path.splitdrive(md_name)[0]
+    ):
+        raise ValueError("Chỉ nhận tên file .md nằm trực tiếp trong thư mục tài liệu dự án.")
     path = os.path.join(DOCS, md_name)
+    if not os.path.isfile(path) or _is_link(path) or os.stat(path).st_nlink > 1:
+        raise ValueError("File mindmap nguồn không tồn tại hoặc là liên kết.")
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     made = []
@@ -124,8 +151,14 @@ def build(md_name: str) -> list[str]:
         if not tree:
             continue
         slug = "key_" + re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_").replace("key_", "", 1)
+        if os.path.lexists(OUT) and _is_link(OUT):
+            raise ValueError("Thư mục mindmaps là liên kết; từ chối ghi ra ngoài trạm.")
         os.makedirs(OUT, exist_ok=True)
         out = os.path.join(OUT, f"{slug}.html")
+        if os.path.lexists(out) and (
+            _is_link(out) or not os.path.isfile(out) or os.stat(out).st_nlink > 1
+        ):
+            raise ValueError("File mindmap đích là liên kết hoặc không phải file thường.")
         with open(out, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(PAGE.format(title=html.escape(title), src=html.escape(md_name), tree=render_ul(tree)))
         made.append(os.path.relpath(out, DOCS).replace(os.sep, "/"))
@@ -133,10 +166,29 @@ def build(md_name: str) -> list[str]:
 
 
 def main() -> int:
-    names = sys.argv[1:] or sorted(f for f in os.listdir(DOCS) if f.endswith(".md"))
+    parser = argparse.ArgumentParser(description="Sinh bản xem mindmap từ tài liệu dự án")
+    parser.add_argument("--docs", required=True, help="Thư mục tài liệu trong workspace/ hoặc trạm ngoài")
+    parser.add_argument("names", nargs="*", help="Tên file Markdown; bỏ trống để quét toàn thư mục")
+    args = parser.parse_args()
+    repo_root = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
+    sys.path.insert(0, repo_root)
+    from powerbi_agent.knowledge import ensure_outside_repo
+
+    global DOCS, OUT
+    try:
+        DOCS = ensure_outside_repo(args.docs, "mindmap dự án")
+    except ValueError as exc:
+        parser.error(str(exc))
+    if not os.path.isdir(DOCS):
+        parser.error("Thư mục tài liệu dự án chưa tồn tại.")
+    OUT = os.path.join(DOCS, "mindmaps")
+    names = args.names or sorted(f for f in os.listdir(DOCS) if f.endswith(".md"))
     total = []
     for n in names:
-        total += build(n)
+        try:
+            total += build(n)
+        except ValueError as exc:
+            parser.error(str(exc))
     if not total:
         print("Khong tim thay khoi mermaid mindmap nao.")
         return 1
