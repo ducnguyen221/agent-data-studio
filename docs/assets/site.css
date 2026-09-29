@@ -421,8 +421,8 @@ footer.site{border-top:1px solid var(--border);background:var(--bg-tint);padding
   .ig-h > .ig-step{display:flex;flex-direction:column}
   .ig-h > .ig-step > .ig-node{align-self:flex-start}
   .ig-h .ig-body{flex:1;display:flex;flex-direction:column}
-  .ig-h .ig-body > p:not(.ig-gate):not(.ig-check){margin-bottom:10px}
-  .ig-h .ig-body > .ig-gate,.ig-h .ig-body > .ig-check{margin-top:auto;width:100%}
+  .ig-h .ig-body > p:not(.ig-gate):not(.ig-check):not(.ig-exit){margin-bottom:10px}
+  .ig-h .ig-body > .ig-gate,.ig-h .ig-body > .ig-check,.ig-h .ig-body > .ig-exit{margin-top:auto;width:100%}
 }
 
 /* chín khâu: 4 giai đoạn nối liền một đường; 2 cột giai đoạn ở màn vừa, 1 cột ở mobile */
@@ -447,7 +447,9 @@ footer.site{border-top:1px solid var(--border);background:var(--bg-tint);padding
   background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
 .ig-note b{color:var(--text)}
 .ig-note .ig-ico{width:18px;height:18px;color:var(--ci);margin-top:1px}
-@media (max-width:860px){.ig-notes{grid-template-columns:1fr}}
+.ig-note > span{min-width:0}
+.ig-note code.inline{overflow-wrap:anywhere}
+@media (max-width:860px){.ig-notes{grid-template-columns:minmax(0,1fr)}}
 
 /* chồng tầng: yêu cầu đi xuống qua từng tầng, số tổng hợp đi lên; tầng giao Microsoft đi làn riêng */
 .ig-stack{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,300px);column-gap:28px;max-width:1000px;
@@ -523,6 +525,62 @@ footer.site{border-top:1px solid var(--border);background:var(--bg-tint);padding
 .ig-journey{--ig-ring:var(--surface)}
 .ig-next{display:flex;gap:10px;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed var(--border-strong);font-size:13.5px;color:var(--muted)}
 .ig-next .ig-ico{width:18px;height:18px}
+
+/* lối ra bị chặn: cùng dáng cổng kiểm nhưng màu đỏ, để thấy ngay chỗ yêu cầu dừng lại */
+.ig-exit,.ig-body .ig-exit{display:flex;gap:6px;align-items:flex-start;margin-top:9px;font-size:12.5px;line-height:1.45;color:var(--text);
+  background:var(--danger-weak);border:1px solid color-mix(in srgb,var(--danger) 32%,transparent);border-radius:8px;padding:5px 8px;max-width:100%}
+.ig-exit svg{width:14px;height:14px;margin-top:2px;color:var(--danger);stroke-width:2.2}
+.ig-exit b{color:var(--danger)}
+.ig-exit code.inline{font-size:.86em;padding:1px 5px}
+
+/* sổ ghi chung: một dải nét đứt dưới track, mọi lối ra của các bước đều ghi vào đây */
+.ig-ledger{display:flex;gap:14px;align-items:flex-start;margin-top:26px;padding:14px 18px;border-radius:var(--radius-sm);
+  background:color-mix(in srgb,var(--cw) 55%,var(--surface));border:1px dashed color-mix(in srgb,var(--c) 60%,var(--border))}
+.ig-ledger > .ig-ico{color:var(--ci);margin-top:2px}
+.ig-ledger b{color:var(--ci)}
+.ig-ledger p{font-size:13.5px;line-height:1.55;color:var(--muted)}
+.ig-ledger p + p{margin-top:6px}
+.ig-ledger p b{color:var(--text)}
+.ig-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.ig-chips > span{font-size:12.5px;margin-right:2px}
+.ig-chips > code{font:600 11.5px var(--mono);padding:2px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.ig-chips > code.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.ig-chips > code.no{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,transparent)}
+
+/* mũi tên quay lại: màn hẹp là một dòng có icon; màn rộng vẽ ngoặc chữ U nét đứt dưới track ngang,
+   từ cột --from quay về cột --to (đánh số từ 1, --n = số cột của track) */
+.ig-return{display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:13.5px;line-height:1.5;color:var(--muted)}
+.ig-return .ig-ico{width:18px;height:18px;color:var(--ci);margin-top:1px}
+.ig-return b{color:var(--ci)}
+@media (min-width:1080px){
+  .ig-return{position:relative;margin-top:8px;padding-top:30px;padding-left:calc((var(--to) - 1) * 100% / var(--n) + 10px)}
+  .ig-return::before{content:"";position:absolute;top:0;height:20px;
+    left:calc((var(--to) - 1) * 100% / var(--n) + 23px);right:calc(100% - (var(--from) - 1) * 100% / var(--n) - 25px);
+    border:2px dashed var(--c);border-top:0;border-radius:0 0 14px 14px}
+  .ig-return::after{content:"";position:absolute;top:-1px;left:calc((var(--to) - 1) * 100% / var(--n) + 20px);width:8px;height:8px;
+    border-left:2px solid var(--c);border-top:2px solid var(--c);transform:rotate(45deg)}
+}
+
+/* giai đoạn xếp thành cột, mỗi cột một track dọc: dùng khi mỗi bước có nhiều chữ (thêm .is-cols vào .ig-pipe) */
+@media (min-width:1080px){
+  .ig-pipe.is-cols{grid-template-columns:repeat(var(--n,4),minmax(0,1fr));column-gap:28px}
+  .ig-pipe.is-cols .ig-phase .ig-phase-h{margin-right:0}
+}
+.ig-body .ig-link{display:block;font-size:15px;font-weight:700;line-height:1.3;color:var(--text)}
+.ig-body .ig-link:hover{color:var(--accent)}
+.ig-body .ig-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* chặng dài: mỗi chặng là một section, nút tròn + đường ray dọc bên trái nối các chặng */
+.ig-stop{position:relative;padding-left:74px}
+.ig-stop > .ig-node{position:absolute;left:0;top:var(--stop-top,28px);--ig-ring:var(--bg)}
+.ig-stop::before{content:"";position:absolute;left:23px;top:0;bottom:0;width:2px;background:var(--c)}
+.ig-stop.is-first::before{top:calc(var(--stop-top,28px) + 24px)}
+.ig-stop.is-last::before{bottom:auto;height:calc(var(--stop-top,28px) + 24px)}
+@media (max-width:620px){
+  .ig-stop{padding-left:0}
+  .ig-stop::before{display:none}
+  .ig-stop > .ig-node{position:relative;top:auto;margin-bottom:14px}
+}
 
 /* chuyển động: vẽ đường nối rồi hiện nút, chỉ khi site.js đã chạy và người dùng không tắt chuyển động */
 @media (prefers-reduced-motion:no-preference){

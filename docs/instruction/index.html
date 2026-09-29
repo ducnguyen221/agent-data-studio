@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css?v=20260929">
+<link rel="stylesheet" href="../assets/site.css?v=20260929b">
 <style>
   .analogy .card h3 small{display:block;font-size:13px;font-weight:600;color:var(--accent);margin-top:4px;letter-spacing:0}
   .analogy .card .kbd{margin-top:12px}
@@ -27,6 +27,21 @@
 </head>
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
+<!-- icon vẽ tay cho infographic (.ig-*): dùng bằng <svg class="ig-ico"><use href="#i-..."/></svg> -->
+<svg class="ig-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.1-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-hammer" viewBox="0 0 24 24"><path d="m13 7 4 4"/><path d="M12 8 4 16a2.1 2.1 0 0 0 3 3l8-8"/><path d="m11 5 3-3 6 6-3 3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.3 2.9 7.8 7 9.5 4.1-1.7 7-5.2 7-9.5V6Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></symbol>
+  <symbol id="i-build" viewBox="0 0 24 24"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M13 3v5h5"/><path d="M18 8v2.5"/><path d="m19.6 13.4-6.1 6.1L11 20l.5-2.5 6.1-6.1a1.4 1.4 0 0 1 2 2Z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+</svg>
 
 <a class="skip" href="#main">Bỏ qua điều hướng</a>
 <header class="site" id="siteHeader">
@@ -123,43 +138,37 @@
       <h2>Một dự án đi qua 5 chặng</h2>
       <p>Ở mỗi chặng: bạn làm gì, agent làm gì, và bạn nhìn thấy gì để biết nó làm đúng. Chặng nào chưa đạt thì chưa sang chặng sau.</p>
     </div>
-    <ol class="timeline reveal">
-      <li>
-        <span class="tnum">01</span>
-        <h3>Hỏi đúng việc</h3>
-        <p><b>Bạn:</b> nói mục tiêu, ai sẽ xem báo cáo, họ cần quyết định điều gì.</p>
-        <p><b>Agent:</b> hỏi ngược chỗ còn mơ hồ; tra xem trước đây đã làm việc tương tự chưa.</p>
-        <p><b>Bạn thấy:</b> hồ sơ <code>PROJECT.md</code> và danh sách chỉ số cần tính.</p>
-      </li>
-      <li>
-        <span class="tnum">02</span>
-        <h3>Đọc dữ liệu</h3>
-        <p><b>Bạn:</b> chỉ cho agent file hoặc báo cáo nguồn.</p>
-        <p><b>Agent:</b> kiểm cột, kiểu dữ liệu, ô trống; tính thử vài con số để đối chiếu.</p>
-        <p><b>Bạn thấy:</b> từ điển dữ liệu (<code>DATA_DICTIONARY</code>) và cảnh báo chất lượng.</p>
-      </li>
-      <li>
-        <span class="tnum">03</span>
-        <h3>Dựng</h3>
-        <p><b>Bạn:</b> lưu báo cáo dạng <code>.pbip</code> khi được nhắc; đóng file trước khi agent ghi trang.</p>
-        <p><b>Agent:</b> dựng mô hình, viết công thức, tạo trang từ mẫu đã duyệt.</p>
-        <p><b>Bạn thấy:</b> công thức mới trong Power BI Desktop, trang báo cáo mới.</p>
-      </li>
-      <li>
-        <span class="tnum">04</span>
-        <h3>Kiểm</h3>
-        <p><b>Bạn:</b> nhìn ảnh chụp và con số; chưa ưng thì nói lại, agent quay về chặng 3.</p>
-        <p><b>Agent:</b> kiểm cú pháp, mở lại Desktop, chụp ảnh, nhờ một người chấm độc lập.</p>
-        <p><b>Bạn thấy:</b> ảnh chụp trang và danh sách lỗi còn lại (nếu có).</p>
-      </li>
-      <li>
-        <span class="tnum">05</span>
-        <h3>Bàn giao &amp; học</h3>
-        <p><b>Bạn:</b> xác nhận “xong”.</p>
-        <p><b>Agent:</b> viết 4 tài liệu Kế hoạch → Thay đổi → Kiểm chứng → Bàn giao; đóng gói bài học.</p>
-        <p><b>Bạn thấy:</b> hồ sơ đầy đủ; lần sau hỏi “đã làm cái này chưa?” là tra được.</p>
-      </li>
-    </ol>
+    <!-- Infographic: 5 chặng trên một đường; mỗi chặng ghi bạn làm / agent làm, phiếu "Bạn thấy" nằm đáy cột; chặng 4 có đường quay về chặng 3. -->
+    <div class="ig reveal" role="group" aria-label="Năm chặng của một dự án, mỗi chặng ghi việc của bạn, việc của agent và thứ bạn nhìn thấy">
+      <ol class="ig-track ig-h">
+        <li class="ig-step c-acc" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg><span class="ig-num">1</span></span>
+          <div class="ig-body"><h3>Hỏi đúng việc</h3>
+            <p><b>Bạn:</b> nói mục tiêu, ai sẽ xem báo cáo, họ cần quyết định điều gì.</p>
+            <p><b>Agent:</b> hỏi ngược chỗ còn mơ hồ; tra xem trước đây đã làm việc tương tự chưa.</p>
+            <p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Bạn thấy:</b> hồ sơ <code class="inline">PROJECT.md</code> và danh sách chỉ số cần tính.</span></p></div></li>
+        <li class="ig-step c-teal" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-search"/></svg><span class="ig-num">2</span></span>
+          <div class="ig-body"><h3>Đọc dữ liệu</h3>
+            <p><b>Bạn:</b> chỉ cho agent file hoặc báo cáo nguồn.</p>
+            <p><b>Agent:</b> kiểm cột, kiểu dữ liệu, ô trống; tính thử vài con số để đối chiếu.</p>
+            <p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Bạn thấy:</b> từ điển dữ liệu (<code class="inline">DATA_DICTIONARY</code>) và cảnh báo chất lượng.</span></p></div></li>
+        <li class="ig-step c-gold" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-hammer"/></svg><span class="ig-num">3</span></span>
+          <div class="ig-body"><h3>Dựng</h3>
+            <p><b>Bạn:</b> lưu báo cáo dạng <code class="inline">.pbip</code> khi được nhắc; đóng file trước khi agent ghi trang.</p>
+            <p><b>Agent:</b> dựng mô hình, viết công thức, tạo trang từ mẫu đã duyệt.</p>
+            <p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Bạn thấy:</b> công thức mới trong Power BI Desktop, trang báo cáo mới.</span></p></div></li>
+        <li class="ig-step c-ok" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="ig-num">4</span></span>
+          <div class="ig-body"><h3>Kiểm</h3>
+            <p><b>Bạn:</b> nhìn ảnh chụp và con số; chưa ưng thì nói lại, agent quay về chặng 3.</p>
+            <p><b>Agent:</b> kiểm cú pháp, mở lại Desktop, chụp ảnh, nhờ một người chấm độc lập.</p>
+            <p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Bạn thấy:</b> ảnh chụp trang và danh sách lỗi còn lại (nếu có).</span></p></div></li>
+        <li class="ig-step c-acc" style="--i:4"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-archive"/></svg><span class="ig-num">5</span></span>
+          <div class="ig-body"><h3>Bàn giao &amp; học</h3>
+            <p><b>Bạn:</b> xác nhận “xong”.</p>
+            <p><b>Agent:</b> viết 4 tài liệu Kế hoạch → Thay đổi → Kiểm chứng → Bàn giao; đóng gói bài học.</p>
+            <p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Bạn thấy:</b> hồ sơ đầy đủ; lần sau hỏi “đã làm cái này chưa?” là tra được.</span></p></div></li>
+      </ol>
+      <p class="ig-return c-ok" style="--n:5;--from:4;--to:3"><svg class="ig-ico" aria-hidden="true"><use href="#i-undo"/></svg><span><b>Chưa ưng ở chặng 4?</b> Bạn nói lại, agent quay về chặng 3. Chặng nào chưa đạt thì chưa sang chặng sau.</span></p>
+    </div>
   </section>
 
   <!-- VÍ DỤ 1 -->
@@ -257,14 +266,26 @@
       <h2>“Thêm một trang giống trang tháng trước”</h2>
       <p>Agent không tự vẽ trang từ đầu. Nó làm theo sáu bước cố định, và bước cuối là của bạn.</p>
     </div>
-    <ol class="flow-mini reveal">
-      <li><span class="fnum">01</span><b>Chọn mẫu đã duyệt</b><span class="d">Một trang bạn từng ưng, đã được cắt thành khuôn dùng lại (gọi là kit).</span></li>
-      <li><span class="fnum">02</span><b>Đóng file .pbip</b><span class="d">Agent nhắc bạn đóng file. Nếu file đang mở, lần lưu sau của Desktop sẽ đè mất trang mới.</span></li>
-      <li><span class="fnum">03</span><b>Ghi trang</b><span class="d">Giữ nguyên kiểu dáng của mẫu, chỉ thay dữ liệu bằng bảng và cột của bạn.</span></li>
-      <li><span class="fnum">04</span><b>Kiểm cú pháp</b><span class="d">Một công cụ của Microsoft đọc lại file trang; phải 0 lỗi mới đi tiếp.</span></li>
-      <li><span class="fnum">05</span><b>Mở lại và chụp ảnh</b><span class="d">Desktop nạp lại báo cáo, agent chụp ảnh trang vừa dựng.</span></li>
-      <li class="key"><span class="fnum">06</span><b>Bạn xem bằng mắt</b><span class="d">Một người chấm độc lập soi ảnh; bạn là người nói “đạt”.</span></li>
-    </ol>
+    <!-- Infographic: 6 bước dựng trang (skills/pbi-build), nhãn ai làm từng bước; bước 6 là cổng cuối của bạn, chưa đạt thì quay lại bước 3. -->
+    <div class="ig reveal" role="group" aria-label="Sáu bước thêm một trang giống trang tháng trước; bước cuối do bạn duyệt">
+      <ol class="ig-track ig-h">
+        <li class="ig-step c-gold" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-layout"/></svg><span class="ig-num">1</span></span>
+          <div class="ig-body"><span class="ig-stage">Agent làm</span><h3>Chọn mẫu đã duyệt</h3><p>Một trang bạn từng ưng, đã được cắt thành khuôn dùng lại (gọi là kit).</p></div></li>
+        <li class="ig-step c-acc" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-lock"/></svg><span class="ig-num">2</span></span>
+          <div class="ig-body"><span class="ig-stage">Bạn làm, agent nhắc</span><h3>Đóng file .pbip</h3><p>Agent nhắc bạn đóng file. Nếu file đang mở, lần lưu sau của Desktop sẽ đè mất trang mới.</p></div></li>
+        <li class="ig-step c-gold" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-build"/></svg><span class="ig-num">3</span></span>
+          <div class="ig-body"><span class="ig-stage">Agent làm</span><h3>Ghi trang</h3><p>Giữ nguyên kiểu dáng của mẫu, chỉ thay dữ liệu bằng bảng và cột của bạn.</p></div></li>
+        <li class="ig-step c-ok" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="ig-num">4</span></span>
+          <div class="ig-body"><span class="ig-stage">Agent làm</span><h3>Kiểm cú pháp</h3><p>Một công cụ của Microsoft đọc lại file trang; phải 0 lỗi mới đi tiếp.</p>
+            <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> 0 lỗi</span></p></div></li>
+        <li class="ig-step c-acc" style="--i:4"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-camera"/></svg><span class="ig-num">5</span></span>
+          <div class="ig-body"><span class="ig-stage">Agent làm</span><h3>Mở lại và chụp ảnh</h3><p>Desktop nạp lại báo cáo, agent chụp ảnh trang vừa dựng.</p></div></li>
+        <li class="ig-step c-ok" style="--i:5"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-eye"/></svg><span class="ig-num">6</span></span>
+          <div class="ig-body"><span class="ig-stage">Bạn làm</span><h3>Bạn xem bằng mắt</h3><p>Một người chấm độc lập soi ảnh; bạn là người nói “đạt”.</p>
+            <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng cuối:</b> bạn nói “đạt”</span></p></div></li>
+      </ol>
+      <p class="ig-return c-acc" style="--n:6;--from:6;--to:3"><svg class="ig-ico" aria-hidden="true"><use href="#i-undo"/></svg><span><b>Ảnh còn lỗi hiển thị?</b> Agent sửa lại từ bước 3 rồi kiểm, chụp lại, tới khi bạn nói “đạt”.</span></p>
+    </div>
     <div class="note reveal"><b>Vì sao bước 6 bắt buộc, không phải phép lịch sự?</b> Agent chỉ đọc được file, không nhìn thấy màn hình. Chữ chồng lên nhau, màu sai, biểu đồ trống — chỉ mắt người mới bắt chắc chắn. Muốn biết “mẫu” (kit) được làm ra thế nào, xem phần <a href="../architecture/#template-kit">Template kit trên trang Thiết kế</a>.</div>
   </section>
 
@@ -410,6 +431,6 @@
     </div>
   </div>
 </footer>
-<script src="../assets/site.js?v=20260929"></script>
+<script src="../assets/site.js?v=20260929b"></script>
 </body>
 </html>

@@ -13,12 +13,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css?v=20260929">
+<link rel="stylesheet" href="../assets/site.css?v=20260929b">
 <style>
   .install-hero{padding-bottom:30px}.install-hero .lead{max-width:44em}
-  .path-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-top:30px}
-  .path-strip span{background:var(--surface);padding:17px 18px;font-size:13px;font-weight:700;color:var(--muted)}
-  .path-strip b{font:700 12px var(--mono);color:var(--accent);margin-right:10px}
+  /* hành trình 4 bước ở hero và đường ray nối bốn chặng dùng khối .ig-* chung trong assets/site.css */
+  .path-ig{margin-top:34px}
+  .journey-step.ig-stop{padding-left:74px}
+  .journey-step.ig-stop:first-child{--stop-top:0px}
+  @media(max-width:620px){.journey-step.ig-stop{padding-left:0}}
+  .step-check{display:flex;gap:8px;align-items:flex-start}
+  .step-check .ig-ico{width:17px;height:17px;color:var(--ok);margin-top:2px;stroke-width:2.2}
   .setup-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(250px,.6fr);gap:30px;align-items:start;min-width:0}
   .setup-grid>div,.journey-step,.code-card,.code-scroll{min-width:0;max-width:100%}
   .setup-rail{position:sticky;top:86px;background:var(--bg-tint);border:1px solid var(--border);border-radius:18px;padding:22px}
@@ -34,12 +38,20 @@
   .station-map>div{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:15px}
   .station-map b{display:block;font:700 13px var(--mono);color:var(--text)}.station-map span{display:block;color:var(--muted);font-size:13px;margin-top:5px}
   .mode-note{font-size:13px;color:var(--muted);margin-top:14px}.plain-link{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px}
-  @media(max-width:800px){.setup-grid{grid-template-columns:1fr}.setup-rail{display:none}.path-strip{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:800px){.setup-grid{grid-template-columns:1fr}.setup-rail{display:none}}
   @media(max-width:520px){.station-map{grid-template-columns:minmax(0,1fr)}.journey-step{padding-bottom:30px}}
 </style>
 </head>
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
+<!-- icon vẽ tay cho infographic (.ig-*): dùng bằng <svg class="ig-ico"><use href="#i-..."/></svg> -->
+<svg class="ig-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4"/><path d="M9 10h6M9 14h6M9 18h3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.3 2.9 7.8 7 9.5 4.1-1.7 7-5.2 7-9.5V6Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+</svg>
 
 <a class="skip" href="#main">Bỏ qua điều hướng</a>
 <header class="site" id="siteHeader">
@@ -75,14 +87,26 @@
     <span class="eyebrow"><span class="dot"></span>Cài bằng ứng dụng AI bạn đang dùng</span>
     <h1>Dán một yêu cầu.<br><span style="color:var(--accent)">Agent cài giúp bạn.</span></h1>
     <p class="lead">Codex, Claude Code, Claude Desktop hay Google Antigravity đều dùng chung một yêu cầu. Agent đọc hướng dẫn cài ngay trong repo, <b>hỏi bạn trước</b> khi cài thêm phần mềm, rồi cài, kiểm tra và báo lại từng bước. Dữ liệu của bạn nằm trong <code class="inline">workspace/</code> của repo.</p>
-    <div class="path-strip" aria-label="Bốn bước cài đặt">
-      <span><b>01</b>Dán yêu cầu</span><span><b>02</b>Đồng ý phần cần cài</span><span><b>03</b>Khởi động lại</span><span><b>04</b>Làm việc đầu tiên</span>
-    </div>
+    <!-- Infographic: bốn bước cài, mỗi bước là link tới chặng chi tiết bên dưới (cùng số, cùng màu với đường ray) -->
+    <ol class="ig ig-track ig-h path-ig reveal" aria-label="Bốn bước cài đặt">
+      <li class="ig-step c-acc" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-clip"/></svg><span class="ig-num">1</span></span>
+        <div class="ig-body"><a class="ig-link" href="#cai-dat">Dán yêu cầu</a><p>Một yêu cầu cho Codex, Claude Code, Claude Desktop hoặc Antigravity.</p></div></li>
+      <li class="ig-step c-ok" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="ig-num">2</span></span>
+        <div class="ig-body"><a class="ig-link" href="#chuan-bi">Đồng ý phần cần cài</a><p>Agent trình kế hoạch; phần mềm cài thêm chỉ khi bạn đồng ý.</p>
+          <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> bạn đồng ý</span></p></div></li>
+      <li class="ig-step c-acc" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-refresh"/></svg><span class="ig-num">3</span></span>
+        <div class="ig-body"><a class="ig-link" href="#kiem-tra">Khởi động lại</a><p>Mở lại ứng dụng AI trong chính repo để phiên mới thấy công cụ.</p>
+          <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> doctor không còn dòng FAIL</span></p></div></li>
+      <li class="ig-step c-teal" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-table"/></svg><span class="ig-num">4</span></span>
+        <div class="ig-body"><a class="ig-link" href="#viec-dau-tien">Làm việc đầu tiên</a><p>Thử với dữ liệu mẫu, rồi nối Power BI.</p>
+          <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Đúng khi:</b> 182 đơn, 20.350.000 VND</span></p></div></li>
+    </ol>
   </div>
 </section>
 <div class="wrap setup-grid">
   <div>
-    <section class="journey-step" id="cai-dat">
+    <section class="journey-step ig-stop c-acc is-first" id="cai-dat">
+      <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-clip"/></svg><span class="ig-num">1</span></span>
       <span class="step-kicker">Bước 01 / Dán yêu cầu</span>
       <h2>Dán yêu cầu này vào ứng dụng AI của bạn</h2>
       <p>Mở ứng dụng AI trên máy Windows, bấm <b>Sao chép</b> rồi dán nguyên văn. Agent đọc <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/INSTALL.md">hướng dẫn cài dành cho agent</a> và tự nhận ra mình là ứng dụng nào để đăng ký cho đúng.</p>
@@ -132,10 +156,11 @@ and what I need to do next.</code></pre></div>
         <li>Hướng dẫn bạn khởi động lại ứng dụng và thử với dữ liệu mẫu.</li>
       </ol>
       <p class="mode-note">Tab chat của Claude Desktop không chạy được lệnh trên máy. Hãy dán yêu cầu vào Claude Code, Codex hoặc Antigravity và nói thêm “cài cho Claude Desktop”, hoặc <a class="plain-link" href="#cai-tay">tự cài theo mục cuối</a>.</p>
-      <div class="step-check"><b>Kiểm tra:</b> Agent trả lời bằng một kế hoạch và hỏi bạn trước khi cài thêm bất cứ thứ gì.</div>
+      <div class="step-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Kiểm tra:</b> Agent trả lời bằng một kế hoạch và hỏi bạn trước khi cài thêm bất cứ thứ gì.</span></div>
     </section>
 
-    <section class="journey-step" id="chuan-bi">
+    <section class="journey-step ig-stop c-ok" id="chuan-bi">
+      <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="ig-num">2</span></span>
       <span class="step-kicker">Bước 02 / Đồng ý phần cần cài</span>
       <h2>Agent hỏi trước khi cài thêm phần mềm</h2>
       <p>Tối thiểu máy cần Git và Python. Power BI Desktop và các thư viện đi kèm chỉ cần khi bạn làm với báo cáo; bài thử đầu tiên chưa cần. Không cần SQL Server hay SSAS server. Bảng dưới là những gì agent có thể đề nghị cài — bạn đồng ý từng mục.</p>
@@ -163,10 +188,11 @@ winget install --id 9NTXR16HNW1T --source msstore</code></pre></div>
         <div><b>workspace/</b><span>Projects, knowledge, outputs và state cá nhân. Git bỏ qua toàn bộ.</span></div>
       </div>
       <p class="mode-note">Đã có trạm dữ liệu riêng? Nói với agent đường dẫn đó trước khi cài để nó đặt <code class="inline">ADS_DATA</code>. Chế độ mặc định dùng <code class="inline">workspace/</code>.</p>
-      <div class="step-check"><b>Kiểm tra:</b> Bạn biết agent sẽ cài gì, ở đâu, và đã đồng ý.</div>
+      <div class="step-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Kiểm tra:</b> Bạn biết agent sẽ cài gì, ở đâu, và đã đồng ý.</span></div>
     </section>
 
-    <section class="journey-step" id="kiem-tra">
+    <section class="journey-step ig-stop c-acc" id="kiem-tra">
+      <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-refresh"/></svg><span class="ig-num">3</span></span>
       <span class="step-kicker">Bước 03 / Khởi động lại</span>
       <h2>Mở lại ứng dụng AI trong chính repo</h2>
       <p>Phiên đang dùng để cài chưa thấy công cụ mới — điều đó bình thường. Khởi động lại theo bảng, rồi hỏi trong phiên mới: “Gọi <code class="inline">knowledge_status</code>, rồi đọc <code class="inline">skills/data-discovery/SKILL.md</code> trong repo này.”</p>
@@ -180,10 +206,11 @@ winget install --id 9NTXR16HNW1T --source msstore</code></pre></div>
         </tbody>
       </table></div>
       <p>Agent chép lại từng dòng của <code class="inline">doctor.ps1</code>. Dòng <code class="inline">NOT_CHECKED</code> ở kết nối Power BI không phải lỗi: khi đã mở một báo cáo trong Power BI Desktop, nhờ agent chạy thêm doctor với <code class="inline">-ProbeDesktop</code> để thử <code class="inline">EVALUATE ROW("x",1)</code>.</p>
-      <div class="step-check"><b>Kiểm tra:</b> Phiên mới thấy công cụ của repo và doctor không còn dòng <code>FAIL</code>. Chưa đạt hai điều này thì xem là chưa cài xong trên ứng dụng đó.</div>
+      <div class="step-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Kiểm tra:</b> Phiên mới thấy công cụ của repo và doctor không còn dòng <code>FAIL</code>. Chưa đạt hai điều này thì xem là chưa cài xong trên ứng dụng đó.</span></div>
     </section>
 
-    <section class="journey-step" id="viec-dau-tien">
+    <section class="journey-step ig-stop c-teal is-last" id="viec-dau-tien">
+      <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-table"/></svg><span class="ig-num">4</span></span>
       <span class="step-kicker">Bước 04 / Làm việc đầu tiên</span>
       <h2>Thử với dữ liệu mẫu, rồi nối Power BI</h2>
       <p>Agent thường đã làm bài mẫu ở cuối lượt cài. Muốn tự thử lại, gửi yêu cầu dưới đây. Kết quả nằm trong <code class="inline">workspace/outputs/</code>, không đưa vào Git; con số đúng là <b>182 đơn, 20.350.000 VND</b>.</p>
@@ -195,7 +222,7 @@ và samples/sales-demo.csv. Hãy tóm tắt bộ dữ liệu,
 và doanh thu, rồi lưu ghi chú vào workspace/outputs/.</code></pre></div>
       </div>
       <p class="mode-note">Với Power BI, mở tệp <code class="inline">.pbix</code> trước rồi hỏi: “Liệt kê các model đang mở và các bảng của model; chưa chỉnh sửa gì.”</p>
-      <div class="step-check"><b>Hoàn tất:</b> AI tạo được ghi chú mẫu với đúng con số và bạn biết kết quả nằm ở đâu.</div>
+      <div class="step-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Hoàn tất:</b> AI tạo được ghi chú mẫu với đúng con số và bạn biết kết quả nằm ở đâu.</span></div>
     </section>
 
     <section class="journey-step" id="cai-tay">
@@ -267,6 +294,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex</
     </div>
   </div>
 </footer>
-<script src="../assets/site.js?v=20260929"></script>
+<script src="../assets/site.js?v=20260929b"></script>
 </body>
 </html>
