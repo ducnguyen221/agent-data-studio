@@ -4,6 +4,7 @@
   --border:#e4e8ef; --border-strong:#d3d9e3; --text:#14161b; --muted:#565d69; --faint:#666c78;
   --accent:#2361e6; --accent-ink:#1b4fd0; --accent-weak:#e9f0fe; --accent-glow:rgba(47,109,246,.16);
   --gold:#e8a200; --gold-weak:#fdf3d7;
+  --gold-ink:#8a5a00; --teal:#0d7280; --teal-weak:#e0f2f4;
   --ok:#0b7a45; --ok-weak:#e4f5ec; --warn:#c9820a; --danger:#bb3645; --danger-weak:#fdecee;
   --code-bg:#0f1116; --code-text:#e8ebf1; --code-border:#20242e;
   --radius:16px; --radius-sm:11px;
@@ -20,6 +21,7 @@
     --border:#282c34; --border-strong:#343a44; --text:#e9ebef; --muted:#a4abb6; --faint:#8d949f;
     --accent:#5b8cff; --accent-ink:#8fb0ff; --accent-weak:#182338; --accent-glow:rgba(91,140,255,.20);
     --gold:#f2c811; --gold-weak:#2b2410;
+    --gold-ink:#f2c811; --teal:#3cc4d4; --teal-weak:#10262a;
     --ok:#3ec38a; --ok-weak:#12271d; --warn:#e0a032; --danger:#ef6d79; --danger-weak:#2c161a;
     --code-bg:#0a0c10; --code-text:#e4e8f0; --code-border:#20242e;
     --shadow-sm:0 1px 2px rgba(0,0,0,.4);
@@ -57,13 +59,21 @@ header.site.scrolled{border-bottom-color:var(--border)}
 .nav{display:flex;align-items:center;gap:20px;height:64px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.01em}
 .brand img{width:32px;height:32px;border-radius:50%;display:block}
-.nav-links{display:flex;gap:24px;margin-left:auto}
-.nav-links a{font-size:14.5px;font-weight:500;color:var(--muted);transition:color .18s}
-.nav-links a:hover,.nav-links a.active{color:var(--text)}
-.nav-links a.active{color:var(--accent);font-weight:600}
+.nav-links{display:flex;gap:4px;margin-left:auto}
+/* mục menu dạng "pill": trang đang xem có nền màu nhấn, mục khác chỉ hiện nền khi hover */
+.nav-links a{font-size:14.5px;font-weight:500;color:var(--muted);padding:7px 13px;border-radius:999px;
+  transition:color .18s,background-color .18s,box-shadow .18s}
+.nav-links a:hover{color:var(--text);background:var(--surface-2)}
+.nav-links a.active{color:var(--accent-ink);background:var(--accent-weak);font-weight:600;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent)}
+.nav-links a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .nav .gh{margin-left:20px}
-@media (max-width:860px){.nav-links{gap:14px}.nav-links a{font-size:13px}.nav .gh span{display:none}}
-@media (max-width:560px){.brand{font-size:14.5px;gap:7px}.brand img{width:26px;height:26px}.nav{gap:10px;height:56px}.nav-links{gap:9px}.nav-links a{font-size:12px}}
+@media (max-width:860px){.nav-links{gap:2px}.nav-links a{font-size:13px;padding:6px 10px}.nav .gh span{display:none}}
+@media (max-width:560px){.brand{font-size:14.5px;gap:7px}.brand img{width:26px;height:26px}.nav{gap:10px;height:56px}.nav-links{gap:2px}.nav-links a{font-size:12.5px;padding:6px 10px}}
+/* site.js gắn fade-l / fade-r khi menu bị cuộn ngang: mờ mép để người dùng biết còn mục bị che */
+.nav-links.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
+.nav-links.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%);mask-image:linear-gradient(90deg,transparent,#000 18%)}
+.nav-links.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
 @media (max-width:720px){header.site .brand{font-size:0;gap:0;flex:none;max-width:30px;overflow:hidden;white-space:nowrap}header.site .brand img{width:30px;height:30px;flex:none}}
 @media (max-width:560px){.nav-links{margin-left:auto}.nav .gh,.langsel{display:none}}
 /* menu không bao giờ bị ẩn; màn quá hẹp thì cuộn ngang trong thanh menu thay vì tràn trang */
@@ -348,6 +358,185 @@ footer.site{border-top:1px solid var(--border);background:var(--bg-tint);padding
 .faq details[open]{border-color:var(--accent)}
 .faq summary{cursor:pointer;font-weight:600}
 .faq details p{margin-top:8px;color:var(--muted);font-size:14.5px;line-height:1.65}
+
+/* ===== infographic (.ig-*): quy trình / cấu trúc bằng HTML + SVG inline =====
+   Chữ là HTML thật; SVG chỉ vẽ icon và mũi tên, mọi màu lấy từ token nên hợp dark mode.
+   Màu nhóm đặt bằng class c-* → biến --c (nét, viền), --cw (nền nhạt), --ci (chữ đạt tương phản). */
+.c-teal{--c:var(--teal);--cw:var(--teal-weak);--ci:var(--teal)}
+.c-acc{--c:var(--accent);--cw:var(--accent-weak);--ci:var(--accent-ink)}
+.c-gold{--c:var(--gold);--cw:var(--gold-weak);--ci:var(--gold-ink)}
+.c-ok{--c:var(--ok);--cw:var(--ok-weak);--ci:var(--ok)}
+.c-mute{--c:var(--border-strong);--cw:var(--surface-2);--ci:var(--muted)}
+.ig-sprite{position:absolute;width:0;height:0;overflow:hidden}
+.ig-ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ig{--c:var(--accent);--cw:var(--accent-weak);--ci:var(--accent-ink)}
+.ig-title{font-size:1.05rem;font-weight:700;margin:0 0 18px;display:flex;align-items:center;gap:10px}
+.ig-title::after{content:"";flex:1;height:1px;background:var(--border)}
+
+/* nút tròn có icon + số bước */
+.ig-node{position:relative;z-index:1;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--cw);color:var(--ci);border:2px solid var(--c);box-shadow:0 0 0 5px var(--ig-ring,var(--bg))}
+.ig-num{position:absolute;top:-7px;right:-9px;min-width:23px;height:23px;padding:0 5px;border-radius:999px;
+  background:var(--surface);border:2px solid var(--c);color:var(--ci);font:700 12px/19px var(--mono);text-align:center}
+.ig-body{min-width:0;padding-top:12px}
+.ig-body h3,.ig-body h4{font-size:15px;font-weight:700;line-height:1.3;margin:0}
+.ig-body p{margin-top:5px;font-size:13.5px;color:var(--muted);line-height:1.5}
+.ig-body p b{color:var(--text)}
+.ig-body .kbd{font-size:11.5px;padding:2px 7px;margin-top:8px}
+.ig-body code.inline{overflow-wrap:anywhere}
+.ig-body > .kbd{display:inline-block;align-self:flex-start}
+.ig-stage{display:block;font-size:12px;font-weight:700;color:var(--ci);margin-bottom:3px}
+
+/* cổng kiểm: luôn màu xanh "đạt" + khiên, để mắt nhận ra ngay chỗ phải có bằng chứng */
+.ig-gate,.ig-body .ig-gate{display:flex;gap:6px;align-items:flex-start;margin-top:9px;font-size:12.5px;line-height:1.45;color:var(--text);
+  background:var(--ok-weak);border:1px solid color-mix(in srgb,var(--ok) 32%,transparent);border-radius:8px;padding:5px 8px;width:fit-content;max-width:100%}
+.ig-gate svg{width:14px;height:14px;margin-top:2px;color:var(--ok);stroke-width:2.2}
+.ig-gate b{color:var(--ok)}
+.ig-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-weak);
+  border:1px solid color-mix(in srgb,var(--ok) 32%,transparent);border-radius:999px;padding:2px 9px;vertical-align:2px;margin-left:6px;white-space:nowrap}
+.ig-badge svg{width:12px;height:12px;stroke-width:2.4}
+
+/* track: mặc định DỌC (mobile-first); thêm .ig-h để nằm NGANG trên màn rộng */
+.ig-track{list-style:none;margin:0;padding:0;display:grid}
+.ig-step{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:16px;padding-bottom:26px;min-width:0}
+.ig-step:last-child{padding-bottom:0}
+.ig-step::before{content:"";position:absolute;left:23px;top:0;bottom:0;width:2px;background:var(--c)}
+.ig-step:first-child::before{top:24px}
+.ig-step:last-child::before{bottom:auto;height:24px}
+.ig-step:only-child::before{display:none}
+.ig-step:not(:last-child)::after{content:"";position:absolute;left:20px;bottom:9px;width:8px;height:8px;
+  border-right:2px solid var(--c);border-bottom:2px solid var(--c);transform:rotate(45deg)}
+.ig-step.is-dash::before{background:repeating-linear-gradient(180deg,var(--c) 0 6px,transparent 6px 11px)}
+@media (min-width:1080px){
+  .ig-h{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+  .ig-h > .ig-step{display:block;padding:0 16px 0 0}
+  .ig-h > .ig-step::before{top:23px;bottom:auto;left:0;right:0;width:auto;height:2px}
+  .ig-h > .ig-step:first-child::before{left:24px}
+  .ig-h > .ig-step:last-child::before{right:calc(100% - 24px)}
+  .ig-h > .ig-step:not(:last-child)::after{left:auto;bottom:auto;top:19px;right:12px;border:0;
+    border-top:2px solid var(--c);border-right:2px solid var(--c)}
+  .ig-h > .ig-step.is-dash::before{background:repeating-linear-gradient(90deg,var(--c) 0 6px,transparent 6px 11px)}
+  .ig-h > .ig-step.span3{grid-column:span 3}
+  /* các cột cao bằng nhau: cổng kiểm / phiếu kiểm luôn nằm thành một hàng ở đáy */
+  .ig-h > .ig-step{display:flex;flex-direction:column}
+  .ig-h > .ig-step > .ig-node{align-self:flex-start}
+  .ig-h .ig-body{flex:1;display:flex;flex-direction:column}
+  .ig-h .ig-body > p:not(.ig-gate):not(.ig-check){margin-bottom:10px}
+  .ig-h .ig-body > .ig-gate,.ig-h .ig-body > .ig-check{margin-top:auto;width:100%}
+}
+
+/* chín khâu: 4 giai đoạn nối liền một đường; 2 cột giai đoạn ở màn vừa, 1 cột ở mobile */
+.ig-pipe{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px 40px}
+.ig-phase{min-width:0}
+.ig-phase-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;border-top:3px solid var(--c);padding-top:10px;margin:0 0 18px}
+.ig-phase-h b{font-size:15px;color:var(--ci)}
+.ig-phase-h span{font:600 12px var(--mono);color:var(--faint)}
+@media (max-width:699px){.ig-pipe{grid-template-columns:1fr;gap:30px}}
+@media (min-width:1080px){
+  .ig-pipe{grid-template-columns:2fr 3fr 3fr 1fr;gap:0}
+  .ig-pipe > .ig-phase{display:flex;flex-direction:column}
+  .ig-pipe > .ig-phase > .ig-track{flex:1}
+  .ig-phase:not(:last-child) .ig-phase-h{margin-right:16px}
+  .ig-pipe .ig-phase:not(:first-child) .ig-h > .ig-step:first-child::before{left:0}
+  .ig-pipe .ig-phase:not(:last-child) .ig-h > .ig-step:last-child::before{right:0}
+  .ig-pipe .ig-phase:not(:last-child) .ig-h > .ig-step:last-child::after{content:"";position:absolute;top:19px;right:12px;
+    width:8px;height:8px;border-top:2px solid var(--c);border-right:2px solid var(--c);transform:rotate(45deg)}
+}
+.ig-notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:30px}
+.ig-note{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--muted);
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
+.ig-note b{color:var(--text)}
+.ig-note .ig-ico{width:18px;height:18px;color:var(--ci);margin-top:1px}
+@media (max-width:860px){.ig-notes{grid-template-columns:1fr}}
+
+/* chồng tầng: yêu cầu đi xuống qua từng tầng, số tổng hợp đi lên; tầng giao Microsoft đi làn riêng */
+.ig-stack{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,300px);column-gap:28px;max-width:1000px;
+  grid-template-areas:"host host" "down side" "tiers side" "up side" "pbi pbi"}
+.ig-end{display:flex;gap:14px;align-items:center;padding:13px 18px;border-radius:var(--radius-sm);
+  background:var(--surface-2);border:1px solid var(--border-strong)}
+.ig-end .ig-ico{color:var(--text)}
+.ig-end b{display:block;font-size:15px}
+.ig-end span{display:block;font-size:13px;color:var(--muted);line-height:1.45}
+.ig-host{grid-area:host}
+.ig-pbi{grid-area:pbi}
+.ig-flow{display:flex;align-items:center;gap:10px;height:46px;padding-left:29px;font-size:12.5px;font-weight:600}
+.ig-flow svg{width:32px;height:46px;flex:none;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ig-flow .dn{stroke:var(--accent)}
+.ig-flow .up{stroke:var(--ok)}
+.ig-flow .l-dn{color:var(--accent-ink)}
+.ig-flow .l-up{color:var(--ok)}
+.ig-flow.f-down{grid-area:down}
+.ig-flow.f-up{grid-area:up}
+.ig-tiers{grid-area:tiers;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:18px}
+.ig-tier{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:16px;align-items:start;
+  background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--c);border-radius:var(--radius-sm);
+  padding:16px 18px;box-shadow:var(--shadow-sm);--ig-ring:transparent}
+.ig-tiers .ig-tier + .ig-tier::before{content:"";position:absolute;left:41px;top:-19px;height:18px;width:2px;background:var(--border-strong)}
+.ig-tier .ig-body{padding-top:2px}
+.ig-tier h4{font-size:15.5px}
+.ig-tcode{font:700 12px var(--mono);color:var(--ci);margin-right:6px}
+.ig-side{grid-area:side;display:flex;flex-direction:column}
+.ig-side::before,.ig-side::after{content:"";flex:1;min-height:18px;width:0;align-self:center;border-left:2px dashed var(--border-strong)}
+.ig-side .ig-tier{border-style:dashed;border-left:3px dashed var(--c);box-shadow:none;background:color-mix(in srgb,var(--surface-2) 60%,transparent)}
+.ig-side .ig-body .ig-warn{display:flex;gap:7px;margin-top:9px;font-size:12.5px;line-height:1.45;color:var(--text)}
+.ig-side .ig-warn svg{width:15px;height:15px;flex:none;color:var(--warn);margin-top:2px;stroke-width:2.2}
+@media (max-width:760px){
+  .ig-stack{grid-template-columns:1fr;grid-template-areas:"host" "down" "tiers" "up" "pbi" "side"}
+  .ig-side{margin-top:22px}
+  .ig-side::before,.ig-side::after{display:none}
+  .ig-tier{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:14px}
+  .ig-tier .ig-node{width:40px;height:40px}
+  .ig-tiers .ig-tier + .ig-tier::before{left:33px}
+  .ig-flow{padding-left:21px;height:auto;min-height:46px;flex-wrap:wrap;row-gap:0}
+  .ig-flow span{flex:1 1 auto}
+}
+
+/* hai làn so sánh: chatbot (mờ, nét đứt) và Data Agent */
+.ig-vs{display:flex;flex-direction:column;gap:16px}
+.ig-lane{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);padding:20px 22px 22px;
+  box-shadow:var(--shadow-sm);--ig-ring:var(--surface)}
+.ig-lane.is-weak{background:var(--surface-2);border-style:dashed;box-shadow:none;--ig-ring:var(--surface-2)}
+.ig-lane-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.ig-lane-h b{font-size:1.1rem;font-weight:800}
+.ig-lane-h span{font-size:14px;color:var(--muted)}
+@media (max-width:560px){.ig-lane{padding:16px 16px 18px}}
+.ig-lane.is-weak .ig-body h3{color:var(--muted)}
+
+/* mục tiêu + cách tự kiểm: phiếu kiểm luôn nằm đáy cột */
+.ig-check,.ig-body .ig-check{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.5;
+  color:var(--text);border:1px dashed color-mix(in srgb,var(--c) 60%,var(--border));background:color-mix(in srgb,var(--cw) 70%,var(--surface))}
+.ig-check svg{width:17px;height:17px;flex:none;color:var(--ci);margin-top:1px;stroke-width:2.1}
+.ig-check b{color:var(--ci)}
+
+/* vòng tính năng: chip nối nhau + mũi tên quay lại */
+.ig-loop{list-style:none;margin:0 0 26px;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px}
+.ig-loop li{display:inline-flex;align-items:center;gap:6px}
+.ig-loop li + li::before{content:"";width:14px;height:2px;background:var(--border-strong);margin-right:4px}
+.ig-tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--ci);background:var(--cw);
+  border:1px solid color-mix(in srgb,var(--c) 35%,transparent);border-radius:999px;padding:4px 11px}
+.ig-tag .ig-ico{width:15px;height:15px;stroke-width:2}
+.ig-loop .ig-back{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.ig-loop .ig-back .ig-ico{width:17px;height:17px;color:var(--muted)}
+.feat .ig-tag{font-size:11.5px;padding:2px 9px;margin-bottom:12px}
+
+/* hành trình dọc (một cột) */
+.ig-journey{--ig-ring:var(--surface)}
+.ig-next{display:flex;gap:10px;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed var(--border-strong);font-size:13.5px;color:var(--muted)}
+.ig-next .ig-ico{width:18px;height:18px}
+
+/* chuyển động: vẽ đường nối rồi hiện nút, chỉ khi site.js đã chạy và người dùng không tắt chuyển động */
+@media (prefers-reduced-motion:no-preference){
+  html.js .ig.reveal .ig-step::before{transform:scaleY(0);transform-origin:top;
+    transition:transform .5s cubic-bezier(.16,1,.3,1) calc(var(--i,0) * 90ms + 120ms)}
+  html.js .ig.reveal .ig-step .ig-node{opacity:0;transform:scale(.6);
+    transition:opacity .3s ease calc(var(--i,0) * 90ms),transform .45s cubic-bezier(.34,1.56,.64,1) calc(var(--i,0) * 90ms)}
+  html.js .ig.reveal.in .ig-step::before{transform:none}
+  html.js .ig.reveal.in .ig-step .ig-node{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion:no-preference) and (min-width:1080px){
+  html.js .ig.reveal .ig-h > .ig-step::before{transform:scaleX(0);transform-origin:left}
+  html.js .ig.reveal.in .ig-h > .ig-step::before{transform:none}
+}
 
 /* ===== i18n language toggle ===== */
 html[data-lang="vi"] [data-i18n="en"]{display:none}

@@ -1,4 +1,4 @@
-"""Website `docs/`: header/footer chung, menu 4 mục, link nội bộ không gãy, redirect trang cũ.
+"""Website `docs/`: header/footer chung, menu 5 mục, link nội bộ không gãy, redirect trang cũ.
 
 Site tĩnh không có bước build nên header/footer được chép vào từng trang; test này bắt
 mọi chỗ chép lệch. Kèm một phép đối chiếu số liệu: danh sách công cụ MCP trên trang Thiết kế
@@ -16,10 +16,16 @@ import pytest
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(REPO, "docs")
 
-MENU = [("about/", "Giới thiệu"), ("instruction/", "Hướng dẫn"), ("architecture/", "Thiết kế"), ("install/", "Cài đặt")]
-# Trang chính → mục menu đang đứng (None = trang chủ, không mục nào active).
+MENU = [
+    ("", "Trang chủ"),
+    ("about/", "Giới thiệu"),
+    ("instruction/", "Hướng dẫn"),
+    ("architecture/", "Thiết kế"),
+    ("install/", "Cài đặt"),
+]
+# Trang chính → mục menu đang đứng. Trang chủ cũng có mục active: slug "" = "Trang chủ".
 PAGES = {
-    "index.html": None,
+    "index.html": "",
     "about/index.html": "about/",
     "instruction/index.html": "instruction/",
     "architecture/index.html": "architecture/",
@@ -110,7 +116,7 @@ def resolve(page_rel: str, ref: str) -> str:
 
 
 @pytest.mark.parametrize("rel,active", PAGES.items())
-def test_menu_has_four_items_in_fixed_order(rel, active):
+def test_menu_has_five_items_in_fixed_order(rel, active):
     page = parse(rel)
     root = "" if rel == "index.html" else "../"
     labels = [item["text"] for item in page.nav]
@@ -123,8 +129,9 @@ def test_menu_has_four_items_in_fixed_order(rel, active):
 
 @pytest.mark.parametrize("rel,active", PAGES.items())
 def test_exactly_one_current_page_marker(rel, active):
-    expected = 0 if active is None else 1
-    assert parse(rel).aria_current == expected, f"{rel}: cần đúng {expected} aria-current=\"page\""
+    """Mọi trang chính, kể cả trang chủ, có đúng một mục menu mang aria-current."""
+    label = dict(MENU)[active]
+    assert parse(rel).aria_current == 1, f"{rel}: cần đúng 1 aria-current=\"page\" (mục {label})"
 
 
 @pytest.mark.parametrize("rel", PAGES)
@@ -148,7 +155,7 @@ def test_internal_links_point_to_existing_files(rel):
 
 
 def test_footer_is_the_same_block_on_every_page():
-    """Cùng tập đích (sau khi quy về docs/) và cùng thứ tự trên cả năm trang."""
+    """Cùng tập đích (sau khi quy về docs/) và cùng thứ tự trên cả năm trang, có đủ năm mục menu."""
     seen = {}
     for rel in PAGES:
         refs = parse(rel).footer
@@ -157,8 +164,8 @@ def test_footer_is_the_same_block_on_every_page():
     assert first, "footer không có link nào"
     for rel, refs in seen.items():
         assert refs == first, f"{rel}: footer lệch khuôn chung\n  mong đợi {first}\n  đang là  {refs}"
-    for slug, _ in MENU:
-        assert slug + "index.html" in first, f"footer thiếu mục menu {slug}"
+    for slug, label in MENU:
+        assert slug + "index.html" in first, f"footer thiếu mục menu {label}"
 
 
 @pytest.mark.parametrize("rel", PAGES)

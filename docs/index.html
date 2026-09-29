@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/site.css?v=20260929">
 <style>
   /* Chỉ các khối riêng của trang chủ. Token, header, nút, footer, reveal, layers, sw, final,
      hội thoại mẫu… dùng chung từ assets/site.css. */
@@ -64,6 +64,10 @@
   .feat h3{font-size:1.12rem;font-weight:700}
   .feat p{margin-top:9px;color:var(--muted);font-size:14.5px;line-height:1.55}
   .feat .kbd{margin-top:12px;font-size:12px}
+  /* nhãn chặng của vòng Đọc → Hỏi → Xây → Trình bày, ghim góc phải thẻ */
+  .feat{position:relative}
+  .feat .ig-tag{position:absolute;top:24px;right:22px;margin:0}
+  .feat.full .ig-tag{position:static;margin:0 0 12px}
   .feat.full{grid-column:span 6;display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;
     background:linear-gradient(180deg,var(--ok-weak),transparent 70%),var(--surface);
     border-color:color-mix(in srgb,var(--ok) 30%,var(--border))}
@@ -84,28 +88,7 @@
     .feat,.feat.wide,.feat.full{grid-column:span 1}
   }
 
-  .pipe-wrap{overflow-x:auto;padding-bottom:6px;margin:0 -22px;padding-left:22px;padding-right:22px}
-  .pipe{display:flex;gap:0;min-width:min-content}
-  .pstep{flex:1 1 0;min-width:150px;position:relative;background:var(--surface);border:1px solid var(--border);
-    border-radius:var(--radius-sm);padding:18px 16px;box-shadow:var(--shadow-sm)}
-  .pstep:not(:last-child){margin-right:24px}
-  .pstep:not(:last-child)::after{content:"";position:absolute;top:50%;right:-24px;width:24px;height:2px;
-    background:linear-gradient(90deg,var(--border-strong),var(--accent))}
-  .pstep:not(:last-child)::before{content:"";position:absolute;top:50%;right:-7px;width:0;height:0;transform:translateY(-50%);
-    border-left:7px solid var(--accent);border-top:5px solid transparent;border-bottom:5px solid transparent;z-index:2}
-  .pnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);
-    background:var(--accent-weak);border-radius:6px;padding:2px 7px;display:inline-block}
-  .pstep h3{margin-top:12px;font-size:.96rem;font-weight:700}
-  .pstep p{margin-top:6px;font-size:12.5px;color:var(--muted);line-height:1.5}
-  @media (max-width:760px){
-    .pipe{flex-direction:column}
-    .pstep{min-width:0}
-    .pstep:not(:last-child){margin-right:0;margin-bottom:26px}
-    .pstep:not(:last-child)::after{top:auto;bottom:-26px;right:50%;width:2px;height:26px;
-      background:linear-gradient(180deg,var(--border-strong),var(--accent))}
-    .pstep:not(:last-child)::before{top:auto;bottom:-9px;right:50%;transform:translateX(50%);
-      border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--accent);border-bottom:0}
-  }
+  /* infographic "4 tầng" và "9 khâu" dùng khối .ig-* chung trong assets/site.css */
 
   .install{background:var(--bg-tint);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
   .install-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
@@ -128,6 +111,36 @@
 </head>
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
+<!-- icon vẽ tay cho infographic (.ig-*): dùng bằng <svg class="ig-ico"><use href="#i-..."/></svg> -->
+<svg class="ig-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.1-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="1"/><rect x="10" y="7" width="4" height="13" rx="1"/><rect x="16" y="3" width="4" height="17" rx="1"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.3 2.9 7.8 7 9.5 4.1-1.7 7-5.2 7-9.5V6Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4Z"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5"/><path d="M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v4M15 3v4"/><path d="M6 7h12v3a6 6 0 0 1-12 0Z"/><path d="M12 16v5"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7.5V18l-4 2v-7.5Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="m6.5 6.5 3.4 3.4M17.5 6.5l-3.4 3.4M6.5 17.5l3.4-3.4M17.5 17.5l-3.4-3.4"/></symbol>
+  <symbol id="i-sigma" viewBox="0 0 24 24"><path d="M17 5H7l5.5 7L7 19h10"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 16v-4M12 16V8M17 16V5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></symbol>
+  <symbol id="i-build" viewBox="0 0 24 24"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M13 3v5h5"/><path d="M18 8v2.5"/><path d="m19.6 13.4-6.1 6.1L11 20l.5-2.5 6.1-6.1a1.4 1.4 0 0 1 2 2Z"/></symbol>
+  <symbol id="i-pointer" viewBox="0 0 24 24"><path d="M5 3.5 18.5 10l-5.7 1.6L10 17Z"/><path d="m12.8 11.6 5 6.4"/></symbol>
+  <symbol id="i-package" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5Z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h12l-2.5 4.5L17 13H5"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4"/><path d="M9 10h6M9 14h6M9 18h3"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-hammer" viewBox="0 0 24 24"><path d="m13 7 4 4"/><path d="M12 8 4 16a2.1 2.1 0 0 0 3 3l8-8"/><path d="m11 5 3-3 6 6-3 3"/></symbol>
+  <symbol id="i-present" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/><path d="m7 12 3-3 2.5 2L17 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5"/><path d="M20 4v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15.5"/><path d="M4 20v-4.5h4.5"/></symbol>
+</svg>
+
 
 <!-- ======= HEADER (khuôn chung mọi trang — tests/test_site_nav.py canh lệch) ======= -->
 <a class="skip" href="#main">Bỏ qua điều hướng</a>
@@ -135,6 +148,7 @@
   <div class="wrap nav">
     <a class="brand" href="./"><img src="assets/logo-128.png" alt="">Agent Data Studio</a>
     <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="./" class="active" aria-current="page">Trang chủ</a>
       <a href="about/">Giới thiệu</a>
       <a href="instruction/">Hướng dẫn</a>
       <a href="architecture/">Thiết kế</a>
@@ -230,51 +244,58 @@
       <h2><span data-i18n="vi">Đọc, hỏi, xây và trình bày — trọn vòng Power BI</span><span data-i18n="en">Read, ask, build and present — the full Power BI loop</span></h2>
       <p>Không chỉ "chat với data": agent khám phá model, viết measure, dựng trang báo cáo chuẩn design system, và tự chưng cất tri thức cho dự án sau.</p>
     </div>
+    <ol class="ig-loop reveal" aria-label="Vòng làm việc: đọc, hỏi, xây, trình bày, rồi giữ tri thức cho vòng sau">
+      <li><span class="ig-tag c-teal"><svg class="ig-ico" aria-hidden="true"><use href="#i-search"/></svg>Đọc</span></li>
+      <li><span class="ig-tag c-acc"><svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg>Hỏi</span></li>
+      <li><span class="ig-tag c-gold"><svg class="ig-ico" aria-hidden="true"><use href="#i-hammer"/></svg>Xây</span></li>
+      <li><span class="ig-tag c-ok"><svg class="ig-ico" aria-hidden="true"><use href="#i-present"/></svg>Trình bày</span></li>
+      <li><span class="ig-back"><svg class="ig-ico" aria-hidden="true"><use href="#i-loop"/></svg>tri thức giữ lại cho vòng sau</span></li>
+    </ol>
     <div class="bento">
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
-        <h3>Khám phá model tức thì</h3>
+        <span class="ig-tag c-teal"><svg class="ig-ico" aria-hidden="true"><use href="#i-search"/></svg>Đọc</span><h3>Khám phá model tức thì</h3>
         <p>Báo cáo nào đang mở, bảng nào, cột kiểu gì, measure công thức ra sao — agent tự trả lời, không cần thuộc DMV.</p>
         <span class="kbd">list_tables · describe_table</span>
       </div>
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg></div>
-        <h3>DAX lên Desktop &amp; Cloud</h3>
+        <span class="ig-tag c-acc"><svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg>Hỏi</span><h3>DAX lên Desktop &amp; Cloud</h3>
         <p>Chạy truy vấn thẳng vào file .pbix đang mở (ADOMD) hoặc dataset đã publish trên Service (REST, token cache). Service cần cấu hình xác thực riêng và chưa được nghiệm thu ở bản này.</p>
         <span class="kbd">execute_dax_local · _service</span>
       </div>
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
-        <h3>Ghi thẳng vào model</h3>
+        <span class="ig-tag c-gold"><svg class="ig-ico" aria-hidden="true"><use href="#i-hammer"/></svg>Xây</span><h3>Ghi thẳng vào model</h3>
         <p>Tạo/sửa measure, nối relationship qua TOM ngay trên model đang mở — Desktop thấy ngay, không cần Tabular Editor.</p>
         <span class="kbd">add_measure · add_relationship</span>
       </div>
       <div class="feat wide reveal">
         <div class="ficon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
-        <h3>Thiết kế trang báo cáo có kiểm tra</h3>
+        <span class="ig-tag c-ok"><svg class="ig-ico" aria-hidden="true"><use href="#i-present"/></svg>Trình bày</span><h3>Thiết kế trang báo cáo có kiểm tra</h3>
         <p>Agent Data Studio giúp lập brief, chọn bố cục và gắn dữ liệu vào trang PBIR. Khi dùng mẫu trong dự án, hãy kiểm tra quyền sử dụng, nhãn, số liệu, tương tác và bản render trong Power BI Desktop. <a href="architecture/#template-kit" style="color:var(--accent)">Xem quy trình thiết kế</a>.</p>
       </div>
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></div>
-        <h3>Song kiếm với Microsoft</h3>
+        <span class="ig-tag c-gold"><svg class="ig-ico" aria-hidden="true"><use href="#i-hammer"/></svg>Xây</span><h3>Song kiếm với Microsoft</h3>
         <p>Chạy cạnh <b>powerbi-modeling-mcp</b> chính chủ: modeling hàng loạt giao Microsoft; query, policy, report layer — phần MS không làm — thuộc về đây.</p>
       </div>
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div>
-        <h3>Tri thức dự án, dùng lại khi cần</h3>
+        <span class="ig-tag c-mute"><svg class="ig-ico" aria-hidden="true"><use href="#i-loop"/></svg>Vòng sau</span><h3>Tri thức dự án, dùng lại khi cần</h3>
         <p>Ghi chú và kết quả nằm trong <code class="inline">workspace/knowledge/</code> ở chế độ mặc định. Nếu bạn dùng trạm riêng qua <code class="inline">ADS_DATA</code>, tri thức được lưu tại trạm đó.</p>
         <span class="kbd">knowledge_status · distill_report_design</span>
       </div>
       <div class="feat reveal">
         <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></div>
-        <h3>Khám phá dữ liệu và ghi lại quyết định</h3>
+        <span class="ig-tag c-teal"><svg class="ig-ico" aria-hidden="true"><use href="#i-search"/></svg>Đọc</span><h3>Khám phá dữ liệu và ghi lại quyết định</h3>
         <p>Skill <b>data-discovery</b> giúp AI khảo sát nguồn, hỏi thêm điều chưa rõ và tạo tài liệu cho chỉ số, dữ liệu và trang báo cáo. Bắt đầu với CSV mẫu trước khi làm việc với dữ liệu riêng.</p>
         <span class="kbd">Research → Key Info → Planning → Build → Monitor</span>
       </div>
       <div class="feat full reveal">
         <div>
           <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <h3>Chặn các truy vấn thô thường gặp</h3>
+          <span class="ig-tag c-acc"><svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg>Hỏi</span><h3>Chặn các truy vấn thô thường gặp</h3>
           <p>Công cụ truy vấn DAX của repo áp dụng chính sách tại server và ghi nhật ký. Đây là lớp giảm rủi ro; với dữ liệu nhạy cảm, bạn vẫn cần quyền truy cập và RLS phù hợp trên model.</p>
         </div>
         <div class="privacy-tags">
@@ -298,34 +319,107 @@
       <p>Agent nói chuyện với Power BI qua MCP; mỗi lớp một trách nhiệm rõ ràng — và một quy trình phân tích chuẩn để dự án nào cũng đi đúng đường.</p>
     </div>
 
-    <div class="layers reveal" style="margin-bottom:52px">
-      <div class="layer">
-        <span class="lnum">T4</span>
-        <div><h3>Workflow &amp; Tri thức</h3><p>Skill <b>pbi-build</b> 9 khâu · template kits · distill model/trang · artifact bàn giao mỗi dự án.</p></div>
+    <!-- Infographic 1: 4 tầng. Yêu cầu đi xuống qua T4 → T3 → T2 tới Power BI; T1 đi làn riêng. -->
+    <h3 class="ig-title reveal">Bốn tầng: yêu cầu đi xuống, chỉ số tổng hợp đi lên</h3>
+    <div class="ig ig-stack reveal" role="group" aria-label="Kiến trúc 4 tầng: yêu cầu từ ứng dụng AI đi qua tầng 4, 3, 2 tới Power BI; tầng 1 của Microsoft đi làn riêng" style="margin-bottom:64px">
+      <div class="ig-end ig-host">
+        <svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg>
+        <div><b>Bạn hỏi bằng lời thường</b><span>trong Codex, Claude Code, Claude Desktop hoặc Antigravity</span></div>
       </div>
-      <div class="layer">
-        <span class="lnum">T3</span>
-        <div><h3>Policy cho công cụ truy vấn</h3><p>Aggregate-only · PII blocklist · audit log · row cap được áp dụng khi gọi công cụ DAX của repo. Quyền truy cập nguồn vẫn do bạn quản lý.</p></div>
+      <div class="ig-flow f-down" aria-hidden="true">
+        <svg viewBox="0 0 32 46"><path class="dn" d="M8 3v37M4 35l4 5 4-5"/><path class="up" d="M24 43V6M20 11l4-5 4 5"/></svg>
+        <span class="l-dn">Yêu cầu đi xuống</span><span class="l-up">Chỉ số tổng hợp đi lên</span>
       </div>
-      <div class="layer">
-        <span class="lnum">T2</span>
-        <div><h3>16 MCP tools (repo này)</h3><p>Query DAX · schema discovery · TOM write · PBIR template engine · distill — nối Desktop (ADOMD) + Service (REST) + file .pbip.</p></div>
+      <ol class="ig-tiers" aria-label="Ba tầng nằm trong repo">
+        <li class="ig-tier c-gold">
+          <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-book"/></svg></span>
+          <div class="ig-body"><h4><span class="ig-tcode">T4</span>Workflow &amp; Tri thức</h4>
+            <p>Skill <b>pbi-build</b> điều phối 9 khâu · template kits · distill model/trang · artifact bàn giao mỗi dự án.</p></div>
+        </li>
+        <li class="ig-tier c-ok">
+          <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg></span>
+          <div class="ig-body"><h4><span class="ig-tcode">T3</span>Policy cho công cụ truy vấn<span class="ig-badge"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg>Cổng kiểm</span></h4>
+            <p>Aggregate-only · PII blocklist · audit log · row cap được áp dụng khi gọi công cụ DAX của repo. Quyền truy cập nguồn vẫn do bạn quản lý.</p></div>
+        </li>
+        <li class="ig-tier c-acc">
+          <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-tool"/></svg></span>
+          <div class="ig-body"><h4><span class="ig-tcode">T2</span>16 MCP tools (repo này)</h4>
+            <p>Query DAX · schema discovery · TOM write · PBIR template engine · distill. Nối Desktop (ADOMD), Service (REST) và file .pbip.</p></div>
+        </li>
+      </ol>
+      <div class="ig-flow f-up" aria-hidden="true">
+        <svg viewBox="0 0 32 46"><path class="dn" d="M8 3v37M4 35l4 5 4-5"/><path class="up" d="M24 43V6M20 11l4-5 4 5"/></svg>
+        <span class="l-dn">Truy vấn, ghi measure, ghi trang</span><span class="l-up">Dữ liệu thô ở lại engine</span>
       </div>
-      <div class="layer dele">
-        <span class="lnum">T1</span>
-        <div><h3>Delegate: microsoft/powerbi-modeling-mcp</h3><p>Modeling hàng loạt, transaction, TMDL, DAX validate — không xây lại thứ Microsoft đã làm tốt.</p></div>
+      <div class="ig-end ig-pbi">
+        <svg class="ig-ico" aria-hidden="true"><use href="#i-bars"/></svg>
+        <div><b>Power BI</b><span>Desktop (ADOMD) · Service (REST) · file .pbip</span></div>
+      </div>
+      <div class="ig-side">
+        <div class="ig-tier c-mute">
+          <span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-swap"/></svg></span>
+          <div class="ig-body"><h4><span class="ig-tcode">T1</span>Delegate cho Microsoft</h4>
+            <p>Server <code class="inline">powerbi-modeling-mcp</code> chính chủ lo modeling hàng loạt, transaction, TMDL, DAX validate. Không xây lại thứ Microsoft đã làm tốt.</p>
+            <p class="ig-warn"><svg class="ig-ico" aria-hidden="true"><use href="#i-alert"/></svg><span>Làn riêng, cài tuỳ chọn: truy vấn qua server Microsoft không đi qua policy T3.</span></p></div>
+        </div>
       </div>
     </div>
 
-    <div class="pipe-wrap reveal">
-      <div class="pipe">
-        <div class="pstep"><span class="pnum">1–2</span><h3>Kết nối &amp; Transform</h3><p>Power Query / M parameter, kiểu dữ liệu tường minh, đếm dòng đối chiếu.</p></div>
-        <div class="pstep"><span class="pnum">3</span><h3>Mô hình hóa</h3><p>Star schema + relationship; soi lại bằng Mermaid ERD tự sinh.</p></div>
-        <div class="pstep"><span class="pnum">4–5</span><h3>DAX</h3><p>Measure có format + verify từng cái; truy vấn tổng hợp qua policy.</p></div>
-        <div class="pstep"><span class="pnum">6–7</span><h3>Trang báo cáo</h3><p>apply_template từ kit — đẹp ngay từ lần dựng đầu.</p></div>
-        <div class="pstep"><span class="pnum">8</span><h3>Nâng cao</h3><p>Tooltip, drill-through, parameters; bookmark thao tác tay.</p></div>
-        <div class="pstep"><span class="pnum">9</span><h3>Bàn giao</h3><p>4 artifact + chưng cất model/kit thành tri thức tái dùng.</p></div>
-      </div>
+    <!-- Infographic 2: 9 khâu (skills/pbi-build/references/kpim/pipeline-execution.md), 4 giai đoạn, mỗi khâu một cổng kiểm. -->
+    <h3 class="ig-title reveal">Chín khâu từ dữ liệu tới bàn giao, khâu nào cũng có cổng kiểm</h3>
+    <ol class="ig ig-pipe reveal" aria-label="Quy trình 9 khâu chia 4 giai đoạn">
+      <li class="ig-phase c-teal">
+        <p class="ig-phase-h"><b>Dữ liệu</b><span>khâu 1–2</span></p>
+        <ol class="ig-track ig-h">
+          <li class="ig-step" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-plug"/></svg><span class="ig-num">1</span></span>
+            <div class="ig-body"><h4>Kết nối dữ liệu</h4><p>Power Query, tham số M, không để mật khẩu trong M.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> refresh OK, số dòng khớp</span></p></div></li>
+          <li class="ig-step" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-filter"/></svg><span class="ig-num">2</span></span>
+            <div class="ig-body"><h4>Làm sạch, ép kiểu</h4><p>Bảng staging, kiểu cột khai tường minh.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> kiểu cột đúng</span></p></div></li>
+        </ol>
+      </li>
+      <li class="ig-phase c-acc">
+        <p class="ig-phase-h"><b>Mô hình &amp; con số</b><span>khâu 3–5</span></p>
+        <ol class="ig-track ig-h">
+          <li class="ig-step" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-star"/></svg><span class="ig-num">3</span></span>
+            <div class="ig-body"><h4>Mô hình hoá</h4><p>Star schema, bảng ngày phủ đủ, quan hệ rõ.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> ERD ra hình sao</span></p></div></li>
+          <li class="ig-step" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-sigma"/></svg><span class="ig-num">4</span></span>
+            <div class="ig-body"><h4>Measure DAX</h4><p>Thử bằng TOM, lưu vào TMDL.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> khớp số biết trước</span></p></div></li>
+          <li class="ig-step" style="--i:4"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-chart"/></svg><span class="ig-num">5</span></span>
+            <div class="ig-body"><h4>Truy vấn tổng hợp</h4><p>Chỉ số tổng hợp đi qua policy, cột PII bị chặn.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> audit không chặn bất thường</span></p></div></li>
+        </ol>
+      </li>
+      <li class="ig-phase c-gold">
+        <p class="ig-phase-h"><b>Báo cáo</b><span>khâu 6–8</span></p>
+        <ol class="ig-track ig-h">
+          <li class="ig-step" style="--i:5"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-layout"/></svg><span class="ig-num">6</span></span>
+            <div class="ig-body"><h4>Thiết kế trang</h4><p>Nhân bản trang đã duyệt, viết Design Brief.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> bạn duyệt Brief</span></p></div></li>
+          <li class="ig-step" style="--i:6"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-build"/></svg><span class="ig-num">7</span></span>
+            <div class="ig-body"><h4>Dựng trang PBIR</h4><p>Clone và gắn lại dữ liệu khi file .pbip đóng.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> validate sạch, ảnh chụp đã review</span></p></div></li>
+          <li class="ig-step" style="--i:7"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-pointer"/></svg><span class="ig-num">8</span></span>
+            <div class="ig-body"><h4>Nâng cao</h4><p>Tooltip, drill-through, field parameter; bookmark làm tay.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> demo được trên Desktop</span></p></div></li>
+        </ol>
+      </li>
+      <li class="ig-phase c-ok">
+        <p class="ig-phase-h"><b>Bàn giao</b><span>khâu 9</span></p>
+        <ol class="ig-track ig-h">
+          <li class="ig-step" style="--i:8"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-package"/></svg><span class="ig-num">9</span></span>
+            <div class="ig-body"><h4>Review, bàn giao</h4><p>Publish khi được yêu cầu, lưu tri thức.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> đủ 4 artifact, /pbi-done</span></p></div></li>
+        </ol>
+      </li>
+    </ol>
+    <div class="ig-notes reveal">
+      <p class="ig-note c-teal"><svg class="ig-ico" aria-hidden="true"><use href="#i-flag"/></svg><span><b>Trước khâu 1:</b> khảo sát nghiệp vụ và lập kế hoạch với skill data-discovery; bạn duyệt phạm vi.</span></p>
+      <p class="ig-note c-acc"><svg class="ig-ico" aria-hidden="true"><use href="#i-undo"/></svg><span><b>Không khớp thì quay lại:</b> số sai về model và measure (khâu 3–4), trang lỗi hiển thị sửa lại ở khâu 7.</span></p>
+      <p class="ig-note c-ok"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Luật chung:</b> không có bằng chứng của cổng kiểm thì khâu đó chưa xong.</span></p>
     </div>
   </div>
 </section>
@@ -387,20 +481,32 @@
       <h2 style="margin-top:14px">Một đường đi rõ ràng cho người mới</h2>
       <p>Dán một yêu cầu vào Codex, Claude Code, Claude Desktop hoặc Google Antigravity. Agent hỏi bạn trước khi cài thêm phần mềm, rồi cài, kiểm tra và báo lại. Mở lại AI trong repo, rồi thử một yêu cầu với dữ liệu mẫu.</p>
       <div class="req"><ul>
-        <li><span class="ic">1</span><span><b>Source:</b> engine, scripts và skills đều nằm trong repo.</span></li>
-        <li><span class="ic">2</span><span><b>Trạm mặc định:</b> <code class="inline">workspace/</code> trong repo, bị Git bỏ qua.</span></li>
-        <li><span class="ic">3</span><span><b>Việc đầu tiên:</b> mở <code class="inline">samples/sales-demo.csv</code> cùng AI.</span></li>
+        <li><span class="ic"><svg class="ig-ico" aria-hidden="true" style="width:14px;height:14px;stroke-width:2.4"><use href="#i-check"/></svg></span><span><b>Source:</b> engine, scripts và skills đều nằm trong repo.</span></li>
+        <li><span class="ic"><svg class="ig-ico" aria-hidden="true" style="width:14px;height:14px;stroke-width:2.4"><use href="#i-check"/></svg></span><span><b>Trạm mặc định:</b> <code class="inline">workspace/</code> trong repo, bị Git bỏ qua.</span></li>
+        <li><span class="ic"><svg class="ig-ico" aria-hidden="true" style="width:14px;height:14px;stroke-width:2.4"><use href="#i-check"/></svg></span><span><b>Việc đầu tiên:</b> mở <code class="inline">samples/sales-demo.csv</code> cùng AI.</span></li>
       </ul></div>
       <p style="margin-top:22px"><a class="btn btn-primary" href="install/">Lấy yêu cầu cài đặt</a> <a class="btn btn-ghost" href="about/">Đọc Giới thiệu</a></p>
     </div>
     <div class="reveal" style="align-self:center">
-      <div class="preview" style="padding:24px">
-        <div class="eyebrow"><span class="dot"></span>Đường đi sau khi cài</div>
-        <div style="display:grid;gap:14px;margin-top:20px">
-          <div class="layer"><span class="lnum">01</span><div><h3>agent-data-studio/</h3><p>Mã nguồn cập nhật tập trung.</p></div></div>
-          <div class="layer"><span class="lnum">02</span><div><h3>workspace/</h3><p>Dự án, tri thức, kết quả của bạn.</p></div></div>
-          <div class="layer"><span class="lnum">03</span><div><h3>AI host</h3><p>Đọc skill và gọi engine từ repo.</p></div></div>
-        </div>
+      <!-- Infographic: hành trình người mới, từ lúc dán yêu cầu tới kết quả đầu tiên kiểm được (install/ + samples/README.md) -->
+      <div class="preview ig ig-journey" style="padding:24px" role="group" aria-label="Năm bước từ lúc dán yêu cầu tới kết quả đầu tiên">
+        <div class="eyebrow"><span class="dot"></span>Từ lúc dán yêu cầu tới kết quả đầu tiên</div>
+        <ol class="ig-track" style="margin-top:22px">
+          <li class="ig-step c-acc" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-clip"/></svg><span class="ig-num">1</span></span>
+            <div class="ig-body"><h3>Dán một yêu cầu</h3><p>Vào Codex, Claude Code, Claude Desktop hoặc Antigravity.</p></div></li>
+          <li class="ig-step c-ok" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="ig-num">2</span></span>
+            <div class="ig-body"><h3>Agent hỏi trước khi cài</h3><p>Agent trình kế hoạch; phần mềm cài thêm chỉ khi bạn đồng ý.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> bạn đồng ý</span></p></div></li>
+          <li class="ig-step c-acc" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-tool"/></svg><span class="ig-num">3</span></span>
+            <div class="ig-body"><h3>Cài, kiểm tra, báo lại</h3><p>Chạy trình cài cho đúng ứng dụng, chạy doctor, chép lại từng dòng.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng:</b> doctor không còn dòng FAIL</span></p></div></li>
+          <li class="ig-step c-acc" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-folder"/></svg><span class="ig-num">4</span></span>
+            <div class="ig-body"><h3>Mở lại AI trong repo</h3><p>Phiên mới thấy công cụ của repo.</p></div></li>
+          <li class="ig-step c-teal" style="--i:4"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-table"/></svg><span class="ig-num">5</span></span>
+            <div class="ig-body"><h3>Thử với dữ liệu mẫu</h3><p>Mở <code class="inline">samples/sales-demo.csv</code> cùng AI, chưa cần Power BI.</p>
+              <p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Đúng khi:</b> ra 182 đơn và 20.350.000 VND</span></p></div></li>
+        </ol>
+        <p class="ig-next"><svg class="ig-ico" aria-hidden="true"><use href="#i-bars"/></svg><span>Khi đã sẵn sàng: nối báo cáo Power BI của bạn và đi tiếp chín khâu.</span></p>
       </div>
     </div>
   </div>
@@ -444,6 +550,7 @@
       <div class="foot-links">
         <div class="foot-col">
           <b>Sản phẩm</b>
+          <a href="./">Trang chủ</a>
           <a href="about/">Giới thiệu</a>
           <a href="instruction/">Hướng dẫn</a>
           <a href="architecture/">Thiết kế</a>
@@ -465,6 +572,6 @@
   </div>
 </footer>
 
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=20260929"></script>
 </body>
 </html>

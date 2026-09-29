@@ -5,6 +5,24 @@ document.documentElement.classList.add('js');
   var h=document.getElementById('siteHeader');
   if(h){var f=function(){h.classList.toggle('scrolled',window.scrollY>8)};window.addEventListener('scroll',f,{passive:true});f();}
 })();
+// menu chính trên màn hẹp: cuộn ngang tới mục đang xem và làm mờ mép còn mục bị che
+(function(){
+  document.querySelectorAll('.nav-links').forEach(function(nav){
+    function edges(){
+      var max=nav.scrollWidth-nav.clientWidth;
+      nav.classList.toggle('fade-l',max>2&&nav.scrollLeft>2);
+      nav.classList.toggle('fade-r',max>2&&nav.scrollLeft<max-2);
+    }
+    var cur=nav.querySelector('a[aria-current="page"]');
+    if(cur&&nav.scrollWidth>nav.clientWidth){
+      var n=nav.getBoundingClientRect(),c=cur.getBoundingClientRect();
+      nav.scrollLeft+=(c.left-n.left)-(n.width-c.width)/2;
+    }
+    nav.addEventListener('scroll',edges,{passive:true});
+    window.addEventListener('resize',edges,{passive:true});
+    edges();
+  });
+})();
 (function(){
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var els=document.querySelectorAll('.reveal');

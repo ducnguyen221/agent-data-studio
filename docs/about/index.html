@@ -14,10 +14,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/site.css?v=20260929">
 <style>
-  .how{display:block;margin-top:8px;font-size:12.5px;color:var(--faint)}
-  .how b{color:var(--muted);font-weight:600}
   .gap-tbl th{width:50%}
   .author{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start}
   .avatar{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -36,12 +34,29 @@
 </head>
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
+<!-- icon vẽ tay cho infographic (.ig-*): dùng bằng <svg class="ig-ico"><use href="#i-..."/></svg> -->
+<svg class="ig-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.1-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></symbol>
+  <symbol id="i-guess" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-bubble" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4Z"/><path d="M8 9h8M8 12.5h5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h5"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4Z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.3 2.9 7.8 7 9.5 4.1-1.7 7-5.2 7-9.5V6Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-evidence" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6"/><path d="m9 15 2 2 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/></symbol>
+</svg>
+
 
 <a class="skip" href="#main">Bỏ qua điều hướng</a>
 <header class="site" id="siteHeader">
   <div class="wrap nav">
     <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
     <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="../">Trang chủ</a>
       <a href="./" class="active" aria-current="page">Giới thiệu</a>
       <a href="../instruction/">Hướng dẫn</a>
       <a href="../architecture/">Thiết kế</a>
@@ -89,24 +104,33 @@
       <h2>“Data Agent” khác chatbot ở chỗ nào</h2>
       <p>Chatbot trả lời bằng những gì nó đoán. Data Agent làm việc thật với dữ liệu của bạn, theo quy trình, và chịu sự kiểm soát của luật chơi. Agent Data Studio trao cho ứng dụng AI đúng ba thứ đó.</p>
     </div>
-    <div class="grid-3 reveal">
-      <div class="card">
-        <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4Z"/></svg></div>
-        <h3>Có tay</h3>
-        <p>16 công cụ MCP để liệt kê báo cáo đang mở, đọc bảng và cột, chạy truy vấn DAX, thêm measure và quan hệ, dựng trang báo cáo từ mẫu, lưu tri thức dự án.</p>
-        <p><span class="kbd">powerbi_agent/ · 16 tool</span></p>
+    <!-- Infographic: cùng một câu hỏi, chatbot đoán; Data Agent đi qua sách quy trình → công cụ → policy. -->
+    <div class="ig ig-vs reveal" role="group" aria-label="So sánh chatbot và Data Agent khi trả lời cùng một câu hỏi về số liệu">
+      <div class="ig-lane is-weak">
+        <p class="ig-lane-h"><b>Chatbot</b><span>trả lời bằng những gì nó đoán</span></p>
+        <ol class="ig-track ig-h">
+        <li class="ig-step c-mute" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg></span>
+          <div class="ig-body"><h3>Câu hỏi của bạn</h3><p>Ví dụ: “Doanh thu quý này theo vùng?”</p></div></li>
+        <li class="ig-step c-mute is-dash span3" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-guess"/></svg></span>
+          <div class="ig-body"><h3>Đoán từ trí nhớ của mô hình</h3><p>Không đọc model, không chạy truy vấn, không có luật nào kiểm lại.</p></div></li>
+        <li class="ig-step c-mute" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-bubble"/></svg></span>
+          <div class="ig-body"><h3>Câu trả lời nghe hợp lý</h3><p>Nhưng không có bằng chứng để bạn kiểm.</p></div></li>
+        </ol>
       </div>
-      <div class="card">
-        <div class="ficon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div>
-        <h3>Có sách quy trình</h3>
-        <p>9 skill và 8 lệnh <code class="inline">/pbi-*</code> dạy agent cách khảo sát nghiệp vụ, mô hình hoá, viết DAX, thiết kế và kiểm tra trang, thay vì mỗi lần tự nghĩ ra một cách khác.</p>
-        <p><span class="kbd">skills/ · commands/</span></p>
-      </div>
-      <div class="card">
-        <div class="ficon ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/></svg></div>
-        <h3>Có kỷ luật</h3>
-        <p>Chính sách ở tầng server chỉ cho kết quả tổng hợp đi vào AI, chặn cột nhạy cảm và ghi sổ mọi truy vấn. Mỗi bước có cổng kiểm; trang báo cáo do bạn nghiệm thu bằng mắt.</p>
-        <p><span class="kbd">policy.py · audit/*.jsonl</span></p>
+      <div class="ig-lane">
+        <p class="ig-lane-h"><b>Data Agent</b><span>làm việc thật với dữ liệu, theo quy trình, trong luật chơi</span></p>
+        <ol class="ig-track ig-h">
+        <li class="ig-step c-acc" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-chat"/></svg></span>
+          <div class="ig-body"><h3>Câu hỏi của bạn</h3><p>Cùng câu hỏi đó, bằng lời thường.</p></div></li>
+        <li class="ig-step c-gold" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-book"/></svg><span class="ig-num">1</span></span>
+          <div class="ig-body"><h3>Có sách quy trình</h3><p>9 skill và 8 lệnh <code class="inline">/pbi-*</code> chỉ agent cách khảo sát, mô hình hoá, viết DAX, thiết kế và kiểm trang, thay vì mỗi lần tự nghĩ một cách.</p><span class="kbd">skills/ · commands/</span></div></li>
+        <li class="ig-step c-acc" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-tool"/></svg><span class="ig-num">2</span></span>
+          <div class="ig-body"><h3>Có tay</h3><p>16 công cụ MCP để liệt kê báo cáo đang mở, đọc bảng và cột, chạy DAX, thêm measure và quan hệ, dựng trang từ mẫu, lưu tri thức dự án.</p><span class="kbd">powerbi_agent/ · 16 tool</span></div></li>
+        <li class="ig-step c-ok" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="ig-num">3</span></span>
+          <div class="ig-body"><h3>Có kỷ luật</h3><p>Chính sách ở server chỉ cho kết quả tổng hợp đi vào AI, chặn cột nhạy cảm và ghi sổ mọi truy vấn.</p><span class="kbd">policy.py · audit/*.jsonl</span><p class="ig-gate"><svg class="ig-ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Cổng kiểm</b> ở mỗi bước; trang báo cáo do bạn nghiệm thu bằng mắt</span></p></div></li>
+        <li class="ig-step c-ok" style="--i:4"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-evidence"/></svg></span>
+          <div class="ig-body"><h3>Câu trả lời có bằng chứng</h3><p>Con số tổng hợp, kèm dấu vết từng truy vấn trong sổ audit để bạn tra lại.</p></div></li>
+        </ol>
       </div>
     </div>
     <div class="note reveal"><b>Hình dung đơn giản:</b> một nhân viên phân tích mới vào công ty, đã đọc sổ tay quy trình, được giao chùm chìa khoá đúng việc, và không được mang dữ liệu thô ra khỏi phòng. <a href="../instruction/">Trang Hướng dẫn</a> kể tiếp câu chuyện này bằng ví dụ.</div>
@@ -119,28 +143,17 @@
       <h2>Bốn mục tiêu của giải pháp</h2>
       <p>Mỗi mục tiêu đi kèm một cách để bạn tự kiểm, không cần tin lời quảng cáo.</p>
     </div>
-    <div class="layers reveal">
-      <div class="layer"><span class="lnum">01</span><div>
-        <h3>Người mới làm được ngay</h3>
-        <p>Bài đầu tiên chỉ cần file <code class="inline">samples/sales-demo.csv</code> đi kèm repo, chưa cần Power BI Desktop. Con số đúng được ghi sẵn để bạn bắt lỗi agent.</p>
-        <span class="how"><b>Cách kiểm:</b> agent phải ra đúng 182 đơn và 20.350.000 VND.</span>
-      </div></div>
-      <div class="layer"><span class="lnum">02</span><div>
-        <h3>Dữ liệu thô ở lại engine</h3>
-        <p>Chính sách aggregate-only bật mặc định: truy vấn kéo nguyên bảng bị chặn, cột trong danh sách nhạy cảm (PII) bị chặn, mọi truy vấn được ghi sổ. Chỉ con số tổng hợp đi vào ngữ cảnh của AI.</p>
-        <span class="how"><b>Cách kiểm:</b> mở <code class="inline">audit/YYYY-MM.jsonl</code> trong thư mục dự án ở trạm dữ liệu.</span>
-      </div></div>
-      <div class="layer"><span class="lnum">03</span><div>
-        <h3>Báo cáo dựng từ mẫu đã duyệt, không tự vẽ từ đầu</h3>
-        <p>Agent nhân bản trang mẫu bạn đã duyệt rồi gắn dữ liệu mới (clone-and-rebind), sau đó kiểm cú pháp, mở lại Desktop, chụp ảnh và review.</p>
-        <span class="how"><b>Cách kiểm:</b> validate 0 lỗi và có ảnh chụp trang trước khi nghiệm thu.</span>
-      </div></div>
-      <div class="layer"><span class="lnum">04</span><div>
-        <h3>Tri thức tích luỹ theo dự án</h3>
-        <p>Hồ sơ dự án, bài học và mẫu riêng lưu ở trạm của bạn (<code class="inline">workspace/</code> hoặc <code class="inline">ADS_DATA</code>), không lên GitHub. Repo công khai luôn sạch.</p>
-        <span class="how"><b>Cách kiểm:</b> <code class="inline">/pbi-recall &lt;từ khoá&gt;</code> trả về đường dẫn tới dự án và bài học cũ.</span>
-      </div></div>
-    </div>
+    <!-- Infographic: 4 mục tiêu xếp theo vòng đời dự án, mỗi mục tiêu kèm phiếu tự kiểm. -->
+    <ol class="ig ig-track ig-h ig-goals reveal" aria-label="Bốn mục tiêu, mỗi mục tiêu kèm cách tự kiểm">
+        <li class="ig-step c-teal" style="--i:0"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-table"/></svg><span class="ig-num">1</span></span>
+          <div class="ig-body"><span class="ig-stage">Ngày đầu tiên</span><h3>Người mới làm được ngay</h3><p>Bài đầu tiên chỉ cần file <code class="inline">samples/sales-demo.csv</code> đi kèm repo, chưa cần Power BI Desktop. Con số đúng được ghi sẵn để bạn bắt lỗi agent.</p><p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Cách kiểm:</b> agent phải ra đúng 182 đơn và 20.350.000 VND.</span></p></div></li>
+        <li class="ig-step c-ok" style="--i:1"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-lock"/></svg><span class="ig-num">2</span></span>
+          <div class="ig-body"><span class="ig-stage">Mỗi lần hỏi số</span><h3>Dữ liệu thô ở lại engine</h3><p>Chính sách aggregate-only bật mặc định: truy vấn kéo nguyên bảng bị chặn, cột trong danh sách nhạy cảm (PII) bị chặn, mọi truy vấn được ghi sổ. Chỉ con số tổng hợp đi vào ngữ cảnh của AI.</p><p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Cách kiểm:</b> mở <code class="inline">audit/YYYY-MM.jsonl</code> trong thư mục dự án ở trạm dữ liệu.</span></p></div></li>
+        <li class="ig-step c-gold" style="--i:2"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-layout"/></svg><span class="ig-num">3</span></span>
+          <div class="ig-body"><span class="ig-stage">Khi dựng báo cáo</span><h3>Báo cáo dựng từ mẫu đã duyệt, không tự vẽ từ đầu</h3><p>Agent nhân bản trang mẫu bạn đã duyệt rồi gắn dữ liệu mới (clone-and-rebind), sau đó kiểm cú pháp, mở lại Desktop, chụp ảnh và review.</p><p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Cách kiểm:</b> validate 0 lỗi và có ảnh chụp trang trước khi nghiệm thu.</span></p></div></li>
+        <li class="ig-step c-acc" style="--i:3"><span class="ig-node"><svg class="ig-ico" aria-hidden="true"><use href="#i-archive"/></svg><span class="ig-num">4</span></span>
+          <div class="ig-body"><span class="ig-stage">Khi đóng dự án</span><h3>Tri thức tích luỹ theo dự án</h3><p>Hồ sơ dự án, bài học và mẫu riêng lưu ở trạm của bạn (<code class="inline">workspace/</code> hoặc <code class="inline">ADS_DATA</code>), không lên GitHub. Repo công khai luôn sạch.</p><p class="ig-check"><svg class="ig-ico" aria-hidden="true"><use href="#i-check"/></svg><span><b>Cách kiểm:</b> <code class="inline">/pbi-recall &lt;từ khoá&gt;</code> trả về đường dẫn tới dự án và bài học cũ.</span></p></div></li>
+    </ol>
   </section>
 
   <!-- KHOẢNG TRỐNG -->
@@ -280,6 +293,7 @@
       <div class="foot-links">
         <div class="foot-col">
           <b>Sản phẩm</b>
+          <a href="../">Trang chủ</a>
           <a href="../about/">Giới thiệu</a>
           <a href="../instruction/">Hướng dẫn</a>
           <a href="../architecture/">Thiết kế</a>
@@ -300,6 +314,6 @@
     </div>
   </div>
 </footer>
-<script src="../assets/site.js"></script>
+<script src="../assets/site.js?v=20260929"></script>
 </body>
 </html>
