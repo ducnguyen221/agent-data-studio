@@ -3,76 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thiết kế báo cáo · Agent Data Studio</title>
-<meta name="description" content="Cách dùng mẫu thiết kế Power BI trong Agent Data Studio: xác định mục tiêu, chọn bố cục, kiểm tra số liệu và nghiệm thu trang báo cáo.">
-<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/template/">
-<meta property="og:title" content="Thiết kế báo cáo · Agent Data Studio">
-<meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/template/">
-<meta property="og:type" content="website">
+<title>Trang đã chuyển · Agent Data Studio</title>
+<meta name="description" content="Quy trình thiết kế báo cáo và template kit của Agent Data Studio nay nằm ở trang Thiết kế hệ thống.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/architecture/">
+<meta http-equiv="refresh" content="0;url=../architecture/#template-kit">
 <link rel="icon" href="../assets/logo-128.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css">
 <style>
-  .design-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
-  .design-path article{background:var(--surface);border-top:3px solid var(--accent);border-radius:10px;padding:23px;box-shadow:var(--shadow-sm)}
-  .design-path span{font:700 12px var(--mono);color:var(--accent)}
-  .design-path h2{font-size:1.1rem;margin-top:14px}.design-path p{color:var(--muted);font-size:14px;margin-top:10px}
-  .empty-state{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;background:var(--bg-tint);border:1px solid var(--border);border-radius:20px;padding:34px;margin-top:38px}
-  .empty-state h2{font-size:clamp(1.5rem,3vw,2rem)}.empty-state p{color:var(--muted);margin-top:14px}
-  .empty-state .sketch{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:220px;padding:15px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
-  .sketch span{display:block;background:var(--surface-2);border-radius:8px}
-  .sketch span:first-child{grid-column:span 2;background:var(--accent-weak)}
-  @media(max-width:760px){.design-path,.empty-state{grid-template-columns:1fr}.empty-state .sketch{min-height:180px}}
+  body{font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f7f9fc;margin:0}
+  main{max-width:680px;margin:12vh auto;padding:0 24px}
+  .card{background:#fff;border:1px solid #dce4ef;border-radius:18px;padding:34px;box-shadow:0 18px 50px #1d355112}
+  h1{font-size:clamp(1.7rem,4vw,2.4rem);line-height:1.2;margin:0 0 16px}
+  p{color:#4c586b}
+  a{color:#225bd0;font-weight:700}
+  @media (prefers-color-scheme:dark){body{color:#e9ebef;background:#0e0f13}.card{background:#16181d;border-color:#282c34}p{color:#a4abb6}a{color:#8fb0ff}}
 </style>
+<script>
+  // Liên kết cũ có fragment thì giữ nguyên fragment; không có thì tới mục Template kit.
+  window.location.replace(new URL("../architecture/" + (window.location.hash || "#template-kit"), window.location.href));
+</script>
 </head>
 <body>
-<canvas id="netbg" aria-hidden="true"></canvas>
-<header class="site" id="siteHeader">
-  <div class="wrap nav">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
-    <nav class="nav-links" aria-label="Điều hướng chính">
-      <a href="../feature/">Power Agent</a>
-      <a href="../instruction/">Hướng dẫn</a>
-      <a href="./" class="active" aria-current="page">Thiết kế</a>
-      <a href="../install/">Cài đặt</a>
-    </nav>
-    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
-  </div>
-</header>
-<main>
-  <section class="page-hero">
-    <div class="wrap">
-      <p class="crumb"><a href="../">Trang chủ</a> / Thiết kế báo cáo</p>
-      <span class="eyebrow"><span class="dot"></span>Thiết kế báo cáo</span>
-      <h1>Báo cáo bắt đầu<br>từ câu hỏi.</h1>
-      <p class="lead">Power Agent giúp bạn đi từ mục tiêu phân tích tới trang Power BI có thể kiểm tra. Mẫu thiết kế là điểm bắt đầu; người dùng vẫn cần kiểm tra số liệu, tương tác và cách hiển thị trong Power BI Desktop.</p>
-    </div>
-  </section>
-  <section class="wrap" style="padding-top:12px">
-    <div class="design-path">
-      <article><span>01 / ĐỊNH HƯỚNG</span><h2>Viết brief</h2><p>Xác định người xem, quyết định cần hỗ trợ, chỉ số và mức chi tiết cần đọc.</p></article>
-      <article><span>02 / DỰNG TRANG</span><h2>Chọn bố cục</h2><p>Sắp thứ tự thông tin, chọn visual phù hợp và gắn dữ liệu từ model.</p></article>
-      <article><span>03 / NGHIỆM THU</span><h2>Kiểm trong Power BI</h2><p>Đối chiếu số liệu, nhãn, màu, trạng thái lọc và khả năng đọc trên màn hình thật.</p></article>
-    </div>
-    <div class="empty-state">
-      <div>
-        <span class="eyebrow"><span class="dot"></span>Thư viện công khai</span>
-        <h2>Chưa công bố bộ mẫu trên website</h2>
-        <p>Một bộ mẫu chỉ xuất hiện ở đây sau khi quyền sử dụng, dữ liệu và bản xem trước được kiểm tra. Hiện tại bạn có thể làm việc với mẫu cục bộ trong repo hoặc tạo thiết kế cho dự án riêng của mình.</p>
-        <p>Repo có kèm kit trang <code class="inline">kpim-business-light</code>, hồ sơ bộ dữ liệu mẫu và workbook kế hoạch: đây là asset của KPIM, chia sẻ để cộng đồng tham khảo. Cách ghi nguồn xem <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/NOTICE.md">NOTICE.md</a>.</p>
-        <p style="margin-top:22px"><a class="btn btn-primary" href="../install/">Bắt đầu với dữ liệu mẫu</a> <a class="btn btn-ghost" href="../feature/">Xem Power Agent</a></p>
-      </div>
-      <div class="sketch" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-  </section>
-</main>
-<footer class="site"><div class="wrap foot">
-  <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
-  <div class="foot-links"><a href="../feature/">Power Agent</a><a href="../instruction/">Hướng dẫn</a><a href="./">Thiết kế</a><a href="../install/">Cài đặt</a></div>
-  <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
-</div></footer>
-<script src="../assets/site.js"></script>
+<main><div class="card">
+  <h1>Trang Thiết kế báo cáo đã chuyển</h1>
+  <p>Quy trình Brief → Bố cục → Nghiệm thu, template kit và vòng dựng báo cáo nay nằm ở trang Thiết kế hệ thống. Nếu trình duyệt chưa tự chuyển, hãy mở liên kết dưới đây.</p>
+  <p><a href="../architecture/#template-kit">Mở mục Template kit →</a></p>
+</div></main>
 </body>
 </html>

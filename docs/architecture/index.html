@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="vi" data-lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thiết kế hệ thống · Agent Data Studio</title>
+<meta name="description" content="Kiến trúc Agent Data Studio: MCP server 16 công cụ với chính sách dữ liệu ở server, 9 skill là nguồn sự thật, trạm dữ liệu ngoài Git, vòng dựng báo cáo có cổng kiểm.">
+<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/architecture/">
+<meta property="og:title" content="Thiết kế hệ thống · Agent Data Studio">
+<meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/architecture/">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/logo-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .sub{margin-top:28px;font-size:1.12rem;font-weight:700}
+  .prose{max-width:72ch;color:var(--muted);font-size:15px;line-height:1.7;margin-top:14px}
+  .prose b{color:var(--text)}
+  .bullets{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px;line-height:1.7;max-width:80ch}
+  .bullets b{color:var(--text)}
+  .bullets code,.prose code{font-family:var(--mono);font-size:.88em}
+  .loop-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:28px;align-items:start}
+  .loop-grid .arch-diagram svg{max-width:500px;margin:0 auto}
+  @media (max-width:900px){.loop-grid{grid-template-columns:1fr}}
+  .grp{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);white-space:nowrap}
+  .grp.data{background:var(--ok-weak);color:var(--ok)}
+  .tag-warn{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+  .tbl td ul{margin:0;padding-left:18px}
+  .tree{margin:0}
+  @media (max-width:620px){.tree pre code{white-space:pre;overflow-wrap:normal}}
+</style>
+</head>
+<body>
+<canvas id="netbg" aria-hidden="true"></canvas>
+
+<a class="skip" href="#main">Bỏ qua điều hướng</a>
+<header class="site" id="siteHeader">
+  <div class="wrap nav">
+    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="../about/">Giới thiệu</a>
+      <a href="../instruction/">Hướng dẫn</a>
+      <a href="./" class="active" aria-current="page">Thiết kế</a>
+      <a href="../install/">Cài đặt</a>
+    </nav>
+    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+      <span>GitHub</span>
+    </a>
+  </div>
+</header>
+
+<nav class="quicknav" aria-label="Điều hướng nhanh trong trang">
+  <a href="#tong-the"><span class="qdot"></span><span class="qlabel">Tổng thể</span></a>
+  <a href="#bon-tang"><span class="qdot"></span><span class="qlabel">4 tầng</span></a>
+  <a href="#mcp"><span class="qdot"></span><span class="qlabel">MCP server</span></a>
+  <a href="#policy"><span class="qdot"></span><span class="qlabel">Policy</span></a>
+  <a href="#skills"><span class="qdot"></span><span class="qlabel">Skill</span></a>
+  <a href="#lenh-agent"><span class="qdot"></span><span class="qlabel">Lệnh &amp; agent</span></a>
+  <a href="#host"><span class="qdot"></span><span class="qlabel">Host</span></a>
+  <a href="#tram"><span class="qdot"></span><span class="qlabel">Trạm dữ liệu</span></a>
+  <a href="#knowledge-os"><span class="qdot"></span><span class="qlabel">Knowledge OS</span></a>
+  <a href="#template-kit"><span class="qdot"></span><span class="qlabel">Template kit</span></a>
+  <a href="#multi-agent"><span class="qdot"></span><span class="qlabel">Nhiều agent</span></a>
+  <a href="#vong-doi"><span class="qdot"></span><span class="qlabel">Vòng đời</span></a>
+  <a href="#gioi-han"><span class="qdot"></span><span class="qlabel">Giới hạn</span></a>
+</nav>
+
+<main id="main">
+<section class="page-hero">
+  <div class="wrap">
+    <p class="crumb"><a href="../">Trang chủ</a> / Thiết kế</p>
+    <span class="eyebrow"><span class="dot"></span>Thiết kế hệ thống</span>
+    <h1>Bên trong<br><span style="color:var(--accent)">Agent Data Studio.</span></h1>
+    <p class="lead">Một MCP server nhỏ có chính sách ở tầng server, bộ skill là nguồn sự thật duy nhất, dữ liệu và tri thức nằm ở trạm ngoài Git, mọi khâu có cổng kiểm chạy được. Trang này dành cho BI developer, IT bảo mật và người muốn tuỳ biến hoặc đóng góp.</p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- TỔNG THỂ -->
+  <section id="tong-the" style="padding-top:12px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Tổng thể</span>
+      <h2>Các khối và đường nối</h2>
+      <p>Host gọi MCP server qua stdio. Server nói chuyện với ba đích Power BI, ghi hồ sơ vào trạm dữ liệu, và áp chính sách cho mọi truy vấn DAX đi qua nó.</p>
+    </div>
+    <figure class="arch-diagram reveal" tabindex="0" role="group" aria-label="Sơ đồ tổng thể, cuộn ngang được trên màn hẹp">
+      <svg class="wide" viewBox="0 0 960 560" role="img" aria-labelledby="arch-t arch-d" xmlns="http://www.w3.org/2000/svg">
+        <title id="arch-t">Sơ đồ tổng thể Agent Data Studio</title>
+        <desc id="arch-d">Bốn host gọi MCP server qua stdio. MCP server gồm shim mcp_server_powerbi.py, package powerbi_agent với 16 công cụ và lớp policy cho truy vấn DAX. Server nối tới Power BI Desktop qua ADOMD.NET, Power BI Service qua REST (chưa nghiệm thu) và file .pbip. Host đọc skill, lệnh, agent từ repo qua adapter. Server ghi hồ sơ, audit vào trạm dữ liệu. MCP của Microsoft là tuỳ chọn, chạy song song và không đi qua policy.</desc>
+        <defs>
+          <marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0L10 5L0 10z"/></marker>
+          <marker id="ah1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-mute" d="M0 0L10 5L0 10z"/></marker>
+        </defs>
+        <!-- Host -->
+        <rect class="n-plain" x="20" y="40" width="200" height="250" rx="14"/>
+        <text x="120" y="66" text-anchor="middle" class="t-b" font-size="15">Host (ứng dụng AI)</text>
+        <rect class="n" x="36" y="84" width="168" height="38" rx="9"/><text x="120" y="108" text-anchor="middle" font-size="14">Claude Code</text>
+        <rect class="n" x="36" y="130" width="168" height="38" rx="9"/><text x="120" y="154" text-anchor="middle" font-size="14">Codex</text>
+        <rect class="n" x="36" y="176" width="168" height="38" rx="9"/><text x="120" y="200" text-anchor="middle" font-size="14">Antigravity</text>
+        <rect class="n" x="36" y="222" width="168" height="52" rx="9"/><text x="120" y="244" text-anchor="middle" font-size="14">Claude Desktop</text><text x="120" y="263" text-anchor="middle" font-size="12" class="t-mute">chỉ MCP, không skill</text>
+        <!-- host -> mcp -->
+        <line class="ln" x1="220" y1="165" x2="296" y2="165" marker-end="url(#ah1)"/>
+        <text x="258" y="155" text-anchor="middle" font-size="12.5" class="t-acc t-mono">stdio</text>
+        <!-- MCP server -->
+        <rect class="n-acc" x="300" y="40" width="330" height="250" rx="14"/>
+        <text x="465" y="66" text-anchor="middle" class="t-b" font-size="15">MCP server</text>
+        <text x="465" y="88" text-anchor="middle" font-size="12.5" class="t-mono t-mute">mcp_server_powerbi.py (shim)</text>
+        <rect class="n-plain" x="320" y="102" width="290" height="68" rx="10"/>
+        <text x="465" y="128" text-anchor="middle" class="t-b" font-size="14">powerbi_agent/ · 16 tool</text>
+        <text x="465" y="150" text-anchor="middle" font-size="11.5" class="t-mute">query · schema · TOM · PBIR · distill · knowledge</text>
+        <rect class="n-ok" x="320" y="184" width="290" height="88" rx="10"/>
+        <text x="465" y="208" text-anchor="middle" class="t-b" font-size="14">Policy cho truy vấn DAX</text>
+        <text x="465" y="230" text-anchor="middle" font-size="12.5" class="t-mute">aggregate-only · PII blocklist</text>
+        <text x="465" y="251" text-anchor="middle" font-size="12.5" class="t-mute">cap 200/1000 dòng · audit JSONL</text>
+        <!-- mcp -> targets -->
+        <line class="ln" x1="630" y1="75" x2="706" y2="75" marker-end="url(#ah1)"/>
+        <line class="ln" x1="630" y1="163" x2="706" y2="163" marker-end="url(#ah1)"/>
+        <line class="ln" x1="630" y1="253" x2="706" y2="253" marker-end="url(#ah1)"/>
+        <!-- Targets -->
+        <rect class="n" x="710" y="40" width="230" height="72" rx="12"/>
+        <text x="825" y="66" text-anchor="middle" class="t-b" font-size="14">Power BI Desktop</text>
+        <text x="825" y="88" text-anchor="middle" font-size="12" class="t-mono t-mute">ADOMD.NET → localhost:&lt;port&gt;</text>
+        <text x="825" y="104" text-anchor="middle" font-size="11.5" class="t-mute">tự dò tiến trình msmdsrv</text>
+        <rect class="n-warn" x="710" y="128" width="230" height="72" rx="12"/>
+        <text x="825" y="154" text-anchor="middle" class="t-b" font-size="14">Power BI Service</text>
+        <text x="825" y="175" text-anchor="middle" font-size="12" class="t-mono t-mute">REST executeQueries · MSAL</text>
+        <text x="825" y="192" text-anchor="middle" font-size="11.5" class="t-mute">chưa nghiệm thu</text>
+        <rect class="n" x="710" y="216" width="230" height="74" rx="12"/>
+        <text x="825" y="242" text-anchor="middle" class="t-b" font-size="14">File .pbip</text>
+        <text x="825" y="263" text-anchor="middle" font-size="12" class="t-mono t-mute">TMDL (model) + PBIR (report)</text>
+        <text x="825" y="280" text-anchor="middle" font-size="11.5" class="t-mute">ghi trang khi file đóng</text>
+        <!-- Repo sources -->
+        <rect class="n" x="20" y="360" width="260" height="140" rx="12"/>
+        <text x="150" y="386" text-anchor="middle" class="t-b" font-size="13">Repo: skills/ · commands/ · agents/</text>
+        <text x="150" y="410" text-anchor="middle" font-size="12.5" class="t-mute">9 skill · 8 lệnh · 2 agent</text>
+        <text x="150" y="432" text-anchor="middle" font-size="12.5" class="t-mute">nguồn sự thật duy nhất</text>
+        <text x="150" y="458" text-anchor="middle" font-size="12" class="t-mono t-mute">.claude/skills/ · .agents/skills/</text>
+        <text x="150" y="478" text-anchor="middle" font-size="11.5" class="t-mute">adapter host đọc</text>
+        <line class="ln-mute" x1="120" y1="360" x2="120" y2="296" marker-end="url(#ah1m)"/>
+        <text x="128" y="334" font-size="12" class="t-mute">đọc qua adapter</text>
+        <!-- Station -->
+        <rect class="n" x="320" y="360" width="310" height="140" rx="12"/>
+        <text x="475" y="386" text-anchor="middle" class="t-b" font-size="14">Trạm dữ liệu (ngoài Git)</text>
+        <text x="475" y="410" text-anchor="middle" font-size="12" class="t-mono t-mute">workspace/ hoặc ADS_DATA</text>
+        <text x="475" y="434" text-anchor="middle" font-size="12.5" class="t-mute">projects/ · knowledge/ · audit/</text>
+        <text x="475" y="456" text-anchor="middle" font-size="12.5" class="t-mute">policy.json · INDEX · TIMELINE</text>
+        <text x="475" y="480" text-anchor="middle" font-size="11.5" class="t-mute">từ chối ghi ra ngoài trạm</text>
+        <line class="ln" x1="465" y1="290" x2="465" y2="356" marker-end="url(#ah1)"/>
+        <text x="473" y="330" font-size="12" class="t-acc">hồ sơ · audit</text>
+        <!-- Microsoft modeling MCP (optional) -->
+        <rect class="n-dash" x="710" y="360" width="230" height="120" rx="12"/>
+        <text x="825" y="386" text-anchor="middle" class="t-b" font-size="13.5">microsoft/</text>
+        <text x="825" y="404" text-anchor="middle" class="t-b" font-size="13.5">powerbi-modeling-mcp</text>
+        <text x="825" y="428" text-anchor="middle" font-size="12" class="t-mute">tuỳ chọn · chạy song song</text>
+        <text x="825" y="448" text-anchor="middle" font-size="12" class="t-mute">modeling hàng loạt, TMDL</text>
+        <text x="825" y="468" text-anchor="middle" font-size="11.5" class="t-mute">không đi qua policy của studio</text>
+        <line class="ln-dash" x1="825" y1="360" x2="825" y2="296" marker-end="url(#ah1m)"/>
+        <!-- legend -->
+        <line class="ln" x1="20" y1="535" x2="60" y2="535"/><text x="68" y="539" font-size="12" class="t-mute">luồng chính</text>
+        <line class="ln-mute" x1="170" y1="535" x2="210" y2="535"/><text x="218" y="539" font-size="12" class="t-mute">đọc nguồn</text>
+        <line class="ln-dash" x1="310" y1="535" x2="350" y2="535"/><text x="358" y="539" font-size="12" class="t-mute">tuỳ chọn, ngoài phạm vi studio</text>
+      </svg>
+    </figure>
+    <p class="prose reveal" style="font-size:13.5px">Bản chữ của sơ đồ (màn hẹp có thể cuộn ngang sơ đồ):</p>
+    <div class="tbl-wrap reveal" style="margin-top:18px" tabindex="0" role="region" aria-label="Bảng mô tả sơ đồ tổng thể, cuộn ngang được">
+      <table class="tbl">
+        <thead><tr><th>Khối</th><th>Vai trò</th><th>Nằm ở đâu / giao thức</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">Host</td><td>Ứng dụng AI chạy agent; gọi MCP server, đọc skill qua adapter</td><td>Claude Code · Codex · Antigravity · Claude Desktop (chỉ MCP)</td></tr>
+          <tr><td class="lbl">MCP server</td><td>16 công cụ; chính sách cho mọi truy vấn DAX</td><td><code>mcp_server_powerbi.py</code> (shim) → <code>powerbi_agent/</code>, transport stdio</td></tr>
+          <tr><td class="lbl">Power BI Desktop</td><td>Truy vấn và ghi model đang mở (engine live)</td><td>ADOMD.NET / AMO-TOM → <code>localhost:&lt;port&gt;</code>, tự dò tiến trình msmdsrv</td></tr>
+          <tr><td class="lbl">Power BI Service</td><td>Truy vấn dataset đã publish — <span class="tag-warn">chưa nghiệm thu</span></td><td>REST <code>executeQueries</code>, xác thực MSAL</td></tr>
+          <tr><td class="lbl">File .pbip</td><td>Model dạng TMDL, report dạng PBIR; chỉ ghi trang khi file đóng</td><td>Thư mục báo cáo của người dùng</td></tr>
+          <tr><td class="lbl">skills/ · commands/ · agents/</td><td>Sổ tay, lệnh, agent chuyên trách — nguồn duy nhất</td><td>Repo; adapter <code>.claude/skills/</code>, <code>.agents/skills/</code></td></tr>
+          <tr><td class="lbl">Trạm dữ liệu</td><td>Hồ sơ dự án, tri thức, audit, PII blocklist</td><td><code>workspace/</code> hoặc <code>ADS_DATA</code>, ngoài Git</td></tr>
+          <tr><td class="lbl">powerbi-modeling-mcp</td><td>Modeling hàng loạt (tuỳ chọn); không đi qua policy của studio</td><td>Cài riêng, host gọi trực tiếp</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4 TẦNG -->
+  <section id="bon-tang" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Kiến trúc</span>
+      <h2>Kiến trúc 4 tầng</h2>
+      <p>Mỗi tầng một trách nhiệm. Tầng dưới cùng nét đứt vì studio cố ý không xây: đã có Microsoft làm tốt.</p>
+    </div>
+    <div class="layers reveal">
+      <div class="layer"><span class="lnum">T4</span><div><h3>Workflow &amp; Knowledge</h3><p>9 skill, template kit, chưng cất model/trang/dự án, 4 artifact bàn giao mỗi dự án.</p></div></div>
+      <div class="layer"><span class="lnum">T3</span><div><h3>Policy</h3><p>Aggregate-only, PII blocklist, audit log, trần dòng cho kết quả có dimension. Áp cho công cụ DAX của repo.</p></div></div>
+      <div class="layer"><span class="lnum">T2</span><div><h3>MCP tools của repo (16)</h3><p>Truy vấn, khám phá schema, ghi model qua TOM, engine template PBIR, chưng cất, tri thức.</p></div></div>
+      <div class="layer dele"><span class="lnum">T1</span><div><h3>Delegate: microsoft/powerbi-modeling-mcp</h3><p>Modeling hàng loạt, transaction, TMDL, kiểm DAX. Chạy song song, phân vai qua skill; tên tool không trùng.</p></div></div>
+    </div>
+  </section>
+
+  <!-- MCP -->
+  <section id="mcp" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>MCP server</span>
+      <h2>16 công cụ, 6 nhóm</h2>
+      <p>Đếm từ <code class="inline">@mcp.tool()</code> trong <code class="inline">powerbi_agent/tools_*.py</code> tại bản 0.7.1.</p>
+    </div>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng 16 công cụ MCP, cuộn ngang được">
+      <table class="tbl">
+        <thead><tr><th>Nhóm</th><th>Công cụ</th><th>Module</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">Khám phá</td><td><code>list_local_reports</code> · <code>list_tables</code> · <code>describe_table</code></td><td><code>tools_query.py</code></td></tr>
+          <tr><td class="lbl">Truy vấn</td><td><code>execute_dax_local</code> · <code>execute_dax_service</code></td><td><code>tools_query.py</code> + <code>policy.py</code></td></tr>
+          <tr><td class="lbl">Sửa model</td><td><code>add_measure_local</code> · <code>add_relationship_local</code></td><td><code>tools_tom.py</code> (TOM, model live)</td></tr>
+          <tr><td class="lbl">Kit trang</td><td><code>list_templates</code> · <code>apply_template</code> · <code>distill_template</code></td><td><code>tools_template.py</code>, <code>pbir.py</code></td></tr>
+          <tr><td class="lbl">Chưng cất</td><td><code>distill_model_schema</code> · <code>distill_report_design</code></td><td><code>tools_distill.py</code>, <code>tools_design.py</code></td></tr>
+          <tr><td class="lbl">Tri thức</td><td><code>knowledge_status</code> · <code>setup_knowledge</code> · <code>init_project</code> · <code>log_timeline</code></td><td><code>tools_knowledge.py</code>, <code>knowledge.py</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="bullets reveal">
+      <li><b>Runtime:</b> Python 3.11–3.14, <code>pythonnet</code> 3.1.0, transport stdio.</li>
+      <li><b>ADOMD.NET / AMO-TOM:</b> bộ cài, <code>doctor.ps1</code> và engine dò theo cùng một danh sách (SSMS 18–22, bản standalone, GAC); đặt <code>ADOMD_LIB_DIR</code> thì chỉ dùng đường đó.</li>
+      <li><b>Entry:</b> <code>mcp_server_powerbi.py</code> là shim giữ bề mặt import cũ, để cấu hình host đã đăng ký không phải đổi khi package bên trong tái cấu trúc.</li>
+    </ul>
+  </section>
+
+  <!-- POLICY -->
+  <section id="policy" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>An toàn dữ liệu</span>
+      <h2>Chính sách ở tầng server</h2>
+      <p>Mọi câu DAX gửi qua <code class="inline">execute_dax_local</code> / <code class="inline">execute_dax_service</code> đi qua năm bước. Nguồn: <code class="inline">powerbi_agent/policy.py</code>.</p>
+    </div>
+    <ol class="timeline reveal">
+      <li>
+        <span class="tnum">1</span>
+        <h3>Aggregate-only</h3>
+        <p>Mặc định <b>bật</b> (tắt: <code>POWERBI_AGGREGATE_ONLY=0</code>). Chặn <code>EVALUATE 'Bảng'</code>, <code>EVALUATE Bảng</code>, <code>EVALUATE ALL(…)</code> / <code>ALLNOBLANKROW(…)</code>; trả gợi ý viết lại bằng SUMMARIZECOLUMNS, GROUPBY, TOPN hoặc measure.</p>
+      </li>
+      <li>
+        <span class="tnum">2</span>
+        <h3>PII blocklist</h3>
+        <p><code>policy.json</code> ở trạm (hoặc <code>POWERBI_POLICY_FILE</code>, bắt buộc ngoài repo); mẫu <code>policy.example.json</code>. Bảo thủ: tên cột xuất hiện bất kỳ đâu trong DAX là chặn. File hỏng thì chặn luôn.</p>
+      </li>
+      <li>
+        <span class="tnum">3</span>
+        <h3>Engine chạy</h3>
+        <p>Desktop qua ADOMD.NET, Service qua REST. Dữ liệu được tính trong engine Power BI; chỉ kết quả trả về.</p>
+      </li>
+      <li>
+        <span class="tnum">4</span>
+        <h3>Row cap</h3>
+        <p>Kết quả có cột dạng chữ (dimension) bị siết còn <b>200 dòng</b> (<code>POWERBI_DIMENSION_ROW_CAP</code>); kết quả thuần số giữ trần chung <code>POWERBI_MAX_ROWS</code> (mặc định 1000).</p>
+      </li>
+      <li>
+        <span class="tnum">5</span>
+        <h3>Audit JSONL</h3>
+        <p><code>audit/YYYY-MM.jsonl</code> ở gốc thư mục dự án (đổi qua <code>POWERBI_AUDIT_DIR</code>). Mỗi dòng: <code>ts</code> · <code>tool</code> · <code>verdict</code> · <code>rows</code> · <code>query_sha256</code> — lưu băm, không lưu nguyên câu DAX. Lỗi ghi audit không làm hỏng truy vấn.</p>
+      </li>
+    </ol>
+    <div class="note warn reveal"><b>Trung thực về giới hạn:</b> đây là lưới chống rò rỉ <b>do sơ ý</b> (agent tiện tay kéo nguyên bảng), phân tích DAX theo kiểu best-effort. Bảo mật cứng vẫn là RLS trên model và service principal quyền tối thiểu. Audit log mặc định nằm trong trạm; chưa thiết lập trạm thì lùi về thư mục tạm của hệ điều hành, không bao giờ vào repo.</div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Skill</span>
+      <h2>9 skill: nguồn sự thật duy nhất ở skills/</h2>
+      <p>Adapter của từng host chỉ trỏ về đây; không chép, không cache. Sắp theo <code class="inline">chain_position</code> trong frontmatter.</p>
+    </div>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng 9 skill, cuộn ngang được">
+      <table class="tbl">
+        <thead><tr><th>Vị trí</th><th>Skill</th><th>Nhóm</th><th>Loại</th><th>Vai</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">0</td><td><code>pbi-knowledge</code></td><td><span class="grp">powerbi</span></td><td>K</td><td>Lối vào và lối ra: mở dự án, tra kinh nghiệm, quét, kit, đóng dự án, đóng gói tri thức</td></tr>
+          <tr><td class="lbl">1</td><td><code>data-discovery</code></td><td><span class="grp data">data</span></td><td>G¹</td><td>Khảo sát, hỏi ngược, PROJECT.md, mindmap, từ điển dữ liệu, kế hoạch Excel</td></tr>
+          <tr><td class="lbl">1′</td><td><code>data-mockup</code></td><td><span class="grp data">data</span></td><td>K</td><td>Nhánh khi chưa có dữ liệu: spec → generator seed cố định → kiểm định → Excel</td></tr>
+          <tr><td class="lbl">2</td><td><code>pbi-model</code></td><td><span class="grp">powerbi</span></td><td>G</td><td>Power Query/M, star schema, TMDL/DAX, ghi measure an toàn</td></tr>
+          <tr><td class="lbl">3</td><td><code>pbi-analysis</code></td><td><span class="grp">powerbi</span></td><td>K</td><td>Truy vấn an toàn, chọn tầng công cụ, luật aggregate/PII/audit</td></tr>
+          <tr><td class="lbl">4</td><td><code>pbi-design</code></td><td><span class="grp">powerbi</span></td><td>G</td><td>Clone trang đã duyệt hoặc archetype → Design Brief</td></tr>
+          <tr><td class="lbl">5</td><td><code>pbi-build</code></td><td><span class="grp">powerbi</span></td><td>G</td><td>Dựng trang, vòng Edit → Validate → Reload → Screenshot → Review</td></tr>
+          <tr><td class="lbl">6</td><td><code>pbi-review</code></td><td><span class="grp">powerbi</span></td><td>K</td><td>Review độc lập SQL, DAX, model, trang</td></tr>
+          <tr><td class="lbl">7</td><td><code>pbi-publish</code></td><td><span class="grp">powerbi</span></td><td>M</td><td>Đưa lên Fabric / Service khi được yêu cầu — <span class="tag-warn">unverified</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose reveal">Loại: <b>K</b> chỉ nội dung studio · <b>G</b> gộp studio + Microsoft · <b>M</b> chỉ Microsoft. ¹ <code>data-discovery</code> là G theo kế hoạch, hiện mới có phần studio. Khuôn skill: <code>SKILL.md</code> ≤ 150 dòng, frontmatter tiếng Anh kiểu router <i>Use when / Not</i>, thân tiếng Việt; reference Microsoft <code>skills-for-fabric v0.3.16</code> chép nguyên văn và khoá bằng <code>SOURCE.lock.json</code>; lint tự động ở <code>tests/test_skills_lint.py</code>.</p>
+    <h3 class="sub reveal">Chuỗi <code class="inline">data-to-report</code> và 8 cổng kiểm</h3>
+    <div class="kflow reveal" role="list" aria-label="Chuỗi skill và cổng kiểm">
+      <div class="kbox" role="listitem">0 · pbi-knowledge<small>project-opened</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">1 · data-discovery<small>discovery-approved</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox dim" role="listitem">1′ · data-mockup<small>khi thiếu dữ liệu</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">2 · pbi-model<small>model-verified</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">3 · pbi-analysis<small>numbers-checked</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">4 · pbi-design<small>brief-approved</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">5 · pbi-build<small>page-validated</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">6 · pbi-review<small>review-clean</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox dim" role="listitem">7 · pbi-publish<small>nếu được yêu cầu</small></div><span class="karr" aria-hidden="true">→</span>
+      <div class="kbox" role="listitem">8 · pbi-knowledge<small>project-closed</small></div>
+    </div>
+    <p class="prose reveal">Mỗi cổng ghi bằng chứng vào <code>projects/&lt;slug&gt;/artifacts/VERIFICATION</code> trong trạm. Số không khớp thì quay về định nghĩa chỉ số hoặc model; visual trống thì quay về bước dựng. Chi tiết: <code>workflows/data-to-report.md</code>.</p>
+  </section>
+
+  <!-- LỆNH & AGENT -->
+  <section id="lenh-agent" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Lệnh &amp; agent</span>
+      <h2>8 lệnh và 2 agent</h2>
+      <p>Lệnh là file Markdown trong <code class="inline">commands/</code> có <code class="inline">description</code> ở frontmatter. Host hỗ trợ thì gọi <code class="inline">/pbi-*</code>; không thì bảo agent đọc file đó.</p>
+    </div>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng 8 lệnh và công cụ MCP mỗi lệnh gọi, cuộn ngang được">
+      <table class="tbl">
+        <thead><tr><th>Lệnh</th><th>Việc</th><th>Công cụ MCP được nhắc trong file lệnh</th></tr></thead>
+        <tbody>
+          <tr><td><code>/pbi-help</code></td><td>Chọn quy trình theo nhu cầu và công cụ hiện có</td><td><code>knowledge_status</code>, <code>list_templates</code></td></tr>
+          <tr><td><code>/pbi-setup</code></td><td>Thiết lập nơi lưu tri thức trong trạm</td><td><code>knowledge_status</code>, <code>setup_knowledge</code></td></tr>
+          <tr><td><code>/pbi-new</code></td><td>Mở dự án, chọn bước theo nguồn hiện có</td><td><code>knowledge_status</code>, <code>init_project</code></td></tr>
+          <tr><td><code>/pbi-scan</code></td><td>Quét thiết kế báo cáo PBIP vào trạm</td><td><code>distill_report_design</code>, <code>distill_model_schema</code></td></tr>
+          <tr><td><code>/pbi-kit</code></td><td>Chưng cất một file .pbip thành bộ kit nhiều trang</td><td><code>distill_report_design</code>, <code>distill_template</code>, <code>apply_template</code>, <code>log_timeline</code></td></tr>
+          <tr><td><code>/pbi-done</code></td><td>Đóng dự án: checklist bàn giao, chưng cất, timeline</td><td><code>distill_report_design</code>, <code>distill_model_schema</code>, <code>log_timeline</code></td></tr>
+          <tr><td><code>/pbi-pack</code></td><td>Đúc kết bài học vào tri thức của trạm (qua curator)</td><td><code>knowledge_status</code></td></tr>
+          <tr><td><code>/pbi-recall</code></td><td>Tra dự án, bài học, mẫu trong trạm</td><td><code>knowledge_status</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-2 reveal" style="margin-top:18px">
+      <div class="card"><h3><code class="inline">pbi-knowledge-curator</code></h3><p>Thủ thư tri thức: đọc dự án vừa xong, rút bài học tái dùng, đóng gói vào 4 trục (tech-stack, industry, business-domain, powerbi), dedup, cập nhật INDEX và TIMELINE. Không làm việc trực tiếp với Power BI.</p></div>
+      <div class="card"><h3><code class="inline">pbi-render-reviewer</code></h3><p>Reviewer độc lập đọc ảnh chụp trang vừa dựng và chấm theo chuẩn trang. Chỉ đọc và báo phát hiện; không sửa PBIR, không chạy truy vấn.</p></div>
+    </div>
+    <p class="prose reveal">Manifest plugin (<code>plugin.json</code>) chỉ khai <code>skills</code>; <code>commands/</code> và <code>agents/</code> được host tự phát hiện theo quy ước thư mục.</p>
+  </section>
+
+  <!-- HOST -->
+  <section id="host" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Host</span>
+      <h2>Bốn host, một checkout</h2>
+      <p><code class="inline">CLAUDE.md</code> và <code class="inline">GEMINI.md</code> chỉ là con trỏ về <code class="inline">AGENTS.md</code>: một bản luật cho mọi agent.</p>
+    </div>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng bốn host, cuộn ngang được">
+      <table class="tbl">
+        <thead><tr><th>Host</th><th><code>-Hosts</code></th><th>File hướng dẫn</th><th>Adapter skill</th><th>Cấu hình MCP của người dùng</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">Codex (CLI, desktop)</td><td><code>codex</code></td><td><code>AGENTS.md</code></td><td><code>.agents/skills/</code></td><td><code>~/.codex/config.toml</code></td></tr>
+          <tr><td class="lbl">Claude Code</td><td><code>claude</code></td><td><code>CLAUDE.md</code> → <code>AGENTS.md</code></td><td><code>.claude/skills/</code></td><td><code>~/.claude.json</code></td></tr>
+          <tr><td class="lbl">Claude Desktop</td><td><code>claude-desktop</code></td><td>—</td><td>— (chỉ MCP)</td><td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td></tr>
+          <tr><td class="lbl">Antigravity</td><td><code>antigravity</code></td><td><code>GEMINI.md</code> → <code>AGENTS.md</code></td><td><code>.agents/skills/</code></td><td><code>~/.gemini/antigravity/mcp_config.json</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="bullets reveal">
+      <li><b>MCP đăng ký ở cấu hình người dùng</b> → mọi thư mục mở trong host đều thấy server; skill thì chỉ có khi mở thư mục repo. <b>Mỗi máy một checkout.</b></li>
+      <li><b>Installer gộp, không ghi đè:</b> sao lưu <code>.bak</code> trước khi ghi, chỉ thêm mục <code>powerbi-mcp-bridge</code>, giữ server khác; mục đang trỏ checkout khác thì báo lỗi và giữ nguyên.</li>
+      <li><b>Luật ghi cấu hình nhiều chủ</b> (<code>AGENTS.md</code> §7): theo đúng cấu trúc của host; thay block thì xoá cả sub-table; validate parse ngay sau khi ghi, hỏng thì báo khôi phục <code>.bak</code>.</li>
+    </ul>
+  </section>
+
+  <!-- TRẠM -->
+  <section id="tram" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Trạm dữ liệu</span>
+      <h2>Trạm dữ liệu: workspace/ hay ADS_DATA</h2>
+      <p>Engine, skill, script chạy từ repo; mọi thứ riêng của người dùng nằm ở trạm. Nguồn: <code class="inline">powerbi_agent/knowledge.py</code>, <code class="inline">_env.py</code>.</p>
+    </div>
+    <div class="code-card reveal tree">
+      <div class="code-top"><span class="fn">Cấu trúc trạm</span></div>
+      <div class="code-scroll"><pre><code>workspace/                  <span class="cm"># trạm basic trong checkout, Git bỏ qua toàn bộ</span>
+<span class="cm"># hoặc</span> &lt;ADS_DATA&gt;/            <span class="cm"># trạm ngoài repo; liên kết lưu ở .ads-binding.json (cục bộ)</span>
+├─ config.env               <span class="cm"># con trỏ POWERBI_PROJECT_DIR, không chứa secret</span>
+├─ INDEX.md · TIMELINE.md · projects.json
+├─ projects/&lt;slug&gt;/
+│  ├─ PROJECT.md · DATA_DICTIONARY.md …
+│  ├─ design/               <span class="cm"># hồ sơ thiết kế đã quét</span>
+│  └─ artifacts/            <span class="cm"># PLAN · CHANGESET · VERIFICATION · HANDOFF</span>
+├─ knowledge/{tech-stack,industry,business-domain,powerbi}/
+├─ audit/YYYY-MM.jsonl      <span class="cm"># sổ truy vấn</span>
+├─ outputs/ · state/        <span class="cm"># kết quả · update-journal</span>
+├─ templates/               <span class="cm"># kit chưa sanitize (POWERBI_TEMPLATES_DIR)</span>
+└─ policy.json              <span class="cm"># PII blocklist</span></code></pre></div>
+    </div>
+    <div class="layers reveal" style="margin-top:18px">
+      <div class="layer"><span class="lnum">REPO</span><div><h3>Repo công khai</h3><p>Code, skill, lệnh, agent, kit <b>đã sanitize</b>. Đường duy nhất để thứ gì đó từ trạm ra đây: người dùng ra lệnh + <code class="inline">sanitize=True</code> + review; <code class="inline">tests/test_no_leak.py</code> canh.</p></div></div>
+      <div class="layer"><span class="lnum">TRẠM</span><div><h3>Trạm dữ liệu</h3><p>Guard trong <code class="inline">knowledge.py</code> từ chối ghi ra ngoài trạm, từ chối <code class="inline">workspace</code> là junction/symlink thoát ra ngoài, từ chối con trỏ trỏ thẳng vào repo.</p></div></div>
+      <div class="layer"><span class="lnum">HOST</span><div><h3>Cấu hình host</h3><p>Chỉ giữ mục MCP và đường source cần để chạy. Không credential; secret cho Service chỉ nạp khi cần từ kho do người dùng chỉ định.</p></div></div>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE OS -->
+  <section id="knowledge-os" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Knowledge OS</span>
+      <h2>Dự án → tri thức → dòng thời gian</h2>
+      <p>Agent học dần theo từng dự án; người khác clone repo không nhận tri thức của bạn.</p>
+    </div>
+    <div class="grid-2 reveal">
+      <div class="card"><h3>1 · Quét trọn thiết kế</h3><p><code class="inline">distill_report_design</code> quét mọi trang, theme, danh mục visual của một báo cáo vào <code class="inline">projects/&lt;slug&gt;/design/</code>.</p></div>
+      <div class="card"><h3>2 · Quản lý dự án</h3><p><code class="inline">init_project</code> dựng <code class="inline">projects/&lt;slug&gt;/</code> với <code class="inline">design/</code>, <code class="inline">artifacts/</code>; cuối dự án đủ 4 artifact bàn giao.</p></div>
+      <div class="card"><h3>3 · Đóng gói tri thức 4 trục</h3><p>Curator dedup, mỗi bài học có <b>Why</b> + <b>How to apply</b>, phân vào tech-stack · industry · business-domain · powerbi.</p></div>
+      <div class="card"><h3>4 · Timeline append-only</h3><p><code class="inline">| ngày | dự án | việc | bài học/kit | link |</code> — ghi bằng <code class="inline">log_timeline</code>.</p></div>
+    </div>
+    <div class="kflow reveal" aria-label="Vòng chưng cất">
+      <div class="kbox">Model<small>distill_model_schema → blueprint + Mermaid ERD</small></div><span class="karr" aria-hidden="true">·</span>
+      <div class="kbox">Trang đẹp<small>distill_template → kit</small></div><span class="karr" aria-hidden="true">·</span>
+      <div class="kbox">Dự án<small>curator → bài học</small></div>
+    </div>
+    <p class="prose reveal">Mở dự án mới: <code>data-discovery</code> đọc <code>knowledge/</code> cùng domain trước khi hỏi người dùng, nên agent “có kinh nghiệm” thật chứ không bắt đầu từ số 0.</p>
+  </section>
+
+  <!-- TEMPLATE KIT -->
+  <section id="template-kit" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Template kit</span>
+      <h2>Template kit &amp; vòng dựng báo cáo</h2>
+      <p><b>PBIP-first:</b> Save As <code class="inline">.pbip</code> ngay đầu dự án để model thành TMDL và report thành PBIR — file chữ, có lịch sử, agent sửa an toàn.</p>
+    </div>
+    <h3 class="sub reveal" style="margin-top:0">Trước khi dựng: Design Brief</h3>
+    <ol class="flow-mini reveal" style="margin-top:14px">
+      <li><span class="fnum">01 / Định hướng</span><b>Viết brief</b><span class="d">Người xem, quyết định cần hỗ trợ, chỉ số, mức chi tiết (skill <code class="inline">pbi-design</code>).</span></li>
+      <li><span class="fnum">02 / Dựng trang</span><b>Chọn bố cục</b><span class="d">Clone từ trang đã duyệt hoặc kit; không có mẫu thì đề xuất archetype để duyệt.</span></li>
+      <li><span class="fnum">03 / Nghiệm thu</span><b>Kiểm trong Power BI</b><span class="d">Số liệu, nhãn, màu, trạng thái lọc, khả năng đọc trên màn hình thật.</span></li>
+    </ol>
+    <div class="loop-grid" style="margin-top:28px">
+      <figure class="arch-diagram reveal">
+        <svg viewBox="0 0 500 380" role="img" aria-labelledby="loop-t loop-d" xmlns="http://www.w3.org/2000/svg">
+          <title id="loop-t">Vòng dựng báo cáo</title>
+          <desc id="loop-d">Vòng khép kín năm bước: Edit bằng apply_template khi file đóng, Validate phải 0 lỗi, Reload Desktop, Screenshot trang, Review bằng pbi-render-reviewer; có lỗi thì quay lại Edit. Ở giữa là cổng cuối: người dùng nghiệm thu bằng mắt.</desc>
+          <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+          <line class="ln" x1="291" y1="78" x2="353" y2="123" marker-end="url(#ah2)"/>
+          <line class="ln" x1="385" y1="183" x2="349" y2="293" marker-end="url(#ah2)"/>
+          <line class="ln" x1="272" y1="323" x2="228" y2="323" marker-end="url(#ah2)"/>
+          <line class="ln" x1="151" y1="293" x2="115" y2="183" marker-end="url(#ah2)"/>
+          <line class="ln" x1="147" y1="123" x2="209" y2="78" marker-end="url(#ah2)"/>
+          <rect class="n-acc" x="188" y="23" width="124" height="50" rx="10"/>
+          <text x="250" y="44" text-anchor="middle" class="t-b" font-size="15">1 · Edit</text>
+          <text x="250" y="63" text-anchor="middle" font-size="12" class="t-mono t-mute">apply_template</text>
+          <rect class="n" x="333" y="128" width="124" height="50" rx="10"/>
+          <text x="395" y="149" text-anchor="middle" class="t-b" font-size="15">2 · Validate</text>
+          <text x="395" y="168" text-anchor="middle" font-size="12" class="t-mute">phải 0 lỗi</text>
+          <rect class="n" x="277" y="298" width="124" height="50" rx="10"/>
+          <text x="339" y="319" text-anchor="middle" class="t-b" font-size="15">3 · Reload</text>
+          <text x="339" y="338" text-anchor="middle" font-size="12" class="t-mute">mở lại Desktop</text>
+          <rect class="n" x="99" y="298" width="124" height="50" rx="10"/>
+          <text x="161" y="319" text-anchor="middle" class="t-b" font-size="15">4 · Screenshot</text>
+          <text x="161" y="338" text-anchor="middle" font-size="12" class="t-mute">chụp trang</text>
+          <rect class="n" x="43" y="128" width="124" height="50" rx="10"/>
+          <text x="105" y="149" text-anchor="middle" class="t-b" font-size="15">5 · Review</text>
+          <text x="105" y="168" text-anchor="middle" font-size="12" class="t-mute">lỗi → về bước 1</text>
+          <circle class="n-ok" cx="250" cy="200" r="60"/>
+          <text x="250" y="190" text-anchor="middle" class="t-b" font-size="14">Nghiệm thu</text>
+          <text x="250" y="209" text-anchor="middle" class="t-b" font-size="14">mắt của bạn</text>
+          <text x="250" y="229" text-anchor="middle" font-size="12" class="t-mute">cổng cuối</text>
+        </svg>
+      </figure>
+      <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng các bước vòng dựng báo cáo, cuộn ngang được">
+        <table class="tbl">
+          <thead><tr><th>Bước</th><th>Làm gì</th><th>Cổng</th></tr></thead>
+          <tbody>
+            <tr><td class="lbl">Edit</td><td><code>apply_template</code> clone-and-rebind từ kit, <b>chỉ khi file .pbip đóng</b></td><td>Mọi field được gắn lại</td></tr>
+            <tr><td class="lbl">Validate</td><td><code>powerbi-report-author validate &lt;Tên&gt;.Report</code></td><td>0 lỗi</td></tr>
+            <tr><td class="lbl">Reload</td><td><code>powerbi-desktop reload --pid &lt;pid&gt;</code></td><td>Reload không lỗi</td></tr>
+            <tr><td class="lbl">Screenshot</td><td>Chụp trang bằng CLI của Microsoft</td><td>Có ảnh</td></tr>
+            <tr><td class="lbl">Review</td><td>Tự review hoặc agent <code>pbi-render-reviewer</code></td><td>Không còn lỗi hiển thị</td></tr>
+            <tr><td class="lbl">Nghiệm thu</td><td>Người dùng xem bằng mắt trong Desktop</td><td>Người dùng nói “đạt”</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <ul class="bullets reveal">
+      <li><b>Kit</b> = <code>kit.json</code> + <code>blueprint.md</code> + <code>blocks/*.json</code> + <code>_page.json</code>. Kit đi kèm repo: <code>kpim-business-light</code> — 12 block, đã sanitize (mọi tên bảng, cột, nhãn là placeholder <code>TEMPLATE_*</code>), có <code>PROVENANCE.md</code>. Kit thật của dự án để ngoài repo, trong <code>templates/</code> của trạm.</li>
+      <li><b>Luật:</b> không tự dựng layout từ đầu; bookmark làm tay; ghi model lúc nào cũng được (engine live), ghi report chỉ khi <code>.pbip</code> đóng — mở và Ctrl+S phiên cũ sẽ đè mất trang agent vừa tạo.</li>
+      <li><b>Thư viện mẫu công khai trên website</b> chỉ thêm kit sau khi kiểm quyền sử dụng, dữ liệu và bản xem trước (<code>scripts/build_template_gallery.py</code> có cổng duyệt bằng hash); hiện chưa công bố kit nào.</li>
+    </ul>
+  </section>
+
+  <!-- MULTI-AGENT -->
+  <section id="multi-agent" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Nhiều agent</span>
+      <h2>Nhiều agent cùng một dự án</h2>
+      <p>Claude Code, Codex và Antigravity có thể làm song song trên cùng một dự án Power BI. Luật số 1 là <b>single-writer</b>.</p>
+    </div>
+    <div class="grid-2 reveal">
+      <div class="card"><h3>Single-writer</h3><p><b>Model:</b> tại một thời điểm chỉ một agent ghi, ghi xong mới bàn giao. <b>Report:</b> một agent sở hữu trọn <code class="inline">*.Report/</code> trong một lượt, và chỉ khi file đóng. Công cụ đọc không cần khoá.</p><p><span class="kbd">&lt;dự án&gt;/.powerbi-write-lock = &lt;agent&gt; | &lt;việc&gt; | &lt;timestamp&gt;</span></p></div>
+      <div class="card"><h3>Kênh chung</h3><p>Artifact <code class="inline">PLAN → CHANGESET → VERIFICATION → HANDOFF</code> trong thư mục dự án là nguồn sự thật; audit log là sổ cái chung; blueprint từ <code class="inline">distill_model_schema</code> là bản đồ model chung.</p></div>
+    </div>
+    <div class="tbl-wrap reveal" style="margin-top:16px" tabindex="0" role="region" aria-label="Bảng phân vai gợi ý, cuộn ngang được">
+      <table class="tbl">
+        <thead><tr><th>Vai</th><th>Agent gợi ý</th><th>Làm gì</th></tr></thead>
+        <tbody>
+          <tr><td class="lbl">Builder</td><td>Claude Code</td><td>Chạy data-discovery + pbi-build, ghi model và report, giữ lock</td></tr>
+          <tr><td class="lbl">Reviewer</td><td>Codex</td><td>Chỉ đọc: đối chiếu số bằng <code>execute_dax_local</code>, soi ERD, review DAX và page_spec trước khi Builder ghi</td></tr>
+          <tr><td class="lbl">Analyst / Documenter</td><td>Antigravity</td><td>Tài liệu nghiệp vụ, mindmap, kế hoạch, soạn page_spec, viết artifact bàn giao</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="step reveal"><span class="num">1</span><div class="body"><h3>Nhận bàn giao</h3><p>Đọc <code class="inline">AGENTS.md</code> và artifact mới nhất trong thư mục dự án.</p></div></div>
+    <div class="step reveal"><span class="num">2</span><div class="body"><h3>Kiểm trạng thái</h3><p><code class="inline">list_local_reports</code> xác nhận Desktop; kiểm <code class="inline">.powerbi-write-lock</code>.</p></div></div>
+    <div class="step reveal"><span class="num">3</span><div class="body"><h3>Làm đúng vai</h3><p>Cập nhật artifact; xoá lock nếu chính mình tạo.</p></div></div>
+  </section>
+
+  <!-- VÒNG ĐỜI -->
+  <section id="vong-doi" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Vòng đời</span>
+      <h2>Cài đặt, kiểm tra, cập nhật, gỡ</h2>
+      <p>Mọi script chạy bằng <code class="inline">-ExecutionPolicy Bypass</code> cho riêng tiến trình đó; không đổi chính sách của máy.</p>
+    </div>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng script vòng đời, cuộn ngang được">
+      <table class="tbl fit">
+        <thead><tr><th>Script</th><th>Làm gì</th></tr></thead>
+        <tbody>
+          <tr><td><code>install.ps1 -Hosts codex,claude,…</code></td><td>Tạo <code>.venv</code> và <code>workspace/</code>, gộp mục MCP vào cấu hình người dùng của từng host, kiểm adapter. Không truyền <code>-Hosts</code> thì chọn <code>codex</code>.</td></tr>
+          <tr><td><code>doctor.ps1 -Preflight</code></td><td>7 dòng <code>prereq</code> (PowerShell, ExecutionPolicy, Git, Python, ADOMD.NET, Node, az) ngay sau khi clone, chưa cần <code>.venv</code>; thoát mã 1 nếu có <code>FAIL</code>.</td></tr>
+          <tr><td><code>doctor.ps1 -Hosts &lt;host&gt;</code></td><td>Kiểm bản cài cho từng host (mỗi lần một host).</td></tr>
+          <tr><td><code>doctor.ps1 -ProbeDesktop</code></td><td>Thử <code>EVALUATE ROW("x",1)</code> với báo cáo đang mở; Desktop đóng thì báo <code>NOT_CHECKED</code>, không phải lỗi.</td></tr>
+          <tr><td><code>update.ps1</code></td><td>Xem trước bản mới; <code>-Apply -ExpectedCommit &lt;SHA&gt;</code> chỉ áp đúng commit đã duyệt. Từ chối khi <code>requirements.txt</code> hay file ignore đổi, hoặc checkout bẩn; hậu kiểm hỏng thì <code>git reset --keep</code>; journal ở <code>state/</code> của trạm.</td></tr>
+          <tr><td><code>uninstall.ps1 -Hosts &lt;host&gt;</code></td><td>Chỉ gỡ mục trỏ tới checkout đang chạy lệnh, sao lưu trước khi xoá, không đụng <code>workspace/</code> hay trạm ngoài.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose reveal"><b>Chất lượng:</b> pytest + ruff trên CI <code>windows-latest</code>. Test đáng chú ý: <code>test_no_leak</code> (ranh giới source/dữ liệu), <code>test_install_docs</code> (prompt cài đồng bộ giữa INSTALL.md, README, START-HERE và website), <code>test_version_sync</code> (version khớp mọi manifest), <code>test_installer*</code> (installer chạy hai lần liên tiếp phải idempotent), <code>test_site_nav</code> (menu website thống nhất).</p>
+  </section>
+
+  <!-- GIỚI HẠN -->
+  <section id="gioi-han" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Giới hạn</span>
+      <h2>Giới hạn kỹ thuật &amp; việc còn lại</h2>
+    </div>
+    <div class="sw minus reveal">
+      <h3><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></span>Biết trước khi dùng</h3>
+      <ul>
+        <li><b>Windows-only cho Desktop</b> — Power BI Desktop chỉ có trên Windows.</li>
+        <li><b>Agent không thấy render</b> — nghiệm thu mắt là cổng bắt buộc của người dùng.</li>
+        <li><b>Policy là phân tích DAX best-effort</b> — chống sơ ý, không thay RLS.</li>
+        <li><b>Bookmark không tự động hoá</b> — clone bookmark từng làm vỡ báo cáo thật.</li>
+        <li><b>Ghi PBIR cần file đóng</b> — ràng buộc của định dạng; công cụ tự nhắc.</li>
+        <li><b>Chưa nghiệm thu:</b> Power BI Service, <code class="inline">pbi-publish</code>, Python 3.14 với Desktop thật.</li>
+        <li><b><code class="inline">powerbi-modeling-mcp</code> còn Public Preview</b> — pin version, theo dõi release notes.</li>
+      </ul>
+      <p style="margin-top:18px"><a class="btn btn-ghost btn-sm" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/ROADMAP.md" target="_blank" rel="noopener">Xem Roadmap</a></p>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
+        <p class="foot-tag">Biến ứng dụng AI bạn đang dùng thành Data Agent cho dữ liệu và Power BI: có quy trình, có cổng kiểm, dữ liệu thô ở lại máy bạn.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <b>Sản phẩm</b>
+          <a href="../about/">Giới thiệu</a>
+          <a href="../instruction/">Hướng dẫn</a>
+          <a href="../architecture/">Thiết kế</a>
+          <a href="../install/">Cài đặt</a>
+        </div>
+        <div class="foot-col">
+          <b>Tài nguyên</b>
+          <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" target="_blank" rel="noopener">UAT lưu trữ</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Duc Nguyen · MIT</span>
+      <span class="lic">MIT License · giữ credit tác giả</span>
+    </div>
+  </div>
+</footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>

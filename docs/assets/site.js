@@ -1,4 +1,6 @@
 // Agent Data Studio: sticky header, reveal, copy, quick-nav highlight, netbg
+// Đánh dấu JS đã chạy: CSS chỉ ẩn .reveal khi có class này, nên thiếu site.js thì nội dung vẫn hiện.
+document.documentElement.classList.add('js');
 (function(){
   var h=document.getElementById('siteHeader');
   if(h){var f=function(){h.classList.toggle('scrolled',window.scrollY>8)};window.addEventListener('scroll',f,{passive:true});f();}

@@ -58,7 +58,7 @@ agent-data-studio/
 │  ├─ pbi-publish/                   publish lên Fabric / Power BI Service
 │  └─ pbi-knowledge/                 Knowledge OS: dự án · tri thức 4 trục · timeline
 ├─ commands/                     ▸2  8 lệnh /pbi-* dùng trực tiếp từ repo
-├─ agents/                       ▸2  pbi-knowledge-curator (đóng gói tri thức)
+├─ agents/                       ▸2  pbi-knowledge-curator (đóng gói tri thức) · pbi-render-reviewer (chấm ảnh chụp trang báo cáo)
 ├─ templates/documents/          ▸4  mẫu tài liệu: md + xlsx + theme.json + mindmaps
 ├─ upstream/ · LICENSES/ · THIRD_PARTY_NOTICES.md   vendored upstream · giấy phép bên thứ ba
 │
@@ -179,7 +179,7 @@ basic hoặc hỏi user nơi ngoài repo; (2) mọi file dự án ghi vào `proj
   schema model khách (distill ghi ra NGOÀI repo), tham chiếu máy cá nhân.
 - Docs công khai (README/INSTALL/docs/) phải machine-agnostic — không đường dẫn/tên máy riêng, không tên khách hàng (dùng ví dụ generic như "KPIM Mart").
 - **Plugin manifest:** `plugin.json` CHỈ khai `skills` — KHÔNG khai `commands`/`agents` (Claude từ chối field `agents`; auto-discover theo convention `commands/` + `agents/`). marketplace.json dùng chung cho Claude + Codex.
-- **Song ngữ:** `README.md` = English (canonical). Sửa README.md thì **mirror sang `README.vi.md` TRONG CÙNG commit**. Các doc khác (AGENTS/ROADMAP/skills) hiện **chỉ có tiếng Việt** — KHÔNG tạo bản `-VN` song song (tránh drift). Website `docs/`: toggle ngôn ngữ mới phủ heading/hero/footer; thân bài và `docs/INSTALL.html` còn VI-only. Đừng hứa EN nhiều hơn thực tế trong docs công khai.
+- **Song ngữ:** `README.md` = English (canonical). Sửa README.md thì **mirror sang `README.vi.md` TRONG CÙNG commit**. Các doc khác (AGENTS/ROADMAP/skills) hiện **chỉ có tiếng Việt** — KHÔNG tạo bản `-VN` song song (tránh drift). Website `docs/`: nút EN đang tắt; menu và footer chỉ có tiếng Việt, `data-i18n` chỉ còn ở hero và heading trang chủ. Header/footer là một khối chung chép vào 5 trang (sửa thì sửa đủ 5), `tests/test_site_nav.py` canh lệch. Đừng hứa EN nhiều hơn thực tế trong docs công khai.
 
 ## 6. File nào host nào đọc
 

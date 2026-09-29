@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" data-lang="vi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hướng dẫn · Agent Data Studio</title>
-<meta name="description" content="Bắt đầu với dữ liệu mẫu, hiểu các skill và công cụ, rồi làm việc với Power BI theo từng bước trong Agent Data Studio.">
+<meta name="description" content="Bạn nói việc bằng lời thường, agent làm theo sổ tay, dữ liệu thô không rời két, bạn là người duyệt. Cách Agent Data Studio vận hành, kể bằng ví dụ.">
 <link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/instruction/">
 <meta property="og:title" content="Hướng dẫn · Agent Data Studio">
 <meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/instruction/">
@@ -15,35 +15,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-  .glossary dt{font-weight:700;margin-top:18px;font-size:1.02rem}
-  .glossary dt code{font-family:var(--mono);font-size:.9em;color:var(--accent)}
-  .glossary dd{margin:6px 0 0;color:var(--muted);font-size:14.5px;line-height:1.65}
-  .scenario{display:grid;grid-template-columns:1fr;gap:12px}
-  .scn{display:grid;grid-template-columns:minmax(200px,1.1fr) auto 1fr;gap:14px;align-items:center;
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;box-shadow:var(--shadow-sm)}
-  .scn .q{font-weight:600;font-size:14.5px}
-  .scn .arr{color:var(--faint)}
-  .scn .a{font-size:13.5px;color:var(--muted)}
-  .scn .a code{font-family:var(--mono);font-size:12.5px;color:var(--accent)}
-  @media (max-width:700px){.scn{grid-template-columns:1fr}.scn .arr{display:none}}
-  .kflow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}
-  .kflow .kbox{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;
-    font-size:13px;font-weight:600;box-shadow:var(--shadow-sm)}
-  .kflow .kbox small{display:block;font-weight:500;color:var(--faint);font-size:11.5px;margin-top:2px}
-  .kflow .karr{color:var(--accent);font-weight:700}
+  .analogy .card h3 small{display:block;font-size:13px;font-weight:600;color:var(--accent);margin-top:4px;letter-spacing:0}
+  .analogy .card .kbd{margin-top:12px}
+  .example{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px;align-items:start}
+  .example .copy p{color:var(--muted);font-size:15px;line-height:1.7}
+  .example .copy p + p{margin-top:12px}
+  .example .copy p b{color:var(--text)}
+  @media (max-width:860px){.example{grid-template-columns:1fr;gap:20px}}
+  .lenh-tbl td:nth-child(2){color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
 
+<a class="skip" href="#main">Bỏ qua điều hướng</a>
 <header class="site" id="siteHeader">
   <div class="wrap nav">
     <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
-    <nav class="nav-links">
-      <a href="../feature/">Power Agent</a>
-      <a href="./" class="active" aria-current="page"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="../template/">Thiết kế</a>
-      <a href="../install/"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="../about/">Giới thiệu</a>
+      <a href="./" class="active" aria-current="page">Hướng dẫn</a>
+      <a href="../architecture/">Thiết kế</a>
+      <a href="../install/">Cài đặt</a>
     </nav>
     <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
@@ -52,180 +45,333 @@
   </div>
 </header>
 
-<nav class="quicknav" aria-label="Điều hướng nhanh">
-  <a href="#bat-dau"><span class="qdot"></span><span class="qlabel">Bắt đầu</span></a>
+<nav class="quicknav" aria-label="Điều hướng nhanh trong trang">
+  <a href="#an-du"><span class="qdot"></span><span class="qlabel">Hình dung</span></a>
+  <a href="#mot-ngay"><span class="qdot"></span><span class="qlabel">5 chặng</span></a>
+  <a href="#vi-du-csv"><span class="qdot"></span><span class="qlabel">Ví dụ CSV</span></a>
+  <a href="#vi-du-pbi"><span class="qdot"></span><span class="qlabel">Ví dụ Power BI</span></a>
+  <a href="#vi-du-trang"><span class="qdot"></span><span class="qlabel">Ví dụ trang</span></a>
   <a href="#lenh"><span class="qdot"></span><span class="qlabel">8 lệnh</span></a>
-  <a href="#tinh-huong"><span class="qdot"></span><span class="qlabel">Tình huống</span></a>
-  <a href="#quy-trinh"><span class="qdot"></span><span class="qlabel">Quy trình</span></a>
-  <a href="#khai-niem"><span class="qdot"></span><span class="qlabel">Khái niệm</span></a>
-  <a href="#tai-lieu"><span class="qdot"></span><span class="qlabel">Tài liệu</span></a>
+  <a href="#hoi-dap"><span class="qdot"></span><span class="qlabel">Hỏi đáp</span></a>
+  <a href="#tu-dien"><span class="qdot"></span><span class="qlabel">Từ điển</span></a>
 </nav>
 
-<main>
+<main id="main">
 <section class="page-hero">
   <div class="wrap">
-    <p class="crumb"><a href="../"><span data-i18n="vi">Trang chủ</span><span data-i18n="en">Home</span></a> / <span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></p>
-    <span class="eyebrow"><span class="dot"></span><span data-i18n="vi">Hướng dẫn sử dụng</span><span data-i18n="en">User guide</span></span>
-    <h1><span data-i18n="vi">Dùng AI làm Power BI —<br>từng bước, bằng tiếng của bạn.</span><span data-i18n="en">Use AI for Power BI —<br>step by step, in your own words.</span></h1>
-    <p class="lead">Bạn không cần nhớ lệnh hay thuật ngữ. Hãy nói việc cần làm bằng ngôn ngữ tự nhiên
-    và yêu cầu AI đọc skill phù hợp trong repo. Trang này giúp bạn hiểu các bước bắt đầu,
-    các tình huống thường gặp, và những khái niệm đáng biết.</p>
+    <p class="crumb"><a href="../">Trang chủ</a> / Hướng dẫn</p>
+    <span class="eyebrow"><span class="dot"></span>Hướng dẫn</span>
+    <h1>Bạn nói việc. Agent làm theo sổ tay.<br><span style="color:var(--accent)">Bạn duyệt.</span></h1>
+    <p class="lead">Bạn không cần nhớ lệnh hay công thức. Hãy nói việc cần làm bằng tiếng Việt thường, như khi giao việc cho một đồng nghiệp. Trang này giải thích cách mọi thứ vận hành bằng những hình ảnh quen thuộc, kèm ba ví dụ có thật.</p>
   </div>
 </section>
 
 <div class="wrap">
 
-  <!-- BẮT ĐẦU -->
-  <section id="bat-dau" style="padding-top:0">
+  <!-- ẨN DỤ -->
+  <section id="an-du" style="padding-top:12px">
     <div class="sec-head reveal">
-      <span class="eyebrow"><span class="dot"></span>Bắt đầu</span>
-      <h2>3 bước đầu tiên</h2>
+      <span class="eyebrow"><span class="dot"></span>Hình dung</span>
+      <h2>Một nhân viên phân tích mới vào công ty</h2>
+      <p>Mỗi thẻ dưới đây là một thứ trong đời thường, kèm tên kỹ thuật ở dòng chữ nhỏ cuối thẻ, để khi cần tra tiếp bạn biết tìm chữ gì.</p>
     </div>
-    <div class="reveal">
-      <div class="step">
-        <span class="num">1</span>
-        <div class="body">
-          <h3>Cài đặt trong repo</h3>
-          <p>Đi theo <a href="../install/" style="color:var(--accent);font-weight:600">bốn bước cài đặt</a>: dán yêu cầu cài vào ứng dụng AI bạn dùng, đồng ý phần cần cài, mở lại AI trong repo và kiểm tra.</p>
-        </div>
+    <div class="grid-3 analogy reveal">
+      <div class="card">
+        <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+        <h3>Nhân viên<small>= ứng dụng AI bạn đang dùng</small></h3>
+        <p>Codex, Claude Code, Claude Desktop hoặc Antigravity. Nó hiểu tiếng Việt, làm việc ngay trên máy bạn và nghe theo bạn.</p>
+        <span class="kbd">host</span>
       </div>
-      <div class="step">
-        <span class="num">2</span>
-        <div class="body">
-          <h3>Kiểm tra nơi lưu công việc</h3>
-          <p>Chế độ mặc định tạo <code class="inline">workspace/</code> ngay trong repo; Git bỏ qua thư mục này. Nếu bạn đã chọn trạm ngoài qua <code class="inline">ADS_DATA</code>, hãy xác nhận AI đang dùng đúng trạm đó.</p>
-        </div>
+      <div class="card">
+        <div class="ficon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div>
+        <h3>Sổ tay quy trình<small>= 9 skill</small></h3>
+        <p>Khảo sát thế nào, đặt tên công thức ra sao, dựng trang theo mẫu nào. Trước mỗi việc, nhân viên mở đúng chương trong sổ tay rồi mới làm.</p>
+        <span class="kbd">skills/*/SKILL.md</span>
       </div>
-      <div class="step">
-        <span class="num">3</span>
-        <div class="body">
-          <h3>Thử với dữ liệu mẫu</h3>
-          <p>Yêu cầu AI đọc <code class="inline">skills/data-discovery/SKILL.md</code> và <code class="inline">samples/sales-demo.csv</code>, tóm tắt bộ dữ liệu rồi lưu ghi chú vào <code class="inline">workspace/outputs/</code>. Khi chuyển sang Power BI, hãy mở báo cáo trước và bắt đầu bằng yêu cầu chỉ đọc model.</p>
+      <div class="card">
+        <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8"/><path d="m16 7 3 3"/><path d="m18 5 2 2"/></svg></div>
+        <h3>Chùm chìa khoá<small>= 16 công cụ MCP</small></h3>
+        <p>Mỗi chìa mở đúng một việc: xem danh sách bảng, chạy một phép tính, thêm một công thức, dựng một trang từ mẫu. Không có chìa “mở tất cả”.</p>
+        <span class="kbd">MCP tools</span>
+      </div>
+      <div class="card">
+        <div class="ficon ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg></div>
+        <h3>Nội quy két dữ liệu<small>= policy an toàn dữ liệu</small></h3>
+        <p>Chỉ được mang <b>bảng tổng hợp</b> ra ngoài, không được mang <b>danh sách từng dòng</b>. Cột nhạy cảm bị khoá riêng. Mọi lần mở két đều được ghi vào sổ.</p>
+        <span class="kbd">policy.py · audit log</span>
+      </div>
+      <div class="card">
+        <div class="ficon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 12h16"/><path d="M10 7.5h4"/><path d="M10 16.5h4"/></svg></div>
+        <h3>Tủ hồ sơ riêng của bạn<small>= trạm dữ liệu</small></h3>
+        <p>Ghi chú, quyết định và bài học của từng dự án nằm ở đây, trên máy bạn. Tủ này không bao giờ được đưa lên GitHub.</p>
+        <span class="kbd">workspace/ · ADS_DATA</span>
+      </div>
+      <div class="card">
+        <div class="ficon ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Bạn<small>= người duyệt</small></h3>
+        <p>Bạn đặt mục tiêu, trả lời những câu hỏi ngược, và là người nói “đạt” cuối cùng — nhất là khi nhìn trang báo cáo, thứ agent không tự nhìn thấy được.</p>
+        <span class="kbd">nghiệm thu</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 CHẶNG -->
+  <section id="mot-ngay" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Một dự án</span>
+      <h2>Một dự án đi qua 5 chặng</h2>
+      <p>Ở mỗi chặng: bạn làm gì, agent làm gì, và bạn nhìn thấy gì để biết nó làm đúng. Chặng nào chưa đạt thì chưa sang chặng sau.</p>
+    </div>
+    <ol class="timeline reveal">
+      <li>
+        <span class="tnum">01</span>
+        <h3>Hỏi đúng việc</h3>
+        <p><b>Bạn:</b> nói mục tiêu, ai sẽ xem báo cáo, họ cần quyết định điều gì.</p>
+        <p><b>Agent:</b> hỏi ngược chỗ còn mơ hồ; tra xem trước đây đã làm việc tương tự chưa.</p>
+        <p><b>Bạn thấy:</b> hồ sơ <code>PROJECT.md</code> và danh sách chỉ số cần tính.</p>
+      </li>
+      <li>
+        <span class="tnum">02</span>
+        <h3>Đọc dữ liệu</h3>
+        <p><b>Bạn:</b> chỉ cho agent file hoặc báo cáo nguồn.</p>
+        <p><b>Agent:</b> kiểm cột, kiểu dữ liệu, ô trống; tính thử vài con số để đối chiếu.</p>
+        <p><b>Bạn thấy:</b> từ điển dữ liệu (<code>DATA_DICTIONARY</code>) và cảnh báo chất lượng.</p>
+      </li>
+      <li>
+        <span class="tnum">03</span>
+        <h3>Dựng</h3>
+        <p><b>Bạn:</b> lưu báo cáo dạng <code>.pbip</code> khi được nhắc; đóng file trước khi agent ghi trang.</p>
+        <p><b>Agent:</b> dựng mô hình, viết công thức, tạo trang từ mẫu đã duyệt.</p>
+        <p><b>Bạn thấy:</b> công thức mới trong Power BI Desktop, trang báo cáo mới.</p>
+      </li>
+      <li>
+        <span class="tnum">04</span>
+        <h3>Kiểm</h3>
+        <p><b>Bạn:</b> nhìn ảnh chụp và con số; chưa ưng thì nói lại, agent quay về chặng 3.</p>
+        <p><b>Agent:</b> kiểm cú pháp, mở lại Desktop, chụp ảnh, nhờ một người chấm độc lập.</p>
+        <p><b>Bạn thấy:</b> ảnh chụp trang và danh sách lỗi còn lại (nếu có).</p>
+      </li>
+      <li>
+        <span class="tnum">05</span>
+        <h3>Bàn giao &amp; học</h3>
+        <p><b>Bạn:</b> xác nhận “xong”.</p>
+        <p><b>Agent:</b> viết 4 tài liệu Kế hoạch → Thay đổi → Kiểm chứng → Bàn giao; đóng gói bài học.</p>
+        <p><b>Bạn thấy:</b> hồ sơ đầy đủ; lần sau hỏi “đã làm cái này chưa?” là tra được.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- VÍ DỤ 1 -->
+  <section id="vi-du-csv" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Ví dụ 1</span>
+      <h2>Chưa có Power BI, chỉ có một file bán hàng</h2>
+    </div>
+    <div class="example">
+      <div class="copy reveal">
+        <p>Repo có sẵn file <code class="inline">samples/sales-demo.csv</code>: 12 dòng bán hàng giả lập theo tháng, vùng và nhóm hàng. Bạn chưa cần cài Power BI để thử.</p>
+        <p>Agent mở chương <b>khảo sát dữ liệu</b> trong sổ tay (skill <code class="inline">data-discovery</code>), kiểm file, tính con số và lưu ghi chú vào tủ hồ sơ của bạn (<code class="inline">workspace/outputs/</code>).</p>
+        <p><b>Mẹo bắt lỗi:</b> con số đúng nằm sẵn trong <code class="inline">samples/README.md</code>. Nếu agent báo khác 182 đơn, hãy bảo nó chỉ ra các dòng đã cộng trước khi tin.</p>
+      </div>
+      <div class="dialog reveal" role="group" aria-label="Hội thoại mẫu với dữ liệu CSV">
+        <div class="line">
+          <span class="who you">BẠN</span>
+          <p class="say">Đọc <code class="inline">samples/sales-demo.csv</code>, cho tôi tổng số đơn và doanh thu, gợi ý 3 câu hỏi kinh doanh, rồi lưu ghi chú.</p>
+        </div>
+        <div class="line">
+          <span class="who ag">AGENT</span>
+          <div class="say">
+            <span class="tool">đọc skill data-discovery</span>
+            <p>Đã kiểm 12 dòng, không có ô trống. Tổng <b>182 đơn · 20.350.000 VND</b>. Gợi ý: (1) Vùng North hay South tăng doanh thu nhanh hơn qua 3 tháng? (2) Notebook ít đơn hơn Accessory nhưng chiếm bao nhiêu phần doanh thu? (3) Giá trị trung bình mỗi đơn có đổi theo tháng không? Ghi chú đã lưu vào <code class="inline">workspace/outputs/</code>.</p>
+          </div>
+        </div>
+        <div class="line">
+          <span class="who you">BẠN</span>
+          <p class="say">Chia theo tháng cho tôi đối chiếu.</p>
+        </div>
+        <div class="line">
+          <span class="who ag">AGENT</span>
+          <div class="say">
+            <table class="mini-tbl">
+              <thead><tr><th>Tháng</th><th>Số đơn</th><th>Doanh thu (VND)</th></tr></thead>
+              <tbody>
+                <tr><td>2026-01</td><td class="n">55</td><td class="n">6.050.000</td></tr>
+                <tr><td>2026-02</td><td class="n">61</td><td class="n">6.800.000</td></tr>
+                <tr><td>2026-03</td><td class="n">66</td><td class="n">7.500.000</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- VÍ DỤ 2 -->
+  <section id="vi-du-pbi" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Ví dụ 2</span>
+      <h2>Có một báo cáo Power BI đang mở</h2>
+    </div>
+    <div class="example">
+      <div class="copy reveal">
+        <p>Khi báo cáo đang mở trong Power BI Desktop, agent dùng chìa khoá <b>chạy truy vấn</b> (<code class="inline">execute_dax_local</code>) để hỏi thẳng mô hình dữ liệu trên máy bạn và nhận về một bảng tổng hợp nhỏ.</p>
+        <p>Khi yêu cầu là “kéo nguyên bảng khách hàng”, <b>nội quy két</b> chặn lại ngay ở máy chủ, trước khi dữ liệu kịp đi vào AI, và gợi ý cách hỏi bằng bảng tổng hợp.</p>
+        <p><b>Nói cho đúng:</b> đây là lưới chống <b>sơ ý</b>. Nó không thay quyền truy cập hay bảo mật theo dòng (RLS) mà công ty bạn đặt trên mô hình.</p>
+      </div>
+      <div class="dialog reveal" role="group" aria-label="Hội thoại mẫu với báo cáo Power BI">
+        <div class="line">
+          <span class="who you">BẠN</span>
+          <p class="say">Số khách hàng theo phân khúc năm nay?</p>
+        </div>
+        <div class="line">
+          <span class="who ag">AGENT</span>
+          <div class="say">
+            <span class="tool">execute_dax_local · SUMMARIZECOLUMNS</span>
+            <table class="mini-tbl">
+              <thead><tr><th>Phân khúc KH</th><th>Số KH</th></tr></thead>
+              <tbody>
+                <tr><td>KHCN</td><td class="n">3.438</td></tr>
+                <tr><td>KHDN</td><td class="n">538</td></tr>
+                <tr><td>KHCN VIP</td><td class="n">225</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="line">
+          <span class="who you">BẠN</span>
+          <p class="say">Kéo nguyên bảng khách hàng ra xem.</p>
+        </div>
+        <div class="line">
+          <span class="who pol">NỘI QUY</span>
+          <p class="say"><span class="blocked">Đã chặn: yêu cầu lấy danh sách từng dòng.</span> Dữ liệu từng dòng ở lại trong Power BI; muốn xem chi tiết, hãy mở báo cáo trong Desktop. Agent được gợi ý viết lại thành bảng tổng hợp.<span class="aside">Lần chặn này được ghi vào sổ kiểm tra của dự án.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VÍ DỤ 3 -->
+  <section id="vi-du-trang" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Ví dụ 3</span>
+      <h2>“Thêm một trang giống trang tháng trước”</h2>
+      <p>Agent không tự vẽ trang từ đầu. Nó làm theo sáu bước cố định, và bước cuối là của bạn.</p>
+    </div>
+    <ol class="flow-mini reveal">
+      <li><span class="fnum">01</span><b>Chọn mẫu đã duyệt</b><span class="d">Một trang bạn từng ưng, đã được cắt thành khuôn dùng lại (gọi là kit).</span></li>
+      <li><span class="fnum">02</span><b>Đóng file .pbip</b><span class="d">Agent nhắc bạn đóng file. Nếu file đang mở, lần lưu sau của Desktop sẽ đè mất trang mới.</span></li>
+      <li><span class="fnum">03</span><b>Ghi trang</b><span class="d">Giữ nguyên kiểu dáng của mẫu, chỉ thay dữ liệu bằng bảng và cột của bạn.</span></li>
+      <li><span class="fnum">04</span><b>Kiểm cú pháp</b><span class="d">Một công cụ của Microsoft đọc lại file trang; phải 0 lỗi mới đi tiếp.</span></li>
+      <li><span class="fnum">05</span><b>Mở lại và chụp ảnh</b><span class="d">Desktop nạp lại báo cáo, agent chụp ảnh trang vừa dựng.</span></li>
+      <li class="key"><span class="fnum">06</span><b>Bạn xem bằng mắt</b><span class="d">Một người chấm độc lập soi ảnh; bạn là người nói “đạt”.</span></li>
+    </ol>
+    <div class="note reveal"><b>Vì sao bước 6 bắt buộc, không phải phép lịch sự?</b> Agent chỉ đọc được file, không nhìn thấy màn hình. Chữ chồng lên nhau, màu sai, biểu đồ trống — chỉ mắt người mới bắt chắc chắn. Muốn biết “mẫu” (kit) được làm ra thế nào, xem phần <a href="../architecture/#template-kit">Template kit trên trang Thiết kế</a>.</div>
   </section>
 
   <!-- 8 LỆNH -->
   <section id="lenh" style="padding-top:8px">
     <div class="sec-head reveal">
       <span class="eyebrow"><span class="dot"></span>Bộ lệnh</span>
-      <h2>Quy trình tham khảo trong repo</h2>
-      <p>Các tệp tại <code class="inline">commands/</code> mô tả những thao tác trong vòng đời dự án. Khả năng gọi trực tiếp bằng lệnh gạch chéo phụ thuộc host và cần xác nhận sau cài; bạn luôn có thể yêu cầu AI đọc tệp nguồn tương ứng trong repo.</p>
+      <h2>8 lệnh, nói theo kiểu công việc</h2>
+      <p>Lệnh là lối tắt cho những việc hay lặp lại trong vòng đời một dự án. Bạn không bắt buộc phải dùng: nói bằng lời thường vẫn được.</p>
     </div>
-    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng bộ lệnh, cuộn ngang được">
-      <table class="tbl">
-        <thead><tr><th>Lệnh</th><th>Khi nào dùng</th><th>AI sẽ làm gì</th></tr></thead>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng 8 lệnh, cuộn ngang được">
+      <table class="tbl lenh-tbl">
+        <thead><tr><th>Lệnh</th><th>Giống như…</th><th>Khi nào dùng</th><th>Agent sẽ làm gì</th></tr></thead>
         <tbody>
-          <tr><td><code>/pbi-help</code></td><td class="lbl">Không biết bắt đầu từ đâu</td><td>Tra các năng lực và chọn quy trình phù hợp</td></tr>
-          <tr><td><code>/pbi-setup</code></td><td class="lbl">Lần đầu tiên</td><td>Kiểm tra trạm dữ liệu mặc định trong repo hoặc trạm ngoài đã chọn → dựng cấu trúc dự án</td></tr>
-          <tr><td><code>/pbi-new &lt;tên&gt;</code></td><td class="lbl">Bắt đầu dự án</td><td>Mở hồ sơ dự án, xác định mục tiêu và khảo sát dữ liệu</td></tr>
-          <tr><td><code>/pbi-scan &lt;file&gt;</code></td><td class="lbl">Có báo cáo mẫu đẹp</td><td>Quét trọn thiết kế: mọi trang, theme, danh mục visual → hồ sơ lưu trữ</td></tr>
-          <tr><td><code>/pbi-kit &lt;file&gt;</code></td><td class="lbl">Muốn tái dùng thiết kế của mình</td><td>Tạo bộ mẫu cục bộ; kiểm tra quyền sử dụng, dữ liệu và bản render trước khi chia sẻ</td></tr>
-          <tr><td><code>/pbi-done</code></td><td class="lbl">Xong dự án</td><td>Checklist bàn giao + chốt hồ sơ + ghi nhật ký + đóng gói bài học</td></tr>
-          <tr><td><code>/pbi-pack</code></td><td class="lbl">Định kỳ / sau dự án</td><td>Chưng cất bài học vào 4 ngăn: công nghệ · ngành · nghiệp vụ · Power BI</td></tr>
-          <tr><td><code>/pbi-recall &lt;từ khóa&gt;</code></td><td class="lbl">"Đã làm cái này chưa?"</td><td>Tra dự án cũ, bài học, template tái dùng được — kèm đường dẫn</td></tr>
+          <tr><td><code>/pbi-help</code></td><td>Hỏi lễ tân nên gặp ai</td><td>Chưa biết bắt đầu từ đâu</td><td>Xem bạn đang có gì trong tay và chỉ quy trình phù hợp</td></tr>
+          <tr><td><code>/pbi-setup</code></td><td>Xin một ngăn tủ hồ sơ</td><td>Lần đầu tiên</td><td>Kiểm tra hoặc dựng trạm dữ liệu cho các dự án</td></tr>
+          <tr><td><code>/pbi-new &lt;tên&gt;</code></td><td>Mở hồ sơ dự án mới</td><td>Bắt đầu một dự án</td><td>Tạo thư mục dự án, tra kinh nghiệm cũ, bắt đầu khảo sát</td></tr>
+          <tr><td><code>/pbi-scan &lt;file&gt;</code></td><td>Chụp lại toàn bộ một thiết kế đẹp</td><td>Có báo cáo mẫu muốn học theo</td><td>Ghi lại mọi trang, màu, font, danh mục biểu đồ vào hồ sơ</td></tr>
+          <tr><td><code>/pbi-kit &lt;file&gt;</code></td><td>Cắt thiết kế đẹp thành khuôn dùng lại</td><td>Muốn tái dùng bố cục của mình</td><td>Tạo bộ mẫu riêng; nhắc bạn kiểm quyền sử dụng trước khi chia sẻ</td></tr>
+          <tr><td><code>/pbi-done</code></td><td>Ký biên bản bàn giao</td><td>Xong dự án</td><td>Chạy danh sách kiểm, chốt hồ sơ, ghi nhật ký, đóng gói bài học</td></tr>
+          <tr><td><code>/pbi-pack</code></td><td>Viết bài học vào sổ chung</td><td>Sau dự án hoặc định kỳ</td><td>Chắt bài học vào 4 ngăn: công nghệ · ngành · nghiệp vụ · Power BI</td></tr>
+          <tr><td><code>/pbi-recall &lt;từ khoá&gt;</code></td><td>Lật sổ cũ</td><td>“Đã làm cái này chưa nhỉ?”</td><td>Tìm dự án cũ, bài học, mẫu dùng lại được — kèm đường dẫn</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="note reveal">Gõ <code class="inline">/</code> để gọi lệnh chỉ chạy trên ứng dụng có hỗ trợ. Cách luôn dùng được: nói “đọc <code class="inline">commands/pbi-new.md</code> trong repo rồi làm theo”. Tab chat của Claude Desktop không có lệnh và sổ tay, chỉ có 16 công cụ.</p>
   </section>
 
-  <!-- TÌNH HUỐNG -->
-  <section id="tinh-huong" style="padding-top:8px">
+  <!-- HỎI ĐÁP -->
+  <section id="hoi-dap" style="padding-top:8px">
     <div class="sec-head reveal">
-      <span class="eyebrow"><span class="dot"></span>Theo tình huống</span>
-      <h2>Bạn muốn gì — nói thế nào</h2>
-      <p>Không cần đúng câu chữ; đây là các kiểu yêu cầu thường gặp và thứ AI sẽ kích hoạt.</p>
+      <span class="eyebrow"><span class="dot"></span>Hỏi đáp</span>
+      <h2>Câu hay hỏi</h2>
     </div>
-    <div class="scenario reveal">
-      <div class="scn"><span class="q">"Doanh thu quý này theo chi nhánh?"</span><span class="arr">→</span><span class="a">AI truy vấn trực tiếp (<code>execute_dax</code>) — trả bảng tổng hợp, dữ liệu chi tiết không rời Power BI</span></div>
-      <div class="scn"><span class="q">"Làm cho tôi dashboard từ file Excel này"</span><span class="arr">→</span><span class="a">Bắt đầu từ mục tiêu và chất lượng dữ liệu, sau đó mới lập model và thiết kế báo cáo.</span></div>
-      <div class="scn"><span class="q">"Model này có gì, các bảng nối nhau ra sao?"</span><span class="arr">→</span><span class="a"><code>list_tables</code> + <code>distill_model_schema</code> — kèm sơ đồ quan hệ tự vẽ</span></div>
-      <div class="scn"><span class="q">"Thêm trang báo cáo giống trang trước đã làm"</span><span class="arr">→</span><span class="a">Dùng bố cục cục bộ có quyền sử dụng, gắn field mới rồi kiểm tra trang render.</span></div>
-      <div class="scn"><span class="q">"Viết giúp measure tỷ lệ churn"</span><span class="arr">→</span><span class="a">Xem công thức đề xuất, chạy thử và đối chiếu số trước khi lưu measure.</span></div>
-      <div class="scn"><span class="q">"Muốn dùng lại bố cục báo cáo của tôi"</span><span class="arr">→</span><span class="a">Xác nhận quyền sử dụng, lưu mẫu cục bộ và nghiệm thu sau khi gắn dữ liệu mới.</span></div>
-      <div class="scn"><span class="q">"Trước đây mình xử lý ngày Excel lỗi thế nào nhỉ?"</span><span class="arr">→</span><span class="a"><code>/pbi-recall ngày excel</code> — lật lại bài học đã đóng gói</span></div>
-    </div>
-  </section>
-
-  <!-- Quy trình phân tích -->
-  <section id="quy-trinh" style="padding-top:8px">
-    <div class="sec-head reveal">
-      <span class="eyebrow"><span class="dot"></span>Khái niệm trung tâm</span>
-      <h2>Năm chặng tham khảo cho dự án phân tích</h2>
-      <p>Đi từ tìm hiểu bài toán, ghi thông tin quan trọng, lập kế hoạch, triển khai tới nghiệm thu. Tùy dự án, bạn và AI có thể điều chỉnh phạm vi từng chặng.</p>
-    </div>
-    <div class="reveal">
-      <div class="kflow">
-        <div class="kbox">🔍 Research<small>đọc dữ liệu + HỎI NGƯỢC bạn</small></div><span class="karr">→</span>
-        <div class="kbox">🗝️ Key Information<small>5 tài liệu chuẩn + mindmap</small></div><span class="karr">→</span>
-        <div class="kbox">🗓️ Planning<small>kế hoạch Excel 2 cấp</small></div><span class="karr">→</span>
-        <div class="kbox">⚙️ Implementation<small>pipeline kỹ thuật 9 khâu</small></div><span class="karr">→</span>
-        <div class="kbox">📈 Monitoring<small>nghiệm thu + bài học</small></div>
-      </div>
-      <div class="note">
-        <b>Vì sao quan trọng?</b> Hiểu mục tiêu và chỉ số trước khi dựng biểu đồ giúp giảm việc làm lại.
-        AI có thể ghi các quyết định thành bộ tài liệu
-        <code class="inline">PROJECT.md</code>, <code class="inline">DATA_DICTIONARY</code>,
-        <code class="inline">METRICS_CALCULATION</code>, <code class="inline">DOMAIN_DIMENSION</code>,
-        <code class="inline">REPORTS</code> — thứ mà chuyên viên nào tiếp quản cũng đọc hiểu được.
-      </div>
-      <p style="color:var(--muted);font-size:14.5px;line-height:1.65">Pha Implementation dùng
-      <b>pipeline 9 khâu</b>: kết nối dữ liệu (Power Query) → làm sạch (M) → mô hình sao + quan hệ →
-      công thức DAX (kiểm từng cái) → truy vấn tổng hợp → trang báo cáo từ template → tính năng nâng cao
-      (tooltip, drill-through…) → bàn giao. Mỗi khâu có "cổng kiểm" — không đạt không đi tiếp.</p>
+    <div class="faq reveal">
+      <details>
+        <summary>Dữ liệu của tôi có bị đưa lên mạng không?</summary>
+        <p>Với Power BI Desktop, agent nói chuyện với báo cáo ngay trên máy bạn (qua địa chỉ nội bộ <code class="inline">localhost</code>). Chỉ bảng tổng hợp đi vào AI; danh sách từng dòng bị chặn. Kết nối tới Power BI Service là luồng riêng, chỉ bật khi chính bạn cấu hình.</p>
+      </details>
+      <details>
+        <summary>Agent có tự ý sửa báo cáo của tôi không?</summary>
+        <p>Agent chỉ ghi công thức hay quan hệ vào mô hình khi bạn yêu cầu. Trang báo cáo chỉ được ghi khi file đã đóng. Nếu nhiều agent cùng làm một dự án, tại một thời điểm chỉ một agent được ghi; nó đặt một tờ “đang sửa” (file <code class="inline">.powerbi-write-lock</code>) để các agent khác chỉ đọc.</p>
+      </details>
+      <details>
+        <summary>Tôi có cần biết DAX không?</summary>
+        <p>Không cần để bắt đầu: bạn hỏi bằng lời, agent viết công thức. Biết một chút DAX sẽ giúp bạn duyệt công thức agent đề xuất tự tin hơn.</p>
+      </details>
+      <details>
+        <summary>Máy Mac dùng được không?</summary>
+        <p>Phần làm việc với Power BI Desktop chỉ chạy trên Windows, vì Power BI Desktop chỉ có trên Windows. Phần khảo sát file CSV về lý thuyết không phụ thuộc Desktop, nhưng bộ cài hiện chỉ hỗ trợ Windows.</p>
+      </details>
+      <details>
+        <summary>Agent làm sai thì sao?</summary>
+        <p>Mỗi chặng đều có điểm kiểm; bạn từ chối là agent dừng và làm lại. Con số luôn được đối chiếu với một nguồn độc lập. Nếu công cụ không chạy, xem mục sự cố ở <a href="../install/#su-co">trang Cài đặt</a>.</p>
+      </details>
+      <details>
+        <summary>Tại sao phải lưu báo cáo dạng .pbip?</summary>
+        <p>File <code class="inline">.pbix</code> là một gói nén. Lưu thành <code class="inline">.pbip</code> (Power BI Project) biến báo cáo thành các file chữ bình thường, nên agent đọc và sửa an toàn, và bạn xem lại được lịch sử thay đổi.</p>
+      </details>
+      <details>
+        <summary>Claude Desktop khác gì Claude Code?</summary>
+        <p>Tab chat của Claude Desktop chỉ nhận 16 công cụ MCP; nó không đọc sổ tay (skill) hay lệnh từ repo. Muốn có đủ quy trình, dùng Claude Code, Codex hoặc Antigravity mở trong thư mục repo.</p>
+      </details>
     </div>
   </section>
 
-  <!-- KHÁI NIỆM -->
-  <section id="khai-niem" style="padding-top:8px">
+  <!-- TỪ ĐIỂN -->
+  <section id="tu-dien" style="padding-top:8px">
     <div class="sec-head reveal">
-      <span class="eyebrow"><span class="dot"></span>Từ điển nhanh</span>
-      <h2>Các khái niệm đáng biết</h2>
-      <p>Đủ để bạn hiểu AI đang nói gì — chuyên gia có thể đọc bản kỹ thuật đầy đủ trong
-      <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/AGENTS.md" style="color:var(--accent)">AGENTS.md</a>.</p>
+      <span class="eyebrow"><span class="dot"></span>Từ điển</span>
+      <h2>Từ điển một dòng</h2>
+      <p>Đủ để hiểu agent đang nói gì. Bản kỹ thuật đầy đủ nằm ở <a href="../architecture/">trang Thiết kế</a>.</p>
     </div>
     <dl class="glossary reveal">
-      <dt><code>MCP</code> &amp; <code>tool</code></dt>
-      <dd>Chuẩn kết nối để AI gọi công cụ bên ngoài. Agent Data Studio cung cấp MCP server cho các thao tác như đọc model, truy vấn DAX và làm việc với tệp báo cáo.</dd>
+      <dt><code>MCP</code></dt>
+      <dd>Chuẩn cắm để ứng dụng AI dùng được công cụ bên ngoài, giống ổ cắm điện chung cho mọi thiết bị. <a href="../architecture/#mcp">Bản kỹ thuật</a></dd>
+      <dt><code>Tool</code> (công cụ)</dt>
+      <dd>Một chìa khoá làm đúng một việc, ví dụ “liệt kê bảng” hay “chạy truy vấn”; repo có 16 chìa. <a href="../architecture/#mcp">Danh sách 16 công cụ</a></dd>
       <dt><code>Skill</code></dt>
-      <dd>"Sách quy trình" dạy AI cách làm việc bài bản. Có 9 skill: <b>data-discovery</b> (khảo sát &amp;
-      tài liệu hóa) · <b>data-mockup</b> (dữ liệu mẫu) · <b>pbi-model</b> (Power Query/M, star schema, DAX) ·
-      <b>pbi-analysis</b> (sổ tay tra cứu tool) · <b>pbi-design</b> (thiết kế trang báo cáo) ·
-      <b>pbi-build</b> (kỹ thuật 9 khâu) · <b>pbi-review</b> (review SQL, DAX, model, trang) ·
-      <b>pbi-publish</b> (publish lên Fabric / Power BI Service) · <b>pbi-knowledge</b> (bộ nhớ tri thức).
-      Hãy kiểm tra host đã nạp skill rồi yêu cầu AI đọc đúng tài liệu nguồn trong repo.</dd>
-      <dt><code>Command</code> (lệnh /pbi-*)</dt>
-      <dd>Tệp hướng dẫn tác vụ trong <code class="inline">commands/</code>. Khả năng gọi bằng cú pháp gạch chéo tùy host; có thể yêu cầu AI đọc tệp nguồn trực tiếp.</dd>
-      <dt><code>Agent</code> (pbi-knowledge-curator)</dt>
-      <dd>Một vai chuyên trách trong quy trình. Curator hỗ trợ rà hồ sơ và đề xuất bài học để bạn chọn lưu cho dự án sau.</dd>
-      <dt><code>Knowledge Dir</code></dt>
-      <dd>Nơi lưu hồ sơ và ghi chú dự án. Chế độ mặc định dùng <code class="inline">workspace/knowledge/</code> trong repo và Git bỏ qua; có thể chọn trạm ngoài bằng <code class="inline">ADS_DATA</code>.</dd>
+      <dd>Một chương trong sổ tay quy trình, agent đọc trước khi làm; repo có 9 skill. <a href="../architecture/#skills">Bản kỹ thuật</a></dd>
+      <dt><code>Lệnh /pbi-*</code></dt>
+      <dd>Lối tắt gọi một quy trình hay dùng, như mở dự án hay đóng dự án; có 8 lệnh. <a href="../architecture/#lenh-agent">Bản kỹ thuật</a></dd>
+      <dt><code>Agent chuyên trách</code></dt>
+      <dd>Đồng nghiệp làm một vai hẹp; có 2 agent: <b>pbi-knowledge-curator</b> đóng gói bài học, <b>pbi-render-reviewer</b> chấm ảnh chụp trang. <a href="../architecture/#lenh-agent">Bản kỹ thuật</a></dd>
+      <dt><code>Trạm dữ liệu</code> / Knowledge Dir</dt>
+      <dd>Tủ hồ sơ riêng trên máy bạn: <code class="inline">workspace/</code> trong repo, hoặc một thư mục khác do bạn chọn qua <code class="inline">ADS_DATA</code>. <a href="../architecture/#tram">Bản kỹ thuật</a></dd>
       <dt><code>Template kit</code></dt>
-      <dd>Bộ file bố cục có thể dùng lại sau khi kiểm tra quyền sử dụng và dữ liệu. Xem <a href="../template/" style="color:var(--accent)">quy trình thiết kế</a>.</dd>
+      <dd>Một trang báo cáo đẹp đã được cắt thành khuôn, để dựng trang mới giữ nguyên kiểu dáng. <a href="../architecture/#template-kit">Bản kỹ thuật</a></dd>
       <dt><code>PBIP / PBIR</code></dt>
-      <dd>Định dạng "Power BI Project" — lưu báo cáo thành file văn bản thay vì file nén, để AI đọc/sửa
-      an toàn và theo dõi được lịch sử thay đổi. AI sẽ đề nghị bạn Save As .pbip đầu dự án.</dd>
-      <dt><code>Policy an toàn dữ liệu</code></dt>
-      <dd>Lớp kiểm tra truy vấn qua MCP server của repo, giúp giảm nguy cơ lấy dữ liệu chi tiết ngoài ý muốn và ghi nhật ký. Vẫn cần quyền truy cập, RLS và chính sách dữ liệu phù hợp.</dd>
+      <dd>Cách lưu báo cáo Power BI thành các file chữ thay vì một gói nén, để agent sửa an toàn và có lịch sử. <a href="../architecture/#template-kit">Bản kỹ thuật</a></dd>
+      <dt><code>Policy</code> (nội quy két dữ liệu)</dt>
+      <dd>Luật ở máy chủ: chỉ cho bảng tổng hợp đi vào AI, khoá cột nhạy cảm, ghi sổ mọi lần truy vấn. <a href="../architecture/#policy">Bản kỹ thuật</a></dd>
     </dl>
   </section>
 
-  <!-- TÀI LIỆU -->
-  <section id="tai-lieu" style="padding-top:8px">
+  <!-- ĐỌC TIẾP -->
+  <section id="tiep" style="padding-top:8px">
     <div class="sec-head reveal">
-      <span class="eyebrow"><span class="dot"></span>Đọc thêm</span>
-      <h2>Tài liệu nên đọc theo thứ tự</h2>
+      <span class="eyebrow"><span class="dot"></span>Đọc tiếp</span>
+      <h2>Bước tiếp theo</h2>
     </div>
-    <div class="grid-2 reveal">
-      <div class="card"><h3>1 · README (GitHub)</h3><p>Tổng quan + INDEX toàn bộ repo — bản đồ để biết cái gì nằm đâu.</p>
-        <p style="margin-top:10px"><a href="https://github.com/ducnguyen221/agent-data-studio#readme" style="color:var(--accent);font-weight:600">Mở README →</a></p></div>
-      <div class="card"><h3>2 · Trang Cài đặt</h3><p>Bốn bước cho người mới, kiểm tra host và xử lý sự cố.</p>
-        <p style="margin-top:10px"><a href="../install/" style="color:var(--accent);font-weight:600">Mở trang Cài đặt →</a></p></div>
-      <div class="card"><h3>3 · AGENTS.md</h3><p>Luật vận hành cho AI: quy tắc làm việc với Power BI, phối hợp nhiều AI cùng dự án — dành cho người muốn hiểu sâu/tùy biến.</p>
-        <p style="margin-top:10px"><a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/AGENTS.md" style="color:var(--accent);font-weight:600">Mở AGENTS.md →</a></p></div>
-      <div class="card"><h3>4 · UAT Report lưu trữ</h3><p>Ghi lại thử nghiệm của phiên bản trước; không xác nhận bản cài và bốn host hiện tại.</p>
-        <p style="margin-top:10px"><a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" style="color:var(--accent);font-weight:600">Mở UAT Report →</a></p></div>
+    <div class="grid-3 reveal">
+      <div class="card"><h3>Cài đặt</h3><p>Dán một yêu cầu vào ứng dụng AI của bạn; agent hỏi trước khi cài, rồi làm bài mẫu cùng bạn.</p>
+        <p style="margin-top:12px"><a class="btn btn-primary btn-sm" href="../install/">Mở trang Cài đặt</a></p></div>
+      <div class="card"><h3>Thiết kế hệ thống</h3><p>Bản kỹ thuật: MCP server, chính sách dữ liệu, skill, trạm dữ liệu và vòng dựng báo cáo.</p>
+        <p style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="../architecture/">Mở trang Thiết kế</a></p></div>
+      <div class="card"><h3>README trên GitHub</h3><p>Tổng quan repo và bản đồ file, cho người muốn xem tận mã nguồn.</p>
+        <p style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="https://github.com/ducnguyen221/agent-data-studio#readme" target="_blank" rel="noopener">Mở README</a></p></div>
     </div>
   </section>
 
@@ -233,14 +379,33 @@
 </main>
 
 <footer class="site">
-  <div class="wrap foot">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
-    <div class="foot-links">
-      <a href="../feature/"><span data-i18n="vi">Tính năng</span><span data-i18n="en">Features</span></a><a href="./"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="../template/">Thiết kế</a><a href="../install/">Cài đặt</a>
-      <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
+        <p class="foot-tag">Biến ứng dụng AI bạn đang dùng thành Data Agent cho dữ liệu và Power BI: có quy trình, có cổng kiểm, dữ liệu thô ở lại máy bạn.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <b>Sản phẩm</b>
+          <a href="../about/">Giới thiệu</a>
+          <a href="../instruction/">Hướng dẫn</a>
+          <a href="../architecture/">Thiết kế</a>
+          <a href="../install/">Cài đặt</a>
+        </div>
+        <div class="foot-col">
+          <b>Tài nguyên</b>
+          <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" target="_blank" rel="noopener">UAT lưu trữ</a>
+        </div>
+      </div>
     </div>
-    <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
+    <div class="foot-bottom">
+      <span>© 2026 Duc Nguyen · MIT</span>
+      <span class="lic">MIT License · giữ credit tác giả</span>
+    </div>
   </div>
 </footer>
 <script src="../assets/site.js"></script>

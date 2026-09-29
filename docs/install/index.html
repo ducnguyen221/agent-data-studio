@@ -41,14 +41,15 @@
 <body>
 <canvas id="netbg" aria-hidden="true"></canvas>
 
+<a class="skip" href="#main">Bỏ qua điều hướng</a>
 <header class="site" id="siteHeader">
   <div class="wrap nav">
     <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
-    <nav class="nav-links">
-      <a href="../feature/"><span data-i18n="vi">Power Agent</span><span data-i18n="en">Power Agent</span></a>
-      <a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="../template/"><span data-i18n="vi">Thiết kế</span><span data-i18n="en">Design</span></a>
-      <a href="./" class="active" aria-current="page"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="../about/">Giới thiệu</a>
+      <a href="../instruction/">Hướng dẫn</a>
+      <a href="../architecture/">Thiết kế</a>
+      <a href="./" class="active" aria-current="page">Cài đặt</a>
     </nav>
     <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
@@ -66,7 +67,7 @@
   <a href="#su-co"><span class="qdot"></span><span class="qlabel">Sự cố</span></a>
 </nav>
 
-<main>
+<main id="main">
 <section class="page-hero install-hero">
   <div class="wrap">
     <p class="crumb"><a href="../">Trang chủ</a> / Cài đặt</p>
@@ -219,7 +220,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex</
         <div class="card"><h3>Script bị chặn</h3><p>Nếu cả lệnh có <code>-ExecutionPolicy Bypass</code> cũng bị chặn, đó là chính sách của tổ chức. Nhờ IT, không tự vượt.</p></div>
         <div class="card"><h3>Agent muốn làm việc lạ</h3><p>Đổi chính sách máy, đọc mật khẩu, tải script từ nơi khác repo: từ chối và yêu cầu agent quay lại hướng dẫn trong repo.</p></div>
       </div>
-      <p style="margin-top:18px"><a class="plain-link" href="../instruction/">Hướng dẫn sử dụng</a> · <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/issues">Gửi lỗi trên GitHub</a></p>
+      <p style="margin-top:18px"><a class="plain-link" href="../instruction/">Hướng dẫn sử dụng</a> · <a class="plain-link" href="../architecture/">Thiết kế hệ thống</a> · <a class="plain-link" href="https://github.com/ducnguyen221/agent-data-studio/issues">Gửi lỗi trên GitHub</a></p>
     </section>
   </div>
   <aside class="setup-rail" aria-label="Mục lục cài đặt">
@@ -235,14 +236,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Hosts codex</
 </main>
 
 <footer class="site">
-  <div class="wrap foot">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
-    <div class="foot-links">
-      <a href="../feature/">Power Agent</a><a href="../instruction/">Hướng dẫn</a>
-      <a href="../template/">Thiết kế</a><a href="./">Cài đặt</a>
-      <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
+        <p class="foot-tag">Biến ứng dụng AI bạn đang dùng thành Data Agent cho dữ liệu và Power BI: có quy trình, có cổng kiểm, dữ liệu thô ở lại máy bạn.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <b>Sản phẩm</b>
+          <a href="../about/">Giới thiệu</a>
+          <a href="../instruction/">Hướng dẫn</a>
+          <a href="../architecture/">Thiết kế</a>
+          <a href="../install/">Cài đặt</a>
+        </div>
+        <div class="foot-col">
+          <b>Tài nguyên</b>
+          <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" target="_blank" rel="noopener">UAT lưu trữ</a>
+        </div>
+      </div>
     </div>
-    <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
+    <div class="foot-bottom">
+      <span>© 2026 Duc Nguyen · MIT</span>
+      <span class="lic">MIT License · giữ credit tác giả</span>
+    </div>
   </div>
 </footer>
 <script src="../assets/site.js"></script>

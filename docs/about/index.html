@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="vi" data-lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giới thiệu · Agent Data Studio</title>
+<meta name="description" content="Agent Data Studio biến ứng dụng AI bạn đang dùng thành Data Agent cho dữ liệu và Power BI, làm theo quy trình có kiểm tra; dữ liệu thô ở lại máy bạn.">
+<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/about/">
+<meta property="og:title" content="Giới thiệu · Agent Data Studio">
+<meta property="og:description" content="Một Data Agent ngay trong ứng dụng AI bạn đang dùng: 16 công cụ MCP, 9 skill, chính sách an toàn dữ liệu ở server.">
+<meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/about/">
+<meta property="og:type" content="website">
+<link rel="icon" href="../assets/logo-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .how{display:block;margin-top:8px;font-size:12.5px;color:var(--faint)}
+  .how b{color:var(--muted);font-weight:600}
+  .gap-tbl th{width:50%}
+  .author{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start}
+  .avatar{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:1.5rem;letter-spacing:-.02em;color:var(--accent);background:var(--accent-weak);
+    border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));overflow:hidden;flex:none}
+  .avatar img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+  .author h3{font-size:1.25rem}
+  .author p{margin-top:10px;color:var(--muted);font-size:15px;line-height:1.65}
+  .author p b{color:var(--text)}
+  .link-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .credit{margin-top:18px;padding-top:16px;border-top:1px solid var(--border);font-size:14px !important}
+  .status-list{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .status-list b{color:var(--text)}
+  @media (max-width:620px){.author{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="netbg" aria-hidden="true"></canvas>
+
+<a class="skip" href="#main">Bỏ qua điều hướng</a>
+<header class="site" id="siteHeader">
+  <div class="wrap nav">
+    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="./" class="active" aria-current="page">Giới thiệu</a>
+      <a href="../instruction/">Hướng dẫn</a>
+      <a href="../architecture/">Thiết kế</a>
+      <a href="../install/">Cài đặt</a>
+    </nav>
+    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+      <span>GitHub</span>
+    </a>
+  </div>
+</header>
+
+<nav class="quicknav" aria-label="Điều hướng nhanh trong trang">
+  <a href="#data-agent"><span class="qdot"></span><span class="qlabel">Data Agent</span></a>
+  <a href="#muc-tieu"><span class="qdot"></span><span class="qlabel">Mục tiêu</span></a>
+  <a href="#khoang-trong"><span class="qdot"></span><span class="qlabel">Khoảng trống</span></a>
+  <a href="#phu-hop"><span class="qdot"></span><span class="qlabel">Hợp với ai</span></a>
+  <a href="#con-so"><span class="qdot"></span><span class="qlabel">Con số</span></a>
+  <a href="#tac-gia"><span class="qdot"></span><span class="qlabel">Tác giả</span></a>
+  <a href="#trang-thai"><span class="qdot"></span><span class="qlabel">Trạng thái</span></a>
+</nav>
+
+<main id="main">
+<section class="page-hero">
+  <div class="wrap">
+    <p class="crumb"><a href="../">Trang chủ</a> / Giới thiệu</p>
+    <span class="eyebrow"><span class="dot"></span>Giới thiệu</span>
+    <h1>Một Data Agent ngay trong<br><span style="color:var(--accent)">ứng dụng AI bạn đang dùng.</span></h1>
+    <p class="lead">Agent Data Studio là bộ công cụ mã nguồn mở (MIT) gồm một MCP server, 9 skill và các quy trình làm việc, cài vào Codex, Claude Code, Claude Desktop hoặc Google Antigravity. Bạn bắt đầu với một file CSV mẫu, rồi nối Power BI khi đã sẵn sàng. Mọi thứ chạy trên máy Windows của bạn; dữ liệu thô không rời khỏi máy.</p>
+    <div class="tech-badges">
+      <span class="tb"><span class="g"></span>v0.7.1</span>
+      <span class="tb gold"><span class="g"></span>MIT</span>
+      <span class="tb local"><span class="g"></span>Windows</span>
+      <span class="tb"><span class="g"></span>4 host</span>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- DATA AGENT -->
+  <section id="data-agent" style="padding-top:12px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Data Agent là gì</span>
+      <h2>“Data Agent” khác chatbot ở chỗ nào</h2>
+      <p>Chatbot trả lời bằng những gì nó đoán. Data Agent làm việc thật với dữ liệu của bạn, theo quy trình, và chịu sự kiểm soát của luật chơi. Agent Data Studio trao cho ứng dụng AI đúng ba thứ đó.</p>
+    </div>
+    <div class="grid-3 reveal">
+      <div class="card">
+        <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4Z"/></svg></div>
+        <h3>Có tay</h3>
+        <p>16 công cụ MCP để liệt kê báo cáo đang mở, đọc bảng và cột, chạy truy vấn DAX, thêm measure và quan hệ, dựng trang báo cáo từ mẫu, lưu tri thức dự án.</p>
+        <p><span class="kbd">powerbi_agent/ · 16 tool</span></p>
+      </div>
+      <div class="card">
+        <div class="ficon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div>
+        <h3>Có sách quy trình</h3>
+        <p>9 skill và 8 lệnh <code class="inline">/pbi-*</code> dạy agent cách khảo sát nghiệp vụ, mô hình hoá, viết DAX, thiết kế và kiểm tra trang, thay vì mỗi lần tự nghĩ ra một cách khác.</p>
+        <p><span class="kbd">skills/ · commands/</span></p>
+      </div>
+      <div class="card">
+        <div class="ficon ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Có kỷ luật</h3>
+        <p>Chính sách ở tầng server chỉ cho kết quả tổng hợp đi vào AI, chặn cột nhạy cảm và ghi sổ mọi truy vấn. Mỗi bước có cổng kiểm; trang báo cáo do bạn nghiệm thu bằng mắt.</p>
+        <p><span class="kbd">policy.py · audit/*.jsonl</span></p>
+      </div>
+    </div>
+    <div class="note reveal"><b>Hình dung đơn giản:</b> một nhân viên phân tích mới vào công ty, đã đọc sổ tay quy trình, được giao chùm chìa khoá đúng việc, và không được mang dữ liệu thô ra khỏi phòng. <a href="../instruction/">Trang Hướng dẫn</a> kể tiếp câu chuyện này bằng ví dụ.</div>
+  </section>
+
+  <!-- MỤC TIÊU -->
+  <section id="muc-tieu" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Mục tiêu</span>
+      <h2>Bốn mục tiêu của giải pháp</h2>
+      <p>Mỗi mục tiêu đi kèm một cách để bạn tự kiểm, không cần tin lời quảng cáo.</p>
+    </div>
+    <div class="layers reveal">
+      <div class="layer"><span class="lnum">01</span><div>
+        <h3>Người mới làm được ngay</h3>
+        <p>Bài đầu tiên chỉ cần file <code class="inline">samples/sales-demo.csv</code> đi kèm repo, chưa cần Power BI Desktop. Con số đúng được ghi sẵn để bạn bắt lỗi agent.</p>
+        <span class="how"><b>Cách kiểm:</b> agent phải ra đúng 182 đơn và 20.350.000 VND.</span>
+      </div></div>
+      <div class="layer"><span class="lnum">02</span><div>
+        <h3>Dữ liệu thô ở lại engine</h3>
+        <p>Chính sách aggregate-only bật mặc định: truy vấn kéo nguyên bảng bị chặn, cột trong danh sách nhạy cảm (PII) bị chặn, mọi truy vấn được ghi sổ. Chỉ con số tổng hợp đi vào ngữ cảnh của AI.</p>
+        <span class="how"><b>Cách kiểm:</b> mở <code class="inline">audit/YYYY-MM.jsonl</code> trong thư mục dự án ở trạm dữ liệu.</span>
+      </div></div>
+      <div class="layer"><span class="lnum">03</span><div>
+        <h3>Báo cáo dựng từ mẫu đã duyệt, không tự vẽ từ đầu</h3>
+        <p>Agent nhân bản trang mẫu bạn đã duyệt rồi gắn dữ liệu mới (clone-and-rebind), sau đó kiểm cú pháp, mở lại Desktop, chụp ảnh và review.</p>
+        <span class="how"><b>Cách kiểm:</b> validate 0 lỗi và có ảnh chụp trang trước khi nghiệm thu.</span>
+      </div></div>
+      <div class="layer"><span class="lnum">04</span><div>
+        <h3>Tri thức tích luỹ theo dự án</h3>
+        <p>Hồ sơ dự án, bài học và mẫu riêng lưu ở trạm của bạn (<code class="inline">workspace/</code> hoặc <code class="inline">ADS_DATA</code>), không lên GitHub. Repo công khai luôn sạch.</p>
+        <span class="how"><b>Cách kiểm:</b> <code class="inline">/pbi-recall &lt;từ khoá&gt;</code> trả về đường dẫn tới dự án và bài học cũ.</span>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- KHOẢNG TRỐNG -->
+  <section id="khoang-trong" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Định vị</span>
+      <h2>Không xây lại thứ Microsoft đã làm</h2>
+      <p>Microsoft đã có <code class="inline">powerbi-modeling-mcp</code> chính chủ để sửa model hàng loạt. Agent Data Studio chạy cạnh nó và lo phần còn trống.</p>
+    </div>
+    <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng phân vai với MCP của Microsoft, cuộn ngang được">
+      <table class="tbl fit gap-tbl">
+        <thead><tr><th>Microsoft <code>powerbi-modeling-mcp</code> lo</th><th>Agent Data Studio lo</th></tr></thead>
+        <tbody>
+          <tr><td>Tạo, sửa table, column, measure, relationship hàng loạt</td><td><b>Report layer (PBIR):</b> tạo và sửa trang báo cáo, visual</td></tr>
+          <tr><td>Transaction, định dạng TMDL / PBIP</td><td><b>Chính sách an toàn dữ liệu</b> ở server: aggregate-only, PII blocklist, audit log</td></tr>
+          <tr><td>Kiểm tra công thức DAX</td><td><b>Template kit:</b> dựng trang từ mẫu đã duyệt, chưng cất trang đẹp thành mẫu</td></tr>
+          <tr><td>Không sửa trang báo cáo</td><td><b>Quy trình dữ liệu → báo cáo 9 khâu</b> và tri thức tích luỹ theo dự án</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn reveal">MCP của Microsoft là tích hợp tuỳ chọn, cài riêng. Quyền và chính sách của nó <b>không</b> kế thừa chính sách của Agent Data Studio: truy vấn chạy qua server Microsoft không đi qua lớp aggregate-only.</div>
+  </section>
+
+  <!-- PHÙ HỢP -->
+  <section id="phu-hop" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Nói thẳng</span>
+      <h2>Hợp với ai — và chưa hợp với ai</h2>
+    </div>
+    <div class="sw-grid">
+      <div class="sw plus reveal">
+        <h3><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span>Hợp với</h3>
+        <ul>
+          <li><b>Analyst, BI developer</b> làm Power BI hằng ngày, muốn AI làm phần lặp lại mà vẫn theo chuẩn.</li>
+          <li><b>PM, quản lý</b> muốn hỏi số nhanh bằng lời thường mà không phải mở dữ liệu thô.</li>
+          <li><b>Giảng viên, học viên</b> cần một quy trình chuẩn và bộ dữ liệu mẫu để thực hành.</li>
+          <li><b>Team dùng nhiều AI cùng lúc</b> (Claude, Codex, Antigravity) trên cùng một dự án, có luật một-người-ghi.</li>
+        </ul>
+      </div>
+      <div class="sw minus reveal">
+        <h3><span class="sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></span>Chưa hợp nếu bạn</h3>
+        <ul>
+          <li><b>Cần bảo mật cứng thay cho RLS</b>: chính sách chỉ là lưới chống sơ ý, không thay quyền truy cập trên model.</li>
+          <li><b>Chỉ có macOS</b>: Power BI Desktop chỉ chạy trên Windows.</li>
+          <li><b>Cần tự động hoá bookmark</b>: bookmark được chủ ý để thao tác tay vì dễ làm vỡ báo cáo.</li>
+          <li><b>Cần publish lên Fabric đã nghiệm thu</b>: skill <code class="inline">pbi-publish</code> đang ở trạng thái <code class="inline">unverified</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CON SỐ -->
+  <section id="con-so" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Con số</span>
+      <h2>Con số đếm từ mã nguồn</h2>
+      <p>Đếm tại phiên bản 0.7.1: <code class="inline">@mcp.tool()</code> trong <code class="inline">powerbi_agent/</code>, thư mục <code class="inline">skills/</code>, <code class="inline">commands/</code>, <code class="inline">agents/</code>, <code class="inline">hosts/</code> và <code class="inline">report-templates/</code>.</p>
+    </div>
+    <div class="stat-row reveal">
+      <div class="stat"><b>16</b><span>công cụ MCP</span></div>
+      <div class="stat"><b>9</b><span>skill (sổ tay quy trình)</span></div>
+      <div class="stat"><b>8</b><span>lệnh <code class="inline">/pbi-*</code></span></div>
+      <div class="stat"><b>2</b><span>agent chuyên trách: <code class="inline">pbi-knowledge-curator</code>, <code class="inline">pbi-render-reviewer</code></span></div>
+      <div class="stat"><b>4</b><span>host: Codex, Claude Code, Claude Desktop, Antigravity</span></div>
+      <div class="stat"><b>1</b><span>kit trang mẫu <code class="inline">kpim-business-light</code>, 12 block</span></div>
+      <div class="stat"><b class="sm">3.11–3.14</b><span>phiên bản Python hỗ trợ</span></div>
+      <div class="stat"><b class="sm">MIT</b><span>giấy phép mã nguồn mở</span></div>
+    </div>
+  </section>
+
+  <!-- TÁC GIẢ -->
+  <section id="tac-gia" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Ai làm</span>
+      <h2>Tác giả</h2>
+    </div>
+    <div class="card author reveal">
+      <div class="avatar"><img src="https://ducnguyen.vn/profile/assets/images/KPIM-Duc-Nguyen.png" alt="Ảnh chân dung Nguyễn Quang Đức" width="84" height="84" loading="lazy" decoding="async"></div>
+      <div>
+        <h3>Nguyễn Quang Đức (Đức Nguyễn)</h3>
+        <p>Chuyên gia Data Analytics, <b>Founder COMPA</b>, <b>Co-founder KPIM</b>, hơn 12 năm làm dữ liệu và là giảng viên. Agent Data Studio được xây với mục tiêu: người làm dữ liệu làm việc cùng AI, và đóng gói bên trong toàn bộ kinh nghiệm, kỹ năng sử dụng Power BI cùng kiến thức phân tích dữ liệu của tác giả.</p>
+        <div class="link-row">
+          <a class="btn btn-ghost btn-sm" href="https://ducnguyen.vn/" target="_blank" rel="noopener">ducnguyen.vn</a>
+          <a class="btn btn-ghost btn-sm" href="https://ducnguyen.vn/profile/" target="_blank" rel="noopener">Hồ sơ</a>
+          <a class="btn btn-ghost btn-sm" href="https://github.com/ducnguyen221" target="_blank" rel="noopener">GitHub ducnguyen221</a>
+        </div>
+        <p class="credit">Một số asset mẫu đi kèm repo — hồ sơ bốn bộ dữ liệu mẫu, kit trang <code class="inline">kpim-business-light</code> và workbook kế hoạch — do <b>KPIM</b> (<a href="https://kpim.vn" target="_blank" rel="noopener">kpim.vn</a>) xây dựng và chia sẻ cho cộng đồng theo Giấy phép MIT. Cách ghi nguồn: <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/NOTICE.md" target="_blank" rel="noopener">NOTICE.md</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRẠNG THÁI -->
+  <section id="trang-thai" style="padding-top:8px">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Trạng thái</span>
+      <h2>Trạng thái thẳng thắn &amp; lộ trình</h2>
+    </div>
+    <div class="note reveal">
+      <b>Bản 0.7.1 (27/09/2026):</b> cài bằng một prompt cho cả 4 host, hỗ trợ Python 3.11–3.14, <code class="inline">doctor.ps1 -Preflight</code> kiểm máy ngay sau khi clone.
+      <ul class="status-list">
+        <li><b>Chưa đạt Definition of Done v1.0:</b> một dự án mẫu chạy trọn 9 khâu, có audit log chứng minh không một dòng dữ liệu thô nào vào ngữ cảnh AI.</li>
+        <li><b>Chưa nghiệm thu:</b> Power BI Service, skill <code class="inline">pbi-publish</code>, Python 3.14 với Power BI Desktop thật.</li>
+        <li><b>UAT gần nhất là v0.2.0</b> (lưu trữ); không chứng nhận bản hiện tại.</li>
+      </ul>
+    </div>
+    <div class="link-row reveal">
+      <a class="btn btn-ghost btn-sm" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a>
+      <a class="btn btn-ghost btn-sm" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+      <a class="btn btn-ghost btn-sm" href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" target="_blank" rel="noopener">UAT lưu trữ</a>
+    </div>
+  </section>
+
+</div>
+
+<section class="final" id="bat-dau">
+  <div class="wrap reveal">
+    <h2>Bắt đầu từ một file CSV mẫu</h2>
+    <p>Dán một yêu cầu vào ứng dụng AI bạn đang dùng. Agent hỏi trước khi cài thêm phần mềm, rồi làm bài mẫu cùng bạn.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="../install/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="m7 12 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Cài đặt
+      </a>
+      <a class="btn btn-ghost" href="../instruction/">Xem cách hoạt động</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
+        <p class="foot-tag">Biến ứng dụng AI bạn đang dùng thành Data Agent cho dữ liệu và Power BI: có quy trình, có cổng kiểm, dữ liệu thô ở lại máy bạn.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <b>Sản phẩm</b>
+          <a href="../about/">Giới thiệu</a>
+          <a href="../instruction/">Hướng dẫn</a>
+          <a href="../architecture/">Thiết kế</a>
+          <a href="../install/">Cài đặt</a>
+        </div>
+        <div class="foot-col">
+          <b>Tài nguyên</b>
+          <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+          <a href="https://github.com/ducnguyen221/agent-data-studio/blob/main/docs/UAT-REPORT.md" target="_blank" rel="noopener">UAT lưu trữ</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Duc Nguyen · MIT</span>
+      <span class="lic">MIT License · giữ credit tác giả</span>
+    </div>
+  </div>
+</footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -3,171 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Power Agent · Agent Data Studio</title>
-<meta name="description" content="Power Agent giúp bạn khám phá dữ liệu, kiểm tra model Power BI, phân tích, thiết kế và bàn giao báo cáo theo một quy trình rõ ràng.">
-<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/feature/">
-<meta property="og:title" content="Power Agent · Agent Data Studio">
-<meta property="og:url" content="https://ducnguyen.vn/agent-data-studio/feature/">
-<meta property="og:type" content="website">
+<title>Trang đã chuyển · Agent Data Studio</title>
+<meta name="description" content="Nội dung trang Power Agent cũ nay nằm ở trang Giới thiệu và trang Hướng dẫn của Agent Data Studio.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://ducnguyen.vn/agent-data-studio/about/">
+<meta http-equiv="refresh" content="0;url=../about/">
 <link rel="icon" href="../assets/logo-128.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css">
 <style>
-  .mod{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding:44px 0;border-bottom:1px solid var(--border)}
-  .mod:last-of-type{border-bottom:none}
-  .mod.flip .mod-copy{order:2}
-  .mod h2{font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;margin-top:12px}
-  .mod .easy{margin-top:12px;font-size:1.04rem;line-height:1.65;color:var(--text)}
-  .mod .deep{margin-top:14px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border);
-    border-radius:var(--radius-sm);font-size:14px;color:var(--muted);line-height:1.65}
-  .mod .deep b{color:var(--text)}
-  .mod-visual{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    box-shadow:var(--shadow-md);padding:22px;font-size:13.5px}
-  .mod-visual .mono{font-family:var(--mono);font-size:12.5px}
-  @media (max-width:860px){.mod{grid-template-columns:1fr}.mod.flip .mod-copy{order:0}}
-  .chat-line{display:flex;gap:9px;margin:8px 0;align-items:flex-start}
-  .chat-line .who{flex:none;font-family:var(--mono);font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;margin-top:2px}
-  .who.u{background:var(--accent-weak);color:var(--accent-ink)}
-  .who.a{background:var(--surface-3);color:var(--muted)}
-  .who.p{background:var(--danger-weak);color:var(--danger)}
-  .swatch{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:-3px;margin-right:2px;border:1px solid var(--border)}
-  .flow-mini{display:flex;flex-direction:column;gap:8px}
-  .flow-mini .fstep{display:flex;gap:10px;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:8px 12px}
-  .flow-mini .fstep b{font-size:13px}
-  .flow-mini .arr{text-align:center;color:var(--faint);font-size:12px;line-height:.6}
-  .agent-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:30px 0 10px}
-  .agent-flow article{padding:20px;border:1px solid var(--border);border-radius:13px;background:var(--surface)}
-  .agent-flow span{font:700 12px var(--mono);color:var(--accent)}
-  .agent-flow h2{font-size:1rem;margin-top:10px}.agent-flow p{color:var(--muted);font-size:13px;margin-top:7px}
-  .agent-demo{background:var(--code-bg);border:1px solid var(--code-border);border-radius:18px;padding:22px;color:var(--code-text);box-shadow:var(--shadow-lg)}
-  .agent-demo small{font:600 11px var(--mono);color:#99a8bd;letter-spacing:.06em;text-transform:uppercase}
-  .demo-msg{border:1px solid #394250;border-radius:10px;padding:13px 15px;margin-top:14px;font-size:14px;line-height:1.6}
-  .demo-msg.agent{background:#1e2938}.demo-output{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .demo-output span{background:#233145;border-radius:8px;padding:9px 10px;font:600 11px var(--mono);color:#c5d6ed}
-  .agent-principles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px}
-  .agent-principles article{border-top:2px solid var(--accent);padding-top:18px}
-  .agent-principles h3{font-size:1.05rem}.agent-principles p{color:var(--muted);font-size:14px;margin-top:9px}
-  @media(max-width:850px){.agent-flow{grid-template-columns:repeat(2,1fr)}.agent-principles{grid-template-columns:1fr}}
-  @media(max-width:520px){.agent-flow,.demo-output{grid-template-columns:1fr}}
+  body{font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f7f9fc;margin:0}
+  main{max-width:680px;margin:12vh auto;padding:0 24px}
+  .card{background:#fff;border:1px solid #dce4ef;border-radius:18px;padding:34px;box-shadow:0 18px 50px #1d355112}
+  h1{font-size:clamp(1.7rem,4vw,2.4rem);line-height:1.2;margin:0 0 16px}
+  p{color:#4c586b}
+  a{color:#225bd0;font-weight:700}
+  @media (prefers-color-scheme:dark){body{color:#e9ebef;background:#0e0f13}.card{background:#16181d;border-color:#282c34}p{color:#a4abb6}a{color:#8fb0ff}}
 </style>
+<script>
+  // Giữ fragment của liên kết cũ khi chuyển sang trang Giới thiệu.
+  window.location.replace(new URL("../about/" + window.location.hash, window.location.href));
+</script>
 </head>
 <body>
-<canvas id="netbg" aria-hidden="true"></canvas>
-
-<header class="site" id="siteHeader">
-  <div class="wrap nav">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="">Agent Data Studio</a>
-    <nav class="nav-links">
-      <a href="./" class="active" aria-current="page">Power Agent</a>
-      <a href="../instruction/"><span data-i18n="vi">Hướng dẫn</span><span data-i18n="en">Guide</span></a>
-      <a href="../template/">Thiết kế</a>
-      <a href="../install/"><span data-i18n="vi">Cài đặt</span><span data-i18n="en">Install</span></a>
-    </nav>
-    <a class="btn btn-ghost btn-sm gh" href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 2.5-.34c.85 0 1.71.12 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-      <span>GitHub</span>
-    </a>
-  </div>
-</header>
-
-<nav class="quicknav" aria-label="Điều hướng nhanh">
-  <a href="#bat-dau"><span class="qdot"></span><span class="qlabel">Bắt đầu</span></a>
-  <a href="#nang-luc"><span class="qdot"></span><span class="qlabel">Năng lực</span></a>
-  <a href="#nguon"><span class="qdot"></span><span class="qlabel">Nguồn trong repo</span></a>
-  <a href="#microsoft"><span class="qdot"></span><span class="qlabel">Microsoft</span></a>
-</nav>
-
-<main>
-<section class="page-hero">
-  <div class="wrap">
-    <p class="crumb"><a href="../">Trang chủ</a> / Power Agent</p>
-    <span class="eyebrow"><span class="dot"></span>Power Agent</span>
-    <h1>Từ câu hỏi đến báo cáo.<br><span style="color:var(--accent)">Từng bước có thể kiểm tra.</span></h1>
-    <p class="lead">Power Agent là cách AI làm việc cùng bạn với dữ liệu và Power BI: hiểu yêu cầu, khám phá nguồn, kiểm tra model, phân tích rồi bàn giao. Bạn nhìn thấy đầu vào, quyết định và kết quả ở mỗi chặng.</p>
-    <div class="agent-flow" aria-label="Quy trình Power Agent">
-      <article><span>01 / HIỂU</span><h2>Hỏi đúng việc</h2><p>AI làm rõ mục tiêu, người xem và câu hỏi kinh doanh.</p></article>
-      <article><span>02 / KHÁM PHÁ</span><h2>Đọc dữ liệu</h2><p>Kiểm tra cột, kiểu dữ liệu, chất lượng và model.</p></article>
-      <article><span>03 / XÂY</span><h2>Tạo phân tích</h2><p>Đề xuất chỉ số, viết DAX, thiết kế trang báo cáo.</p></article>
-      <article><span>04 / BÀN GIAO</span><h2>Kiểm lại</h2><p>Đối chiếu số liệu, lưu tài liệu và các quyết định.</p></article>
-    </div>
-  </div>
-</section>
-<div class="wrap">
-  <section class="mod reveal" id="bat-dau">
-    <div class="mod-copy">
-      <span class="eyebrow"><span class="dot"></span>Bắt đầu đơn giản</span>
-      <h2>Việc đầu tiên không cần báo cáo Power BI</h2>
-      <p class="easy">Repo có dữ liệu bán hàng giả lập để bạn thử ngay. Mở AI trong repo, yêu cầu đọc skill <code class="inline">data-discovery</code> và tệp <code class="inline">samples/sales-demo.csv</code>. AI sẽ phân tích và lưu kết quả trong <code class="inline">workspace/outputs/</code>.</p>
-      <p class="deep">Khi sẵn sàng dùng Power BI Desktop, hãy mở báo cáo rồi bắt đầu bằng lệnh chỉ đọc: liệt kê model và các bảng. Sau khi hiểu cấu trúc, bạn mới yêu cầu thay đổi model hoặc trang báo cáo.</p>
-      <p style="margin-top:20px"><a class="btn btn-primary" href="../install/">Cài theo 4 bước</a></p>
-    </div>
-    <div class="agent-demo" aria-label="Ví dụ hội thoại với Power Agent">
-      <small>Ví dụ / dữ liệu mẫu</small>
-      <div class="demo-msg">“Đọc dữ liệu mẫu. Tổng hợp số đơn và doanh thu theo khu vực. Nêu những điểm cần kiểm tra trước khi dựng dashboard.”</div>
-      <div class="demo-msg agent">AI đọc skill trong repo, kiểm tra tệp CSV, đối chiếu phép tính và ghi lại các giả định trước khi đề xuất biểu đồ.</div>
-      <div class="demo-output"><span>PROJECT.md</span><span>DATA_DICTIONARY.md</span><span>METRICS_CALCULATION.md</span><span>workspace/outputs/</span></div>
-    </div>
-  </section>
-
-  <section id="nang-luc">
-    <div class="sec-head"><span class="eyebrow"><span class="dot"></span>Khi nối Power BI</span><h2>Một luồng làm việc, nhiều công cụ</h2><p>Power Agent chọn công cụ theo việc cần làm. Hệ thống cho phép AI đọc model, chạy truy vấn tổng hợp, sửa phần được yêu cầu và dựng trang báo cáo từ cấu trúc có sẵn.</p></div>
-    <div class="agent-principles">
-      <article><h3>Khám phá trước khi sửa</h3><p>Đọc model, bảng và measure, sau đó lập kế hoạch ngắn. Điều này giúp bạn kiểm tra đúng báo cáo và đúng phạm vi.</p></article>
-      <article><h3>Truy vấn có chính sách</h3><p>Truy vấn DAX qua lớp kiểm soát của repo với giới hạn hàng và nhật ký. Kết quả chi tiết cần được xử lý theo chính sách dữ liệu của bạn.</p></article>
-      <article><h3>Tạo và kiểm lại</h3><p>DAX, cấu trúc model và trang báo cáo được kiểm tra sau khi tạo. AI ghi điều đã làm và phần bạn cần xem trong Power BI.</p></article>
-    </div>
-  </section>
-
-  <section class="mod flip reveal" id="nguon">
-    <div class="mod-copy">
-      <span class="eyebrow"><span class="dot"></span>Một nguồn trong repo</span>
-      <h2>Skill, engine và script nằm cùng source</h2>
-      <p class="easy">Repo cung cấp adapter cho Codex, Claude Code và Antigravity ở <code class="inline">.agents/skills/</code> hoặc <code class="inline">.claude/skills/</code>. Nội dung skill gốc nằm trong <code class="inline">skills/</code>. Sau khi cài, cần mở từng host trong repo để xác nhận nó thực sự nạp skill và MCP.</p>
-      <p class="deep">Khi source đổi, hãy mở lại host và kiểm tra đường dẫn skill đang đọc. Với cài đặt mặc định, dữ liệu công việc nằm ở <code class="inline">workspace/</code> và bị Git bỏ qua. Nếu bạn có trạm riêng, <code class="inline">ADS_DATA</code> trỏ đến thư mục đó.</p>
-    </div>
-    <div class="mod-visual">
-      <div class="flow-mini">
-        <div class="fstep"><span>01</span><b>Codex · Claude Code · Antigravity</b></div>
-        <div class="arr">↓ đọc skill từ repo</div>
-        <div class="fstep"><span>02</span><b>skills/ + powerbi_agent/ + scripts/</b></div>
-        <div class="arr">↓ tạo kết quả</div>
-        <div class="fstep"><span>03</span><b>workspace/ hoặc trạm dữ liệu riêng</b></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="mod reveal" id="microsoft">
-    <div class="mod-copy">
-      <span class="eyebrow"><span class="dot"></span>Mở rộng khi cần</span>
-      <h2>Kết hợp công cụ chính thức của Microsoft</h2>
-      <p class="easy">Khi công việc cần modeling chuyên sâu, bạn có thể cài thêm Power BI Modeling MCP của Microsoft. Đây là tích hợp tùy chọn, có hướng dẫn riêng; người mới có thể hoàn thành các bước đầu mà chưa cần cài nó.</p>
-      <p class="deep">Power Agent tập trung vào quy trình phân tích, chính sách truy vấn, thiết kế trang và tài liệu dự án. Công cụ Microsoft hỗ trợ các thao tác modeling theo khả năng của phiên bản bạn cài.</p>
-      <p style="margin-top:20px"><a class="plain-link" style="color:var(--accent);font-weight:700" href="../instruction/">Xem cách dùng sau khi cài →</a></p>
-    </div>
-    <div class="mod-visual">
-      <div class="flow-mini">
-        <div class="fstep"><span>●</span><b>Người dùng đặt mục tiêu và duyệt kết quả</b></div>
-        <div class="fstep"><span>●</span><b>Power Agent dẫn quy trình</b></div>
-        <div class="fstep"><span>●</span><b>Power BI và Microsoft MCP xử lý phần phù hợp</b></div>
-      </div>
-    </div>
-  </section>
-</div>
-</main>
-
-<footer class="site">
-  <div class="wrap foot">
-    <a class="brand" href="../"><img src="../assets/logo-128.png" alt="" width="26" height="26">Agent Data Studio</a>
-    <div class="foot-links">
-      <a href="../feature/">Power Agent</a><a href="../instruction/">Hướng dẫn</a>
-      <a href="../template/">Thiết kế</a><a href="../install/">Cài đặt</a>
-      <a href="https://github.com/ducnguyen221/agent-data-studio" target="_blank" rel="noopener">GitHub</a>
-    </div>
-    <span class="foot-copy">© 2026 Duc Nguyen · MIT</span>
-  </div>
-</footer>
-<script src="../assets/site.js"></script>
+<main><div class="card">
+  <h1>Trang Power Agent đã chuyển</h1>
+  <p>Phần giới thiệu nay nằm ở trang Giới thiệu; bốn chặng làm việc và hội thoại mẫu nằm ở trang Hướng dẫn. Nếu trình duyệt chưa tự chuyển, hãy mở liên kết dưới đây.</p>
+  <p><a href="../about/">Mở trang Giới thiệu →</a></p>
+  <p><a href="../instruction/">Mở trang Hướng dẫn →</a></p>
+</div></main>
 </body>
 </html>
