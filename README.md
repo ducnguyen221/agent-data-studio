@@ -67,3 +67,7 @@ Git updates the source in this repository. `.agents/skills/` and `.claude/skills
 The KPIM sample assets (dataset profiles, the `kpim-business-light` kit and `Project_Management.xlsx`) are owned by KPIM, which permits their use and distribution with this repository under the MIT license; see [NOTICE.md](NOTICE.md) for attribution.
 
 [Host guides](hosts/README.md) · [Repository map](INDEX.md) · [Website](https://ducnguyen.vn/agent-data-studio/) · [MIT license](LICENSE)
+
+## 🤝 ACD Ecosystem Integration
+
+Khai báo vai của repo trong hệ thống nhiều repo ACD (Role, Upstream, Downstream, Bundles, Handoff) tại [ECOSYSTEM.md](ECOSYSTEM.md).
