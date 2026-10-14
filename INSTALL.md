@@ -100,7 +100,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Hosts <host>
 
 Thay `<host>` bằng giá trị ở mục 1. `-ExecutionPolicy Bypass` chỉ áp cho lệnh này, không đổi chính sách máy. Bộ cài tạo `.venv/` và `workspace/` trong repo, kiểm adapter skill và gộp mục MCP `powerbi-mcp-bridge` vào cấu hình **người dùng** của host. Không thêm `-Only plugin` hay `-SkipVenv` trừ khi người dùng yêu cầu. Nếu vẫn bị chặn vì chính sách nhóm (`MachinePolicy` hoặc `UserPolicy` ở mục 2 khác `Undefined`) thì dừng: người dùng cần IT hỗ trợ.
 
-**Plugin Claude Code:** `.mcp.json` ở gốc repo khai sẵn `powerbi-mcp-bridge` chạy từ `${OPCOS_RUNTIME}\mcp\powerbi-mcp` (cần biến `OPCOS_RUNTIME`; trạm dữ liệu lấy từ `ADS_DATA`, mặc định `%USERPROFILE%\.data`). Đã dùng đường này thì đừng đăng ký thêm cùng tên bằng `install.ps1` ở cấu hình người dùng, để khỏi trùng mục.
+**Plugin Claude Code:** `.mcp.json` ở gốc repo khai sẵn `powerbi-mcp-bridge` chạy `mcp_server_powerbi.py` của chính repo (`${CLAUDE_PLUGIN_ROOT}`) bằng venv ở `${OPCOS_WORKSPACES}\data\.venv` (cần biến `OPCOS_WORKSPACES`; trạm dữ liệu `ADS_DATA` trỏ `${OPCOS_WORKSPACES}\data`). Đã dùng đường này thì đừng đăng ký thêm cùng tên bằng `install.ps1` ở cấu hình người dùng, để khỏi trùng mục.
 
 Nhiều host một lần: `-Hosts codex,claude` chạy được qua `-File` như lệnh trên; bộ cài tách dấu phẩy và từ chối tên host lạ trước khi ghi. `doctor.ps1` và `uninstall.ps1` gọi qua `-File` chỉ nhận **một host mỗi lần**: chạy lại lệnh cho từng host.
 
