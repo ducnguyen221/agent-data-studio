@@ -4,7 +4,7 @@
       "command": "${OPCOS_RUNTIME}\\mcp\\powerbi-mcp\\.venv\\Scripts\\python.exe",
       "args": ["${OPCOS_RUNTIME}\\mcp\\powerbi-mcp\\mcp_server_powerbi.py"],
       "env": {
-        "ADS_DATA": "${USERPROFILE}\\.data",
+        "ADS_DATA": "${OPCOS_WORKSPACES}\\data",
         "PYTHONUNBUFFERED": "1"
       }
     }
