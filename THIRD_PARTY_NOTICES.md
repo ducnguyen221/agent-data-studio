@@ -1,6 +1,6 @@
 # Third-party notices
 
-Repo `agent-data-studio` (MIT, Duc Nguyen) kèm và tham chiếu các thành phần bên thứ ba dưới đây.
+Repo `agent-data-studio` (MIT, Nguyễn Quang Đức) kèm và tham chiếu các thành phần bên thứ ba dưới đây.
 
 ## 1. microsoft/skills-for-fabric — chép nguyên văn
 

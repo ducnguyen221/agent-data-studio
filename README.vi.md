@@ -67,3 +67,9 @@ Mã nguồn được cập nhật qua Git tại repo này. Adapter `.agents/skil
 Asset mẫu của KPIM (hồ sơ bộ dữ liệu, kit `kpim-business-light`, `Project_Management.xlsx`) thuộc sở hữu của KPIM; KPIM cho phép sử dụng và phân phối cùng repo theo giấy phép MIT. Cách ghi nguồn xem [NOTICE.md](NOTICE.md).
 
 [Hướng dẫn cài từng host](hosts/README.md) · [Bản đồ repo](INDEX.md) · [Website](https://ducnguyen.vn/agent-data-studio/) · [Giấy phép MIT](LICENSE)
+
+## Tác giả
+
+**Nguyễn Quang Đức** (Tobi) — nhà sáng lập, CEO KPIM và đồng sáng lập COMPA Class; chuyên gia Data/AI và giảng viên công nghệ tại Việt Nam.
+
+Website: https://ducnguyen.vn · GitHub: [@ducnguyen221](https://github.com/ducnguyen221) · Liên hệ: ducnguyen.ams@gmail.com

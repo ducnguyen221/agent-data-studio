@@ -1,5 +1,7 @@
 # Ghi nguồn asset KPIM
 
+Author: Nguyễn Quang Đức (Tobi) — https://ducnguyen.vn
+
 Agent Data Studio có kèm một số asset do **KPIM ([kpim.vn](https://kpim.vn))** xây dựng. KPIM chia sẻ các asset này để cộng đồng tham khảo khi học và làm dự án dữ liệu.
 
 | Asset | Vị trí trong repo | Hồ sơ nguồn |
@@ -14,7 +16,7 @@ Vui lòng ghi nguồn, ví dụ: *“Asset của KPIM (kpim.vn), chia sẻ qua A
 
 ## Quan hệ với giấy phép MIT
 
-Bản quyền repo đứng tên Duc Nguyen (dòng copyright trong [`LICENSE`](LICENSE)). Các asset trên thuộc sở hữu của KPIM; KPIM cho phép sử dụng và phân phối chúng cùng repo theo [Giấy phép MIT](LICENSE), điều này được ghi ở phần đầu `LICENSE`. Vì vậy bạn được dùng, sửa và phân phối lại, miễn giữ thông báo bản quyền và nội dung giấy phép. Lời đề nghị ghi nguồn KPIM ở trên là đề nghị, không thêm điều kiện nào ngoài Giấy phép MIT. Tài liệu tham khảo của Microsoft đi kèm repo có giấy phép riêng, xem [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Bản quyền repo đứng tên Nguyễn Quang Đức (dòng copyright trong [`LICENSE`](LICENSE)). Các asset trên thuộc sở hữu của KPIM; KPIM cho phép sử dụng và phân phối chúng cùng repo theo [Giấy phép MIT](LICENSE), điều này được ghi ở phần đầu `LICENSE`. Vì vậy bạn được dùng, sửa và phân phối lại, miễn giữ thông báo bản quyền và nội dung giấy phép. Lời đề nghị ghi nguồn KPIM ở trên là đề nghị, không thêm điều kiện nào ngoài Giấy phép MIT. Tài liệu tham khảo của Microsoft đi kèm repo có giấy phép riêng, xem [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Các asset này không chứa gì
 

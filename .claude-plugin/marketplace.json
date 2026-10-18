@@ -2,7 +2,8 @@
   "name": "agent-data-studio",
   "description": "Agent skills for data discovery and Power BI from model to publish, with repository-owned engine and external or ignored project data.",
   "owner": {
-    "name": "Duc Nguyen",
+    "name": "Nguyễn Quang Đức",
+    "email": "ducnguyen.ams@gmail.com",
     "url": "https://ducnguyen.vn"
   },
   "plugins": [
@@ -13,7 +14,7 @@
       "source": "./",
       "license": "MIT",
       "author": {
-        "name": "Duc Nguyen",
+        "name": "Nguyễn Quang Đức",
         "email": "ducnguyen.ams@gmail.com",
         "url": "https://ducnguyen.vn"
       }

@@ -71,3 +71,9 @@ The KPIM sample assets (dataset profiles, the `kpim-business-light` kit and `Pro
 ## 🤝 ACD Ecosystem Integration
 
 Khai báo vai của repo trong hệ thống nhiều repo ACD (Role, Upstream, Downstream, Bundles, Handoff) tại [ECOSYSTEM.md](ECOSYSTEM.md).
+
+## Author
+
+**Nguyễn Quang Đức** (Tobi) — founder and CEO of KPIM and co-founder of COMPA Class; Data/AI practitioner and instructor in Vietnam.
+
+Website: https://ducnguyen.vn · GitHub: [@ducnguyen221](https://github.com/ducnguyen221) · Contact: ducnguyen.ams@gmail.com
