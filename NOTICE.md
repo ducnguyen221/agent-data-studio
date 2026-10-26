@@ -2,6 +2,8 @@
 
 Author: Nguyễn Quang Đức (Tobi) — https://ducnguyen.vn
 
+Một số tài liệu tham khảo trong `references/kpim/` được viết lại từ ý tưởng của bộ skill nội bộ `kpim-skills` của tác giả Nguyễn Quang Đức; đây là ghi công ý tưởng, không phải chép văn bản.
+
 Agent Data Studio có kèm một số asset do **KPIM ([kpim.vn](https://kpim.vn))** xây dựng. KPIM chia sẻ các asset này để cộng đồng tham khảo khi học và làm dự án dữ liệu.
 
 | Asset | Vị trí trong repo | Hồ sơ nguồn |
