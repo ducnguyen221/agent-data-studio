@@ -1,6 +1,6 @@
 ---
 name: pbi-analysis
-description: "Query and explore Power BI data safely: run aggregate DAX against Power BI Desktop or Service through the studio engine, discover tables/columns/measures, check numbers before design, choose the lightest tool tier (CLI, skill, studio MCP, Microsoft Modeling MCP), and respect the aggregate-only, PII and audit policy. Use when: list open reports, run a DAX query, inspect model metadata with INFO functions, answer a data question from a model, ADOMD connection errors, decide which Power BI tool to call. Not: business discovery and project documents -> data-discovery; creating or fixing measures, relationships, Power Query -> pbi-model; page layout -> pbi-design / pbi-build; formal review of SQL/DAX/model -> pbi-review."
+description: "Query and explore Power BI data safely: run aggregate DAX against Power BI Desktop or Service through the studio engine, discover tables/columns/measures, check numbers before design, choose the lightest tool tier (CLI, skill, studio MCP, Microsoft Modeling MCP), and respect the aggregate-only, PII and audit policy. Use when: list open reports, run a DAX query, connect read-only to a source database to list its tables or inspect source metadata, inspect model metadata with INFO functions, answer a data question from a model, ADOMD connection errors, decide which Power BI tool to call. Not: business discovery and project documents -> data-discovery; creating or fixing measures, relationships, Power Query -> pbi-model; page layout -> pbi-design / pbi-build; formal review of SQL/DAX/model -> pbi-review."
 metadata:
   group: powerbi
   chain_position: 3
@@ -48,6 +48,8 @@ PII bị chặn, mọi truy vấn có audit. Chọn đúng tầng công cụ đ�
 
 Truy vấn bị chặn → viết lại theo gợi ý của engine, **không** tìm cách lách (vd `TOPN` cực lớn).
 
+Đọc **CSDL nguồn** (không phải model): làm theo [db-source-access](references/kpim/db-source-access.md) — kết nối an toàn, tài khoản chỉ-đọc, giới hạn dòng.
+
 ## Định dạng kết quả
 Bảng Markdown chuẩn, giữ đúng tiếng Việt/Unicode; nói rõ khi kết quả bị siết trần dòng. Lỗi ADOMD
 (`FileNotFoundException`) → hướng dẫn cài *Analysis Services client libraries* hoặc đặt `ADOMD_LIB_DIR`;
@@ -59,6 +61,7 @@ kiểm Desktop đã mở file chưa.
 |---|---|
 | [mcp-tools.md](references/kpim/mcp-tools.md) | Chọn tool, tham số, policy, phân vai với Modeling MCP, tầng T0–T3 |
 | [operations.md](references/kpim/operations.md) | Luồng theo tình huống (liệt kê, truy vấn, metadata `INFO.*` + DMV), định dạng output, lỗi ADOMD |
+| [db-source-access.md](references/kpim/db-source-access.md) | Đọc CSDL nguồn ngoài model: kết nối an toàn, chỉ-đọc, giới hạn dòng, kiểm tiền đề |
 
 Tra cứu Microsoft liên quan nằm ở skill chủ, đọc theo tên: `metadata-discovery.md`, `dax-guidelines.md`,
 `dax-perf-decision-guide.md` trong [`pbi-model`](../pbi-model/SKILL.md) → `references/microsoft/`.
