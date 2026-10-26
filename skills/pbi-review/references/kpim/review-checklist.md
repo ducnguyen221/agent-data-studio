@@ -29,6 +29,7 @@ updated: 2026-09-17
 - [ ] Không lọc hai chiều khi không cần; không quan hệ thừa/ngược chiều (soi ERD `distill_model_schema`).
 - [ ] Date table riêng phủ toàn bộ phạm vi; auto date/time tắt; không "blank member".
 - [ ] Import / DirectQuery / Direct Lake / aggregation chọn hợp lý với khối lượng và tần suất refresh.
+- [ ] Kích thước model sau nén: nếu vượt khoảng 1 GB thì soi lại cột thừa, cột cardinality cao và nhu cầu partition/làm mới tăng dần (**ngưỡng khởi điểm, không phải chuẩn Microsoft** — là câu hỏi để soi, không phải điều kiện từ chối).
 
 ## E. Bảo mật
 - [ ] RLS đúng; model lộ PII mà thiếu RLS → **Blocker**.
@@ -42,9 +43,11 @@ updated: 2026-09-17
 - [ ] Matrix nằm trên `shape` panel có z thấp hơn; không visual chồng lấn ngoài ý muốn; không chữ bị cắt.
 - [ ] Không còn binding tên cũ sau clone (grep = 0); không trang mồ côi ngoài `pages.json`.
 - [ ] Accessibility: tương phản, alt text, thứ tự tab (Microsoft `accessibility.md`).
+- [ ] Nếu có người xem trên điện thoại: đã có bố cục mobile riêng, hoặc ghi rõ lý do không làm; xem thử trên khung mobile của Desktop.
+- [ ] Thời gian mở một trang: khởi điểm đặt mục tiêu dưới 5 giây (**ngưỡng khởi điểm, không phải chuẩn Microsoft**); vượt thì đo bằng Performance Analyzer trước khi sửa.
 
 ## G. Khả năng bảo trì
-- [ ] Đặt tên nhất quán; comment ở chỗ khó; không hằng số ma thuật trong DAX/SQL.
+- [ ] Đặt tên nhất quán; comment ở chỗ khó; không hằng số ma thuật trong DAX/SQL — giá trị cần đổi theo kịch bản đặt ở bảng tham số (ưu tiên field parameter, hoặc tham số what-if), không gõ cứng vào công thức.
 
 ## Điều kiện DỪNG (không duyệt)
 - Số không khớp nguồn sự thật nghiệp vụ.
