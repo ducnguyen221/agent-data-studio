@@ -1,6 +1,6 @@
 ---
 name: pbi-publish
-description: "Publish Power BI work to Microsoft Fabric / Power BI Service: deploy a local .pbip (semantic model plus report) to a workspace, create or update report and semantic model items through the Fabric REST API with az rest, handle long-running operations, and rebind the report to the target semantic model. Status unverified: no test workspace yet, confirm every step with the user. Use when: publish or upload a report to Fabric, deploy a PBIP, update a report definition in a workspace, list or download workspace reports. Not: editing pages or visuals -> pbi-build; editing measures or TMDL locally -> pbi-model; review before publishing -> pbi-review; closing the project and packing knowledge -> pbi-knowledge."
+description: "Publish Power BI work to Microsoft Fabric / Power BI Service: deploy a local .pbip (semantic model plus report) to a workspace, create or update report and semantic model items through the Fabric REST API with az rest, handle long-running operations, and rebind the report to the target semantic model. Status unverified: no test workspace yet, confirm every step with the user. Use when: publish or upload a report to Fabric, deploy a PBIP, update a report definition in a workspace, list or download workspace reports, plan DEV/UAT/PROD environments and deployment pipelines, embed reports in an app. Not: editing pages or visuals -> pbi-build; editing measures or TMDL locally -> pbi-model; review before publishing -> pbi-review; closing the project and packing knowledge -> pbi-knowledge."
 metadata:
   group: powerbi
   chain_position: 7
@@ -38,6 +38,7 @@ report trỏ đúng semantic model đích.
 - **Bắt buộc** — sau khi có model đích: so mọi binding PBIR (`Entity`, `queryRef`, `nativeQueryRef`, filter) với tên trong TMDL đích; lệch thì remap qua `pbi-build`, không tương đương thì hỏi user.
 - **Ưu tiên** — `definition.pbir` dạng `byConnection` cho API (`byPath` chỉ cho local/git); ID tìm động qua List API.
 - **Ưu tiên** — xoá mềm thay vì xoá cứng; dọn file tạm (định nghĩa đã giải mã, payload) sau khi xong.
+- **Ưu tiên** — hỏi môi trường đích (DEV/UAT/PROD) và pipeline trước khi đẩy; không bỏ qua UAT: [environments-and-embedding](references/kpim/environments-and-embedding.md).
 - **Tránh** — tự viết JSON PBIR từ trí nhớ; gửi chỉ part đã sửa; retry POST tạo mới sau khi đã nhận 202 (sinh bản trùng).
 - **Tránh** — đọc secret/token bằng agent: xác thực do `az login` hoặc engine đọc `ADS_SECRETS_FILE`.
 
@@ -54,6 +55,10 @@ Bản tham chiếu Microsoft là tài liệu tra cứu kỹ thuật, không ph�
 | 5 | Report: tạo mới hoặc `updateDefinition` (đủ part, base64, `byConnection`), poll LRO | [COMMON-CLI](references/microsoft/common/COMMON-CLI.md) §LRO | Trạng thái Succeeded |
 | 6 | So binding report ↔ model đích; remap nếu cần | — | Mở report trên Service không lỗi visual |
 | 7 | Dọn file tạm; ghi HANDOFF (cách refresh, gateway, quyền) → [`pbi-knowledge`](../pbi-knowledge/SKILL.md) | — | HANDOFF có trong `projects/<slug>/artifacts/` |
+
+## Tài liệu tham khảo — `references/kpim/` (studio, `unverified`)
+
+[environments-and-embedding.md](references/kpim/environments-and-embedding.md) — môi trường DEV/UAT/PROD, pipeline, embed, thành phần Fabric; kiểm Microsoft hiện hành trước khi tư vấn.
 
 ## Tài liệu tham khảo — `references/microsoft/` (nguyên văn, v0.3.16)
 
