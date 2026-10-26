@@ -44,7 +44,7 @@ RETURN
     )
 ```
 - Nhiều bảng fact có ngày: lấy ngày nhỏ nhất và lớn nhất qua **mọi** cột ngày liên quan (phép `MIN`/`MAX` hai đối số), để bảng Date phủ trọn phạm vi.
-- Đánh dấu là **date table** (Mark as date table, hay `dataCategory: Time` trong TMDL) trên cột `Date`; cột này duy nhất và liên tục, không hở ngày.
+- Đánh dấu **bảng** Date là date table (Mark as date table; trong TMDL là `dataCategory: Time` đặt ở **bảng**, không phải trên cột); cột `Date` là khoá (`isKey`), duy nhất và liên tục, không hở ngày.
 - **Sort by column**: sắp `Month Name` theo `Month Number`; nếu không, tháng xếp theo bảng chữ cái.
 - Quan hệ Một→Nhiều từ `Date[Date]` sang cột ngày của fact. Cột ngày của fact có phần giờ thì tạo cột chỉ-ngày để khớp. Tắt auto date/time.
 - Thêm cột chỉ khi báo cáo cần (quý, tuần, năm tài chính...); ghi `displayFolder` và `formatString` như mục 7.
@@ -98,7 +98,7 @@ RETURN
     CALCULATE([Total Sales], DATESBETWEEN('Date'[Date], BLANK(), _LastDate))
 ```
 - Lũy kế từ đầu năm: `CALCULATE([Total Sales], DATESYTD('Date'[Date]))` (hoặc `TOTALYTD`, mục 3). `DATESBETWEEN` với đầu mút `BLANK()` lấy từ ngày sớm nhất của bảng Date.
-- Cần date table liên tục (mục 3, 3b). Nếu bắt buộc dùng điều kiện tùy ý, có thể dùng `FILTER(ALL('Date'[Date]), 'Date'[Date] <= _LastDate)`; ở đây `ALL` là **hàm trả bảng** (danh sách ngày) chứ không phải bộ sửa ngữ cảnh nên `REMOVEFILTERS` không thay máy móc được. Chỉ `ALL` trên cột/bảng Date, **không** trên bảng fact. Bẫy blank member khi dùng cách này: `tom-tmdl-write.md`, mục 5.
+- Cần date table liên tục và **đã được đánh dấu** là date table (mục 3, 3b); nếu chưa đánh dấu, bộ lọc trên cột Năm/Tháng vẫn giữ và lũy kế bị cắt theo từng tháng trên trục. Nếu bắt buộc dùng điều kiện tùy ý, có thể dùng `FILTER(ALL('Date'[Date]), 'Date'[Date] <= _LastDate)`; ở đây `ALL` là **hàm trả bảng** (danh sách ngày) chứ không phải bộ sửa ngữ cảnh nên `REMOVEFILTERS` không thay máy móc được. Chỉ `ALL` trên cột/bảng Date, **không** trên bảng fact. Bẫy blank member khi dùng cách này: `tom-tmdl-write.md`, mục 5.
 
 **Số dư / tồn cuối kỳ (semi-additive).** Cộng qua tháng làm số phồng; lấy giá trị ở cuối kỳ.
 ```dax
@@ -106,6 +106,7 @@ Closing Balance =
 CLOSINGBALANCEMONTH(SUM('Account Balance'[Balance]), 'Date'[Date])
 ```
 - Snapshot thưa (ngày cuối kỳ không có dòng) thì dùng `LASTNONBLANKVALUE('Date'[Date], SUM('Account Balance'[Balance]))`: lấy giá trị ở ngày gần nhất có dữ liệu trong kỳ.
+- Bẫy hụt tổng: `LASTNONBLANKVALUE` lấy **một** ngày chung gần nhất; khi nhiều thực thể (tài khoản, kho) có ngày chụp cuối khác nhau, thực thể không có dòng ở ngày đó bị bỏ nên tổng bị hụt. Tính theo từng thực thể rồi cộng, ví dụ `SUMX(VALUES('Account'[Account ID]), LASTNONBLANKVALUE('Date'[Date], SUM('Account Balance'[Balance])))`, và đối chiếu số biết trước.
 - Bẫy: bọc `LASTDATE` trần trong `CALCULATE` trả `BLANK` khi ngày cuối kỳ không có dòng; luôn đối chiếu một con số biết trước (mục 7) cho tháng cuối cùng và tháng đầu tiên.
 - Phần "không SUM qua tháng" đã ghi ở mục 6.
 

@@ -58,4 +58,4 @@ Không trích điều khoản; chỉ nhắc người dùng kiểm với bộ ph�
 - **Không bịa số liệu.** Số về chi phí, thời gian, hiệu quả chỉ là tham chiếu và phải nói "tùy dự án".
 - Tài liệu tri thức chung **không nêu tên khách hàng**; quy về ngành.
 - Chạm tài chính hoặc pháp lý: nhắc đây không thay chuyên gia; cung cấp thông tin để người dùng tự quyết.
-- Sau khi khách chốt phương án: bàn giao sang chuỗi `pbi-model` → `pbi-analysis` → `pbi-design` → `pbi-build` (dựng–kiểm), đóng dự án bằng `pbi-knowledge`.
+- Sau khi khách chốt phương án: bàn giao sang chuỗi `pbi-model` → `pbi-analysis` → `pbi-design` → `pbi-build` (dựng–kiểm), rồi đào tạo người dùng (Pha 4 của `discovery-process.md`; dựng–kiểm–đào tạo), đóng dự án bằng `pbi-knowledge`.

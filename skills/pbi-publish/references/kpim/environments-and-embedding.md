@@ -16,6 +16,7 @@ updated: 2026-10-26
 | **UAT** | Người dùng nghiệp vụ nghiệm thu trên dữ liệu gần thật | nhóm nghiệm thu | người dùng nghiệp vụ xác nhận số và **kiểm RLS bằng tài khoản đại diện** |
 | PROD | Phục vụ người dùng cuối | người dùng cuối | — |
 
+- Một số tài liệu gọi UAT là Test; ở studio hai tên là một bước.
 - **Không đưa thẳng lên PROD mà bỏ qua UAT.** Lỗi ngữ nghĩa và lỗi RLS thường chỉ lộ khi người nghiệp vụ thật mở báo cáo.
 - Mỗi môi trường một workspace; tên có hậu tố môi trường (quy ước cụ thể do tổ chức chọn). Dataset dùng chung nhiều báo cáo có thể đặt ở workspace dữ liệu riêng; báo cáo nối vào đó.
 - Thông tin riêng của khách (tên workspace thật, tài khoản) ghi trong hồ sơ dự án, không ghi vào tri thức nền.

@@ -10,7 +10,7 @@
 
 | Ngành | Nên hỏi để làm rõ |
 |---|---|
-| Ngân hàng | Báo cáo chủ yếu để theo dõi quy mô và cơ cấu tín dụng/huy động, hay chất lượng tín dụng? Có theo dõi tỷ lệ nợ xấu không và nhóm nợ được định nghĩa theo quy chế nào? Có cần biên lãi thuần (NIM) và tỷ trọng tiền gửi không kỳ hạn không, tính theo bình quân hay cuối kỳ? Doanh thu phí chia theo sản phẩm hay kênh? |
+| Ngân hàng | Báo cáo chủ yếu để theo dõi quy mô và cơ cấu tín dụng/huy động, hay chất lượng tín dụng? Có theo dõi tỷ lệ nợ xấu (NPL) không và nhóm nợ được định nghĩa theo quy chế nào? Có cần biên lãi thuần (NIM) và tỷ trọng tiền gửi không kỳ hạn (CASA) không, tính theo bình quân hay cuối kỳ? Doanh thu phí chia theo sản phẩm hay kênh? |
 | Bán lẻ | Doanh thu cắt theo cửa hàng, ngành hàng hay kênh? Biên lợi nhuận tính trên giá vốn nào? Tồn kho đo bằng vòng quay, số ngày tồn hay tỷ lệ bán ra so với tồn? Tồn lấy ở cuối ngày hay cuối tháng? |
 | Sản xuất | Sản lượng đếm ở công đoạn nào? Tỷ lệ lỗi tính trên sản phẩm hay lô? Hiệu suất thiết bị tổng thể (OEE) tính theo ca, dây chuyền hay máy, và dữ liệu thời gian dừng máy đến từ đâu? |
 | Quản lý quỹ | Giá trị tài sản ròng (NAV) và tài sản quản lý (AUM) được chốt theo tần suất nào? Hiệu quả danh mục so với chỉ số tham chiếu nào? Rủi ro đo bằng những chỉ tiêu nào và nguồn giá là gì? |

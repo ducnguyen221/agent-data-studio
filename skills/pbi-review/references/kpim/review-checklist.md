@@ -47,7 +47,7 @@ updated: 2026-09-17
 - [ ] Thời gian mở một trang: khởi điểm đặt mục tiêu dưới 5 giây (**ngưỡng khởi điểm, không phải chuẩn Microsoft**); vượt thì đo bằng Performance Analyzer trước khi sửa.
 
 ## G. Khả năng bảo trì
-- [ ] Đặt tên nhất quán; comment ở chỗ khó; không hằng số ma thuật trong DAX/SQL — giá trị cần đổi theo kịch bản đặt ở bảng tham số (ưu tiên field parameter, hoặc tham số what-if), không gõ cứng vào công thức.
+- [ ] Đặt tên nhất quán; comment ở chỗ khó; không hằng số ma thuật trong DAX/SQL — hằng số đổi theo kịch bản đặt ở bảng tham số **what-if** (tham số số, numeric range parameter), không gõ cứng vào công thức; field parameter chỉ để đổi trường/measure hiển thị, không giữ được giá trị số.
 
 ## Điều kiện DỪNG (không duyệt)
 - Số không khớp nguồn sự thật nghiệp vụ.
