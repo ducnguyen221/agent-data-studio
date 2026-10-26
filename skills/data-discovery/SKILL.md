@@ -1,6 +1,6 @@
 ---
 name: data-discovery
-description: "Business and data discovery before any BI tool: read documents and datasets, ask focused questions, and produce project documents plus a planning workbook. Works without Power BI. Use when: surveying datasets, planning reports, defining business requirements, metrics or dimensions. Not: sample-data generation -> data-mockup; model or DAX work -> pbi-model; model queries -> pbi-analysis; project knowledge -> pbi-knowledge."
+description: "Business and data discovery before any BI tool: read documents and datasets, ask focused questions, and produce project documents plus a planning workbook. Works without Power BI. Use when: surveying datasets, planning reports, defining business requirements, metrics or dimensions, advising on a data or BI solution before detailed discovery, suggesting KPIs and colors by industry. Not: sample-data generation -> data-mockup; model or DAX work -> pbi-model; model queries -> pbi-analysis; project knowledge -> pbi-knowledge."
 metadata:
   group: data
   chain_position: 1
@@ -64,6 +64,8 @@ Trọn gói: `workflows/data-to-report.md` (gốc repo).
 | File | Đọc khi |
 |---|---|
 | [discovery-process.md](references/kpim/discovery-process.md) | Mọi pha — chi tiết từng pha, 5 thành phần Key Information, đầu ra, cổng kiểm, bộ mẫu |
+| [consulting-method.md](references/kpim/consulting-method.md) | Tư vấn giải pháp/kiến trúc dữ liệu: nguyên tắc, lưới câu hỏi, khuôn đầu ra, 2–3 phương án, kịch bản |
+| [kpi-by-industry.md](references/kpim/kpi-by-industry.md) | Hỏi ngược KPI theo ngành và gợi ý màu (chỉ là gợi ý) |
 
 Microsoft `powerbi-report-planning` (phần requirements) chưa chép vào studio; khi có sẽ nằm ở skill này.
 
