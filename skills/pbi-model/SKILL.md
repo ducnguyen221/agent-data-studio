@@ -36,6 +36,7 @@ Chuỗi đầy đủ: `workflows/data-to-report.md` ở gốc repo.
 - **Ưu tiên** — fold tối đa về nguồn; biến đổi nặng ở Power Query/SQL, tính theo ngữ cảnh báo cáo ở DAX.
 - **Ưu tiên** — measure gom một bảng riêng (vd `Công Thức`), `displayFolder` theo trang báo cáo, `formatString` tường minh.
 - **Ưu tiên** — `VAR`, `DIVIDE`, time-intelligence lọc qua date table.
+- **Ưu tiên** — sau khi đưa công thức, giải thích **vì sao** chọn cách đó (không chỉ dán mã) để người dùng tự làm được lần sau.
 - **Tránh** — auto date/time; quan hệ hai chiều không lý do; `SUM` cột tồn/số dư qua nhiều kỳ.
 - **Tránh** — interleave ghi từ hai MCP (bridge studio + Modeling MCP Microsoft) lên cùng model.
 - **Tránh** — TMSL `createOrReplace` mức từng measure qua ADOMD (Desktop từ chối).
@@ -60,7 +61,7 @@ Ghi TMDL: tab-indent, CRLF, UTF-8 không BOM, `lineageTag` UUID mới, chèn tr�
 |---|---|
 | [m-best-practices.md](references/kpim/m-best-practices.md) | Bước 1–2: query folding, `Value.NativeQuery`, connector, kiểu dữ liệu, incremental |
 | [sql-best-practices.md](references/kpim/sql-best-practices.md) | Nguồn SQL/DW: SARGable, index, pre-aggregate, staging, SCD |
-| [dax-best-practices.md](references/kpim/dax-best-practices.md) | Viết/tối ưu DAX: VAR, DIVIDE, date table, calculation group, time-intel |
+| [dax-best-practices.md](references/kpim/dax-best-practices.md) | Viết/tối ưu DAX: VAR, DIVIDE, date table (kể cả tạo bảng Date khi chưa có), calculation group, time-intel; mẫu xếp hạng `RANKX`, lũy kế, số dư cuối kỳ, parent-child, chọn measure bằng slicer; debug measure |
 | [gotchas.md](references/kpim/gotchas.md) | Trước mỗi bước — bẫy đã trả giá (serial date, blank member, STOCK) |
 | [tom-tmdl-write.md](references/kpim/tom-tmdl-write.md) | Bước 4 — ghi measure/cột tính/quan hệ; TOM vs TMDL |
 
