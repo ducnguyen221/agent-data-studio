@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0 — 2026-10-26 — Mở rộng tài liệu tham khảo cho kết nối nguồn, tư vấn và triển khai
+
+- Tài liệu tham khảo mới trong `references/kpim/`: `db-source-access` (kết nối và truy vấn nguồn cơ sở
+  dữ liệu), `consulting-method` (phương pháp tư vấn dữ liệu), `kpi-by-industry` (KPI theo ngành),
+  `environments-and-embedding` (môi trường triển khai và nhúng báo cáo).
+- Bổ sung `dax-best-practices` và `review-checklist`; cập nhật mô tả các skill `data-discovery`,
+  `pbi-analysis`, `pbi-model`, `pbi-publish` để trỏ tới các tài liệu trên.
+- `NOTICE.md` ghi công tác giả cho phần tài liệu được viết lại từ bộ skill nội bộ.
+- Bản sinh adapter các host được tạo lại theo mô tả skill mới.
+
 ## 0.7.1 — 2026-09-27 — Cài bằng một prompt cho mọi AI agent
 
 - `INSTALL.md` mới ở gốc repo: hướng dẫn cài dành cho AI agent. Một prompt copy-dán dùng chung
