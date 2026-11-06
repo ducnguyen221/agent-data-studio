@@ -40,12 +40,17 @@ FAKE_CLI = r'''
 $log = $env:ADS_FAKE_CLI_LOG
 if ($log) { Add-Content -LiteralPath $log -Value ($args -join '|') -Encoding UTF8 }
 $cmd = [string]$args[0]
+# Giả log uv/pip ra stderr (L7): ADS_FAKE_STDERR=n dòng; ADS_FAKE_RT_STDERR=1 đưa cả mã RT_* sang stderr.
+function Write-Rt([string]$text) {
+    if ($env:ADS_FAKE_RT_STDERR) { [Console]::Error.WriteLine($text) } else { Write-Output $text }
+}
+if ($env:ADS_FAKE_STDERR) { 1..([int]$env:ADS_FAKE_STDERR) | ForEach-Object { [Console]::Error.WriteLine("uv: noise line $_") } }
 $target = Join-Path $env:OPCOS_RUNTIME 'mcp\agent-data-studio\powerbi'
 $manifestFile = Join-Path $target '.opcos-resource.json'
 if ($cmd -eq 'ensure') {
-    if ($env:ADS_FAKE_ENSURE_MODE -eq 'fail') { Write-Output 'RT_INSTALL_FAILED boom'; exit 1 }
+    if ($env:ADS_FAKE_ENSURE_MODE -eq 'fail') { Write-Rt 'RT_INSTALL_FAILED boom'; exit 1 }
     if ($env:ADS_FAKE_ENSURE_MODE -eq 'stale' -and ($args -notcontains '--upgrade')) {
-        Write-Output 'RT_STALE resource is stale, rerun with --upgrade'; exit 1
+        Write-Rt 'RT_STALE resource is stale, rerun with --upgrade'; exit 1
     }
     & $env:ADS_FAKE_PY -m venv --without-pip $target
     $m = @{ schema = 'opcos-resource/1'; category = 'mcp'; repoKey = 'agent-data-studio'; resourceKey = 'powerbi';
@@ -55,7 +60,7 @@ if ($cmd -eq 'ensure') {
     exit 0
 }
 if ($cmd -eq 'release') {
-    if ($env:ADS_FAKE_RELEASE_EXIT) { Write-Output 'RT_LOCKED busy'; exit ([int]$env:ADS_FAKE_RELEASE_EXIT) }
+    if ($env:ADS_FAKE_RELEASE_EXIT) { Write-Rt 'RT_LOCKED busy'; exit ([int]$env:ADS_FAKE_RELEASE_EXIT) }
     $repo = $args[[array]::IndexOf($args, '--repo') + 1]
     if (Test-Path -LiteralPath $manifestFile) {
         $m = Get-Content -LiteralPath $manifestFile -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -488,3 +493,63 @@ def test_needs_file_declares_one_own_mcp_resource():
         if "==" in line:
             name, version = line.strip().split("==")
             assert pins.get(name.lower(), version) == version, f"lock mâu thuẫn với requirements: {name}"
+
+
+# ---------------------------------------------------------------- L7: log uv/pip ở stderr, thành/bại chỉ theo mã thoát
+def test_install_ensure_noisy_stderr_exit0_writes_marker_after(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, target, log = _fake_opcos(source.parent / "opcos", env)
+    env["ADS_FAKE_STDERR"] = "25"
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-1500:]
+    assert (target / ".ads-venv-owned").read_text(encoding="utf-8").strip() == str(source)
+    out = result.stdout + result.stderr
+    assert "noise line 25" in out, "log stderr của ensure phải được in lại cho người dùng"
+    assert "powershell.exe :" not in out and "NativeCommandError" not in out, out[-1500:]
+    assert len(_calls(log)) == 1
+
+
+def test_install_ensure_failure_writes_no_ownership_marker(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, target, _ = _fake_opcos(source.parent / "opcos", env)
+    env["ADS_FAKE_ENSURE_MODE"] = "fail"
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 1
+    assert not (target / ".ads-venv-owned").exists(), "dấu sở hữu chỉ ghi SAU khi ensure thoát 0"
+
+
+def test_install_stale_code_on_stderr_still_retries_with_upgrade(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, target, log = _fake_opcos(source.parent / "opcos", env)
+    env.update(ADS_FAKE_ENSURE_MODE="stale", ADS_FAKE_STDERR="22", ADS_FAKE_RT_STDERR="1")
+    _manifest(target)
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-1500:]
+    calls = _calls(log)
+    assert len(calls) == 2 and calls[1].endswith("--upgrade"), calls
+    assert (target / ".ads-venv-owned").exists()
+
+
+def test_install_failure_code_on_stderr_is_reported(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _fake_opcos(source.parent / "opcos", env)
+    env.update(ADS_FAKE_ENSURE_MODE="fail", ADS_FAKE_STDERR="22", ADS_FAKE_RT_STDERR="1")
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 1
+    assert "RT_INSTALL_FAILED" in result.stdout, result.stdout[-1500:]
+
+
+def test_uninstall_release_noisy_stderr_exit0_is_not_an_error(tmp_path):
+    source, _, env, target, log = _runtime_uninstall_env(tmp_path)
+    env["ADS_FAKE_STDERR"] = "25"
+    result = _uninstall(source, env, "-RemoveVenv")
+    assert result.returncode == 0, result.stdout + result.stderr
+    out = result.stdout + result.stderr
+    assert "release failed" not in out and "powershell.exe :" not in out, out[-1500:]
+    assert "noise line 25" in out
+    assert _calls(log) == ["release|--repo|agent-data-studio"]
+    assert not target.exists()
