@@ -25,6 +25,8 @@ def test_uninstall_keeps_venv_when_unselected_host_uses_it(tmp_path):
     source = tmp_path / "checkout"
     source.mkdir()
     shutil.copy2(REPO / "uninstall.ps1", source / "uninstall.ps1")
+    (source / "scripts").mkdir(exist_ok=True)
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     (source / "mcp_server_powerbi.py").write_text("# fixture\n", encoding="utf-8")
     venv = source / ".venv"
     venv.mkdir()
@@ -76,6 +78,8 @@ def test_uninstall_removes_only_marked_idle_venv(tmp_path):
     source = tmp_path / "checkout"
     source.mkdir()
     shutil.copy2(REPO / "uninstall.ps1", source / "uninstall.ps1")
+    (source / "scripts").mkdir(exist_ok=True)
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     (source / "mcp_server_powerbi.py").write_text("# fixture\n", encoding="utf-8")
     venv = source / ".venv"
     venv.mkdir()
@@ -101,6 +105,8 @@ def test_doctor_reads_only_selected_host(tmp_path):
     source = tmp_path / "checkout"
     source.mkdir()
     shutil.copy2(REPO / "doctor.ps1", source / "doctor.ps1")
+    (source / "scripts").mkdir(exist_ok=True)
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     (source / "mcp_server_powerbi.py").write_text("pass\n", encoding="utf-8")
     shutil.copytree(REPO / "powerbi_agent", source / "powerbi_agent",
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
@@ -154,6 +160,7 @@ def test_update_preflights_candidate_without_changing_checkout(tmp_path):
     shutil.copy2(REPO / "update.ps1", upstream / "update.ps1")
     (upstream / "scripts").mkdir()
     shutil.copy2(REPO / "scripts" / "update_release.py", upstream / "scripts" / "update_release.py")
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", upstream / "scripts" / "ads-venv.ps1")
     (upstream / "powerbi_agent").mkdir()
     (upstream / "powerbi_agent" / "__init__.py").write_text("", encoding="utf-8")
     shutil.copy2(REPO / "powerbi_agent" / "_env.py", upstream / "powerbi_agent" / "_env.py")
@@ -246,6 +253,7 @@ def test_update_apply_and_failed_candidate_preserve_station(tmp_path):
     shutil.copy2(REPO / "update.ps1", upstream / "update.ps1")
     (upstream / "scripts").mkdir()
     shutil.copy2(REPO / "scripts" / "update_release.py", upstream / "scripts" / "update_release.py")
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", upstream / "scripts" / "ads-venv.ps1")
     (upstream / "powerbi_agent").mkdir()
     (upstream / "powerbi_agent" / "__init__.py").write_text("", encoding="utf-8")
     shutil.copy2(REPO / "powerbi_agent" / "_env.py", upstream / "powerbi_agent" / "_env.py")

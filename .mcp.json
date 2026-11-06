@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "powerbi-mcp-bridge": {
-      "command": "${OPCOS_WORKSPACES}\\data\\.venv\\Scripts\\python.exe",
+      "command": "${OPCOS_RUNTIME}\\mcp\\agent-data-studio\\powerbi\\Scripts\\python.exe",
       "args": ["${CLAUDE_PLUGIN_ROOT}\\mcp_server_powerbi.py"],
       "env": {
         "ADS_DATA": "${OPCOS_WORKSPACES}\\data",

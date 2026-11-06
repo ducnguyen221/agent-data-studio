@@ -110,12 +110,12 @@ class TestSourceBoundary:
         "README.md", "README.vi.md", "START-HERE.md", "INSTALL.md", "INDEX.md", "AGENTS.md", "CLAUDE.md", "GEMINI.md",
         "ROADMAP.md", "ECOSYSTEM.md", ".mcp.json", "LICENSE", ".gitignore", ".gitattributes", ".env.example",
         "policy.example.json", "THIRD_PARTY_NOTICES.md", "NOTICE.md",
-        "pyproject.toml", "requirements.txt", "requirements.loose.txt",
+        "pyproject.toml", "requirements.txt", "requirements.loose.txt", "opcos-runtime.json",
         "install.ps1", "uninstall.ps1", "doctor.ps1", "update.ps1", "pack.ps1", "mcp_server_powerbi.py",
     }
     ALLOWED_ROOT_DIRS = {
         ".claude-plugin", ".codex-plugin", ".claude", ".agents", ".github", "docs", "hosts", "plugins", "powerbi_agent",
-        "report-templates", "samples", "scripts", "tests",
+        "report-templates", "samples", "scripts", "tests", "locks",
         "skills", "commands", "agents", "templates", "workflows", "upstream", "LICENSES",
     }
 

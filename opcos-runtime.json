@@ -1,0 +1,18 @@
+{
+  "schema": "opcos-runtime-needs/1",
+  "repoKey": "agent-data-studio",
+  "needs": [
+    {
+      "scope": "own",
+      "category": "mcp",
+      "key": "powerbi",
+      "python": "3.12",
+      "install": {
+        "requirements": ["requirements.txt"],
+        "torch": false,
+        "constraints": {"windows": ["locks/powerbi-windows.txt"]}
+      },
+      "paths": {"dir_rel": 95, "file_rel": 119}
+    }
+  ]
+}

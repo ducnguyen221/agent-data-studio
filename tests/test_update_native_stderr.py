@@ -39,6 +39,7 @@ def checkout(tmp_path):
     shutil.copy2(REPO / "update.ps1", upstream / "update.ps1")
     (upstream / "scripts").mkdir()
     shutil.copy2(REPO / "scripts" / "update_release.py", upstream / "scripts" / "update_release.py")
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", upstream / "scripts" / "ads-venv.ps1")
     (upstream / "requirements.txt").write_text("packaging==25.0\n", encoding="utf-8")
     (upstream / "mcp_server_powerbi.py").write_text("pass\n", encoding="utf-8")
     (upstream / "sample.py").write_text("value = 1\n", encoding="utf-8")

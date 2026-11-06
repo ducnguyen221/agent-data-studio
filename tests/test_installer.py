@@ -21,6 +21,7 @@ def source_fixture(tmp_path):
     (source / ".env.example").write_text("POWERBI_AGGREGATE_ONLY=1\n", encoding="utf-8")
     (source / "scripts").mkdir()
     shutil.copy2(REPO / "scripts" / "build_host_adapters.py", source / "scripts" / "build_host_adapters.py")
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     for skill in (REPO / "skills").iterdir():
         if skill.is_dir() and (skill / "SKILL.md").exists():
             target = source / "skills" / skill.name

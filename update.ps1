@@ -6,6 +6,9 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = [IO.Path]::GetFullPath($PSScriptRoot)
+# Đích venv: runtime OpcOS khi máy có OpcOS, ngược lại .venv trong checkout (dùng chung với install/uninstall/doctor).
+. (Join-Path $repoRoot 'scripts\ads-venv.ps1')
+$venvRootPath = Resolve-AdsVenvRoot $repoRoot
 function Fail($reason) { Write-Host ('[FAIL] {0}' -f $reason); exit 1 }
 # PS 5.1 + Stop biến stderr của lệnh native thành lỗi dừng khi stderr bị chuyển hướng (2>$null ở đây,
 # hoặc người gọi gom *>&1/2>&1 vào biến) -> script chết không in [FAIL]. Lệnh native chỉ đánh giá bằng $LASTEXITCODE.
@@ -66,7 +69,7 @@ Invoke-Native git -C $repoRoot merge-base --is-ancestor $old $target
 if ($LASTEXITCODE -ne 0) { Fail 'Upstream diverged. No update was applied.' }
 # Ưu tiên Python của venv checkout: máy cài Python không tick "Add to PATH" chỉ có `py`, install.ps1
 # vẫn tạo được .venv nhưng `python` không có trong PATH. Kiểm tĩnh ứng viên chỉ cần stdlib + git.
-$checkoutPython = Join-Path $repoRoot '.venv\Scripts\python.exe'
+$checkoutPython = Join-Path $venvRootPath 'Scripts\python.exe'
 $pythonCommand = if (Test-Path -LiteralPath $checkoutPython -PathType Leaf) { Get-Command $checkoutPython -ErrorAction SilentlyContinue }
 if (-not $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction SilentlyContinue }
 if (-not $pythonCommand) { Fail 'Python is required for candidate validation.' }
@@ -81,7 +84,7 @@ def blob(ref, name):
     return git("show", ref + ":" + name)
 try:
     names = git("ls-tree", "-r", "--name-only", target).decode("utf-8").splitlines()
-    required = {"install.ps1", "uninstall.ps1", "doctor.ps1", "update.ps1",
+    required = {"install.ps1", "uninstall.ps1", "doctor.ps1", "update.ps1", "scripts/ads-venv.ps1",
                 "mcp_server_powerbi.py", "requirements.txt", "scripts/update_release.py"}
     if not required.issubset(names):
         print("CANDIDATE_FAIL missing lifecycle files")
@@ -149,13 +152,15 @@ if (-not $ExpectedCommit -or $ExpectedCommit -ne $target) {
 }
 $helper = Join-Path $repoRoot 'scripts\update_release.py'
 if (-not (Test-Path -LiteralPath $helper -PathType Leaf)) { Fail 'Updater helper missing in current checkout.' }
-$venvPython = Join-Path $repoRoot '.venv\Scripts\python.exe'
-$marker = Join-Path $repoRoot '.venv\.ads-venv-owned'
+$venvPython = Join-Path $venvRootPath 'Scripts\python.exe'
+$marker = Join-Path $venvRootPath '.ads-venv-owned'
+# Có OpcOS: quyền sở hữu = tệp khai sinh của tài nguyên runtime (repoKey agent-data-studio); không có: marker như cũ.
+$venvOwned = if (Get-AdsRuntimeRoot) { Test-AdsManifestOwned (Read-AdsResourceManifest $venvRootPath) }
+    else { (Test-Path -LiteralPath $marker -PathType Leaf) -and
+           (Get-Content -LiteralPath $marker -Raw -Encoding UTF8).Trim() -eq $repoRoot.TrimEnd('\', '/') }
 if ($env:POWERBI_INSTALL_PYTHON) {
     $runtimePython = $env:POWERBI_INSTALL_PYTHON
-} elseif ((Test-Path -LiteralPath $venvPython -PathType Leaf) -and
-          (Test-Path -LiteralPath $marker -PathType Leaf) -and
-          (Get-Content -LiteralPath $marker -Raw -Encoding UTF8).Trim() -eq $repoRoot.TrimEnd('\', '/')) {
+} elseif ((Test-Path -LiteralPath $venvPython -PathType Leaf) -and $venvOwned) {
     $runtimePython = $venvPython
 } else { Fail 'Owned runtime Python unavailable. Run installer before applying an update.' }
 if (-not (Test-Path -LiteralPath $runtimePython -PathType Leaf)) { Fail 'Configured runtime Python unavailable.' }

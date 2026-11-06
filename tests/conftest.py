@@ -24,19 +24,29 @@ _PATH_OVERRIDES = (
     "POWERBI_DISTILL_DIR",
     "ADS_SECRETS_FILE",
 )
-_SAVED_ENV = {name: os.environ.get(name) for name in ("ADS_DATA", *_PATH_OVERRIDES)}
+# SPR-61 TK7: đích venv phụ thuộc gốc runtime OpcOS (OPCOS_RUNTIME -> OPCOS_ROOT -> ~\OpcOS\paths.json, ~ = USERPROFILE).
+# Máy dev CÓ OpcOS: nếu để test kế thừa, installer/updater/doctor sẽ nhìn runtime THẬT. Cô lập cả ba nguồn:
+# bỏ hai biến, và USERPROFILE/HOME trỏ hồ sơ giả rỗng (không có OpcOS\paths.json). Test cần OpcOS tự dựng cây giả.
+_RUNTIME_ENV = ("OPCOS_RUNTIME", "OPCOS_ROOT")
+_PROFILE_ENV = ("USERPROFILE", "HOME")
+_SAVED_ENV = {name: os.environ.get(name) for name in ("ADS_DATA", *_PATH_OVERRIDES, *_RUNTIME_ENV, *_PROFILE_ENV)}
 TEST_STATION = tempfile.mkdtemp(prefix="ads-pytest-station-")
+TEST_PROFILE = tempfile.mkdtemp(prefix="ads-pytest-profile-")
 os.environ["ADS_DATA"] = TEST_STATION
-for _name in _PATH_OVERRIDES:
+for _name in (*_PATH_OVERRIDES, *_RUNTIME_ENV):
     os.environ.pop(_name, None)
+for _name in _PROFILE_ENV:
+    os.environ[_name] = TEST_PROFILE
 
 
 @pytest.fixture(autouse=True)
 def _isolated_station(monkeypatch):
     """Mỗi test bắt đầu ở trạm tạm của phiên, không mang biến đường dẫn của shell."""
     monkeypatch.setenv("ADS_DATA", TEST_STATION)
-    for name in _PATH_OVERRIDES:
+    for name in (*_PATH_OVERRIDES, *_RUNTIME_ENV):
         monkeypatch.delenv(name, raising=False)
+    for name in _PROFILE_ENV:
+        monkeypatch.setenv(name, TEST_PROFILE)
 
 
 def pytest_unconfigure(config):
@@ -46,3 +56,4 @@ def pytest_unconfigure(config):
         else:
             os.environ[name] = value
     shutil.rmtree(TEST_STATION, ignore_errors=True)
+    shutil.rmtree(TEST_PROFILE, ignore_errors=True)

@@ -8,7 +8,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = [System.IO.Path]::GetFullPath($PSScriptRoot)
 $serverPath = Join-Path $repoRoot 'mcp_server_powerbi.py'
-$python = if ($env:POWERBI_INSTALL_PYTHON) { $env:POWERBI_INSTALL_PYTHON } else { Join-Path $repoRoot '.venv\Scripts\python.exe' }
+# Đích venv: runtime OpcOS (R\mcp\agent-data-studio\powerbi) khi máy có OpcOS, ngược lại .venv trong checkout.
+. (Join-Path $repoRoot 'scripts\ads-venv.ps1')
+$useRuntime = [bool](Get-AdsRuntimeRoot)
+$python = if ($env:POWERBI_INSTALL_PYTHON) { $env:POWERBI_INSTALL_PYTHON } else { Join-Path (Resolve-AdsVenvRoot $repoRoot) 'Scripts\python.exe' }
 if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
     $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
     if ($pythonCmd) { $python = $pythonCmd.Source }
@@ -171,16 +174,37 @@ try {
     Remove-Item -LiteralPath $tempHelper -Force -ErrorAction SilentlyContinue
     throw
 }
+# Có OpcOS: gỡ cấu hình = nhả đăng ký "repo này dùng tài nguyên runtime". `release` không bao giờ xoá gì;
+# xoá venv là việc riêng của -RemoveVenv bên dưới. Chỉ nhả khi mọi host đã chọn gỡ sạch.
+if ($useRuntime -and -not $failed) {
+    $runtimeCli = Get-OpcosRuntimeCli
+    if ($runtimeCli) {
+        $prev = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        try {
+            $releaseOut = @(& powershell -NoProfile -ExecutionPolicy Bypass -File $runtimeCli release --repo agent-data-studio 2>&1)
+            $releaseExit = $LASTEXITCODE
+        } finally { $ErrorActionPreference = $prev }
+        foreach ($line in $releaseOut) { Write-Host "runtime: $line" }
+        if ($releaseExit -ne 0) {
+            Write-Warning "opcos-runtime release failed (exit $releaseExit); runtime consumers were not updated."
+            $failed = $true
+        }
+    } else {
+        Write-Warning 'opcos-runtime CLI not found; runtime consumers were not updated.'
+    }
+}
 try {
 if ($RemoveVenv -and $failed) {
     Write-Warning 'Skipping .venv removal because MCP configuration could not be fully inspected.'
 }
 if ($RemoveVenv -and -not $failed) {
-    $venv = Join-Path $repoRoot '.venv'
+    $venv = Resolve-AdsVenvRoot $repoRoot
     $resolvedRepo = [System.IO.Path]::GetFullPath($repoRoot).TrimEnd('\', '/')
     $resolvedVenv = [System.IO.Path]::GetFullPath($venv).TrimEnd('\', '/')
-    if (-not $resolvedVenv.StartsWith($resolvedRepo + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase) -or
-        [System.IO.Path]::GetFileName($resolvedVenv) -ne '.venv') {
+    # Đích runtime nằm ngoài checkout theo thiết kế; quyền xoá dựa vào tệp khai sinh (bên dưới), không phải vị trí.
+    if (-not $useRuntime -and (-not $resolvedVenv.StartsWith($resolvedRepo + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase) -or
+        [System.IO.Path]::GetFileName($resolvedVenv) -ne '.venv')) {
         Write-Warning 'Refusing to remove virtual environment outside this checkout.'
         $failed = $true
     } elseif (Test-Path -LiteralPath $venv) {
@@ -191,8 +215,23 @@ if ($RemoveVenv -and -not $failed) {
         } else {
             $marker = Join-Path $venv '.ads-venv-owned'
             $expected = [IO.Path]::GetFullPath($repoRoot).TrimEnd('\', '/')
-            if (-not (Test-Path -LiteralPath $marker -PathType Leaf) -or
-                (Get-Content -LiteralPath $marker -Raw -Encoding UTF8).Trim() -ne $expected) {
+            $keepRuntime = $false
+            if ($useRuntime) {
+                # Sổ đăng ký sau release: chỉ xoá khi tệp khai sinh là của repo này và không còn ai dùng.
+                $resourceManifest = Read-AdsResourceManifest $venv
+                if (-not (Test-AdsManifestOwned $resourceManifest)) {
+                    Write-Warning 'Refusing runtime venv removal: resource manifest is missing or belongs to another repo.'
+                    $failed = $true
+                    $keepRuntime = $true
+                } elseif (@($resourceManifest.consumers).Count -gt 0) {
+                    Write-Warning ('Keeping runtime venv: other consumers still use it (' + (@($resourceManifest.consumers) -join ', ') + ').')
+                    $keepRuntime = $true
+                }
+            }
+            if ($keepRuntime) {
+                # Đã báo lý do ở trên; không xoá gì.
+            } elseif (-not $useRuntime -and (-not (Test-Path -LiteralPath $marker -PathType Leaf) -or
+                (Get-Content -LiteralPath $marker -Raw -Encoding UTF8).Trim() -ne $expected)) {
                 Write-Warning 'Refusing .venv removal without an ownership marker for this checkout.'
                 $failed = $true
             } elseif (-not (Test-Path -LiteralPath (Join-Path $venv 'pyvenv.cfg') -PathType Leaf)) {
@@ -214,7 +253,7 @@ if ($RemoveVenv -and -not $failed) {
                             Where-Object { $_.CommandLine -and $_.CommandLine.IndexOf($resolvedVenv, [StringComparison]::OrdinalIgnoreCase) -ge 0 })
                         if ($active.Count -gt 0) { throw 'busy' }
                         Remove-Item -LiteralPath $venv -Recurse -Force
-                        Write-Host 'Removed checkout .venv by explicit request.'
+                        Write-Host ('Removed ' + $(if ($useRuntime) { 'runtime' } else { 'checkout' }) + ' venv by explicit request.')
                     } catch {
                         Write-Warning 'Refusing .venv removal because it is busy or process state could not be verified.'
                         $failed = $true

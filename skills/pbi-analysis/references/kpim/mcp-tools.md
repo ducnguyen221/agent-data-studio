@@ -7,7 +7,7 @@ updated: 2026-09-17
 
 # 16 tool của engine studio
 
-Engine và môi trường Python `.venv/` chạy từ checkout Agent Data Studio; `ADS_DATA` chỉ chứa dữ liệu trạm. Bật MCP **theo nhu cầu**. Mặc định làm việc tiết kiệm
+Engine chạy từ checkout Agent Data Studio, môi trường Python ở `$OPCOS_RUNTIME/mcp/agent-data-studio/powerbi` (máy có OpcOS) hoặc `.venv/` trong checkout (máy không có OpcOS); `ADS_DATA` chỉ chứa dữ liệu trạm. Bật MCP **theo nhu cầu**. Mặc định làm việc tiết kiệm
 context: chỉ gọi tool khi cần số liệu/cấu trúc thật.
 
 | Nhóm | Tool | Chức năng | Ghi chú |
