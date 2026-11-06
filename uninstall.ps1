@@ -175,10 +175,29 @@ try {
     throw
 }
 # Có OpcOS: gỡ cấu hình = nhả đăng ký "repo này dùng tài nguyên runtime". `release` không bao giờ xoá gì;
-# xoá venv là việc riêng của -RemoveVenv bên dưới. Chỉ nhả khi mọi host đã chọn gỡ sạch.
+# xoá venv là việc riêng của -RemoveVenv bên dưới. Chỉ nhả khi (a) quét MỌI host (không chỉ host đã chọn) ra CLEAR
+# và (b) plugin Claude agent-data-studio không bật (plugin dùng venv qua .mcp.json, không nằm trong cấu hình host).
+$releaseRan = $false
+$releaseSkipReason = $null
 if ($useRuntime -and -not $failed) {
     $runtimeCli = Get-OpcosRuntimeCli
-    if ($runtimeCli) {
+    $runtimeScanOut = ''
+    $runtimeScanExit = 1
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $runtimeScanOut = (@(& $python $tempHelper scan $env:USERPROFILE $serverPath (Join-Path (Resolve-AdsVenvRoot $repoRoot) 'Scripts\python.exe') ([string]$env:APPDATA) 2>&1) -join [Environment]::NewLine)
+        $runtimeScanExit = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $prev }
+    if ($runtimeScanExit -ne 0 -or $runtimeScanOut -notmatch '(?m)^CLEAR\s*$') {
+        $releaseSkipReason = 'another host config still references the venv or host config cannot be inspected'
+    } elseif (Test-AdsClaudePluginEnabled) {
+        $releaseSkipReason = 'the Claude plugin agent-data-studio is enabled (or Claude settings could not be read)'
+    }
+    if ($releaseSkipReason) {
+        Write-Warning "opcos-runtime release not run: $releaseSkipReason; keeping venv."
+    } elseif ($runtimeCli) {
+        $releaseRan = $true
         $prev = $ErrorActionPreference
         $ErrorActionPreference = 'Continue'
         try {
@@ -191,7 +210,8 @@ if ($useRuntime -and -not $failed) {
             $failed = $true
         }
     } else {
-        Write-Warning 'opcos-runtime CLI not found; runtime consumers were not updated.'
+        $releaseSkipReason = 'opcos-runtime CLI not found'
+        Write-Warning 'opcos-runtime CLI not found; release not run, runtime consumers were not updated; keeping venv.'
     }
 }
 try {
@@ -219,7 +239,10 @@ if ($RemoveVenv -and -not $failed) {
             if ($useRuntime) {
                 # Sổ đăng ký sau release: chỉ xoá khi tệp khai sinh là của repo này và không còn ai dùng.
                 $resourceManifest = Read-AdsResourceManifest $venv
-                if (-not (Test-AdsManifestOwned $resourceManifest)) {
+                if (-not $releaseRan) {
+                    Write-Warning 'Keeping runtime venv: release not run, so the consumer registry still lists this repo.'
+                    $keepRuntime = $true
+                } elseif (-not (Test-AdsManifestOwned $resourceManifest)) {
                     Write-Warning 'Refusing runtime venv removal: resource manifest is missing or belongs to another repo.'
                     $failed = $true
                     $keepRuntime = $true

@@ -34,9 +34,32 @@ function Resolve-AdsVenvRoot([string]$Root) {
 function Get-OpcosRuntimeCli {
     $r = Get-AdsRuntimeRoot
     if (-not $r) { return $null }
-    $cli = [System.IO.Path]::GetFullPath((Join-Path $r '..\system\operations\runtime\opcos-runtime.ps1'))
-    if (Test-Path -LiteralPath $cli -PathType Leaf) { return $cli }
+    $candidates = @([System.IO.Path]::GetFullPath((Join-Path $r '..\system\operations\runtime\opcos-runtime.ps1')))
+    $o = [string]$env:OPCOS_ROOT
+    if ($o.Trim()) { $candidates += [System.IO.Path]::GetFullPath((Join-Path $o.Trim() 'system\operations\runtime\opcos-runtime.ps1')) }
+    foreach ($cli in $candidates) {
+        if (Test-Path -LiteralPath $cli -PathType Leaf) { return $cli }
+    }
     return $null
+}
+
+# Plugin Claude agent-data-studio đang bật? Chỉ ĐỌC %USERPROFILE%\.claude\settings.json, khoá enabledPlugins:
+# có khoá bắt đầu bằng "agent-data-studio@" mang giá trị true -> $true. Tệp không đọc/parse được -> $true (không
+# chứng minh được là không dùng). Không có tệp hoặc không có khoá -> $false.
+function Test-AdsClaudePluginEnabled {
+    $h = [string]$env:USERPROFILE
+    if (-not $h.Trim()) { return $true }
+    $file = Join-Path $h '.claude\settings.json'
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $false }
+    try {
+        $settings = Get-Content -LiteralPath $file -Raw -Encoding UTF8 | ConvertFrom-Json
+        if (-not $settings -or -not $settings.PSObject.Properties['enabledPlugins']) { return $false }
+        foreach ($property in $settings.enabledPlugins.PSObject.Properties) {
+            if ($property.Name.StartsWith($script:AdsRuntimeRepoKey + '@', [StringComparison]::OrdinalIgnoreCase) -and
+                $property.Value -eq $true) { return $true }
+        }
+        return $false
+    } catch { return $true }
 }
 
 # Đọc tệp khai sinh .opcos-resource.json của tài nguyên; $null nếu không có hoặc hỏng (không ném lỗi).

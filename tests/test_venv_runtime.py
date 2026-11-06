@@ -43,6 +43,10 @@ $cmd = [string]$args[0]
 $target = Join-Path $env:OPCOS_RUNTIME 'mcp\agent-data-studio\powerbi'
 $manifestFile = Join-Path $target '.opcos-resource.json'
 if ($cmd -eq 'ensure') {
+    if ($env:ADS_FAKE_ENSURE_MODE -eq 'fail') { Write-Output 'RT_INSTALL_FAILED boom'; exit 1 }
+    if ($env:ADS_FAKE_ENSURE_MODE -eq 'stale' -and ($args -notcontains '--upgrade')) {
+        Write-Output 'RT_STALE resource is stale, rerun with --upgrade'; exit 1
+    }
     & $env:ADS_FAKE_PY -m venv --without-pip $target
     $m = @{ schema = 'opcos-resource/1'; category = 'mcp'; repoKey = 'agent-data-studio'; resourceKey = 'powerbi';
             installed_by = 'agent-data-studio'; consumers = @('agent-data-studio'); status = 'complete' }
@@ -51,6 +55,7 @@ if ($cmd -eq 'ensure') {
     exit 0
 }
 if ($cmd -eq 'release') {
+    if ($env:ADS_FAKE_RELEASE_EXIT) { Write-Output 'RT_LOCKED busy'; exit ([int]$env:ADS_FAKE_RELEASE_EXIT) }
     $repo = $args[[array]::IndexOf($args, '--repo') + 1]
     if (Test-Path -LiteralPath $manifestFile) {
         $m = Get-Content -LiteralPath $manifestFile -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -258,6 +263,202 @@ def test_uninstall_refuses_foreign_runtime_manifest(tmp_path):
     result = _uninstall(source, env, "-RemoveVenv")
     assert result.returncode == 1
     assert target.exists()
+    assert "belongs to another repo" in result.stdout + result.stderr
+
+
+def _write_json(path: Path, data) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+
+def _runtime_uninstall_env(tmp_path: Path, name: str = "t"):
+    base = tmp_path / name
+    source = _uninstall_checkout(base)
+    profile = base / "profile"
+    env = _clean_env(profile)
+    env["POWERBI_INSTALL_PYTHON"] = sys.executable
+    _, target, log = _fake_opcos(base / "opcos", env)
+    _manifest(target)
+    return source, profile, env, target, log
+
+
+# ---------------------------------------------------------------- RF1: chỉ release khi không còn ai dùng
+def test_uninstall_no_release_when_unselected_host_still_references(tmp_path):
+    source, profile, env, target, log = _runtime_uninstall_env(tmp_path)
+    # Antigravity KHÔNG nằm trong -Hosts (mặc định chỉ codex) nhưng vẫn trỏ vào checkout này.
+    _write_json(profile / ".gemini" / "antigravity" / "mcp_config.json",
+                {"mcpServers": {"powerbi-mcp-bridge": {"command": "x", "args": [str(source / "mcp_server_powerbi.py")]}}})
+    result = _uninstall(source, env, "-RemoveVenv")
+    out = result.stdout + result.stderr
+    assert "release" not in " ".join(_calls(log)), _calls(log)
+    assert target.exists(), "host khác còn dùng -> giữ venv"
+    assert "release not run" in out, out
+    data = json.loads((target / ".opcos-resource.json").read_text(encoding="utf-8-sig"))
+    assert data["consumers"] == ["agent-data-studio"]
+
+
+@pytest.mark.parametrize("settings", [{"enabledPlugins": {"agent-data-studio@kpim": True}}, "{not json"],
+                         ids=["plugin-enabled", "unparseable"])
+def test_uninstall_no_release_when_claude_plugin_enabled(tmp_path, settings):
+    source, profile, env, target, log = _runtime_uninstall_env(tmp_path)
+    settings_file = profile / ".claude" / "settings.json"
+    if isinstance(settings, str):
+        settings_file.parent.mkdir(parents=True)
+        settings_file.write_text(settings, encoding="utf-8")
+    else:
+        _write_json(settings_file, settings)
+    result = _uninstall(source, env, "-RemoveVenv")
+    assert "release" not in " ".join(_calls(log)), _calls(log)
+    assert target.exists(), result.stdout + result.stderr
+    assert "release not run" in result.stdout + result.stderr
+
+
+def test_uninstall_releases_when_plugin_disabled(tmp_path):
+    source, profile, env, target, log = _runtime_uninstall_env(tmp_path)
+    _write_json(profile / ".claude" / "settings.json",
+                {"enabledPlugins": {"agent-data-studio@kpim": False, "other@x": True}})
+    result = _uninstall(source, env, "-RemoveVenv")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _calls(log) == ["release|--repo|agent-data-studio"]
+    assert not target.exists()
+
+
+# ---------------------------------------------------------------- RF2: RT_STALE -> nâng cấp một lần
+def test_install_retries_with_upgrade_on_stale(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, target, log = _fake_opcos(source.parent / "opcos", env)
+    env["ADS_FAKE_ENSURE_MODE"] = "stale"
+    _manifest(target)
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-1500:]
+    calls = _calls(log)
+    assert len(calls) == 2 and "--upgrade" not in calls[0] and calls[1].endswith("--upgrade"), calls
+
+
+def test_install_upgrade_switch_passes_flag(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, _, log = _fake_opcos(source.parent / "opcos", env)
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", "-Upgrade", env=env, cwd=source)
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-1500:]
+    assert _calls(log)[0].endswith("--only|mcp/powerbi|--upgrade"), _calls(log)
+
+
+def test_install_stale_without_own_manifest_is_not_retried(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, target, log = _fake_opcos(source.parent / "opcos", env)
+    env["ADS_FAKE_ENSURE_MODE"] = "stale"  # không có tệp khai sinh của repo này
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 1
+    assert "RT_STALE" in result.stdout
+    assert len(_calls(log)) == 1
+
+
+# ---------------------------------------------------------------- RF4: đường lỗi
+def test_install_ensure_failure_prints_code_and_exits_1(source_fixture):
+    source = source_fixture
+    env = _clean_env(source.parent / "fakehome")
+    _, _, log = _fake_opcos(source.parent / "opcos", env)
+    env["ADS_FAKE_ENSURE_MODE"] = "fail"
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 1
+    assert "RT_INSTALL_FAILED" in result.stdout
+    assert len(_calls(log)) == 1, "mã khác RT_STALE không được thử lại"
+
+
+def test_uninstall_release_failure_keeps_venv(tmp_path):
+    source, _, env, target, _ = _runtime_uninstall_env(tmp_path)
+    env["ADS_FAKE_RELEASE_EXIT"] = "1"
+    result = _uninstall(source, env, "-RemoveVenv")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert target.exists()
+
+
+def test_uninstall_missing_cli_keeps_venv_with_clear_message(tmp_path):
+    base = tmp_path / "t"
+    source = _uninstall_checkout(base)
+    env = _clean_env(base / "profile")
+    env["POWERBI_INSTALL_PYTHON"] = sys.executable
+    runtime = base / "runtime"
+    env["OPCOS_RUNTIME"] = str(runtime)
+    target = runtime / TARGET_REL
+    _manifest(target)
+    result = _uninstall(source, env, "-RemoveVenv")
+    out = result.stdout + result.stderr
+    assert target.exists()
+    assert "release not run" in out, out
+    assert "other consumers" not in out, out
+
+
+def test_uninstall_refuses_junction_target(tmp_path):
+    base = tmp_path / "t"
+    source = _uninstall_checkout(base)
+    env = _clean_env(base / "profile")
+    env["POWERBI_INSTALL_PYTHON"] = sys.executable
+    _, target, _ = _fake_opcos(base / "opcos", env)
+    real = base / "real-venv"
+    _manifest(real)
+    (real / "canary.txt").write_text("giữ", encoding="utf-8")
+    target.parent.mkdir(parents=True)
+    made = subprocess.run(["cmd", "/c", "mklink", "/J", str(target), str(real)], capture_output=True, text=True)
+    assert made.returncode == 0, made.stdout + made.stderr
+    result = _uninstall(source, env, "-RemoveVenv")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert (real / "canary.txt").read_text(encoding="utf-8") == "giữ"
+    assert "linked" in result.stdout + result.stderr
+
+
+def test_cli_found_via_opcos_root_when_not_sibling_of_runtime(source_fixture):
+    source = source_fixture
+    base = source.parent / "opcos"
+    env = _clean_env(source.parent / "fakehome")
+    _, _, log = _fake_opcos(base, env)
+    env["OPCOS_RUNTIME"] = str(source.parent / "elsewhere" / "rt")  # R\.. không chứa system\
+    env["OPCOS_ROOT"] = str(base)
+    result = _ps("-File", str(source / "install.ps1"), "-SkipHosts", env=env, cwd=source)
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-1500:]
+    assert _calls(log)[0].startswith("ensure|")
+
+
+# ---------------------------------------------------------------- RF3: updater so cả lock + needs file
+def _update_check_source() -> str:
+    text = (REPO / "update.ps1").read_text(encoding="utf-8-sig")
+    return text.split("$check = @'\n", 1)[1].split("\n'@", 1)[0]
+
+
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                          check=True, capture_output=True, text=True).stdout.strip()
+
+
+@pytest.mark.parametrize("changed", ["locks/powerbi-windows.txt", "opcos-runtime.json", None],
+                         ids=["lock", "needs", "none"])
+def test_update_check_flags_lock_and_needs_changes(tmp_path, changed):
+    repo = tmp_path / "r"
+    (repo / "scripts").mkdir(parents=True)
+    (repo / "locks").mkdir()
+    for name in ("install.ps1", "uninstall.ps1", "doctor.ps1", "update.ps1", "scripts/ads-venv.ps1",
+                 "mcp_server_powerbi.py", "requirements.txt", "scripts/update_release.py",
+                 "locks/powerbi-windows.txt", "opcos-runtime.json"):
+        (repo / name).write_text("x = 1\n", encoding="utf-8")
+    _git(repo, "init", "-q")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "a")
+    old = _git(repo, "rev-parse", "HEAD")
+    (repo / "README.md").write_text("doc\n", encoding="utf-8")
+    if changed:
+        (repo / changed).write_text("x = 2\n", encoding="utf-8")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "b")
+    target = _git(repo, "rev-parse", "HEAD")
+    script = tmp_path / "check.py"
+    script.write_text(_update_check_source(), encoding="utf-8")
+    result = subprocess.run([sys.executable, str(script), str(repo), old, target], capture_output=True,
+                            text=True, encoding="utf-8")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert ("DEPENDENCIES_CHANGED" if changed else "DEPENDENCIES_UNCHANGED") in result.stdout
 
 
 # ---------------------------------------------------------------- .mcp.json

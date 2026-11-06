@@ -113,7 +113,16 @@ try:
     py_names = [name for name in names if name.endswith(".py")]
     for name in py_names:
         compile(blob(target, name), name, "exec")
-    if blob(old, "requirements.txt") != blob(target, "requirements.txt"):
+    def dependency_inputs(ref):
+        found = git("ls-tree", "-r", "--name-only", ref).decode("utf-8").splitlines()
+        return {n for n in found if n in ("requirements.txt", "opcos-runtime.json") or n.startswith("locks/")}
+    dependency_names = dependency_inputs(old) | dependency_inputs(target)
+    def dependency_blob(ref, name):
+        try:
+            return blob(ref, name)
+        except subprocess.CalledProcessError:
+            return None
+    if any(dependency_blob(old, n) != dependency_blob(target, n) for n in dependency_names):
         print("DEPENDENCIES_CHANGED")
     else:
         print("DEPENDENCIES_UNCHANGED")

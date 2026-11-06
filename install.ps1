@@ -22,6 +22,9 @@
   Bỏ qua tạo venv / cài pip (chỉ cập nhật cấu hình host).
 .PARAMETER SkipHosts
   Chỉ dựng venv, không đụng cấu hình host nào.
+.PARAMETER Upgrade
+  Máy có OpcOS: truyền --upgrade cho `opcos-runtime ensure` để nâng venv runtime lên đúng lock hiện tại.
+  Không đặt cờ này mà ensure báo RT_STALE (tệp khai sinh của repo này) thì bộ cài tự thử lại một lần với --upgrade.
 .PARAMETER Only
   Chỉ kiểm adapter skill tại repo; không sao chép skill vào thư mục host.
 #>
@@ -30,6 +33,7 @@ param(
     [string[]] $Hosts = @("codex"),
     [switch]   $SkipVenv,
     [switch]   $SkipHosts,
+    [switch]   $Upgrade,
     [ValidateSet("plugin")]
     [string]   $Only
 )
@@ -351,9 +355,19 @@ if ($SkipVenv) {
             Err "Có gốc runtime OpcOS nhưng không thấy opcos-runtime.ps1 cạnh nó (..\system\operations\runtime). Cập nhật OpcOS hoặc bỏ OPCOS_RUNTIME/OPCOS_ROOT để dùng .venv trong checkout."; exit 1
         }
         Info "Dựng venv runtime: opcos-runtime ensure (opcos-runtime.json) -> $venvRoot"
-        $ensureOut = @(Invoke-Native powershell -NoProfile -ExecutionPolicy Bypass -File $opcosCli ensure --repo-dir $Root --only mcp/powerbi 2>&1)
+        $ensureArgs = @('ensure', '--repo-dir', $Root, '--only', 'mcp/powerbi')
+        if ($Upgrade) { $ensureArgs += '--upgrade' }
+        $ensureOut = @(Invoke-Native powershell -NoProfile -ExecutionPolicy Bypass -File $opcosCli @ensureArgs 2>&1)
         $ensureExit = $LASTEXITCODE
         foreach ($line in $ensureOut) { Write-Host "    $line" -ForegroundColor Gray }
+        # RT_STALE = tài nguyên cũ hơn opcos-runtime.json/lock. Tệp khai sinh của repo này -> nâng cấp đúng một lần.
+        if ($ensureExit -eq 1 -and -not $Upgrade -and (@($ensureOut | ForEach-Object { "$_" }) -match 'RT_STALE') -and
+            (Test-AdsManifestOwned $resourceManifest)) {
+            Info "Venv runtime đã cũ (RT_STALE): chạy lại ensure với --upgrade (một lần)."
+            $ensureOut = @(Invoke-Native powershell -NoProfile -ExecutionPolicy Bypass -File $opcosCli @ensureArgs '--upgrade' 2>&1)
+            $ensureExit = $LASTEXITCODE
+            foreach ($line in $ensureOut) { Write-Host "    $line" -ForegroundColor Gray }
+        }
         if ($ensureExit -ne 0) {
             $codes = @($ensureOut | ForEach-Object { "$_" } | Where-Object { $_ -match 'RT_[A-Z_]+' } | ForEach-Object { $Matches[0] } | Select-Object -Unique)
             Err "opcos-runtime ensure thất bại (exit $ensureExit$(if ($codes) { ': ' + ($codes -join ', ') })). Venv MCP chưa sẵn sàng."; exit 1
