@@ -455,14 +455,14 @@
     <div class="sec-head reveal">
       <span class="eyebrow"><span class="dot"></span>Host</span>
       <h2>Bốn host, một checkout</h2>
-      <p><code class="inline">CLAUDE.md</code> và <code class="inline">GEMINI.md</code> chỉ là con trỏ về <code class="inline">AGENTS.md</code>: một bản luật cho mọi agent.</p>
+      <p><code class="inline">.claude/CLAUDE.md</code> (một dòng <code class="inline">@../AGENTS.md</code>) và <code class="inline">GEMINI.md</code> chỉ là con trỏ về <code class="inline">AGENTS.md</code>: một bản luật cho mọi agent.</p>
     </div>
     <div class="tbl-wrap reveal" tabindex="0" role="region" aria-label="Bảng bốn host, cuộn ngang được">
       <table class="tbl">
         <thead><tr><th>Host</th><th><code>-Hosts</code></th><th>File hướng dẫn</th><th>Adapter skill</th><th>Cấu hình MCP của người dùng</th></tr></thead>
         <tbody>
           <tr><td class="lbl">Codex (CLI, desktop)</td><td><code>codex</code></td><td><code>AGENTS.md</code></td><td><code>.agents/skills/</code></td><td><code>~/.codex/config.toml</code></td></tr>
-          <tr><td class="lbl">Claude Code</td><td><code>claude</code></td><td><code>CLAUDE.md</code> → <code>AGENTS.md</code></td><td><code>.claude/skills/</code></td><td><code>~/.claude.json</code></td></tr>
+          <tr><td class="lbl">Claude Code</td><td><code>claude</code></td><td><code>.claude/CLAUDE.md</code> → <code>AGENTS.md</code></td><td><code>.claude/skills/</code></td><td><code>~/.claude.json</code></td></tr>
           <tr><td class="lbl">Claude Desktop</td><td><code>claude-desktop</code></td><td>—</td><td>— (chỉ MCP)</td><td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td></tr>
           <tr><td class="lbl">Antigravity</td><td><code>antigravity</code></td><td><code>GEMINI.md</code> → <code>AGENTS.md</code></td><td><code>.agents/skills/</code></td><td><code>~/.gemini/antigravity/mcp_config.json</code></td></tr>
         </tbody>

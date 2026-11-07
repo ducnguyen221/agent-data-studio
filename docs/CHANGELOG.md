@@ -1,5 +1,12 @@
 # Changelog
 
+**Chưa phát hành (sau 0.8.0, chưa đổi version):**
+
+- Dời `CLAUDE.md` ở gốc sang `.claude/CLAUDE.md` chứa dòng `@../AGENTS.md`: `claude plugin validate --strict`
+  đỏ khi plugin có `CLAUDE.md` gốc («not loaded as project context»); `@import` tính đường từ file chứa nó,
+  nên luật `AGENTS.md` nay được nạp thật khi mở phiên trong repo. `pack.ps1` và `tests/test_no_leak.py` bỏ
+  `CLAUDE.md` khỏi danh sách file gốc được phép; `AGENTS.md`, trang kiến trúc nêu đường mới.
+
 ## 0.8.0 — 2026-10-26 — Mở rộng tài liệu tham khảo cho kết nối nguồn, tư vấn và triển khai
 
 - Tài liệu tham khảo mới trong `references/kpim/`: `db-source-access` (kết nối và truy vấn nguồn cơ sở

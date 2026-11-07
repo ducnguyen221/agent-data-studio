@@ -1,7 +1,8 @@
 # AGENTS.md — Agent Data Studio
 
-> File hướng dẫn CHUẨN cho mọi AI agent (Claude Code · Codex CLI · Google Antigravity · bất kỳ
-> tool nào đọc AGENTS.md). `CLAUDE.md` và `GEMINI.md` chỉ là con trỏ về file này — sửa Ở ĐÂY.
+> File hướng dẫn CHUẨN cho mọi AI agent (Claude Code · Codex CLI · Google Antigravity · bất kỳ tool
+> nào đọc AGENTS.md). `.claude/CLAUDE.md` (một dòng `@../AGENTS.md`) và `GEMINI.md` chỉ là con trỏ về
+> file này — sửa Ở ĐÂY.
 
 ## 0. Ranh giới source và dữ liệu
 
@@ -185,7 +186,7 @@ basic hoặc hỏi user nơi ngoài repo; (2) mọi file dự án ghi vào `proj
 
 | Host | File hướng dẫn | Skills | MCP config |
 |---|---|---|---|
-| Claude Code | `CLAUDE.md` → trỏ về đây | `.claude/skills/` → `skills/` | cấu hình Claude của host |
+| Claude Code | `.claude/CLAUDE.md` (`@../AGENTS.md`) → trỏ về đây | `.claude/skills/` → `skills/` | cấu hình Claude của host |
 | Codex CLI/desktop | `AGENTS.md` (file này, native) | `.agents/skills/` → `skills/` | cấu hình Codex của host |
 | Antigravity | `GEMINI.md` → trỏ về đây | `.agents/skills/` → `skills/` | cấu hình Antigravity của host |
 
