@@ -7,6 +7,7 @@
 | `build_host_adapters.py` | Tạo hoặc kiểm tra các adapter skill, lệnh và agent của Codex/Claude/Antigravity từ nguồn trong repo. Dùng `--check` để kiểm tra mà không ghi file. |
 | `build_template_gallery.py` | Tạo metadata gallery dạng chữ **chỉ khi** truyền `--approval-manifest` ở ngoài repo. Manifest phải duyệt chủ sở hữu, giấy phép, trạng thái đã khử thông tin riêng và SHA-256 của từng file kit; mặc định script từ chối và không đổi gallery. Script không sao chép ảnh. |
 | `update_release.py` | Helper nội bộ do `update.ps1 -Apply` gọi sau khi user/Codex duyệt SHA. Kiểm candidate trong worktree tạm, chỉ áp khi dependency không đổi, ghi nhật ký ở trạm và thử rollback nếu hậu kiểm lỗi; không chạy độc lập cho người mới. |
+| `ads-venv.ps1` | Chọn đích venv MCP: máy có OpcOS ở `$OPCOS_RUNTIME/mcp/agent-data-studio/powerbi` (tạo bằng `opcos-runtime ensure` theo `opcos-runtime.json`), máy không có OpcOS ở `.venv` trong checkout. `install.ps1`, `update.ps1`, `uninstall.ps1`, `doctor.ps1` nạp tệp này; chạy riêng `powershell -File scripts\ads-venv.ps1 --print <repo>` để in đường. |
 
 > `skills/data-discovery/scripts/` là generator của skill. Cả hai nhóm script đều
 > chạy trực tiếp từ repo; installer không tạo bản copy trong thư mục host hay trạm.

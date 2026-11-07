@@ -60,6 +60,7 @@ ignore = ["E402"]
 "tests/test_installer_host.py" = ["F811"]
 "tests/test_process_matrix.py" = ["F811"]
 "tests/test_installer_followups.py" = ["F811"]
+"tests/test_venv_runtime.py" = ["F811"]
 
 [tool.pytest.ini_options]
 # Chỉ thu test trong tests/ — script tự kiểm đi kèm skill (vd skills/data-mockup/scripts/test_mockpack.py)

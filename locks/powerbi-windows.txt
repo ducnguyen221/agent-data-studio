@@ -1,0 +1,50 @@
+# Khóa tương đương (parity lock) cho venv MCP Power BI trên Windows: name==version.
+# Nguồn: tên thư mục *.dist-info của venv cũ workspaces/data/.venv (51 mục, 2026-11-06); chỉ lấy tên, không mở tệp.
+# Bỏ pip; bỏ pythonnet vì venv cũ có 3.0.5 còn requirements.txt ghim 3.1.0 (ràng buộc sẽ mâu thuẫn).
+# Bỏ clr-loader (L2, spr61-br1-fixes): venv cũ ghim 0.2.10 nhưng pythonnet==3.1.0 cần clr-loader>=0.3.1,<0.4.0
+#   => để resolver chọn bản hợp lệ (0.3.1).
+# Bỏ nhóm (a) công cụ phát triển theo spr61-br1-fixes (venv runtime không cần): pytest, ruff, và các gói chỉ
+#   pytest kéo: iniconfig, pluggy, pygments. Kiểm bằng `uv pip compile requirements.txt` không ràng buộc: cả 5 không xuất hiện.
+#   Cùng kiểm đó: colorama và packaging (pytest kéo) cũng không nằm trong đồ thị phụ thuộc của requirements.txt => bỏ.
+# Ràng buộc chỉ ghim phiên bản, không tự kéo thêm gói. requirements.txt vẫn là nguồn chọn gói.
+annotated-types==0.8.0
+anyio==4.15.1
+attrs==26.1.0
+certifi==2026.7.22
+cffi==2.1.1
+charset-normalizer==3.5.1
+click==8.5.0
+cryptography==48.0.1
+h11==0.16.0
+httpcore==1.0.9
+httpx-sse==0.4.3
+httpx==0.28.1
+idna==3.19
+jsonschema-specifications==2025.9.1
+jsonschema==4.26.0
+mcp==1.27.1
+msal==1.36.0
+numpy==2.5.3
+pandas==3.0.3
+pyadomd==0.1.1
+pycparser==3.0
+pydantic-core==2.46.5
+pydantic-settings==2.15.0
+pydantic==2.13.5
+pyjwt==2.14.0
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+python-multipart==0.0.32
+pywin32==312
+referencing==0.37.0
+requests==2.34.2
+rpds-py==2026.6.3
+six==1.17.0
+sse-starlette==3.4.11
+starlette==1.6.0
+tabulate==0.10.0
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+tzdata==2026.4
+urllib3==2.8.0
+uvicorn==0.53.0

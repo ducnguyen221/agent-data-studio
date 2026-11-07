@@ -10,6 +10,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = [IO.Path]::GetFullPath($PSScriptRoot)
+# Đích venv: runtime OpcOS khi máy có OpcOS, ngược lại .venv trong checkout.
+. (Join-Path $repoRoot 'scripts\ads-venv.ps1')
 $server = Join-Path $repoRoot 'mcp_server_powerbi.py'
 $failed = $false
 function Report($state, $area, $detail) {
@@ -153,7 +155,7 @@ if (Test-Path -LiteralPath $binding -PathType Leaf) {
     Report WARN station 'ADS_DATA is set but this checkout has no station binding. Run install.ps1 to confirm the existing station.'
 } elseif (Test-Path -LiteralPath $station -PathType Container) { Report PASS station 'Basic workspace exists.' }
 else { Report WARN station 'Basic workspace has not been created.' }
-$venvPython = Join-Path $repoRoot '.venv\Scripts\python.exe'
+$venvPython = Join-Path (Resolve-AdsVenvRoot $repoRoot) 'Scripts\python.exe'
 $python = if (Test-Path -LiteralPath $venvPython -PathType Leaf) { $venvPython } elseif ($env:POWERBI_INSTALL_PYTHON) { $env:POWERBI_INSTALL_PYTHON } else { $null }
 if (-not $python -or -not (Test-Path -LiteralPath $python -PathType Leaf)) {
     Report FAIL python 'Checkout Python unavailable.'

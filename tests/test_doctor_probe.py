@@ -37,6 +37,8 @@ def doctor_checkout(tmp_path):
     source = tmp_path / "checkout có dấu"
     source.mkdir()
     shutil.copy2(REPO / "doctor.ps1", source / "doctor.ps1")
+    (source / "scripts").mkdir(exist_ok=True)
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     (source / "mcp_server_powerbi.py").write_text("pass\n", encoding="utf-8")
     shutil.copytree(REPO / "powerbi_agent", source / "powerbi_agent",
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
@@ -210,6 +212,8 @@ def test_preflight_runs_only_prereq_without_venv_or_install(tmp_path):
     source = tmp_path / "vừa clone"
     source.mkdir()
     shutil.copy2(REPO / "doctor.ps1", source / "doctor.ps1")
+    (source / "scripts").mkdir(exist_ok=True)
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     shutil.copytree(REPO / "powerbi_agent", source / "powerbi_agent",
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     env = {k: v for k, v in os.environ.items() if k.upper() not in ("PSMODULEPATH", "POWERBI_INSTALL_PYTHON")}
@@ -229,6 +233,8 @@ def test_preflight_reports_missing_git_and_python_outside_range(tmp_path):
     source = tmp_path / "checkout"
     source.mkdir()
     shutil.copy2(REPO / "doctor.ps1", source / "doctor.ps1")
+    (source / "scripts").mkdir(exist_ok=True)
+    shutil.copy2(REPO / "scripts" / "ads-venv.ps1", source / "scripts" / "ads-venv.ps1")
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     for name in ("py.cmd", "python.cmd", "python3.cmd"):

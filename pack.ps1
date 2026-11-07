@@ -29,12 +29,12 @@ $tracked = @(& git -C $Root ls-tree -r --name-only HEAD)
 if ($LASTEXITCODE -ne 0 -or $tracked.Count -eq 0) { throw 'Không kiểm được danh sách file trong HEAD.' }
 $allowedRoots = @('.agents', '.claude', '.claude-plugin', '.codex-plugin', '.github',
     'LICENSES', 'agents', 'commands', 'docs', 'hosts',
-    'powerbi_agent', 'report-templates', 'samples', 'scripts', 'skills', 'templates',
+    'locks', 'powerbi_agent', 'report-templates', 'samples', 'scripts', 'skills', 'templates',
     'tests', 'upstream', 'workflows')
 $allowedFiles = @('.env.example', '.gitattributes', '.gitignore', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md',
     'ECOSYSTEM.md', 'INDEX.md', 'INSTALL.md', 'LICENSE', 'NOTICE.md', 'README.md', 'README.vi.md', 'ROADMAP.md', 'START-HERE.md',
     'doctor.ps1', 'install.ps1', 'mcp_server_powerbi.py', 'pack.ps1', 'policy.example.json',
-    'pyproject.toml', 'requirements.loose.txt', 'requirements.txt',
+    'opcos-runtime.json', 'pyproject.toml', 'requirements.loose.txt', 'requirements.txt',
     'THIRD_PARTY_NOTICES.md', 'uninstall.ps1', 'update.ps1')
 $required = @('.env.example', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
     'LICENSES/microsoft-skills-for-fabric.txt', 'install.ps1', 'doctor.ps1')

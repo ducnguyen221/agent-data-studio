@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+from collections.abc import Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -20,6 +21,31 @@ sys.dont_write_bytecode = True
 
 class UpdateError(RuntimeError):
     """Lỗi update có thông báo an toàn để đưa cho người dùng."""
+
+
+def runtime_root(env: Mapping[str, str] | None = None) -> Path | None:
+    """Gốc runtime OpcOS R theo hợp đồng runtime-resource-v1 (véc-tơ VT1-VT4); None = máy không có OpcOS.
+
+    Thứ tự: OPCOS_RUNTIME -> OPCOS_ROOT/runtime -> ~/OpcOS/runtime (chỉ khi có ~/OpcOS/paths.json, ~ = USERPROFILE).
+    Cùng quy tắc với Get-AdsRuntimeRoot trong scripts/ads-venv.ps1 — sửa một nơi thì sửa cả hai.
+    """
+    env = os.environ if env is None else env
+    runtime = (env.get("OPCOS_RUNTIME") or "").strip()
+    if runtime:
+        return Path(runtime)
+    root = (env.get("OPCOS_ROOT") or "").strip()
+    if root:
+        return Path(root) / "runtime"
+    home = (env.get("USERPROFILE") or "").strip()
+    if home and (Path(home) / "OpcOS" / "paths.json").is_file():
+        return Path(home) / "OpcOS" / "runtime"
+    return None
+
+
+def venv_root(repo: Path, env: Mapping[str, str] | None = None) -> Path:
+    """Đích venv MCP Power BI: R/mcp/agent-data-studio/powerbi khi có OpcOS, ngược lại <repo>/.venv."""
+    runtime = runtime_root(env)
+    return runtime / "mcp" / "agent-data-studio" / "powerbi" if runtime else Path(repo) / ".venv"
 
 
 def _git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -163,7 +189,7 @@ def _runtime_busy(repo: Path) -> bool:
     script = r'''
 $ErrorActionPreference = 'Stop'
 $sourceRoot = $env:ADS_UPDATE_ROOT.TrimEnd('\', '/')
-$ownedRuntime = Join-Path $sourceRoot '.venv'
+$ownedRuntime = $env:ADS_UPDATE_VENV.TrimEnd('\', '/')
 $ownerProcess = [int]$env:ADS_UPDATE_PID
 # CIM trả CommandLine/ExecutablePath đúng dạng lúc khởi chạy, kể cả tên ngắn 8.3 (DUCNGU~1) và dạng
 # trộn ngắn-dài từng đoạn -> so với mọi dạng của đường. Ổ tắt 8.3 thì ShortName = tên dài (1 dạng).
@@ -234,6 +260,7 @@ $running = @($pythons |
     # bản Core -> bỏ khoá để 5.1 tự dựng đường mặc định. CIM lần đầu có thể chậm: hạn 45s, lỗi vẫn dừng.
     env = {name: value for name, value in os.environ.items() if name.upper() != "PSMODULEPATH"}
     env["ADS_UPDATE_ROOT"] = str(repo)
+    env["ADS_UPDATE_VENV"] = str(venv_root(repo))
     env["ADS_UPDATE_PID"] = str(os.getpid())
     try:
         result = subprocess.run(
