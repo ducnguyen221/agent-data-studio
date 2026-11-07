@@ -1,6 +1,10 @@
 # Changelog
 
-**Chưa phát hành (sau 0.8.0, chưa đổi version):**
+## 0.8.1 — 2026-11-08
+
+- **Venv MCP ở runtime OpcOS** (SPR-61 TK7): `runtime/mcp`, giải phóng khi gỡ; khoá powerbi sinh lại.
+
+
 
 - Dời `CLAUDE.md` ở gốc sang `.claude/CLAUDE.md` chứa dòng `@../AGENTS.md`: `claude plugin validate --strict`
   đỏ khi plugin có `CLAUDE.md` gốc («not loaded as project context»); `@import` tính đường từ file chứa nó,
